@@ -1,4 +1,4 @@
-import 'package:feed_sx/src/models/branding.dart';
+import 'package:feed_sx/src/data/models/branding.dart';
 import 'package:flutter/material.dart';
 
 const Color kprimaryColor = Color(0xff5046E5);

@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
+
 import 'package:feed_sx/src/utils/utils.dart';
 
 part 'advanced_branding.g.dart';
@@ -28,6 +29,10 @@ class BrandingAdvanced {
         buttonIconsColor: buttonIconsColor?.value.toString(),
         textLinksColor: textLinksColor?.value.toString());
   }
+
+  @override
+  String toString() =>
+      'BrandingAdvanced(headerColor: $headerColor, buttonIconsColor: $buttonIconsColor, textLinksColor: $textLinksColor)';
 }
 
 @HiveType(typeId: 3)
@@ -42,7 +47,7 @@ class BrandingAdvancedEntity extends HiveObject {
   final String? buttonIconsColor;
 
   @HiveField(2)
-  @JsonKey(name: 'text_links_colur')
+  @JsonKey(name: 'text_links_colour')
   final String? textLinksColor;
   BrandingAdvancedEntity({
     this.headerColor,

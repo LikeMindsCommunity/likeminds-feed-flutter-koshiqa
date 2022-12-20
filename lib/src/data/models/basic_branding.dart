@@ -1,8 +1,11 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:ui';
 
 import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
+
 import 'package:feed_sx/src/utils/utils.dart';
+
 part 'basic_branding.g.dart';
 
 class BrandingBasic {
@@ -14,16 +17,9 @@ class BrandingBasic {
   BrandingBasicEntity toEntity() {
     return BrandingBasicEntity(primaryColor: primaryColor?.value.toString());
   }
-  // Color? getPrimaryColor() {
-  //   if (primaryColor != null) {
-  //     if (int.tryParse(primaryColor!) != null) {
-  //       return Color(int.tryParse(primaryColor!)!);
-  //     } else {
-  //       return kprimaryColor;
-  //     }
-  //   }
-  //   return kprimaryColor;
-  // }
+
+  @override
+  String toString() => 'BrandingBasic(primaryColor: $primaryColor)';
 }
 
 @HiveType(typeId: 2)

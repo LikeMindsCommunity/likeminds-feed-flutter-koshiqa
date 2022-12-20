@@ -56,7 +56,7 @@ BrandingAdvancedEntity _$BrandingAdvancedEntityFromJson(
     BrandingAdvancedEntity(
       headerColor: json['header_colour'] as String?,
       buttonIconsColor: json['button_icons_colour'] as String?,
-      textLinksColor: json['text_links_colur'] as String?,
+      textLinksColor: json['text_links_colour'] as String?,
     );
 
 Map<String, dynamic> _$BrandingAdvancedEntityToJson(
@@ -64,5 +64,5 @@ Map<String, dynamic> _$BrandingAdvancedEntityToJson(
     <String, dynamic>{
       'header_colour': instance.headerColor,
       'button_icons_colour': instance.buttonIconsColor,
-      'text_links_colur': instance.textLinksColor,
+      'text_links_colour': instance.textLinksColor,
     };

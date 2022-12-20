@@ -1,14 +1,14 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:feed_sx/src/data/local_db_service.dart';
-import 'package:feed_sx/src/data/mock_repository.dart';
-import 'package:feed_sx/src/models/branding.dart';
+import 'package:feed_sx/src/data/local/local_db.dart';
+import 'package:feed_sx/src/data/models/branding.dart';
+import 'package:feed_sx/src/data/repositories/mock_repository.dart';
 
 class SDKService {
   final MockRepository repository;
-  final LocalDBService localDBService;
+  final LocalDB localDB;
   SDKService({
     required this.repository,
-    required this.localDBService,
+    required this.localDB,
   });
   Future<Branding?> getCommunityBranding(String communityId) async {
     await Future.delayed(Duration(seconds: 1));
@@ -16,12 +16,12 @@ class SDKService {
     try {
       branding = await repository.getBrandingData();
     } catch (e) {
-      print('Error (Community Branding): ' + e.toString());
+      //TODO
     }
     if (branding != null) {
-      localDBService.saveBranding(branding: branding.toEntity());
+      localDB.saveBranding(branding: branding.toEntity());
     } else {
-      BrandingEntity? brandingEntity = await localDBService.getSavedBranding();
+      BrandingEntity? brandingEntity = await localDB.getSavedBranding();
       if (brandingEntity != null) {
         branding = Branding.fromEntity(brandingEntity);
       }

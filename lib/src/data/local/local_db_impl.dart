@@ -1,14 +1,16 @@
-import 'package:feed_sx/src/models/advanced_branding.dart';
-import 'package:feed_sx/src/models/basic_branding.dart';
-import 'package:feed_sx/src/models/branding.dart';
+import 'package:feed_sx/src/data/local/local_db.dart';
+import 'package:feed_sx/src/data/models/advanced_branding.dart';
+import 'package:feed_sx/src/data/models/basic_branding.dart';
+import 'package:feed_sx/src/data/models/branding.dart';
+
 import 'package:hive_flutter/hive_flutter.dart';
 
-class LocalDBService {
+class LocalDBImpl extends LocalDB {
   static const getItInstanceName = "local_db_service";
   final String brandingBoxKey = 'branding_box';
   final String brandingKey = 'branding_box';
 
-  static Future<LocalDBService> init() async {
+  static Future<LocalDBImpl> init() async {
     await Hive.initFlutter();
     Hive.registerAdapter<BrandingBasicEntity>(BrandingBasicEntityAdapter(),
         override: true);
@@ -18,9 +20,10 @@ class LocalDBService {
     Hive.registerAdapter<BrandingEntity>(BrandingEntityAdapter(),
         override: true);
 
-    return LocalDBService();
+    return LocalDBImpl();
   }
 
+  @override
   Future<BrandingEntity?> getSavedBranding() async {
     var brandingBox = await Hive.openBox(brandingBoxKey);
     BrandingEntity? branding;
@@ -31,6 +34,7 @@ class LocalDBService {
     return branding;
   }
 
+  @override
   Future<void> saveBranding({required BrandingEntity branding}) async {
     var brandingBox = await Hive.openBox(brandingBoxKey);
     if (brandingBox.containsKey(brandingKey)) {
