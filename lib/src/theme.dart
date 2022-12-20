@@ -32,16 +32,10 @@ ThemeData getThemeDataFromBrandingData(Branding? branding) {
   final ThemeData lightTheme = ThemeData.light();
   final ThemeData brandedTheme = lightTheme.copyWith(
     primaryColor: branding?.basic?.primaryColor,
-    indicatorColor: const Color(0xFF807A6B),
-    scaffoldBackgroundColor: const Color(0xFFF5F5F5),
-    primaryIconTheme: lightTheme.primaryIconTheme.copyWith(
-      color: Colors.white,
-      size: 20,
-    ),
-    iconTheme: lightTheme.iconTheme.copyWith(
-      color: Colors.white,
-    ),
-    backgroundColor: Colors.white,
+    // indicatorColor: const Color(0xFF807A6B),
+    // scaffoldBackgroundColor: const Color(0xFFF5F5F5),
+
+    // backgroundColor: Colors.white,
     tabBarTheme: lightTheme.tabBarTheme.copyWith(
       labelColor: branding?.advanced?.textLinksColor,
       unselectedLabelColor: kgreyColor,

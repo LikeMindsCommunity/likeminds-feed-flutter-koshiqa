@@ -6,9 +6,9 @@ class MockSDK {
       'branding': {
         'basic': {'primary_colour': '0x00ffffff'},
         'advanced': {
-          'header_colour': '0x00ffffff',
-          'button_icons_colour': '0x00ffffff',
-          'text_links_colour': '0x00ffffff',
+          'header_colour': '0x009B9B9B',
+          'button_icons_colour': '0x009B9B9B',
+          'text_links_colour': '0x009B9B9B',
         },
       }
     };
