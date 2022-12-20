@@ -41,6 +41,6 @@ class LocalDBImpl extends LocalDB {
       await brandingBox.delete(brandingKey);
     }
 
-    await brandingBox.put(0, branding);
+    await brandingBox.put(brandingKey, branding);
   }
 }

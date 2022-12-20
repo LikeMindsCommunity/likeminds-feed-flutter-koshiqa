@@ -14,20 +14,28 @@ class MockRepository {
   Future<Branding?> getCommunityBranding(String communityId) async {
     await Future.delayed(Duration(seconds: 1));
     Branding? branding;
+    BrandingEntity? brandingEntity = await _localDB.getSavedBranding();
+    if (brandingEntity != null) {
+      branding = Branding.fromEntity(brandingEntity);
+    }
+
+    updateCommunityBranding(communityId);
+    if (branding == null) return Branding();
+    return branding;
+  }
+
+  Future<Branding?> updateCommunityBranding(String communityId) async {
+    await Future.delayed(Duration(seconds: 1));
+    Branding? branding;
+
     try {
       branding = await _mockSDK.getBrandingData();
     } catch (e) {
       //TODO
     }
     if (branding != null) {
-      _localDB.saveBranding(branding: branding.toEntity());
-    } else {
-      BrandingEntity? brandingEntity = await _localDB.getSavedBranding();
-      if (brandingEntity != null) {
-        branding = Branding.fromEntity(brandingEntity);
-      }
+      await _localDB.saveBranding(branding: branding.toEntity());
     }
-
     return branding;
   }
 }
