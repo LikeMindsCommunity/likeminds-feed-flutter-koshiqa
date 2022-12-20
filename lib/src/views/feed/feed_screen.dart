@@ -5,10 +5,12 @@ import 'package:feed_sx/src/data/models/branding.dart';
 import 'package:feed_sx/src/sdk/mock_sdk.dart';
 import 'package:feed_sx/src/data/repositories/mock_repository.dart';
 import 'package:feed_sx/src/theme.dart';
+import 'package:feed_sx/src/views/feed/components/custom_app_bar.dart';
 import 'package:feed_sx/src/views/feed/components/post_actions.dart';
 import 'package:feed_sx/src/views/feed/components/post_description.dart';
 import 'package:feed_sx/src/views/feed/components/post_header.dart';
 import 'package:feed_sx/src/views/feed/components/post_media.dart';
+import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:flutter/material.dart';
 
 class FeedScreen extends StatelessWidget {
@@ -32,40 +34,7 @@ class FeedScreen extends StatelessWidget {
                         data: getThemeDataFromBrandingData(branding),
                         child: Scaffold(
                           backgroundColor: kwhiteColor,
-                          appBar: AppBar(
-                            elevation: 0,
-                            leading: Image.asset(
-                                'packages/feed_sx/assets/images/hamburger.png'),
-                            backgroundColor: kwhiteColor,
-                            title: const Text(
-                              'SCALIX',
-                              style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.black),
-                            ),
-                            actions: const [
-                              Icon(
-                                Icons.search,
-                                color: Colors.black,
-                              ),
-                              kHorizontalLargeP,
-                              CircleAvatar(
-                                backgroundColor: Color(0xff5046E5),
-                                radius: 20,
-                                child: Center(
-                                  child: Text(
-                                    'KA',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        color: kwhiteColor,
-                                        fontSize: kFontSmall),
-                                  ),
-                                ),
-                              ),
-                              kHorizontalLargeP,
-                            ],
-                          ),
+                          appBar: CustomAppBar(),
                           body: ListView(
                             children: const [
                               PostWidget(),
@@ -79,10 +48,10 @@ class FeedScreen extends StatelessWidget {
                       );
                     }
                   }
-                  return const CircularProgressIndicator();
+                  return Center(child: const Loader());
                 });
           }
-          return const CircularProgressIndicator();
+          return Center(child: const Loader());
         });
   }
 }
