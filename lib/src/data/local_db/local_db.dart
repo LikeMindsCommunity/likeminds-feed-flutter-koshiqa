@@ -1,4 +1,4 @@
-import 'package:feed_sx/src/data/models/branding.dart';
+import 'package:feed_sx/src/data/models/branding/branding.dart';
 
 abstract class LocalDB {
   Future<BrandingEntity?> getSavedBranding();

@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'advanced_branding.dart';
+part of 'branding_advanced.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator

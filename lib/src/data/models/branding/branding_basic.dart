@@ -6,7 +6,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 import 'package:feed_sx/src/utils/utils.dart';
 
-part 'basic_branding.g.dart';
+part 'branding_basic.g.dart';
 
 class BrandingBasic {
   final Color? primaryColor;
