@@ -1,6 +1,6 @@
-import 'package:feed_sx/src/data/models/branding.dart';
+import 'package:feed_sx/src/data/models/branding/branding.dart';
 
-class MockSDK {
+class BrandingSDK {
   Future<Branding> getBrandingData() async {
     Map<String, dynamic> mockData = {
       'branding': {

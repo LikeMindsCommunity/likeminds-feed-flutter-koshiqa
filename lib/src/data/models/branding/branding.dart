@@ -2,8 +2,8 @@
 import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import 'package:feed_sx/src/data/models/advanced_branding.dart';
-import 'package:feed_sx/src/data/models/basic_branding.dart';
+import 'package:feed_sx/src/data/models/branding/branding_advanced.dart';
+import 'package:feed_sx/src/data/models/branding/branding_basic.dart';
 
 part 'branding.g.dart';
 

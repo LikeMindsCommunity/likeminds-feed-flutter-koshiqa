@@ -6,14 +6,13 @@ import 'package:json_annotation/json_annotation.dart';
 
 import 'package:feed_sx/src/utils/utils.dart';
 
-part 'advanced_branding.g.dart';
+part 'branding_advanced.g.dart';
 
 class BrandingAdvanced {
   final Color? headerColor;
-
   final Color? buttonIconsColor;
-
   final Color? textLinksColor;
+
   BrandingAdvanced(
       {this.buttonIconsColor, this.headerColor, this.textLinksColor});
 
@@ -23,16 +22,13 @@ class BrandingAdvanced {
         headerColor: entity.headerColor?.toColor(),
         textLinksColor: entity.textLinksColor?.toColor());
   }
+
   BrandingAdvancedEntity toEntity() {
     return BrandingAdvancedEntity(
         headerColor: headerColor?.value.toString(),
         buttonIconsColor: buttonIconsColor?.value.toString(),
         textLinksColor: textLinksColor?.value.toString());
   }
-
-  @override
-  String toString() =>
-      'BrandingAdvanced(headerColor: $headerColor, buttonIconsColor: $buttonIconsColor, textLinksColor: $textLinksColor)';
 }
 
 @HiveType(typeId: 3)
@@ -54,7 +50,6 @@ class BrandingAdvancedEntity extends HiveObject {
     this.buttonIconsColor,
     this.textLinksColor,
   });
-  // BrandingAdvancedEntity({this.primaryColor});
   Map<String, dynamic> toJson() => _$BrandingAdvancedEntityToJson(this);
   factory BrandingAdvancedEntity.fromJson(Map<String, dynamic> data) =>
       _$BrandingAdvancedEntityFromJson(data);
