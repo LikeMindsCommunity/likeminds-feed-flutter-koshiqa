@@ -10,7 +10,7 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
     return AppBar(
       elevation: 0,
       leading: Image.asset('packages/feed_sx/assets/images/hamburger.png'),
-      systemOverlayStyle: SystemUiOverlayStyle(
+      systemOverlayStyle: const SystemUiOverlayStyle(
           statusBarColor: Colors.white,
           statusBarIconBrightness: Brightness.dark),
       backgroundColor: kwhiteColor,
@@ -44,5 +44,5 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(55);
+  Size get preferredSize => const Size.fromHeight(55);
 }
