@@ -1,4 +1,4 @@
-import 'package:feed_sx/src/theme.dart';
+import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:flutter/material.dart';
 
 class PostDescription extends StatelessWidget {
@@ -11,7 +11,7 @@ class PostDescription extends StatelessWidget {
           horizontal: kPaddingLarge, vertical: kPaddingMedium),
       child: Text(
         'Here is a list of social media tools to help you get started with your marketing initiatives.',
-        style: TextStyle(fontSize: kFontMedium, color: kgreyColor),
+        style: TextStyle(fontSize: kFontMedium, color: kGreyColor),
       ),
     );
   }

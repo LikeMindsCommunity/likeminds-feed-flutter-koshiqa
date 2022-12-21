@@ -1,4 +1,4 @@
-import 'package:feed_sx/src/theme.dart';
+import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -13,7 +13,7 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
       systemOverlayStyle: const SystemUiOverlayStyle(
           statusBarColor: Colors.white,
           statusBarIconBrightness: Brightness.dark),
-      backgroundColor: kwhiteColor,
+      backgroundColor: kWhiteColor,
       title: const Text(
         'SCALIX',
         style: TextStyle(
@@ -24,7 +24,7 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
           Icons.search,
           color: Colors.black,
         ),
-        kHorizontalLargeP,
+        kHorizontalPaddingLarge,
         CircleAvatar(
           backgroundColor: Color(0xff5046E5),
           radius: 20,
@@ -33,12 +33,12 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
               'KA',
               style: TextStyle(
                   fontWeight: FontWeight.w600,
-                  color: kwhiteColor,
+                  color: kWhiteColor,
                   fontSize: kFontSmall),
             ),
           ),
         ),
-        kHorizontalLargeP,
+        kHorizontalPaddingLarge,
       ],
     );
   }

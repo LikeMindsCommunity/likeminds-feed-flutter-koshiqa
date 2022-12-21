@@ -1,4 +1,4 @@
-import 'package:feed_sx/src/theme.dart';
+import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:flutter/material.dart';
 
 class PostHeader extends StatelessWidget {
@@ -14,7 +14,7 @@ class PostHeader extends StatelessWidget {
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(24)),
             child: Image.asset('packages/feed_sx/assets/images/avatar.png'),
           ),
-          kHorizontalLargeP,
+          kHorizontalPaddingLarge,
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -24,13 +24,13 @@ class PostHeader extends StatelessWidget {
                     'Theresa Webb',
                     style: TextStyle(
                         fontSize: kFontMedium,
-                        color: kgrey1Color,
+                        color: kGrey1Color,
                         fontWeight: FontWeight.w500),
                   ),
-                  kHorizontalLargeP,
+                  kHorizontalPaddingLarge,
                   Container(
                     decoration: BoxDecoration(
-                        color: kprimaryColor,
+                        color: kPrimaryColor,
                         borderRadius:
                             BorderRadius.circular(kBorderRadiusXSmall)),
                     padding: const EdgeInsets.symmetric(
@@ -39,7 +39,7 @@ class PostHeader extends StatelessWidget {
                       'Admin',
                       style: TextStyle(
                         fontSize: kFontXSmall,
-                        color: kwhiteColor,
+                        color: kWhiteColor,
                         fontWeight: FontWeight.w500,
                         // height: 1.45,
                       ),
@@ -52,24 +52,23 @@ class PostHeader extends StatelessWidget {
                 children: const [
                   Text(
                     '2d',
-                    style: TextStyle(fontSize: kFontSmall, color: kgrey3Color),
+                    style: TextStyle(fontSize: kFontSmall, color: kGrey3Color),
                   ),
-                  kHorizontalXSmallP,
+                  kHorizontalPaddingXSmall,
                   Text(
                     '·',
-                    style: TextStyle(fontSize: kFontSmall, color: kgrey3Color),
+                    style: TextStyle(fontSize: kFontSmall, color: kGrey3Color),
                   ),
-                  kHorizontalXSmallP,
+                  kHorizontalPaddingXSmall,
                   Text(
                     'Edited',
-                    style: TextStyle(fontSize: kFontSmall, color: kgrey3Color),
+                    style: TextStyle(fontSize: kFontSmall, color: kGrey3Color),
                   ),
                 ],
               )
             ],
           ),
           const Spacer(),
-          // const Icon(Icons.pin),
           IconButton(
               onPressed: () {}, icon: const Icon(Icons.more_horiz_outlined))
         ],

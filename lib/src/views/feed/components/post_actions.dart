@@ -1,4 +1,6 @@
-import 'package:feed_sx/src/theme.dart';
+import 'package:feed_sx/src/utils/constants/ui_constants.dart';
+import 'package:feed_sx/src/utils/constants/assets_constants.dart';
+import 'package:feed_sx/src/utils/constants/string_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -11,31 +13,30 @@ class PostActions extends StatelessWidget {
       children: [
         Row(
           children: [
-            kHorizontalSmallP,
+            kHorizontalPaddingSmall,
             TextButton.icon(
               onPressed: () {},
-              icon: SvgPicture.asset('packages/feed_sx/assets/icons/like.svg'),
+              icon: SvgPicture.asset(kAssetLikeIcon),
               label: const Text(
-                'Like',
+                kStringLike,
                 style: TextStyle(fontSize: 14),
               ),
               style: ButtonStyle(
                   textStyle: MaterialStateProperty.all(
                       const TextStyle(fontSize: kButtonFontSize)),
-                  foregroundColor: MaterialStateProperty.all(kgrey2Color)),
+                  foregroundColor: MaterialStateProperty.all(kGrey2Color)),
             ),
             TextButton.icon(
               onPressed: () {},
-              icon:
-                  SvgPicture.asset('packages/feed_sx/assets/icons/comment.svg'),
+              icon: SvgPicture.asset(kAssetCommentIcon),
               label: const Text(
-                'Comment',
+                kStringAddComment,
                 style: TextStyle(fontSize: 14),
               ),
               style: ButtonStyle(
                   textStyle: MaterialStateProperty.all(
                       const TextStyle(fontSize: kButtonFontSize)),
-                  foregroundColor: MaterialStateProperty.all(kgrey2Color)),
+                  foregroundColor: MaterialStateProperty.all(kGrey2Color)),
             )
           ],
         ),
@@ -44,12 +45,11 @@ class PostActions extends StatelessWidget {
           children: [
             IconButton(
               onPressed: () {},
-              icon: SvgPicture.asset(
-                  'packages/feed_sx/assets/icons/bookmark.svg'),
+              icon: SvgPicture.asset(kAssetBookmarkIcon),
             ),
             IconButton(
               onPressed: () {},
-              icon: SvgPicture.asset('packages/feed_sx/assets/icons/share.svg'),
+              icon: SvgPicture.asset(kAssetShareIcon),
             ),
           ],
         ),
