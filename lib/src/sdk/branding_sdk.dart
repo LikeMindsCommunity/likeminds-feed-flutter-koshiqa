@@ -4,11 +4,11 @@ class BrandingSDK {
   Future<Branding> getBrandingData() async {
     Map<String, dynamic> mockData = {
       'branding': {
-        'basic': {'primary_colour': '0x00ffffff'},
+        'basic': {'primary_colour': '0xff5046E5'},
         'advanced': {
-          'header_colour': '0x009B9B9B',
-          'button_icons_colour': '0x009B9B9B',
-          'text_links_colour': '0x009B9B9B',
+          'header_colour': '0xff9B9B9B',
+          'button_icons_colour': '0xff9B9B9B',
+          'text_links_colour': '0xff9B9B9B',
         },
       }
     };
