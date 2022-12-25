@@ -6,7 +6,6 @@ abstract class DownloadDocState extends Equatable {}
 
 class DownloadDocInitial extends DownloadDocState {
   @override
-  // TODO: implement props
   List<Object?> get props => [];
 }
 
@@ -16,7 +15,6 @@ class Downloading extends DownloadDocState {
     required this.progress,
   });
   @override
-  // TODO: implement props
   List<Object?> get props => [progress];
 }
 
@@ -26,7 +24,6 @@ class Downloaded extends DownloadDocState {
     required this.path,
   });
   @override
-  // TODO: implement props
   List<Object?> get props => [path];
 }
 
@@ -36,6 +33,5 @@ class DownloadError extends DownloadDocState {
     required this.message,
   });
   @override
-  // TODO: implement props
   List<Object?> get props => [message];
 }

@@ -3,7 +3,7 @@ import 'package:feed_sx/src/views/feed/components/post/post_actions.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_description.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_header.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_image.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_media_factory.dart';
+import 'package:feed_sx/src/views/feed/components/post/post_media/post_media_factory.dart';
 import 'package:flutter/material.dart';
 
 class PostWidget extends StatelessWidget {

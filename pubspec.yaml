@@ -22,6 +22,7 @@ dependencies:
   hive_generator: ^2.0.0
   json_annotation: ^4.7.0
   json_serializable: ^6.5.4
+  path: ^1.8.2
   path_provider: ^2.0.11
   url_launcher: ^6.1.7
   video_player: ^2.4.10
