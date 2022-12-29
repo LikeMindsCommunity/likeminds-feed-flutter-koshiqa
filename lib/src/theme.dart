@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 
 ThemeData getThemeDataFromBrandingData(Branding? branding) {
+  print(branding?.basic?.primaryColor.toString());
   final ThemeData lightTheme = ThemeData.light();
   final ThemeData brandedTheme = lightTheme.copyWith(
     primaryColor: branding?.basic?.primaryColor,
