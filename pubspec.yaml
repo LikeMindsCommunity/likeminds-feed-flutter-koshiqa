@@ -44,6 +44,7 @@ flutter:
   # To add assets to your package, add an assets section, like this:
   assets:
     - packages/feed_sx/assets/images/avatar.png
+    - packages/feed_sx/assets/images/avatar2.png
     - packages/feed_sx/assets/images/post.png
     - packages/feed_sx/assets/images/hamburger.png
     - packages/feed_sx/assets/icons/like.svg
