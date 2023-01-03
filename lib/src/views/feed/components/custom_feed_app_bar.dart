@@ -2,8 +2,8 @@ import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
-  const CustomAppBar({Key? key}) : super(key: key);
+class CustomFeedAppBar extends StatelessWidget with PreferredSizeWidget {
+  const CustomFeedAppBar({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
