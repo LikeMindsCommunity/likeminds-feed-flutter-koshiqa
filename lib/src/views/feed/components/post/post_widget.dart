@@ -8,7 +8,9 @@ import 'package:flutter/material.dart';
 
 class PostWidget extends StatelessWidget {
   final int postType;
-  const PostWidget({super.key, required this.postType});
+  final bool showActions;
+  const PostWidget(
+      {super.key, required this.postType, this.showActions = true});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +27,7 @@ class PostWidget extends StatelessWidget {
                   'This text contains tags and links : https://likeminds.community/  and @Suryansh',
             ),
             PostMediaFactory(postType: postType),
-            PostActions()
+            showActions ? PostActions() : SizedBox.shrink()
           ],
         ),
       ),
