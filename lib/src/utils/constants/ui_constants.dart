@@ -10,6 +10,9 @@ const Color kGrey3Color = Color(0xff9B9B9B);
 const Color kGreyWebBGColor = Color(0xffE6EBF5);
 const Color kGreyBGColor = Color.fromRGBO(208, 216, 226, .4);
 const Color kLinkColor = Color(0xff007AFF);
+const Color kHeadingColor = Color(0xff333149);
+const Color kBorderColor = Color.fromRGBO(208, 216, 226, 0.5);
+
 const double kFontSmall = 12;
 const double kButtonFontSize = 12;
 const double kFontXSmall = 11;

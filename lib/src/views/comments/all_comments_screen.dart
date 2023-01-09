@@ -14,10 +14,11 @@ class AllCommentsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: kWhiteColor,
       appBar: GeneralAppBar(
+        autoImplyEnd: false,
         title: const Text(
           'Post',
           style: TextStyle(
-              fontSize: 20, fontWeight: FontWeight.w500, color: Colors.red),
+              fontSize: 20, fontWeight: FontWeight.w500, color: kHeadingColor),
         ),
       ),
       body: CustomScrollView(

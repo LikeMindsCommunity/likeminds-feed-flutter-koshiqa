@@ -53,6 +53,9 @@ flutter:
     - packages/feed_sx/assets/icons/share.svg
     - packages/feed_sx/assets/icons/doc_pdf.svg
     - packages/feed_sx/assets/icons/cross.svg
+    - packages/feed_sx/assets/icons/add_photo.svg
+    - packages/feed_sx/assets/icons/add_video.svg
+    - packages/feed_sx/assets/icons/add_attachment.svg
     # - images/a_dot_ham.jpeg
   #
   # For details regarding assets in packages, see
