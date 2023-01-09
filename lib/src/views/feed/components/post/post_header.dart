@@ -1,4 +1,5 @@
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
+import 'package:feed_sx/src/views/feed/components/dropdown_options.dart';
 import 'package:flutter/material.dart';
 
 class PostHeader extends StatelessWidget {
@@ -69,8 +70,7 @@ class PostHeader extends StatelessWidget {
             ],
           ),
           const Spacer(),
-          IconButton(
-              onPressed: () {}, icon: const Icon(Icons.more_horiz_outlined))
+          DropdownOptions(),
         ],
       ),
     );
