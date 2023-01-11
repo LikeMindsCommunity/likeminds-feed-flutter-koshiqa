@@ -6,15 +6,25 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class GeneralAppBar extends StatelessWidget with PreferredSizeWidget {
   final Widget? title;
-  const GeneralAppBar({Key? key, this.title}) : super(key: key);
+  final bool autoImplyEnd;
+  const GeneralAppBar({Key? key, this.title, this.autoImplyEnd = true})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      automaticallyImplyLeading: true,
       actions: [
-        SvgPicture.asset(kAssetCrossIcon),
+        autoImplyEnd
+            ? GestureDetector(
+                child: SvgPicture.asset(kAssetCrossIcon),
+                onTap: () {
+                  Navigator.pop(context);
+                })
+            : SizedBox.shrink(),
         kHorizontalPaddingLarge,
       ],
+      iconTheme: IconThemeData(color: kHeadingColor),
       elevation: 0,
       systemOverlayStyle: const SystemUiOverlayStyle(
           statusBarColor: Colors.white,

@@ -1,3 +1,4 @@
+import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/utils/constants/string_constants.dart';
@@ -27,7 +28,11 @@ class PostActions extends StatelessWidget {
                   foregroundColor: MaterialStateProperty.all(kGrey2Color)),
             ),
             TextButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
+                  return AllCommentsScreen();
+                }));
+              },
               icon: SvgPicture.asset(kAssetCommentIcon),
               label: const Text(
                 kStringAddComment,
