@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class NewPostScreen extends StatefulWidget {
+  static const String route = "/new_post_screen";
   const NewPostScreen({super.key});
 
   @override

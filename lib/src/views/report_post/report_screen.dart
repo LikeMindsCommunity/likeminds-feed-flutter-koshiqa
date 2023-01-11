@@ -5,6 +5,7 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
 class ReportPostScreen extends StatefulWidget {
+  static const String route = "/report_post_screen";
   const ReportPostScreen({super.key});
 
   @override

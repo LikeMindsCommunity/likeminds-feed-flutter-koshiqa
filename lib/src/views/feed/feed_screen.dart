@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/data/local_db/local_db_impl.dart';
 import 'package:feed_sx/src/data/models/branding/branding.dart';
 import 'package:feed_sx/src/data/repositories/branding/branding_repository.dart';
@@ -44,17 +45,49 @@ class _FeedScreenState extends State<FeedScreen> {
                       Branding? branding = snapshot.data;
                       return Theme(
                         data: getThemeDataFromBrandingData(branding),
-                        child: Scaffold(
-                          backgroundColor: kBackgroundColor,
-                          appBar: CustomFeedAppBar(),
-                          body: ListView(
-                            children: const [
-                              PostWidget(postType: 1),
-                              PostWidget(postType: 2),
-                              PostWidget(postType: 3),
-                              PostWidget(postType: 1),
-                              PostWidget(postType: 4),
-                            ],
+                        child: MaterialApp(
+                          onGenerateRoute: (settings) {
+                            if (settings.name == AllCommentsScreen.route) {
+                              return MaterialPageRoute(
+                                builder: (context) {
+                                  return AllCommentsScreen();
+                                },
+                              );
+                            }
+                            if (settings.name == LikesScreen.route) {
+                              return MaterialPageRoute(
+                                builder: (context) {
+                                  return LikesScreen();
+                                },
+                              );
+                            }
+                            if (settings.name == ReportPostScreen.route) {
+                              return MaterialPageRoute(
+                                builder: (context) {
+                                  return ReportPostScreen();
+                                },
+                              );
+                            }
+                            if (settings.name == NewPostScreen.route) {
+                              return MaterialPageRoute(
+                                builder: (context) {
+                                  return NewPostScreen();
+                                },
+                              );
+                            }
+                          },
+                          home: Scaffold(
+                            backgroundColor: kBackgroundColor,
+                            appBar: CustomFeedAppBar(),
+                            body: ListView(
+                              children: const [
+                                PostWidget(postType: 1),
+                                PostWidget(postType: 2),
+                                PostWidget(postType: 3),
+                                PostWidget(postType: 1),
+                                PostWidget(postType: 4),
+                              ],
+                            ),
                           ),
                         ),
                       );
