@@ -5,20 +5,15 @@ import 'package:feed_sx/src/views/feed/components/post/post_media/post_video.dar
 import 'package:flutter/material.dart';
 
 class PostMediaCarousel extends StatefulWidget {
-  PostMediaCarousel({super.key});
+  List<String> urls;
+  PostMediaCarousel({super.key, required this.urls});
 
   @override
   State<PostMediaCarousel> createState() => _PostMediaCarouselState();
 }
 
 class _PostMediaCarouselState extends State<PostMediaCarousel> {
-  List<Widget> widgets = [
-    PostImage(url: 'https://wallpaperaccess.com/full/2637581.jpg'),
-    PostVideo(
-      url:
-          'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4',
-    )
-  ];
+  late List<Widget> widgets;
   final PageController carouselController = PageController();
 
   final int itemCount = 3;
@@ -26,6 +21,7 @@ class _PostMediaCarouselState extends State<PostMediaCarousel> {
   @override
   void initState() {
     super.initState();
+    widgets = widget.urls.map((e) => PostImage(url: e)).toList();
   }
 
   Widget _indicator(bool isActive) {

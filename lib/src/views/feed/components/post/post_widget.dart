@@ -1,3 +1,4 @@
+import 'package:feed_sdk/feed_sdk.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_actions.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_description.dart';
@@ -7,10 +8,16 @@ import 'package:feed_sx/src/views/feed/components/post/post_media/post_media_fac
 import 'package:flutter/material.dart';
 
 class PostWidget extends StatelessWidget {
+  final Post postDetails;
+  final PostUser user;
   final int postType;
   final bool showActions;
   const PostWidget(
-      {super.key, required this.postType, this.showActions = true});
+      {super.key,
+      required this.postType,
+      this.showActions = true,
+      required this.postDetails,
+      required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -20,13 +27,13 @@ class PostWidget extends StatelessWidget {
         color: kWhiteColor,
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            PostHeader(),
+            PostHeader(user: user),
             PostDescription(
-              text:
-                  'This text contains tags and links : https://likeminds.community/  and @Suryansh',
+              text: postDetails.text,
             ),
-            PostMediaFactory(postType: postType),
+            PostMediaFactory(attachments: postDetails.attachments),
             showActions ? PostActions() : SizedBox.shrink()
           ],
         ),
