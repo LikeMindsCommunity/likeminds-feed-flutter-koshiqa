@@ -1,3 +1,4 @@
+import 'package:feed_sdk/feed_sdk.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/views/comments/all_comments_screen.dart';
 import 'package:feed_sx/src/views/feed/components/dropdown_options.dart';
@@ -5,7 +6,9 @@ import 'package:feed_sx/src/views/report_post/report_screen.dart';
 import 'package:flutter/material.dart';
 
 class PostHeader extends StatelessWidget {
-  const PostHeader({super.key});
+  final PostUser user;
+  // final
+  const PostHeader({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +18,10 @@ class PostHeader extends StatelessWidget {
         children: [
           Container(
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(24)),
-            child: Image.asset('packages/feed_sx/assets/images/avatar.png'),
+            child: user.imageUrl.isEmpty
+                ? Image.asset('packages/feed_sx/assets/images/avatar.png')
+                : Image.network(user.imageUrl),
+            // child: Image.asset('packages/feed_sx/assets/images/avatar.png'),
           ),
           kHorizontalPaddingLarge,
           Column(
@@ -23,31 +29,31 @@ class PostHeader extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Text(
-                    'Theresa Webb',
+                  Text(
+                    user.name,
                     style: TextStyle(
                         fontSize: kFontMedium,
                         color: kGrey1Color,
                         fontWeight: FontWeight.w500),
                   ),
                   kHorizontalPaddingLarge,
-                  Container(
-                    decoration: BoxDecoration(
-                        color: kPrimaryColor,
-                        borderRadius:
-                            BorderRadius.circular(kBorderRadiusXSmall)),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: kPaddingSmall, horizontal: kPaddingMedium),
-                    child: const Text(
-                      'Admin',
-                      style: TextStyle(
-                        fontSize: kFontXSmall,
-                        color: kWhiteColor,
-                        fontWeight: FontWeight.w500,
-                        // height: 1.45,
-                      ),
-                    ),
-                  )
+                  // Container(
+                  //   decoration: BoxDecoration(
+                  //       color: kPrimaryColor,
+                  //       borderRadius:
+                  //           BorderRadius.circular(kBorderRadiusXSmall)),
+                  //   padding: const EdgeInsets.symmetric(
+                  //       vertical: kPaddingSmall, horizontal: kPaddingMedium),
+                  //   child: const Text(
+                  //     'Admin',
+                  //     style: TextStyle(
+                  //       fontSize: kFontXSmall,
+                  //       color: kWhiteColor,
+                  //       fontWeight: FontWeight.w500,
+                  //       // height: 1.45,
+                  //     ),
+                  //   ),
+                  // )
                 ],
               ),
               Row(

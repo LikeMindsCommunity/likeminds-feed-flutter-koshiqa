@@ -24,12 +24,12 @@ class AllCommentsScreen extends StatelessWidget {
       ),
       body: CustomScrollView(
         slivers: [
-          SliverToBoxAdapter(
-            child: PostWidget(
-              postType: 1,
-              showActions: false,
-            ),
-          ),
+          // SliverToBoxAdapter(
+          //   child: PostWidget(
+          //     postType: 1,
+          //     showActions: false,
+          //   ),
+          // ),
           SliverPadding(
               padding: EdgeInsets.only(
             top: kPaddingLarge + kPaddingMedium,

@@ -51,12 +51,12 @@ class FollowingTabPost extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             FollowingPostInfo(),
-            PostHeader(),
+            // PostHeader(),
             PostDescription(
               text:
                   'This text contains tags and links : https://likeminds.community/  and @Suryansh',
             ),
-            PostMediaFactory(postType: postType),
+            // PostMediaFactory(postType: postType),
             showActions ? PostActions() : SizedBox.shrink(),
             FollowingTabBottom()
           ],

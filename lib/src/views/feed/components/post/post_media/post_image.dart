@@ -7,15 +7,17 @@ class PostImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AspectRatio(
-        aspectRatio: 360.0 / 296.0,
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          padding: const EdgeInsets.only(top: kPaddingMedium),
-          child: Image.network(
-            url,
-            fit: BoxFit.cover,
-          ),
-        ));
+    return url.isEmpty
+        ? SizedBox.shrink()
+        : AspectRatio(
+            aspectRatio: 360.0 / 296.0,
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              padding: const EdgeInsets.only(top: kPaddingMedium),
+              child: Image.network(
+                url,
+                fit: BoxFit.cover,
+              ),
+            ));
   }
 }
