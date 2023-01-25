@@ -11,6 +11,7 @@ import 'package:feed_sx/src/theme.dart';
 import 'package:feed_sx/src/views/feed/blocs/universal_feed/universal_feed_bloc.dart';
 import 'package:feed_sx/src/views/feed/components/custom_feed_app_bar.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_widget.dart';
+import 'package:feed_sx/src/views/new_post/new_post_screen.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:flutter/material.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
