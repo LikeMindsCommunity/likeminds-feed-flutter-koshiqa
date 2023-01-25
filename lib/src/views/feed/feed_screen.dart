@@ -34,8 +34,9 @@ class _FeedScreenState extends State<FeedScreen> {
     super.initState();
     Bloc.observer = SimpleBlocObserver();
     // likeMindsFeedSDK = LikeMindsFeedSDK();
-    _sdkApplication = LikeMindsFeedSDK.initiateLikeMinds(
-        'ae9e87b8-3448-457e-af1c-1dc6b544e2a4');
+    _sdkApplication = LikeMindsFeedSDK.initiateLikeMinds('api key');
+
+    //TODO :Insert api key here
     _feedApi = _sdkApplication.getFeedApi();
     _feedBloc = UniversalFeedBloc(feedApi: _feedApi);
   }
