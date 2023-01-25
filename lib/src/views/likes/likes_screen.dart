@@ -2,6 +2,7 @@ import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:flutter/material.dart';
 
 class LikesScreen extends StatelessWidget {
+  static const String route = "/likes_screen";
   const LikesScreen({super.key});
 
   @override

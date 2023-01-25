@@ -29,9 +29,7 @@ class PostActions extends StatelessWidget {
             ),
             TextButton.icon(
               onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
-                  return AllCommentsScreen();
-                }));
+                Navigator.pushNamed(context, AllCommentsScreen.route);
               },
               icon: SvgPicture.asset(kAssetCommentIcon),
               label: const Text(

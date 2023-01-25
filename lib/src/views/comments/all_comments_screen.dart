@@ -7,6 +7,7 @@ import 'package:feed_sx/src/widgets/general_app_bar.dart';
 import 'package:flutter/material.dart';
 
 class AllCommentsScreen extends StatelessWidget {
+  static const String route = "/all_comments_screen";
   const AllCommentsScreen({super.key});
 
   @override
