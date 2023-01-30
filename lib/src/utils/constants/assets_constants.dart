@@ -5,3 +5,5 @@ const String kAssetShareIcon = 'packages/feed_sx/assets/icons/share.svg';
 const String kAssetDocPDFIcon = 'packages/feed_sx/assets/icons/doc_pdf.svg';
 const String kAssetCrossIcon = 'packages/feed_sx/assets/icons/cross.svg';
 const String kAssetReplyIcon = 'packages/feed_sx/assets/icons/reply.svg';
+const String kAssetLikeFilledIcon =
+    'packages/feed_sx/assets/icons/like_filled.svg';

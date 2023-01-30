@@ -7,7 +7,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 class GeneralAppBar extends StatelessWidget with PreferredSizeWidget {
   final Widget? title;
   final bool autoImplyEnd;
-  const GeneralAppBar({Key? key, this.title, this.autoImplyEnd = true})
+  final double elevation;
+  const GeneralAppBar(
+      {Key? key, this.title, this.autoImplyEnd = true, this.elevation = 0})
       : super(key: key);
 
   @override
@@ -25,7 +27,7 @@ class GeneralAppBar extends StatelessWidget with PreferredSizeWidget {
         kHorizontalPaddingLarge,
       ],
       iconTheme: IconThemeData(color: kHeadingColor),
-      elevation: 0,
+      elevation: elevation,
       systemOverlayStyle: const SystemUiOverlayStyle(
           statusBarColor: Colors.white,
           statusBarIconBrightness: Brightness.dark),

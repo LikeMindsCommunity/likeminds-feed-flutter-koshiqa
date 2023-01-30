@@ -1,6 +1,7 @@
 import 'package:feed_sdk/feed_sdk.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
+import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/utils/constants/string_constants.dart';
@@ -85,6 +86,22 @@ class _PostActionsState extends State<PostActions> {
                 ),
               ],
             ),
+            TextButton.icon(
+              onPressed: () {
+                Navigator.pushNamed(context, AllCommentsScreen.route,
+                    arguments:
+                        AllCommentsScreenArguments(postId: postDetails.id));
+              },
+              icon: SvgPicture.asset(kAssetCommentIcon),
+              label: const Text(
+                kStringAddComment,
+                style: TextStyle(fontSize: 14),
+              ),
+              style: ButtonStyle(
+                  textStyle: MaterialStateProperty.all(
+                      const TextStyle(fontSize: kButtonFontSize)),
+                  foregroundColor: MaterialStateProperty.all(kGrey2Color)),
+            )
           ],
         ),
         const Spacer(),

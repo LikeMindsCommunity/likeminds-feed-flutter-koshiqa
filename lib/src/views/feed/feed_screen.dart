@@ -5,6 +5,7 @@ import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/data/local_db/local_db_impl.dart';
 import 'package:feed_sx/src/data/models/branding/branding.dart';
 import 'package:feed_sx/src/data/repositories/branding/branding_repository.dart';
+import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/sdk/branding_sdk.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/simple_bloc_observer.dart';
@@ -17,6 +18,8 @@ import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:flutter/material.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+// import 'package:feed_sdk/feed_sdk.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -27,12 +30,25 @@ class FeedScreen extends StatefulWidget {
 
 class _FeedScreenState extends State<FeedScreen> {
   late final UniversalFeedBloc _feedBloc;
+  static const _pageSize = 20;
+
+  final PagingController<int, Post> _pagingController = PagingController(
+    firstPageKey: 1,
+  );
   @override
   void initState() {
     super.initState();
     Bloc.observer = SimpleBlocObserver();
     _feedBloc = UniversalFeedBloc();
   }
+
+  _addPaginationListener() {
+    _pagingController.addPageRequestListener((pageKey) {
+      _feedBloc.add(GetUniversalFeed(offset: pageKey, forLoadMore: true));
+    });
+  }
+
+  int _page = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -45,74 +61,91 @@ class _FeedScreenState extends State<FeedScreen> {
         ),
         builder: (context, getAuthAPIsnapshot) {
           if (getAuthAPIsnapshot.hasData) {
+            _addPaginationListener();
             _feedBloc.add(GetUniversalFeed(offset: 1, forLoadMore: false));
-            return MaterialApp(
-              onGenerateRoute: (settings) {
-                if (settings.name == AllCommentsScreen.route) {
-                  return MaterialPageRoute(
-                    builder: (context) {
-                      return AllCommentsScreen();
-                    },
-                  );
-                }
-                // if (settings.name == LikesScreen.route) {
-                //   return MaterialPageRoute(
-                //     builder: (context) {
-                //       // return LikesScreen();
-                //     },
-                //   );
-                // }
-                if (settings.name == ReportPostScreen.route) {
-                  return MaterialPageRoute(
-                    builder: (context) {
-                      return ReportPostScreen();
-                    },
-                  );
-                }
-                if (settings.name == NewPostScreen.route) {
-                  return MaterialPageRoute(
-                    builder: (context) {
-                      return NewPostScreen();
-                    },
-                  );
-                }
-              },
-              home: Scaffold(
-                  backgroundColor: kBackgroundColor,
-                  appBar: CustomFeedAppBar(),
-                  body: BlocBuilder(
-                    bloc: _feedBloc,
-                    builder: ((context, state) {
-                      if (state is UniversalFeedLoaded) {
-                        UniversalFeedResponse feedResponse = state.feed;
-                        return ListView.builder(
-                          itemBuilder: (context, index) {
-                            final Post post = feedResponse.posts[index];
-                            return PostWidget(
-                                postType: post.attachments != null
-                                    ? post.attachments!.first.attachmentType
-                                    : 1,
-                                postDetails: post,
-                                user: feedResponse.users[post.userId]!);
-                          },
-                          itemCount: feedResponse.posts.length,
-                        );
-                      }
-                      return Center(child: const Loader());
-                    }),
-                  ),
-                  floatingActionButton: FloatingActionButton(
-                    onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(
+            print(
+                'auth snapshot has data' + getAuthAPIsnapshot.data.toString());
+            return RepositoryProvider<FeedApi>(
+                create: (context) => _feedApi,
+                child: MaterialApp(
+                  onGenerateRoute: (settings) {
+                    if (settings.name == AllCommentsScreen.route) {
+                      final args =
+                          settings.arguments as AllCommentsScreenArguments;
+                      return MaterialPageRoute(
+                        builder: (context) {
+                          return AllCommentsScreen(
+                            postId: args.postId,
+                          );
+                        },
+                      );
+                    }
+                    if (settings.name == LikesScreen.route) {
+                      return MaterialPageRoute(
+                        builder: (context) {
+                          return LikesScreen();
+                        },
+                      );
+                    }
+                    if (settings.name == ReportPostScreen.route) {
+                      return MaterialPageRoute(
+                        builder: (context) {
+                          return ReportPostScreen();
+                        },
+                      );
+                    }
+                    if (settings.name == NewPostScreen.route) {
+                      return MaterialPageRoute(
                         builder: (context) {
                           return NewPostScreen();
                         },
-                      ));
-                    },
-                    backgroundColor: kPrimaryColor,
-                    child: const Icon(Icons.add),
-                  )),
-            );
+                      );
+                    }
+                  },
+                  home: Scaffold(
+                    backgroundColor: kBackgroundColor,
+                    appBar: CustomFeedAppBar(),
+                    body: BlocConsumer(
+                      bloc: _feedBloc,
+                      listener: (context, state) {
+                        if (state is UniversalFeedLoaded) {
+                          _page++;
+                          if (state.feed.posts.length < 10) {
+                            _pagingController.appendLastPage(state.feed.posts);
+                          } else {
+                            _pagingController.appendPage(
+                                state.feed.posts, _page);
+                          }
+                        }
+                      },
+                      builder: ((context, state) {
+                        if (state is UniversalFeedLoaded) {
+                          UniversalFeedResponse feedResponse = state.feed;
+                          return PagedListView<int, Post>(
+                            pagingController: _pagingController,
+                            builderDelegate: PagedChildBuilderDelegate<Post>(
+                              itemBuilder: (context, item, index) => PostWidget(
+                                  postType: 1,
+                                  postDetails: item,
+                                  user: feedResponse.users[item.userId]!),
+                            ),
+                          );
+                          // return ListView.builder(
+                          //   itemBuilder: (context, index) {
+                          //     return PostWidget(
+                          //         postType: 1,
+                          //         postDetails: feedResponse.posts[index],
+                          //         user: feedResponse.users[
+                          //             feedResponse.posts[index].userId]!);
+                          //   },
+                          //   itemCount: feedResponse.posts.length,
+                          // );
+                        }
+                        return Center(child: const Loader());
+                      }),
+                    ),
+                  ),
+                ));
           }
           return Center(child: const Loader());
         });

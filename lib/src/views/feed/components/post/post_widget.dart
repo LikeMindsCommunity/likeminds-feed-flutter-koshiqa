@@ -31,9 +31,9 @@ class PostWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             PostHeader(
-              user: user,
-              post: postDetails,
-            ),
+                user: user,
+                menuItems: postDetails.menuItems,
+                postDetails: postDetails),
             PostDescription(
               text: postDetails.text,
             ),

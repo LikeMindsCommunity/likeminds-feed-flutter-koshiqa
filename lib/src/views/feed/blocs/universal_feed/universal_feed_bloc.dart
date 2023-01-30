@@ -28,30 +28,22 @@ class UniversalFeedBloc extends Bloc<UniversalFeedEvent, UniversalFeedState> {
       required bool forLoadMore,
       required Emitter<UniversalFeedState> emit}) async {
     // if (!hasReachedMax(state, forLoadMore)) {
-    print("hellobook");
+    Map<String, PostUser> users = {};
+    if (state is UniversalFeedLoaded) {
+      users = (state as UniversalFeedLoaded).feed.users;
+      emit(PaginatedUniversalFeedLoading(
+          prevFeed: (state as UniversalFeedLoaded).feed));
+    }
     emit(UniversalFeedLoading());
-    UniversalFeedResponse response = await locator<LikeMindsService>()
+    UniversalFeedResponse? response = await locator<LikeMindsService>()
         .getUniversalFeed(UniversalFeedRequest(page: offset));
-    emit(UniversalFeedLoaded(
-        feed: response, hasReachedMax: response.posts.isEmpty));
-    // try {
-    //   List<BookingListModel> bookings = [];
-    //   if (state is UniversalFeedLoaded && forLoadMore) {
-    //     emit(MoreUniversalFeedLoading());
-    //     bookings = (state as UniversalFeedLoaded).bookings;
-    //   } else {
-    //     emit(UniversalFeedLoading());
-    //   }
 
-    //   List<BookingListModel> moreBookings =
-    //       await _repository.getUniversalFeed(offset: offset);
-    //   emit(UniversalFeedLoaded(
-    //       bookings: bookings + moreBookings,
-    //       hasReachedMax:
-    //           moreBookings.length != 10)); //page limit in apiconstants is 10
-    // } catch (e) {
-    //   emit(UniversalFeedError(message: e.toString()));
-    // }
-    // }
+    if (response == null) {
+      emit(UniversalFeedError(message: "No data found"));
+    } else {
+      response.users.addAll(users);
+      emit(UniversalFeedLoaded(
+          feed: response, hasReachedMax: response.posts.isEmpty));
+    }
   }
 }
