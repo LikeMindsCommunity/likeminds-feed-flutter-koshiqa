@@ -28,6 +28,9 @@ dependencies:
   video_player: ^2.4.10
   feed_sdk:
     path: ../LikeMinds-Flutter-Feed-SDK
+  collection: ^1.16.0
+  lazy_load_scrollview: ^1.3.0
+  infinite_scroll_pagination: ^3.2.0
   
 
 dev_dependencies:
@@ -60,6 +63,7 @@ flutter:
     - packages/feed_sx/assets/icons/add_video.svg
     - packages/feed_sx/assets/icons/add_attachment.svg
     - packages/feed_sx/assets/icons/reply.svg
+    - packages/feed_sx/assets/icons/like_filled.svg
     # - images/a_dot_ham.jpeg
   #
   # For details regarding assets in packages, see

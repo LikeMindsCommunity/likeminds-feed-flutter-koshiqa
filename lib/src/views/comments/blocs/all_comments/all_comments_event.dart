@@ -5,9 +5,10 @@ abstract class AllCommentsEvent extends Equatable {
 }
 
 class GetAllComments extends AllCommentsEvent {
-  final int offset;
+  final PostDetailRequest postDetailRequest;
   final bool forLoadMore;
-  GetAllComments({required this.offset, required this.forLoadMore});
+  GetAllComments({required this.postDetailRequest, required this.forLoadMore});
+
   @override
-  List<Object?> get props => [offset, forLoadMore];
+  List<Object?> get props => [postDetailRequest, forLoadMore];
 }

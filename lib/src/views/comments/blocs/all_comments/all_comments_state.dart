@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 part of 'all_comments_bloc.dart';
 
 abstract class AllCommentsState extends Equatable {
@@ -6,16 +7,17 @@ abstract class AllCommentsState extends Equatable {
 
 class AllCommentsInitial extends AllCommentsState {
   @override
-  List<Object?> get props => throw UnimplementedError();
+  // TODO: implement props
+  List<Object?> get props => [];
 }
 
 class AllCommentsLoaded extends AllCommentsState {
-  final AllCommentsResponse feed;
+  final PostDetailResponse postDetails;
   final bool hasReachedMax;
-  AllCommentsLoaded({required this.feed, required this.hasReachedMax});
+  AllCommentsLoaded({required this.postDetails, required this.hasReachedMax});
 
   @override
-  List<Object?> get props => [feed, hasReachedMax];
+  List<Object?> get props => [postDetails, hasReachedMax];
 }
 
 class AllCommentsLoading extends AllCommentsState {
@@ -24,6 +26,10 @@ class AllCommentsLoading extends AllCommentsState {
 }
 
 class PaginatedAllCommentsLoading extends AllCommentsState {
+  final PostDetailResponse prevPostDetails;
+  PaginatedAllCommentsLoading({
+    required this.prevPostDetails,
+  });
   @override
   List<Object?> get props => [];
 }

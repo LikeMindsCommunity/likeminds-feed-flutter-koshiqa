@@ -1,5 +1,6 @@
 import 'package:feed_sdk/feed_sdk.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
+import 'package:feed_sx/src/utils/utils.dart';
 import 'package:feed_sx/src/views/comments/all_comments_screen.dart';
 import 'package:feed_sx/src/views/feed/components/dropdown_options.dart';
 import 'package:feed_sx/src/views/report_post/report_screen.dart';
@@ -7,8 +8,14 @@ import 'package:flutter/material.dart';
 
 class PostHeader extends StatelessWidget {
   final PostUser user;
+  final Post postDetails;
+  final List<PopupMenuItemModel> menuItems;
   // final
-  const PostHeader({super.key, required this.user});
+  const PostHeader(
+      {super.key,
+      required this.user,
+      required this.menuItems,
+      required this.postDetails});
 
   @override
   Widget build(BuildContext context) {
@@ -58,9 +65,9 @@ class PostHeader extends StatelessWidget {
               ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: const [
+                children: [
                   Text(
-                    '2d',
+                    postDetails.createdAt.timeAgo(),
                     style: TextStyle(fontSize: kFontSmall, color: kGrey3Color),
                   ),
                   kHorizontalPaddingXSmall,
@@ -78,7 +85,7 @@ class PostHeader extends StatelessWidget {
             ],
           ),
           const Spacer(),
-          DropdownOptions()
+          DropdownOptions(menuItems: menuItems)
         ],
       ),
     );
