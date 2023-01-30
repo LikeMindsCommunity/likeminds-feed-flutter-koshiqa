@@ -70,7 +70,10 @@ class PostHeader extends StatelessWidget {
             ],
           ),
           const Spacer(),
-          DropdownOptions(menuItems: menuItems)
+          DropdownOptions(
+            menuItems: menuItems,
+            postDetails: postDetails,
+          )
         ],
       ),
     );

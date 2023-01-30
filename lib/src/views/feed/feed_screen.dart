@@ -35,6 +35,7 @@ class _FeedScreenState extends State<FeedScreen> {
   final PagingController<int, Post> _pagingController = PagingController(
     firstPageKey: 1,
   );
+
   @override
   void initState() {
     super.initState();
@@ -48,6 +49,10 @@ class _FeedScreenState extends State<FeedScreen> {
     });
   }
 
+  refresh() => () {
+        setState(() {});
+      };
+
   int _page = 0;
 
   @override
@@ -55,8 +60,8 @@ class _FeedScreenState extends State<FeedScreen> {
     return FutureBuilder<InitiateUserResponse>(
         future: locator<LikeMindsService>().initiateUser(
           InitiateUserRequest(
-            userId: "5d428e4d-984d-4ab5-8d2b-0adcdbab2ad8",
-            userName: "Divyansh Gandhi Integration",
+            userId: "22b6a64f-66bf-4bca-800e-b40ca66f924d",
+            // userName: "Divyansh Gandhi Integration",
           ),
         ),
         builder: (context, getAuthAPIsnapshot) {
@@ -66,7 +71,7 @@ class _FeedScreenState extends State<FeedScreen> {
             print(
                 'auth snapshot has data' + getAuthAPIsnapshot.data.toString());
             return RepositoryProvider<FeedApi>(
-                create: (context) => _feedApi,
+                create: (context) => locator<LikeMindsService>().getFeedApi(),
                 child: MaterialApp(
                   onGenerateRoute: (settings) {
                     if (settings.name == AllCommentsScreen.route) {
@@ -80,13 +85,13 @@ class _FeedScreenState extends State<FeedScreen> {
                         },
                       );
                     }
-                    if (settings.name == LikesScreen.route) {
-                      return MaterialPageRoute(
-                        builder: (context) {
-                          return LikesScreen();
-                        },
-                      );
-                    }
+                    // if (settings.name == LikesScreen.route) {
+                    //   return MaterialPageRoute(
+                    //     builder: (context) {
+                    //       return LikesScreen();
+                    //     },
+                    //   );
+                    // }
                     if (settings.name == ReportPostScreen.route) {
                       return MaterialPageRoute(
                         builder: (context) {
@@ -103,48 +108,49 @@ class _FeedScreenState extends State<FeedScreen> {
                     }
                   },
                   home: Scaffold(
-                    backgroundColor: kBackgroundColor,
-                    appBar: CustomFeedAppBar(),
-                    body: BlocConsumer(
-                      bloc: _feedBloc,
-                      listener: (context, state) {
-                        if (state is UniversalFeedLoaded) {
-                          _page++;
-                          if (state.feed.posts.length < 10) {
-                            _pagingController.appendLastPage(state.feed.posts);
-                          } else {
-                            _pagingController.appendPage(
-                                state.feed.posts, _page);
+                      backgroundColor: kBackgroundColor,
+                      appBar: CustomFeedAppBar(),
+                      body: BlocConsumer(
+                        bloc: _feedBloc,
+                        listener: (context, state) {
+                          if (state is UniversalFeedLoaded) {
+                            _page++;
+                            if (state.feed.posts.length < 10) {
+                              _pagingController
+                                  .appendLastPage(state.feed.posts);
+                            } else {
+                              _pagingController.appendPage(
+                                  state.feed.posts, _page);
+                            }
                           }
-                        }
-                      },
-                      builder: ((context, state) {
-                        if (state is UniversalFeedLoaded) {
-                          UniversalFeedResponse feedResponse = state.feed;
-                          return PagedListView<int, Post>(
-                            pagingController: _pagingController,
-                            builderDelegate: PagedChildBuilderDelegate<Post>(
-                              itemBuilder: (context, item, index) => PostWidget(
-                                  postType: 1,
-                                  postDetails: item,
-                                  user: feedResponse.users[item.userId]!),
-                            ),
-                          );
-                          // return ListView.builder(
-                          //   itemBuilder: (context, index) {
-                          //     return PostWidget(
-                          //         postType: 1,
-                          //         postDetails: feedResponse.posts[index],
-                          //         user: feedResponse.users[
-                          //             feedResponse.posts[index].userId]!);
-                          //   },
-                          //   itemCount: feedResponse.posts.length,
-                          // );
-                        }
-                        return Center(child: const Loader());
-                      }),
-                    ),
-                  ),
+                        },
+                        builder: ((context, state) {
+                          if (state is UniversalFeedLoaded) {
+                            UniversalFeedResponse feedResponse = state.feed;
+                            return PagedListView<int, Post>(
+                              pagingController: _pagingController,
+                              builderDelegate: PagedChildBuilderDelegate<Post>(
+                                itemBuilder: (context, item, index) =>
+                                    PostWidget(
+                                        postType: 1,
+                                        postDetails: item,
+                                        user: feedResponse.users[item.userId]!,
+                                        refresh: refresh),
+                              ),
+                            );
+                          }
+                          return Center(child: const Loader());
+                        }),
+                      ),
+                      floatingActionButton: FloatingActionButton(
+                        onPressed: () {
+                          MaterialPageRoute route = MaterialPageRoute(
+                              builder: (context) => NewPostScreen());
+                          Navigator.push(context, route);
+                        },
+                        child: const Icon(Icons.add),
+                        backgroundColor: kPrimaryColor,
+                      )),
                 ));
           }
           return Center(child: const Loader());

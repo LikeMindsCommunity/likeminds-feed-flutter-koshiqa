@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:feed_sdk/feed_sdk.dart';
+import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/widgets/general_app_bar.dart';
@@ -9,6 +12,7 @@ import 'package:image_picker/image_picker.dart';
 
 class NewPostScreen extends StatefulWidget {
   static const String route = "/new_post_screen";
+
   const NewPostScreen({
     super.key,
   });
@@ -19,6 +23,8 @@ class NewPostScreen extends StatefulWidget {
 
 class _NewPostScreenState extends State<NewPostScreen> {
   final TextEditingController _textEditingController = TextEditingController();
+  final ImagePicker _picker = ImagePicker();
+  List<Attachment> attachments = [];
   bool uploaded = false;
 
   @override
@@ -75,15 +81,14 @@ class _NewPostScreenState extends State<NewPostScreen> {
                 if (_textEditingController.text.isNotEmpty) {
                   final AddPostRequest request = AddPostRequest(
                     text: _textEditingController.text,
-                    attachments: [],
+                    attachments: attachments,
                   );
                   final AddPostResponse response =
                       await locator<LikeMindsService>().addPost(request);
                   if (response.success) {
-                    setState(() {
-                      uploaded = true;
-                      Navigator.pop(context);
-                    });
+                    MaterialPageRoute route = MaterialPageRoute(
+                        builder: (context) => const FeedScreen());
+                    Navigator.pushReplacement(context, route);
                   }
                 }
               },
@@ -103,17 +108,34 @@ class _NewPostScreenState extends State<NewPostScreen> {
             ),
             kVerticalPaddingLarge,
             AddAssetsButton(
-                leading: SvgPicture.asset(
-                    'packages/feed_sx/assets/icons/add_photo.svg'),
-                title: const Text('Add Photo')),
-            AddAssetsButton(
-                leading: SvgPicture.asset(
-                    'packages/feed_sx/assets/icons/add_video.svg'),
-                title: const Text('Add Video')),
-            AddAssetsButton(
-                leading: SvgPicture.asset(
-                    'packages/feed_sx/assets/icons/add_attachment.svg'),
-                title: const Text('Attach Files')),
+              leading: SvgPicture.asset(
+                'packages/feed_sx/assets/icons/add_photo.svg',
+                height: 24,
+              ),
+              title: const Text('Add Photo'),
+              picker: _picker,
+              onUploaded: (String? response) {
+                attachments.add(Attachment(
+                  attachmentType: 1,
+                  attachmentMeta: AttachmentMeta(
+                    url: response,
+                  ),
+                ));
+                setState(() {
+                  uploaded = true;
+                });
+              },
+            ),
+            // AddAssetsButton(
+            //     leading: SvgPicture.asset(
+            //         'packages/feed_sx/assets/icons/add_video.svg'),
+            //     title: const Text('Add Video'),
+            //     picker: _picker),
+            // AddAssetsButton(
+            //     leading: SvgPicture.asset(
+            //         'packages/feed_sx/assets/icons/add_attachment.svg'),
+            //     title: const Text('Attach Files'),
+            //     picker: _picker),
           ]),
         ));
   }
@@ -122,19 +144,36 @@ class _NewPostScreenState extends State<NewPostScreen> {
 class AddAssetsButton extends StatelessWidget {
   final Widget title;
   final Widget leading;
-  const AddAssetsButton(
-      {super.key, required this.leading, required this.title});
+  final ImagePicker picker;
+  final Function(String? response) onUploaded;
+
+  const AddAssetsButton({
+    super.key,
+    required this.leading,
+    required this.title,
+    required this.picker,
+    required this.onUploaded,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final ImagePicker _picker = ImagePicker();
     return GestureDetector(
       onTap: () async {
-        // final XFile? image =
-        //     await _picker.pickImage(source: ImageSource.gallery);
-        // print(image.toString());
+        final XFile? image =
+            await picker.pickImage(source: ImageSource.gallery);
+        if (image != null) {
+          File file = File.fromUri(Uri(path: image.path));
+          final String? response =
+              await locator<LikeMindsService>().uploadFile(file);
+          if (response != null) {
+            onUploaded(response);
+          } else {
+            print('Error uploading file');
+          }
+        }
       },
       child: Container(
+        height: 72,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         decoration: const BoxDecoration(
             border: Border(bottom: BorderSide(color: kBorderColor, width: 1))),

@@ -10,9 +10,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class PostActions extends StatefulWidget {
   final Post postDetails;
+  final Function refresh;
+
   const PostActions({
     super.key,
     required this.postDetails,
+    required this.refresh,
   });
 
   get getPostDetails => postDetails;
@@ -23,10 +26,24 @@ class PostActions extends StatefulWidget {
 
 class _PostActionsState extends State<PostActions> {
   bool isLiked = false;
+  int postLikes = 0;
+
+  isLikedByMe(Post postDetails) async {
+    final response = await locator<LikeMindsService>().getPostLikes(
+      GetPostLikesRequest(postId: postDetails.id),
+    );
+    if (response.users!.keys.contains("5d428e4d-984d-4ab5-8d2b-0adcdbab2ad8")) {
+      setState(() {
+        isLiked = true;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final postDetails = widget.postDetails;
+    postLikes = postDetails.likeCount;
+    final refresh = widget.refresh;
 
     return Row(
       children: [
@@ -42,6 +59,9 @@ class _PostActionsState extends State<PostActions> {
                     if (response.success) {
                       setState(() {
                         isLiked = !isLiked;
+                        postLikes = response.likes!;
+
+                        refresh();
                       });
                     }
                   },
@@ -62,8 +82,8 @@ class _PostActionsState extends State<PostActions> {
                     ));
                   },
                   child: Text(
-                    postDetails.likeCount > 0
-                        ? "${postDetails.likeCount} ${postDetails.likeCount > 1 ? kStringLikes : kStringLike}"
+                    postLikes > 0
+                        ? "$postLikes ${postLikes > 1 ? kStringLikes : kStringLike}"
                         : kStringLike,
                     style: const TextStyle(fontSize: 14),
                   ),
@@ -71,21 +91,6 @@ class _PostActionsState extends State<PostActions> {
               ],
             ),
             kHorizontalPaddingSmall,
-            Row(
-              children: [
-                IconButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, AllCommentsScreen.route);
-                  },
-                  icon: const Icon(Icons.comment_outlined),
-                  color: kGrey2Color,
-                ),
-                const Text(
-                  kStringAddComment,
-                  style: TextStyle(fontSize: 14),
-                ),
-              ],
-            ),
             TextButton.icon(
               onPressed: () {
                 Navigator.pushNamed(context, AllCommentsScreen.route,
