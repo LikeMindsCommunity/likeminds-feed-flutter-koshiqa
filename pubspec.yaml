@@ -1,7 +1,7 @@
 name: feed_sx
 description: A new Flutter package project.
 version: 0.0.1
-homepage:
+publish_to: none
 
 environment:
   sdk: '>=2.18.5 <3.0.0'
@@ -26,8 +26,10 @@ dependencies:
   path_provider: ^2.0.11
   url_launcher: ^6.1.7
   video_player: ^2.4.10
+  timeago: 
   feed_sdk:
-    path: ../LikeMinds-Flutter-Feed-SDK
+    path: ../LikeMinds-Flutter-SDK
+  image_picker: ^0.8.6+1
   
 
 dev_dependencies:

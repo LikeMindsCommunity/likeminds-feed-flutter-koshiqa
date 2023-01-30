@@ -12,6 +12,7 @@ class PostWidget extends StatelessWidget {
   final PostUser user;
   final int postType;
   final bool showActions;
+
   const PostWidget(
       {super.key,
       required this.postType,
@@ -29,12 +30,17 @@ class PostWidget extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            PostHeader(user: user),
+            PostHeader(
+              user: user,
+              post: postDetails,
+            ),
             PostDescription(
               text: postDetails.text,
             ),
             PostMediaFactory(attachments: postDetails.attachments),
-            showActions ? PostActions() : SizedBox.shrink()
+            showActions
+                ? PostActions(postDetails: postDetails)
+                : const SizedBox.shrink()
           ],
         ),
       ),

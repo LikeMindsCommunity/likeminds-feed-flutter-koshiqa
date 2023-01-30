@@ -1,5 +1,10 @@
 ${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh
+${BUILT_PRODUCTS_DIR}/AWSCognito/AWSCognito.framework
+${BUILT_PRODUCTS_DIR}/AWSCore/AWSCore.framework
+${BUILT_PRODUCTS_DIR}/AWSS3/AWSS3.framework
+${BUILT_PRODUCTS_DIR}/image_picker_ios/image_picker_ios.framework
 ${BUILT_PRODUCTS_DIR}/path_provider_foundation/path_provider_foundation.framework
+${BUILT_PRODUCTS_DIR}/simple_s3/simple_s3.framework
 ${BUILT_PRODUCTS_DIR}/url_launcher_ios/url_launcher_ios.framework
 ${BUILT_PRODUCTS_DIR}/video_player_avfoundation/video_player_avfoundation.framework
 ${BUILT_PRODUCTS_DIR}/wakelock/wakelock.framework

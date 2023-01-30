@@ -57,7 +57,7 @@ class FollowingTabPost extends StatelessWidget {
                   'This text contains tags and links : https://likeminds.community/  and @Suryansh',
             ),
             // PostMediaFactory(postType: postType),
-            showActions ? PostActions() : SizedBox.shrink(),
+            // showActions ? PostActions() : SizedBox.shrink(),
             FollowingTabBottom()
           ],
         ),

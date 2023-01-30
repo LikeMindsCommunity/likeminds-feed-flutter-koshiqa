@@ -96,7 +96,7 @@ class FollowingTabBottom extends StatelessWidget {
             ),
           ),
           // const Spacer(),
-          DropdownOptions()
+          // DropdownOptions()
         ],
       ),
     );

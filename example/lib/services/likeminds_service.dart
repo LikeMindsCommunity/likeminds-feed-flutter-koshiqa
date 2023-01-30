@@ -2,6 +2,7 @@ import 'package:feed_sdk/feed_sdk.dart';
 
 abstract class ILikeMindsService {
   Future<InitiateUserResponse> initiateUser(InitiateUserRequest request);
+  Future<AddPostResponse> addPost(AddPostRequest request);
 }
 
 class LikeMindsService implements ILikeMindsService {
@@ -15,5 +16,10 @@ class LikeMindsService implements ILikeMindsService {
   @override
   Future<InitiateUserResponse> initiateUser(InitiateUserRequest request) async {
     return await _sdkApplication.getAuthApi().initiateUser(request);
+  }
+
+  @override
+  Future<AddPostResponse> addPost(AddPostRequest request) {
+    return _sdkApplication.getPostApi().addPost(request);
   }
 }
