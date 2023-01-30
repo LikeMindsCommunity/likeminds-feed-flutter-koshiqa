@@ -29,12 +29,19 @@ class PostWidget extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            PostHeader(user: user),
+            PostHeader(
+                user: user,
+                menuItems: postDetails.menuItems,
+                postDetails: postDetails),
             PostDescription(
               text: postDetails.text,
             ),
             PostMediaFactory(attachments: postDetails.attachments),
-            showActions ? PostActions() : SizedBox.shrink()
+            showActions
+                ? PostActions(
+                    postId: postDetails.id,
+                  )
+                : SizedBox.shrink()
           ],
         ),
       ),
