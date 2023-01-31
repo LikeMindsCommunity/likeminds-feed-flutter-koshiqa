@@ -173,6 +173,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
               slivers: [
                 SliverToBoxAdapter(
                   child: PostWidget(
+                    refresh: () {},
                     postDetails: Post(
                         id: postDetailResponse.postReplies.id,
                         text: postDetailResponse.postReplies.text,

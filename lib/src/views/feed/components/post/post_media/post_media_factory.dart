@@ -14,9 +14,9 @@ class PostMediaFactory extends StatelessWidget {
   Widget build(BuildContext context) {
     if (attachments == null) return SizedBox.shrink();
     return attachments?.length == 1
-        ? PostImage(url: attachments![0].fileUrl ?? "")
+        ? PostImage(url: attachments![0].attachmentMeta.url ?? "")
         : PostMediaCarousel(
-            urls: attachments!.map((e) => e.fileUrl ?? "").toList());
+            urls: attachments!.map((e) => e.attachmentMeta.url ?? "").toList());
   }
 
   Widget postFactory(int postType) {

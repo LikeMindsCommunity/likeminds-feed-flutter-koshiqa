@@ -3,13 +3,15 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:feed_sdk/feed_sdk.dart';
+import 'package:feed_sx/src/service_locator.dart';
+import 'package:feed_sx/src/services/likeminds_service.dart';
 
 part 'universal_feed_event.dart';
 part 'universal_feed_state.dart';
 
 class UniversalFeedBloc extends Bloc<UniversalFeedEvent, UniversalFeedState> {
-  final FeedApi feedApi;
-  UniversalFeedBloc({required this.feedApi}) : super(UniversalFeedInitial()) {
+  // final FeedApi feedApi;
+  UniversalFeedBloc() : super(UniversalFeedInitial()) {
     on<UniversalFeedEvent>((event, emit) async {
       if (event is GetUniversalFeed) {
         await _mapGetUniversalFeedToState(
@@ -33,8 +35,8 @@ class UniversalFeedBloc extends Bloc<UniversalFeedEvent, UniversalFeedState> {
           prevFeed: (state as UniversalFeedLoaded).feed));
     }
     emit(UniversalFeedLoading());
-    UniversalFeedResponse? response =
-        await feedApi.getUniversalFeed(UniversalFeedRequest(page: offset));
+    UniversalFeedResponse? response = await locator<LikeMindsService>()
+        .getUniversalFeed(UniversalFeedRequest(page: offset));
 
     if (response == null) {
       emit(UniversalFeedError(message: "No data found"));

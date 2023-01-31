@@ -12,12 +12,15 @@ class PostWidget extends StatelessWidget {
   final PostUser user;
   final int postType;
   final bool showActions;
+  final Function refresh;
+
   const PostWidget(
       {super.key,
       required this.postType,
       this.showActions = true,
       required this.postDetails,
-      required this.user});
+      required this.user,
+      required this.refresh});
 
   @override
   Widget build(BuildContext context) {
@@ -38,10 +41,8 @@ class PostWidget extends StatelessWidget {
             ),
             PostMediaFactory(attachments: postDetails.attachments),
             showActions
-                ? PostActions(
-                    postId: postDetails.id,
-                  )
-                : SizedBox.shrink()
+                ? PostActions(postDetails: postDetails, refresh: refresh)
+                : const SizedBox.shrink()
           ],
         ),
       ),
