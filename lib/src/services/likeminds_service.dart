@@ -6,7 +6,11 @@ import 'package:feed_sx/src/services/credential_service.dart';
 abstract class ILikeMindsService {
   FeedApi getFeedApi();
   Future<InitiateUserResponse> initiateUser(InitiateUserRequest request);
+  Future<bool> getMemberState();
   Future<UniversalFeedResponse?> getUniversalFeed(UniversalFeedRequest request);
+  Future<GetFeedRoomResponse> getFeedRoom(GetFeedRoomRequest request);
+  Future<GetFeedOfFeedRoomResponse> getFeedOfFeedRoom(
+      GetFeedOfFeedRoomRequest request);
   Future<AddPostResponse> addPost(AddPostRequest request);
   Future<GetPostResponse> getPost(GetPostRequest request);
   Future<GetPostLikesResponse> getPostLikes(GetPostLikesRequest request);
@@ -20,7 +24,7 @@ class LikeMindsService implements ILikeMindsService {
   final String apiKey = "bad53fff-c85a-4098-b011-ac36703cc98b";
 
   LikeMindsService() {
-    _sdkApplication = LikeMindsFeedSDK.initiateLikeMinds(apiKey);
+    _sdkApplication = LMClient.initiateLikeMinds(apiKey);
   }
 
   @override
@@ -65,7 +69,23 @@ class LikeMindsService implements ILikeMindsService {
   }
 
   @override
-  Future<String?> uploadFile(File file) {
-    return _sdkApplication.getMediaApi().uploadFile(file);
+  Future<String?> uploadFile(File file) async {
+    return await _sdkApplication.getMediaApi().uploadFile(file);
+  }
+
+  @override
+  Future<GetFeedOfFeedRoomResponse> getFeedOfFeedRoom(
+      GetFeedOfFeedRoomRequest request) async {
+    return await _sdkApplication.getFeedApi().getFeedOfFeedRoom(request);
+  }
+
+  @override
+  Future<GetFeedRoomResponse> getFeedRoom(GetFeedRoomRequest request) async {
+    return await _sdkApplication.getFeedApi().getFeedRoom(request);
+  }
+
+  @override
+  Future<bool> getMemberState() async {
+    return await _sdkApplication.getAccessApi().getMemberState();
   }
 }

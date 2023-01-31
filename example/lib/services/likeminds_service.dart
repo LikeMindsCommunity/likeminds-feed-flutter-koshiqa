@@ -3,6 +3,7 @@ import 'package:feed_sdk/feed_sdk.dart';
 abstract class ILikeMindsService {
   Future<InitiateUserResponse> initiateUser(InitiateUserRequest request);
   Future<AddPostResponse> addPost(AddPostRequest request);
+  Future<bool> getMemberState();
 }
 
 class LikeMindsService implements ILikeMindsService {
@@ -10,7 +11,7 @@ class LikeMindsService implements ILikeMindsService {
   final String apiKey = "bad53fff-c85a-4098-b011-ac36703cc98b";
 
   LikeMindsService() {
-    final SdkApplication sdk = LikeMindsFeedSDK.initiateLikeMinds(apiKey);
+    final SdkApplication sdk = LMClient.initiateLikeMinds(apiKey);
   }
 
   @override
@@ -21,5 +22,10 @@ class LikeMindsService implements ILikeMindsService {
   @override
   Future<AddPostResponse> addPost(AddPostRequest request) {
     return _sdkApplication.getPostApi().addPost(request);
+  }
+
+  @override
+  Future<bool> getMemberState() {
+    return _sdkApplication.getAccessApi().getMemberState();
   }
 }
