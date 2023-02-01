@@ -3,6 +3,7 @@
 import 'package:feed_sdk/feed_sdk.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/views/comments/blocs/add_comment/add_comment_bloc.dart';
+import 'package:feed_sx/src/views/comments/blocs/add_comment_reply/add_comment_reply_bloc.dart';
 import 'package:feed_sx/src/views/comments/blocs/all_comments/all_comments_bloc.dart';
 import 'package:feed_sx/src/views/comments/components/comment_tile.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_widget.dart';
@@ -23,10 +24,13 @@ class AllCommentsScreen extends StatefulWidget {
 class _AllCommentsScreenState extends State<AllCommentsScreen> {
   late final AllCommentsBloc _allCommentsBloc;
   late final AddCommentBloc _addCommentBloc;
+  late final AddCommentReplyBloc _addCommentReplyBloc;
   final TextEditingController _commentController = TextEditingController();
   String commentVal = "";
   final PagingController<int, Reply> _pagingController =
       PagingController(firstPageKey: 1);
+  String? selectedCommentId;
+  String? selectedUsername;
   @override
   void initState() {
     // TODO: implement initState
@@ -37,6 +41,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
         postDetailRequest: PostDetailRequest(postId: widget.postId, page: 1),
         forLoadMore: false));
     _addCommentBloc = AddCommentBloc(feedApi: feedApi);
+    _addCommentReplyBloc = AddCommentReplyBloc(feedApi: feedApi);
     _addPaginationListener();
   }
 
@@ -48,6 +53,20 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
           postDetailRequest:
               PostDetailRequest(postId: widget.postId, page: pageKey),
           forLoadMore: true));
+    });
+  }
+
+  selectCommentToReply(String commentId, String username) {
+    setState(() {
+      selectedCommentId = commentId;
+      selectedUsername = username;
+    });
+  }
+
+  deselectCommentToReply() {
+    setState(() {
+      selectedCommentId = null;
+      selectedUsername = null;
     });
   }
 
@@ -64,58 +83,148 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
               offset: Offset(0, -5),
             ),
           ]),
-          child: TextField(
-            controller: _commentController,
-            onChanged: (val) {
-              setState(() {
-                commentVal = val;
-              });
-            },
-            decoration: InputDecoration(
-              suffixIconConstraints: BoxConstraints(
-                maxHeight: 50,
-                maxWidth: 50,
-              ),
-              suffixIcon: BlocConsumer<AddCommentBloc, AddCommentState>(
-                bloc: _addCommentBloc,
-                listener: ((context, state) {
-                  if (state is AddCommentSuccess) {
-                    _commentController.clear();
-                    _pagingController.refresh();
-                    _page = 1;
-
-                    _allCommentsBloc.add(GetAllComments(
-                        postDetailRequest:
-                            PostDetailRequest(postId: widget.postId, page: 1),
-                        forLoadMore: false));
-                  }
-                }),
-                builder: (context, state) {
-                  if (state is AddCommentLoading)
-                    return Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              selectedCommentId != null
+                  ? Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Row(
+                        children: [
+                          Text(
+                            "Replying to",
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: kHeadingColor),
+                          ),
+                          SizedBox(
+                            width: 8,
+                          ),
+                          Text(
+                            selectedUsername!,
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: kPrimaryColor),
+                          ),
+                          Spacer(),
+                          IconButton(
+                            onPressed: () {
+                              deselectCommentToReply();
+                            },
+                            icon: Icon(
+                              Icons.close,
+                              color: kGreyColor,
+                            ),
+                          ),
+                        ],
                       ),
-                    );
-                  return IconButton(
-                    onPressed: commentVal.isEmpty
-                        ? null
-                        : () {
-                            _addCommentBloc.add(AddComment(
-                                addCommentRequest: AddCommentRequest(
-                                    postId: widget.postId, text: commentVal)));
-                          },
-                    icon: Icon(
-                      Icons.send,
-                      color: commentVal.isNotEmpty ? kPrimaryColor : kGreyColor,
-                    ),
-                  );
+                    )
+                  : SizedBox(),
+              TextField(
+                controller: _commentController,
+                onChanged: (val) {
+                  setState(() {
+                    commentVal = val;
+                  });
                 },
+                decoration: InputDecoration(
+                  suffixIconConstraints: BoxConstraints(
+                    maxHeight: 50,
+                    maxWidth: 50,
+                  ),
+                  suffixIcon: selectedCommentId == null
+                      ? BlocConsumer<AddCommentBloc, AddCommentState>(
+                          bloc: _addCommentBloc,
+                          listener: ((context, state) {
+                            if (state is AddCommentSuccess) {
+                              _commentController.clear();
+                              _pagingController.refresh();
+                              _page = 1;
+
+                              _allCommentsBloc.add(GetAllComments(
+                                  postDetailRequest: PostDetailRequest(
+                                      postId: widget.postId, page: 1),
+                                  forLoadMore: false));
+                            }
+                          }),
+                          builder: (context, state) {
+                            if (state is AddCommentLoading)
+                              return Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              );
+                            return IconButton(
+                              onPressed: commentVal.isEmpty
+                                  ? null
+                                  : () {
+                                      _addCommentBloc.add(AddComment(
+                                          addCommentRequest: AddCommentRequest(
+                                              postId: widget.postId,
+                                              text: commentVal)));
+                                    },
+                              icon: Icon(
+                                Icons.send,
+                                color: commentVal.isNotEmpty
+                                    ? kPrimaryColor
+                                    : kGreyColor,
+                              ),
+                            );
+                          },
+                        )
+                      : BlocConsumer<AddCommentReplyBloc, AddCommentReplyState>(
+                          bloc: _addCommentReplyBloc,
+                          listener: ((context, state) {
+                            if (state is AddCommentReplySuccess) {
+                              _commentController.clear();
+                              _pagingController.refresh();
+                              _page = 1;
+
+                              _allCommentsBloc.add(GetAllComments(
+                                  postDetailRequest: PostDetailRequest(
+                                      postId: widget.postId, page: 1),
+                                  forLoadMore: false));
+                            }
+                          }),
+                          builder: (context, state) {
+                            if (state is AddCommentReplyLoading)
+                              return Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              );
+                            return IconButton(
+                              onPressed: commentVal.isEmpty
+                                  ? null
+                                  : () {
+                                      _addCommentReplyBloc.add(AddCommentReply(
+                                          addCommentRequest:
+                                              AddCommentReplyRequest(
+                                                  postId: widget.postId,
+                                                  text: commentVal,
+                                                  commentId:
+                                                      selectedCommentId!)));
+                                    },
+                              icon: Icon(
+                                Icons.send,
+                                color: commentVal.isNotEmpty
+                                    ? kPrimaryColor
+                                    : kGreyColor,
+                              ),
+                            );
+                          },
+                        ),
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+                  hintText: 'Write a comment',
+                ),
               ),
-              contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 8),
-              hintText: 'Write a comment',
-            ),
+            ],
           ),
         ),
       ),
@@ -192,13 +301,16 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                 ),
                 SliverPadding(padding: EdgeInsets.only(bottom: 12)),
                 PagedSliverList(
+                  // addAutomaticKeepAlives: true,
                   pagingController: _pagingController,
                   builderDelegate: PagedChildBuilderDelegate<Reply>(
                       itemBuilder: (context, item, index) {
                     return CommentTile(
+                      key: ValueKey(item.id),
                       reply: item,
                       user: postDetailResponse.users[item.userId]!,
                       postId: postDetailResponse.postReplies.id,
+                      onReply: selectCommentToReply,
                     );
                   }),
                 ),
