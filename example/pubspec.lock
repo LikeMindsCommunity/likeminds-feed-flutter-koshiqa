@@ -158,7 +158,7 @@ packages:
   feed_sdk:
     dependency: "direct main"
     description:
-      path: "../../LikeMinds-Flutter-SDK"
+      path: "../../LikeMinds-Flutter-Feed-SDK"
       relative: true
     source: path
     version: "0.0.1"

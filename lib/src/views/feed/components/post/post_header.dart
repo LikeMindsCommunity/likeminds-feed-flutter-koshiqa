@@ -5,7 +5,6 @@ import 'package:feed_sx/src/views/comments/all_comments_screen.dart';
 import 'package:feed_sx/src/views/feed/components/dropdown_options.dart';
 import 'package:feed_sx/src/views/report_post/report_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:timeago/timeago.dart' as timeago;
 
 class PostHeader extends StatelessWidget {
   final PostUser user;
