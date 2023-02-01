@@ -19,6 +19,7 @@ class PostHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isEdited = postDetails.createdAt != postDetails.updatedAt;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
@@ -28,7 +29,6 @@ class PostHeader extends StatelessWidget {
             child: user.imageUrl.isEmpty
                 ? Image.asset('packages/feed_sx/assets/images/avatar.png')
                 : Image.network(user.imageUrl),
-            // child: Image.asset('packages/feed_sx/assets/images/avatar.png'),
           ),
           kHorizontalPaddingLarge,
           Column(
@@ -38,28 +38,12 @@ class PostHeader extends StatelessWidget {
                 children: [
                   Text(
                     user.name,
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontSize: kFontMedium,
                         color: kGrey1Color,
                         fontWeight: FontWeight.w500),
                   ),
                   kHorizontalPaddingLarge,
-                  // Container(
-                  //   decoration: BoxDecoration(
-                  //       color: kPrimaryColor,
-                  //       borderRadius:
-                  //           BorderRadius.circular(kBorderRadiusXSmall)),
-                  //   padding: const EdgeInsets.symmetric(
-                  //       vertical: kPaddingSmall, horizontal: kPaddingMedium),
-                  //   child: const Text(
-                  //     'Admin',
-                  //     style: TextStyle(
-                  //       fontSize: kFontXSmall,
-                  //       color: kWhiteColor,
-                  //       fontWeight: FontWeight.w500,
-                  //       // height: 1.45,
-                  //     ),
-                  //   ),
                   // )
                 ],
               ),
@@ -72,12 +56,12 @@ class PostHeader extends StatelessWidget {
                   ),
                   kHorizontalPaddingXSmall,
                   Text(
-                    '·',
+                    isEdited ? '·' : '',
                     style: TextStyle(fontSize: kFontSmall, color: kGrey3Color),
                   ),
                   kHorizontalPaddingXSmall,
                   Text(
-                    'Edited',
+                    isEdited ? 'Edited' : '',
                     style: TextStyle(fontSize: kFontSmall, color: kGrey3Color),
                   ),
                 ],
@@ -85,7 +69,10 @@ class PostHeader extends StatelessWidget {
             ],
           ),
           const Spacer(),
-          DropdownOptions(menuItems: menuItems)
+          DropdownOptions(
+            menuItems: menuItems,
+            postDetails: postDetails,
+          )
         ],
       ),
     );
