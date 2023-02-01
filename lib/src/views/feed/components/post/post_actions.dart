@@ -59,7 +59,7 @@ class _PostActionsState extends State<PostActions> {
                     if (response.success) {
                       setState(() {
                         isLiked = !isLiked;
-                        postLikes = response.likes!;
+                        postLikes++;
 
                         refresh();
                       });

@@ -84,10 +84,10 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                     _pagingController.refresh();
                     _page = 1;
 
-                    _allCommentsBloc.add(GetAllComments(
-                        postDetailRequest:
-                            PostDetailRequest(postId: widget.postId, page: 1),
-                        forLoadMore: false));
+                    // _allCommentsBloc.add(GetAllComments(
+                    //     postDetailRequest:
+                    //         PostDetailRequest(postId: widget.postId, page: 1),
+                    //     forLoadMore: false));
                   }
                 }),
                 builder: (context, state) {
