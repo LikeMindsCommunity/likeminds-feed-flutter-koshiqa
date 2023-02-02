@@ -14,4 +14,4 @@ The sample app already has a test community loaded in the credentials file. To s
 
 The sample UI package has componenets which you can use in your own code by using this package locally by providing a path to the root directory in your `pubspec.yaml` file.
 
-The LikeMinds Feed SDK package is hosted on [pub.dev]("https://pub.dev/packages/likeminds_feed")
+The LikeMinds Feed SDK package is hosted on [pub.dev](https://pub.dev/packages/likeminds_feed)
