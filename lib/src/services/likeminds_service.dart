@@ -1,6 +1,7 @@
 import 'dart:io';
 
-import 'package:feed_sdk/feed_sdk.dart';
+import 'package:feed_sx/credentials.dart';
+import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/src/services/credential_service.dart';
 
 abstract class ILikeMindsService {
@@ -21,10 +22,9 @@ abstract class ILikeMindsService {
 
 class LikeMindsService implements ILikeMindsService {
   late final SdkApplication _sdkApplication;
-  final String apiKey = "bad53fff-c85a-4098-b011-ac36703cc98b";
 
   LikeMindsService() {
-    _sdkApplication = LMClient.initiateLikeMinds(apiKey);
+    _sdkApplication = LMClient.initiateLikeMinds(BETA_API_KEY);
   }
 
   @override

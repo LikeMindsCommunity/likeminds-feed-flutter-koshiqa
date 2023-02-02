@@ -1,5 +1,7 @@
-import 'package:feed_sdk/feed_sdk.dart';
+import 'package:likeminds_feed/likeminds_feed.dart';
+import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
+import 'package:feed_sx/src/views/comments/all_comments_screen.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_actions.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_description.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_header.dart';
@@ -7,23 +9,34 @@ import 'package:feed_sx/src/views/feed/components/post/post_media/post_image.dar
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_media_factory.dart';
 import 'package:flutter/material.dart';
 
-class PostWidget extends StatelessWidget {
+class PostWidget extends StatefulWidget {
   final Post postDetails;
   final PostUser user;
   final int postType;
   final bool showActions;
-  final Function refresh;
+  const PostWidget({
+    super.key,
+    required this.postType,
+    this.showActions = true,
+    required this.postDetails,
+    required this.user,
+  });
 
-  const PostWidget(
-      {super.key,
-      required this.postType,
-      this.showActions = true,
-      required this.postDetails,
-      required this.user,
-      required this.refresh});
+  @override
+  State<PostWidget> createState() => _PostWidgetState();
+}
+
+class _PostWidgetState extends State<PostWidget> {
+  refresh() {
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
+    final postDetails = widget.postDetails;
+    final user = widget.user;
+    final showActions = widget.showActions;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Container(
@@ -49,3 +62,18 @@ class PostWidget extends StatelessWidget {
     );
   }
 }
+
+// class PostWidget extends StatelessWidget {
+//   const PostWidget({
+//     super.key,
+//     required this.postType,
+//     this.showActions = true,
+//     required this.postDetails,
+//     required this.user,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+    
+//   }
+// }

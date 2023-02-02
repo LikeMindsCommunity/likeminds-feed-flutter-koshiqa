@@ -1,4 +1,4 @@
-import 'package:feed_sdk/feed_sdk.dart';
+import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_document_list.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_image.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_media_carousel.dart';

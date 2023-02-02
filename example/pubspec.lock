@@ -155,13 +155,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.3.1"
-  feed_sdk:
-    dependency: "direct main"
-    description:
-      path: "../../LikeMinds-Flutter-Feed-SDK"
-      relative: true
-    source: path
-    version: "0.0.1"
   feed_sx:
     dependency: "direct main"
     description:
@@ -358,7 +351,7 @@ packages:
       name: json_serializable
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "6.6.0"
+    version: "6.6.1"
   lazy_load_scrollview:
     dependency: transitive
     description:
@@ -366,6 +359,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.3.0"
+  likeminds_feed:
+    dependency: "direct main"
+    description:
+      name: likeminds_feed
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.5.0"
   lints:
     dependency: transitive
     description:

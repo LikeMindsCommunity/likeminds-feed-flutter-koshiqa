@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:feed_sdk/feed_sdk.dart';
+import 'package:likeminds_feed/likeminds_feed.dart';
 
 part 'all_comments_event.dart';
 part 'all_comments_state.dart';
@@ -26,7 +26,7 @@ class AllCommentsBloc extends Bloc<AllCommentsEvent, AllCommentsState> {
       required bool forLoadMore,
       required Emitter<AllCommentsState> emit}) async {
     // if (!hasReachedMax(state, forLoadMore)) {
-    Map<String, PostUser> users = {};
+    Map<String, PostUser>? users = {};
     if (state is AllCommentsLoaded) {
       users = (state as AllCommentsLoaded).postDetails.users;
       emit(PaginatedAllCommentsLoading(
@@ -34,7 +34,6 @@ class AllCommentsBloc extends Bloc<AllCommentsEvent, AllCommentsState> {
     } else {
       emit(AllCommentsLoading());
     }
-    print("hellobook");
 
     PostDetailResponse? response = await feedApi.getPost(postDetailRequest);
     if (response == null) {

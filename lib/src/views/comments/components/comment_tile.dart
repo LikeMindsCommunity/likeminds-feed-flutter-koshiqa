@@ -1,6 +1,8 @@
 import 'package:collection/collection.dart';
-import 'package:feed_sdk/feed_sdk.dart';
+import 'package:likeminds_feed/likeminds_feed.dart';
+import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/packages/expandable_text/expandable_text.dart';
+import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/utils.dart';
@@ -46,7 +48,7 @@ class _CommentTileState extends State<CommentTile>
     user = widget.user;
     postId = widget.postId;
     isLiked = reply.isLiked;
-    FeedApi feedApi = RepositoryProvider.of<FeedApi>(context);
+    FeedApi feedApi = locator<LikeMindsService>().getFeedApi();
     _toggleLikeCommentBloc = ToggleLikeCommentBloc(feedApi: feedApi);
     _commentRepliesBloc = CommentRepliesBloc(feedApi: feedApi);
   }
@@ -140,7 +142,9 @@ class _CommentTileState extends State<CommentTile>
                             forLoadMore: false));
                       },
                       child: Text(
-                        "${widget.reply.repliesCount}  replies",
+                        widget.reply.repliesCount > 1
+                            ? "${widget.reply.repliesCount}  replies"
+                            : "${widget.reply.repliesCount}  reply",
                         style: TextStyle(
                             fontSize: kFontSmall, color: kPrimaryColor),
                       ),
