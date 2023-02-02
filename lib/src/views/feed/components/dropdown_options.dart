@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:feed_sdk/feed_sdk.dart';
+import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
@@ -7,7 +7,7 @@ import 'package:feed_sx/src/views/report_post/report_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:feed_sdk/feed_sdk.dart' as sdk;
+import 'package:likeminds_feed/likeminds_feed.dart' as sdk;
 
 class DropdownOptions extends StatelessWidget {
   final Post postDetails;

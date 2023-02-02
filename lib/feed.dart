@@ -1,6 +1,7 @@
 library feed;
 
-import 'package:feed_sdk/feed_sdk.dart';
+import 'package:feed_sx/credentials.dart';
+import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/views/feed/feedroom_screen.dart';
@@ -18,25 +19,39 @@ export 'src/views/following_tab/following_tab_screen.dart';
 export 'src/service_locator.dart';
 
 class LMFeed extends StatefulWidget {
-  const LMFeed({Key? key}) : super(key: key);
+  final String? userId;
+  final String? userName;
+
+  static LMFeed? _instance;
+  static LMFeed instance({String? userId, String? userName}) =>
+      _instance ??= LMFeed._(userId: userId, userName: userName);
+
+  LMFeed._({
+    Key? key,
+    this.userId,
+    this.userName,
+  }) : super(key: key);
 
   @override
   _LMFeedState createState() => _LMFeedState();
 }
 
 class _LMFeedState extends State<LMFeed> {
+  User? user;
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<InitiateUserResponse>(
       future: locator<LikeMindsService>().initiateUser(
         InitiateUserRequest(
-          userId: "22b6a64f-66bf-4bca-800e-b40ca66f924d",
+          userId: widget.userId!.isEmpty ? BETA_BOT_ID : widget.userId,
+          userName: widget.userName!.isEmpty ? "Jane Doe" : widget.userName,
           // userName: "Divyansh Gandhi Integration",
         ),
       ),
       initialData: null,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.hasData) {
+          user = User.fromJson(snapshot.data.data["user"]);
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             onGenerateRoute: (settings) {
@@ -64,13 +79,13 @@ class _LMFeedState extends State<LMFeed> {
                   },
                 );
               }
-              if (settings.name == NewPostScreen.route) {
-                return MaterialPageRoute(
-                  builder: (context) {
-                    return NewPostScreen();
-                  },
-                );
-              }
+              // if (settings.name == NewPostScreen.route) {
+              //   return MaterialPageRoute(
+              //     builder: (context) {
+              //       return NewPostScreen();
+              //     },
+              //   );
+              // }
             },
             home: FutureBuilder(
               future: locator<LikeMindsService>().getMemberState(),
@@ -79,6 +94,7 @@ class _LMFeedState extends State<LMFeed> {
                 if (snapshot.hasData) {
                   return FeedRoomScreen(
                     isCm: snapshot.data,
+                    user: user!,
                   );
                 } else {
                   return const Center(child: CircularProgressIndicator());

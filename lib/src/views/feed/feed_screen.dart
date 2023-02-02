@@ -1,6 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'package:feed_sdk/feed_sdk.dart';
+import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/sdk/branding_sdk.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
@@ -14,7 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-// import 'package:feed_sdk/feed_sdk.dart';
+// import 'package:likeminds_feed/likeminds_feed.dart';
 
 const List<int> DUMMY_FEEDROOMS = [72200, 72232, 72233];
 
@@ -78,10 +78,10 @@ class _FeedScreenState extends State<FeedScreen> {
               pagingController: _pagingController,
               builderDelegate: PagedChildBuilderDelegate<Post>(
                 itemBuilder: (context, item, index) => PostWidget(
-                    postType: 1,
-                    postDetails: item,
-                    user: feedResponse.users[item.userId]!,
-                    refresh: refresh),
+                  postType: 1,
+                  postDetails: item,
+                  user: feedResponse.users[item.userId]!,
+                ),
               ),
             );
           }
@@ -90,9 +90,9 @@ class _FeedScreenState extends State<FeedScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          MaterialPageRoute route =
-              MaterialPageRoute(builder: (context) => NewPostScreen());
-          Navigator.push(context, route);
+          // MaterialPageRoute route =
+          //     MaterialPageRoute(builder: (context) => NewPostScreen());
+          // Navigator.push(context, route);
         },
         child: const Icon(Icons.add),
         backgroundColor: kPrimaryColor,

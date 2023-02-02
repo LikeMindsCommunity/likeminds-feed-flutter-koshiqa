@@ -1,4 +1,4 @@
-import 'package:feed_sdk/feed_sdk.dart';
+import 'package:likeminds_feed/likeminds_feed.dart';
 
 abstract class ILikeMindsService {
   Future<InitiateUserResponse> initiateUser(InitiateUserRequest request);

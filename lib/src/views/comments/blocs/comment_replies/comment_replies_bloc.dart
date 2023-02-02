@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:feed_sdk/feed_sdk.dart';
+import 'package:likeminds_feed/likeminds_feed.dart';
 
 part 'comment_replies_event.dart';
 part 'comment_replies_state.dart';

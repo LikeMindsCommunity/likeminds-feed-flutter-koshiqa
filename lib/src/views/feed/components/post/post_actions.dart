@@ -1,4 +1,4 @@
-import 'package:feed_sdk/feed_sdk.dart';
+import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/navigation/arguments.dart';
@@ -25,26 +25,22 @@ class PostActions extends StatefulWidget {
 }
 
 class _PostActionsState extends State<PostActions> {
-  bool isLiked = false;
   int postLikes = 0;
+  int comments = 0;
+  late final Post postDetails;
+  late bool isLiked;
 
-  isLikedByMe(Post postDetails) async {
-    final response = await locator<LikeMindsService>().getPostLikes(
-      GetPostLikesRequest(postId: postDetails.id),
-    );
-    if (response.users!.keys.contains("5d428e4d-984d-4ab5-8d2b-0adcdbab2ad8")) {
-      setState(() {
-        isLiked = true;
-      });
-    }
+  @override
+  void initState() {
+    super.initState();
+    postDetails = widget.postDetails;
+    postLikes = postDetails.likeCount;
+    comments = postDetails.commentCount;
+    isLiked = postDetails.isLiked;
   }
 
   @override
   Widget build(BuildContext context) {
-    final postDetails = widget.postDetails;
-    postLikes = postDetails.likeCount;
-    final refresh = widget.refresh;
-
     return Row(
       children: [
         Row(
@@ -58,16 +54,19 @@ class _PostActionsState extends State<PostActions> {
                         .likePost(LikePostRequest(postId: postDetails.id));
                     if (response.success) {
                       setState(() {
+                        if (isLiked) {
+                          postLikes--;
+                        } else {
+                          postLikes++;
+                        }
                         isLiked = !isLiked;
-                        postLikes++;
-
-                        refresh();
+                        // refresh();
                       });
                     }
                   },
                   icon: isLiked
-                      ? const Icon(Icons.favorite)
-                      : const Icon(Icons.favorite_border),
+                      ? SvgPicture.asset(kAssetLikeFilledIcon)
+                      : SvgPicture.asset(kAssetLikeIcon),
                   color: isLiked ? Colors.red : kGrey2Color,
                 ),
                 GestureDetector(
@@ -98,8 +97,10 @@ class _PostActionsState extends State<PostActions> {
                         AllCommentsScreenArguments(postId: postDetails.id));
               },
               icon: SvgPicture.asset(kAssetCommentIcon),
-              label: const Text(
-                kStringAddComment,
+              label: Text(
+                comments > 0
+                    ? "$comments ${comments > 1 ? " Comments" : " Comment"}"
+                    : "Comment",
                 style: TextStyle(fontSize: 14),
               ),
               style: ButtonStyle(

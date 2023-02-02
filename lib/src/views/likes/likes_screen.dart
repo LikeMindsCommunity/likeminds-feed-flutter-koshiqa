@@ -1,5 +1,5 @@
-import 'package:feed_sdk/feed_sdk.dart';
-import 'package:feed_sdk/src/models/post/get_likes_response_model.dart';
+import 'package:likeminds_feed/likeminds_feed.dart';
+import 'package:likeminds_feed/src/models/post/get_likes_response_model.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:flutter/material.dart';
 

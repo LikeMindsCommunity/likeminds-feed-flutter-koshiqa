@@ -1,4 +1,4 @@
-import 'package:feed_sdk/feed_sdk.dart';
+import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/utils.dart';
 import 'package:feed_sx/src/views/comments/all_comments_screen.dart';
@@ -25,9 +25,22 @@ class PostHeader extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(24)),
+            height: 48,
+            width: 48,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              color: kPrimaryColor,
+            ),
             child: user.imageUrl.isEmpty
-                ? Image.asset('packages/feed_sx/assets/images/avatar.png')
+                ? Center(
+                    child: Text(
+                    user.name[0].toUpperCase(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ))
                 : Image.network(user.imageUrl),
           ),
           kHorizontalPaddingLarge,

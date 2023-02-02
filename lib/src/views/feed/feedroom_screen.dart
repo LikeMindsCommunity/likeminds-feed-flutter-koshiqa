@@ -1,6 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'package:feed_sdk/feed_sdk.dart';
+import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/data/local_db/local_db_impl.dart';
 import 'package:feed_sx/src/data/models/branding/branding.dart';
@@ -20,15 +20,18 @@ import 'package:flutter/material.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-// import 'package:feed_sdk/feed_sdk.dart';
+// import 'package:likeminds_feed/likeminds_feed.dart';
 
-const List<int> DUMMY_FEEDROOMS = [72200, 72232, 72233];
+const List<int> DUMMY_FEEDROOMS = [72345, 72346, 72347];
+// const List<int> DUMMY_FEEDROOMS = [72200, 72232, 72233];
 
 class FeedRoomScreen extends StatefulWidget {
   final bool isCm;
+  final User user;
   const FeedRoomScreen({
     super.key,
     required this.isCm,
+    required this.user,
   });
 
   @override
@@ -55,6 +58,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
   @override
   Widget build(BuildContext context) {
     final isCm = widget.isCm;
+    final user = widget.user;
     if (isCm) {
       _feedBloc.add(GetFeedRoomList(feedRoomIds: DUMMY_FEEDROOMS));
     } else {
@@ -90,11 +94,18 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                     itemCount: feedResponse.posts!.length,
                     itemBuilder: (BuildContext context, int index) {
                       final item = feedResponse.posts![index];
-                      return PostWidget(
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(context, AllCommentsScreen.route,
+                              arguments:
+                                  AllCommentsScreenArguments(postId: item.id));
+                        },
+                        child: PostWidget(
                           postType: 1,
                           postDetails: item,
                           user: feedResponse.users[item.userId]!,
-                          refresh: refresh);
+                        ),
+                      );
                     },
                   ),
                 ),
@@ -102,8 +113,12 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () {
-                MaterialPageRoute route =
-                    MaterialPageRoute(builder: (context) => NewPostScreen());
+                MaterialPageRoute route = MaterialPageRoute(
+                    builder: (context) => NewPostScreen(
+                          feedRoomId: feedRoom.chatroom?["id"],
+                          user: user,
+                          feedBloc: _feedBloc,
+                        ));
                 Navigator.push(context, route);
               },
               child: const Icon(Icons.add),

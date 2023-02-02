@@ -1,6 +1,8 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'package:feed_sdk/feed_sdk.dart';
+import 'package:likeminds_feed/likeminds_feed.dart';
+import 'package:feed_sx/feed.dart';
+import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/views/comments/blocs/add_comment/add_comment_bloc.dart';
 import 'package:feed_sx/src/views/comments/blocs/add_comment_reply/add_comment_reply_bloc.dart';
@@ -35,7 +37,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    FeedApi feedApi = RepositoryProvider.of<FeedApi>(context);
+    FeedApi feedApi = locator<LikeMindsService>().getFeedApi();
     _allCommentsBloc = AllCommentsBloc(feedApi: feedApi);
     _allCommentsBloc.add(GetAllComments(
         postDetailRequest: PostDetailRequest(postId: widget.postId, page: 1),
@@ -144,10 +146,10 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                               _pagingController.refresh();
                               _page = 1;
 
-                              _allCommentsBloc.add(GetAllComments(
-                                  postDetailRequest: PostDetailRequest(
-                                      postId: widget.postId, page: 1),
-                                  forLoadMore: false));
+                              // _allCommentsBloc.add(GetAllComments(
+                              //     postDetailRequest: PostDetailRequest(
+                              //         postId: widget.postId, page: 1),
+                              //     forLoadMore: false));
                             }
                           }),
                           builder: (context, state) {
@@ -182,12 +184,11 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                             if (state is AddCommentReplySuccess) {
                               _commentController.clear();
                               _pagingController.refresh();
+                              selectedCommentId = null;
+                              selectedUsername = null;
                               _page = 1;
 
-                              _allCommentsBloc.add(GetAllComments(
-                                  postDetailRequest: PostDetailRequest(
-                                      postId: widget.postId, page: 1),
-                                  forLoadMore: false));
+                              deselectCommentToReply();
                             }
                           }),
                           builder: (context, state) {
@@ -209,6 +210,9 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                                   text: commentVal,
                                                   commentId:
                                                       selectedCommentId!)));
+                                      selectedCommentId = null;
+                                      selectedUsername = null;
+                                      // deselectCommentToReply();
                                     },
                               icon: Icon(
                                 Icons.send,
@@ -282,19 +286,22 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
               slivers: [
                 SliverToBoxAdapter(
                   child: PostWidget(
-                    refresh: () {},
                     postDetails: Post(
-                        id: postDetailResponse.postReplies.id,
-                        text: postDetailResponse.postReplies.text,
-                        attachments: postDetailResponse.postReplies.attachments,
-                        communityId: postDetailResponse.postReplies.communityId,
-                        isPinned: postDetailResponse.postReplies.isPinned,
-                        userId: postDetailResponse.postReplies.userId,
-                        likeCount: postDetailResponse.postReplies.likeCount,
-                        isSaved: postDetailResponse.postReplies.isSaved,
-                        menuItems: postDetailResponse.postReplies.menuItems,
-                        createdAt: postDetailResponse.postReplies.createdAt,
-                        updatedAt: postDetailResponse.postReplies.updatedAt),
+                      id: postDetailResponse.postReplies.id,
+                      text: postDetailResponse.postReplies.text,
+                      attachments: postDetailResponse.postReplies.attachments,
+                      communityId: postDetailResponse.postReplies.communityId,
+                      isPinned: postDetailResponse.postReplies.isPinned,
+                      userId: postDetailResponse.postReplies.userId,
+                      likeCount: postDetailResponse.postReplies.likeCount,
+                      isSaved: postDetailResponse.postReplies.isSaved,
+                      menuItems: postDetailResponse.postReplies.menuItems,
+                      createdAt: postDetailResponse.postReplies.createdAt,
+                      updatedAt: postDetailResponse.postReplies.updatedAt,
+                      isLiked: postDetailResponse.postReplies.isLiked,
+                      commentCount:
+                          postDetailResponse.postReplies.commentsCount,
+                    ),
                     user: postDetailResponse
                         .users[postDetailResponse.postReplies.userId]!,
                     postType: 0,
