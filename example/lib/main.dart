@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: CredScreen(),
+      home: const CredScreen(),
     );
   }
 }
@@ -36,15 +36,13 @@ class _CredScreenState extends State<CredScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 6, 92, 193),
+      backgroundColor: const Color.fromARGB(255, 6, 92, 193),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 18.0),
         child: Column(
           children: [
-            SizedBox(
-              height: 72,
-            ),
-            Text(
+            const SizedBox(height: 72),
+            const Text(
               "Koshiqa Beta\nSample App",
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -53,15 +51,15 @@ class _CredScreenState extends State<CredScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 64),
-            Text("Enter your credentials",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                )),
-            SizedBox(
-              height: 18,
+            const SizedBox(height: 64),
+            const Text(
+              "Enter your credentials",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+              ),
             ),
+            const SizedBox(height: 18),
             TextField(
               cursorColor: Colors.white,
               controller: _usernameController,
@@ -72,14 +70,12 @@ class _CredScreenState extends State<CredScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 labelText: 'Username',
-                labelStyle: TextStyle(
+                labelStyle: const TextStyle(
                   color: Colors.white,
                 ),
               ),
             ),
-            SizedBox(
-              height: 12,
-            ),
+            const SizedBox(height: 12),
             TextField(
               controller: _userIdController,
               decoration: InputDecoration(
@@ -89,13 +85,11 @@ class _CredScreenState extends State<CredScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   labelText: 'User ID',
-                  labelStyle: TextStyle(
+                  labelStyle: const TextStyle(
                     color: Colors.white,
                   )),
             ),
-            SizedBox(
-              height: 36,
-            ),
+            const SizedBox(height: 36),
             GestureDetector(
               onTap: () {
                 MaterialPageRoute route = MaterialPageRoute(
@@ -111,17 +105,18 @@ class _CredScreenState extends State<CredScreen> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Center(child: Text("Submit")),
+                child: const Center(child: Text("Submit")),
               ),
             ),
-            SizedBox(height: 72),
-            Text(
-                "If no credentials are provided, the app will run with the default credentials of Bot user in your community",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                )),
+            const SizedBox(height: 72),
+            const Text(
+              "If no credentials are provided, the app will run with the default credentials of Bot user in your community",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+              ),
+            ),
           ],
         ),
       ),

@@ -10,7 +10,7 @@ class PostDescription extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
         padding: const EdgeInsets.symmetric(
-            horizontal: kPaddingLarge, vertical: kPaddingMedium),
+            horizontal: 24, vertical: kPaddingMedium),
         child: TextWithLinks(
           text: text,
           style: const TextStyle(fontSize: kFontMedium, color: kGreyColor),

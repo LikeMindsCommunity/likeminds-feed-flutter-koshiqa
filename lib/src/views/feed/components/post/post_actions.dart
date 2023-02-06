@@ -10,12 +10,14 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class PostActions extends StatefulWidget {
   final Post postDetails;
-  final Function refresh;
+  final Function() refresh;
+  final bool isFeed;
 
   const PostActions({
     super.key,
     required this.postDetails,
     required this.refresh,
+    required this.isFeed,
   });
 
   get getPostDetails => postDetails;
@@ -28,7 +30,8 @@ class _PostActionsState extends State<PostActions> {
   int postLikes = 0;
   int comments = 0;
   late final Post postDetails;
-  late bool isLiked;
+  late bool isLiked, isFeed;
+  late Function() refresh;
 
   @override
   void initState() {
@@ -37,6 +40,8 @@ class _PostActionsState extends State<PostActions> {
     postLikes = postDetails.likeCount;
     comments = postDetails.commentCount;
     isLiked = postDetails.isLiked;
+    refresh = widget.refresh;
+    isFeed = widget.isFeed;
   }
 
   @override
@@ -49,6 +54,7 @@ class _PostActionsState extends State<PostActions> {
             Row(
               children: [
                 IconButton(
+                  enableFeedback: false,
                   onPressed: () async {
                     final response = await locator<LikeMindsService>()
                         .likePost(LikePostRequest(postId: postDetails.id));
@@ -91,17 +97,22 @@ class _PostActionsState extends State<PostActions> {
             ),
             kHorizontalPaddingSmall,
             TextButton.icon(
-              onPressed: () {
-                Navigator.pushNamed(context, AllCommentsScreen.route,
-                    arguments:
-                        AllCommentsScreenArguments(postId: postDetails.id));
-              },
+              onPressed: isFeed
+                  ? () {
+                      Navigator.pushNamed(
+                        context,
+                        AllCommentsScreen.route,
+                        arguments:
+                            AllCommentsScreenArguments(post: postDetails),
+                      ).then((value) => refresh());
+                    }
+                  : () {},
               icon: SvgPicture.asset(kAssetCommentIcon),
               label: Text(
                 comments > 0
                     ? "$comments ${comments > 1 ? " Comments" : " Comment"}"
                     : "Comment",
-                style: TextStyle(fontSize: 14),
+                style: const TextStyle(fontSize: 14),
               ),
               style: ButtonStyle(
                   textStyle: MaterialStateProperty.all(
@@ -110,19 +121,19 @@ class _PostActionsState extends State<PostActions> {
             )
           ],
         ),
-        const Spacer(),
-        Row(
-          children: [
-            IconButton(
-              onPressed: () {},
-              icon: SvgPicture.asset(kAssetBookmarkIcon),
-            ),
-            IconButton(
-              onPressed: () {},
-              icon: SvgPicture.asset(kAssetShareIcon),
-            ),
-          ],
-        ),
+        // const Spacer(),
+        // Row(
+        //   children: [
+        //     IconButton(
+        //       onPressed: () {},
+        //       icon: SvgPicture.asset(kAssetBookmarkIcon),
+        //     ),
+        //     IconButton(
+        //       onPressed: () {},
+        //       icon: SvgPicture.asset(kAssetShareIcon),
+        //     ),
+        //   ],
+        // ),
       ],
     );
   }

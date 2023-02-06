@@ -16,13 +16,11 @@ class NewPostScreen extends StatefulWidget {
   static const String route = "/new_post_screen";
   final int feedRoomId;
   final User user;
-  final FeedRoomBloc feedBloc;
 
   const NewPostScreen({
     super.key,
     required this.feedRoomId,
     required this.user,
-    required this.feedBloc,
   });
 
   @override
@@ -35,7 +33,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
   List<Attachment> attachments = [];
   bool uploaded = false;
   bool isUploading = false;
-  late final uploadedUrl;
+  late final String uploadedUrl;
   late final User user;
   late final FeedRoomBloc feedBloc;
   late final int feedRoomId;
@@ -44,7 +42,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
   void initState() {
     super.initState();
     user = widget.user;
-    feedBloc = widget.feedBloc;
     feedRoomId = widget.feedRoomId;
   }
 
@@ -64,7 +61,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
               children: [
                 BackButton(
                   onPressed: () {
-                    feedBloc.add(GetFeedRoom(feedRoomId: feedRoomId));
                     Navigator.of(context).pop();
                   },
                 ),
@@ -83,7 +79,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
                       final AddPostResponse response =
                           await locator<LikeMindsService>().addPost(request);
                       if (response.success) {
-                        feedBloc.add(GetFeedRoom(feedRoomId: feedRoomId));
                         Navigator.of(context).pop();
                       }
                     }
@@ -150,8 +145,19 @@ class _NewPostScreenState extends State<NewPostScreen> {
               //     fontWeight: FontWeight.w500,
               //   ),
               // ),
-              Image.network(uploadedUrl),
-            kVerticalPaddingLarge,
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: kGrey2Color.withOpacity(0.2),
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: NetworkImage(uploadedUrl),
+                    ),
+                  ),
+                ),
+              ),
+            kVerticalPaddingXLarge,
             AddAssetsButton(
               leading: SvgPicture.asset(
                 'packages/feed_sx/assets/icons/add_photo.svg',
@@ -165,17 +171,23 @@ class _NewPostScreenState extends State<NewPostScreen> {
                 });
               },
               onUploaded: (String? response) {
-                attachments.add(Attachment(
-                  attachmentType: 1,
-                  attachmentMeta: AttachmentMeta(
-                    url: response,
-                  ),
-                ));
-                setState(() {
-                  uploaded = true;
-                  isUploading = false;
-                  uploadedUrl = response;
-                });
+                if (response != null && response.isNotEmpty) {
+                  attachments.add(Attachment(
+                    attachmentType: 1,
+                    attachmentMeta: AttachmentMeta(
+                      url: response,
+                    ),
+                  ));
+                  setState(() {
+                    uploaded = true;
+                    isUploading = false;
+                    uploadedUrl = response;
+                  });
+                } else {
+                  setState(() {
+                    isUploading = false;
+                  });
+                }
               },
             ),
             // AddAssetsButton(
@@ -225,6 +237,9 @@ class AddAssetsButton extends StatelessWidget {
           } else {
             print('Error uploading file');
           }
+        } else {
+          print('No image selected');
+          onUploaded(null);
         }
       },
       child: Container(

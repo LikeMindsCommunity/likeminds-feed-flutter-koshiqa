@@ -14,12 +14,17 @@ class PostWidget extends StatefulWidget {
   final PostUser user;
   final int postType;
   final bool showActions;
+  final Function() refresh;
+  final bool isFeed;
+
   const PostWidget({
     super.key,
     required this.postType,
     this.showActions = true,
     required this.postDetails,
     required this.user,
+    required this.refresh,
+    this.isFeed = true,
   });
 
   @override
@@ -27,16 +32,24 @@ class PostWidget extends StatefulWidget {
 }
 
 class _PostWidgetState extends State<PostWidget> {
-  refresh() {
-    setState(() {});
+  late final Post postDetails;
+  late final PostUser user;
+  late final bool showActions;
+  late final Function() refresh;
+  late bool isFeed;
+
+  @override
+  void initState() {
+    super.initState();
+    postDetails = widget.postDetails;
+    user = widget.user;
+    showActions = widget.showActions;
+    refresh = widget.refresh;
+    isFeed = widget.isFeed;
   }
 
   @override
   Widget build(BuildContext context) {
-    final postDetails = widget.postDetails;
-    final user = widget.user;
-    final showActions = widget.showActions;
-
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Container(
@@ -54,7 +67,11 @@ class _PostWidgetState extends State<PostWidget> {
             ),
             PostMediaFactory(attachments: postDetails.attachments),
             showActions
-                ? PostActions(postDetails: postDetails, refresh: refresh)
+                ? PostActions(
+                    postDetails: postDetails,
+                    refresh: refresh,
+                    isFeed: isFeed,
+                  )
                 : const SizedBox.shrink()
           ],
         ),
@@ -62,18 +79,3 @@ class _PostWidgetState extends State<PostWidget> {
     );
   }
 }
-
-// class PostWidget extends StatelessWidget {
-//   const PostWidget({
-//     super.key,
-//     required this.postType,
-//     this.showActions = true,
-//     required this.postDetails,
-//     required this.user,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-    
-//   }
-// }
