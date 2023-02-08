@@ -48,6 +48,15 @@ class DropdownOptions extends StatelessWidget {
                 ))
             .toList(),
         color: kWhiteColor,
+        child: const SizedBox(
+          height: 24,
+          width: 24,
+          child: Icon(
+            Icons.more_horiz,
+            color: kGrey1Color,
+            size: 24,
+          ),
+        ),
       );
     });
   }

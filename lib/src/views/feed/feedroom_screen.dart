@@ -74,7 +74,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                       },
                     )
                   : null,
-              title: Text(feedRoom.chatroom!["title"]),
+              title: Text(feedRoom.chatroom!.title),
               backgroundColor: kPrimaryColor,
             ),
             body: Column(
@@ -92,7 +92,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                                       AllCommentsScreenArguments(post: item))
                               .then((value) => {
                                     _feedBloc.add(GetFeedRoom(
-                                        feedRoomId: feedRoom.chatroom!["id"]))
+                                        feedRoomId: feedRoom.chatroom!.id))
                                   });
                         },
                         child: PostWidget(
@@ -100,8 +100,8 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                           postDetails: item,
                           user: feedResponse.users[item.userId]!,
                           refresh: () {
-                            _feedBloc.add(GetFeedRoom(
-                                feedRoomId: feedRoom.chatroom!["id"]));
+                            _feedBloc.add(
+                                GetFeedRoom(feedRoomId: feedRoom.chatroom!.id));
                           },
                         ),
                       );
@@ -115,12 +115,12 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
               onTap: () {
                 MaterialPageRoute route = MaterialPageRoute(
                     builder: (context) => NewPostScreen(
-                          feedRoomId: feedRoom.chatroom?["id"],
+                          feedRoomId: feedRoom.chatroom!.id,
                           user: user,
                         ));
                 Navigator.push(context, route).then((value) => {
-                      _feedBloc.add(
-                          GetFeedRoom(feedRoomId: feedRoom.chatroom!["id"]))
+                      _feedBloc
+                          .add(GetFeedRoom(feedRoomId: feedRoom.chatroom!.id))
                     });
               },
             ),
@@ -146,7 +146,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                           onTap: () {
                             _feedBloc.add(
                               GetFeedRoom(
-                                feedRoomId: item.chatroom!["id"],
+                                feedRoomId: item.chatroom!.id,
                                 feedRoomResponse: item,
                               ),
                             );
@@ -181,7 +181,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                       },
                     )
                   : null,
-              title: Text(state.feedRoom.chatroom!["title"]),
+              title: Text(state.feedRoom.chatroom!.title),
               backgroundColor: kPrimaryColor,
             ),
             body: Center(
@@ -209,12 +209,12 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                     onTap: () {
                       MaterialPageRoute route = MaterialPageRoute(
                           builder: (context) => NewPostScreen(
-                                feedRoomId: state.feedRoom.chatroom?["id"],
+                                feedRoomId: state.feedRoom.chatroom!.id,
                                 user: user,
                               ));
                       Navigator.push(context, route).then((value) => {
                             _feedBloc.add(GetFeedRoom(
-                                feedRoomId: state.feedRoom.chatroom!["id"]))
+                                feedRoomId: state.feedRoom.chatroom!.id))
                           });
                     },
                   ),
@@ -225,7 +225,9 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
         }
         return Scaffold(
             backgroundColor: kBackgroundColor,
-            body: Center(child: const Loader()));
+            body: Center(
+              child: const Loader(),
+            ));
       }),
     );
   }

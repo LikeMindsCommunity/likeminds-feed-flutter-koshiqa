@@ -27,7 +27,7 @@ class FeedRoomBloc extends Bloc<FeedRoomEvent, FeedRoomState> {
             page: 1,
           ),
         );
-        if (response == null) {
+        if (!response.success) {
           emit(FeedRoomError(message: "No data found"));
         } else {
           if (response.posts == null || response.posts!.isEmpty) {

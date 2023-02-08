@@ -1,5 +1,6 @@
 library feed;
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:feed_sx/credentials.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
@@ -37,7 +38,25 @@ class LMFeed extends StatefulWidget {
 }
 
 class _LMFeedState extends State<LMFeed> {
+  late final deviceInfo;
   User? user;
+
+  @override
+  void initState() {
+    super.initState();
+    device();
+  }
+
+  device() async {
+    final deviceInfoPlugin = DeviceInfoPlugin();
+    final deviceInfo = await deviceInfoPlugin.deviceInfo;
+    final allInfo = deviceInfo.data;
+    allInfo.forEach((key, value) {
+      print("$key: $value");
+    });
+    print("Device id - ${allInfo["identifierForVendor"]}");
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<InitiateUserResponse>(
@@ -56,11 +75,6 @@ class _LMFeedState extends State<LMFeed> {
             user = User.fromJson(response.data!["user"]);
             return MaterialApp(
               debugShowCheckedModeBanner: false,
-              theme: ThemeData(
-                splashColor: Colors.transparent,
-                highlightColor: Colors.transparent,
-                hoverColor: Colors.transparent,
-              ),
               onGenerateRoute: (settings) {
                 if (settings.name == AllCommentsScreen.route) {
                   final args = settings.arguments as AllCommentsScreenArguments;
