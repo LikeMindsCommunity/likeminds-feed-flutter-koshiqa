@@ -1,20 +1,15 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:feed_sx/src/utils/constants/assets_constants.dart';
+import 'package:feed_sx/src/views/feed/components/new_post_button.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/data/local_db/local_db_impl.dart';
-import 'package:feed_sx/src/data/models/branding/branding.dart';
-import 'package:feed_sx/src/data/repositories/branding/branding_repository.dart';
 import 'package:feed_sx/src/navigation/arguments.dart';
-import 'package:feed_sx/src/sdk/branding_sdk.dart';
-import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/simple_bloc_observer.dart';
-import 'package:feed_sx/src/theme.dart';
 import 'package:feed_sx/src/views/feed/blocs/feedroom/feedroom_bloc.dart';
-import 'package:feed_sx/src/views/feed/components/custom_feed_app_bar.dart';
 import 'package:feed_sx/src/views/feed/components/feedroom_tile.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_widget.dart';
-import 'package:feed_sx/src/views/new_post/new_post_screen.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:flutter/material.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
@@ -48,10 +43,6 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     _feedBloc = FeedRoomBloc();
   }
 
-  refresh() => () {
-        setState(() {});
-      };
-
   int _page = 0;
   bool _addButton = false;
 
@@ -83,7 +74,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                       },
                     )
                   : null,
-              title: Text(feedRoom.chatroom!["title"]),
+              title: Text(feedRoom.chatroom!.title),
               backgroundColor: kPrimaryColor,
             ),
             body: Column(
@@ -97,13 +88,21 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                       return GestureDetector(
                         onTap: () {
                           Navigator.pushNamed(context, AllCommentsScreen.route,
-                              arguments:
-                                  AllCommentsScreenArguments(postId: item.id));
+                                  arguments:
+                                      AllCommentsScreenArguments(post: item))
+                              .then((value) => {
+                                    _feedBloc.add(GetFeedRoom(
+                                        feedRoomId: feedRoom.chatroom!.id))
+                                  });
                         },
                         child: PostWidget(
                           postType: 1,
                           postDetails: item,
                           user: feedResponse.users[item.userId]!,
+                          refresh: () {
+                            _feedBloc.add(
+                                GetFeedRoom(feedRoomId: feedRoom.chatroom!.id));
+                          },
                         ),
                       );
                     },
@@ -111,18 +110,19 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                 ),
               ],
             ),
-            floatingActionButton: FloatingActionButton(
-              onPressed: () {
+            floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
+            floatingActionButton: NewPostButton(
+              onTap: () {
                 MaterialPageRoute route = MaterialPageRoute(
                     builder: (context) => NewPostScreen(
-                          feedRoomId: feedRoom.chatroom?["id"],
+                          feedRoomId: feedRoom.chatroom!.id,
                           user: user,
-                          feedBloc: _feedBloc,
                         ));
-                Navigator.push(context, route);
+                Navigator.push(context, route).then((value) => {
+                      _feedBloc
+                          .add(GetFeedRoom(feedRoomId: feedRoom.chatroom!.id))
+                    });
               },
-              child: const Icon(Icons.add),
-              backgroundColor: kPrimaryColor,
             ),
           );
         } else if (state is FeedRoomListLoaded) {
@@ -146,7 +146,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                           onTap: () {
                             _feedBloc.add(
                               GetFeedRoom(
-                                feedRoomId: item.chatroom!["id"],
+                                feedRoomId: item.chatroom!.id,
                                 feedRoomResponse: item,
                               ),
                             );
@@ -161,10 +161,73 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
           return Scaffold(
               backgroundColor: kBackgroundColor,
               body: Center(child: Text(state.message)));
+        } else if (state is FeedRoomListEmpty) {
+          return Scaffold(
+            backgroundColor: kBackgroundColor,
+            body: Center(
+              child: Text("No feedrooms found"),
+            ),
+          );
+        } else if (state is FeedRoomEmpty) {
+          return Scaffold(
+            backgroundColor: kBackgroundColor,
+            appBar: AppBar(
+              leading: isCm
+                  ? BackButton(
+                      color: Colors.white,
+                      onPressed: () {
+                        _feedBloc
+                            .add(GetFeedRoomList(feedRoomIds: DUMMY_FEEDROOMS));
+                      },
+                    )
+                  : null,
+              title: Text(state.feedRoom.chatroom!.title),
+              backgroundColor: kPrimaryColor,
+            ),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset(
+                    kAssetPostsIcon,
+                    color: kGrey3Color,
+                  ),
+                  SizedBox(height: 12),
+                  Text("No posts to show",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      )),
+                  SizedBox(height: 12),
+                  Text("Be the first one to post here",
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w300,
+                          color: kGrey2Color)),
+                  SizedBox(height: 28),
+                  NewPostButton(
+                    onTap: () {
+                      MaterialPageRoute route = MaterialPageRoute(
+                          builder: (context) => NewPostScreen(
+                                feedRoomId: state.feedRoom.chatroom!.id,
+                                user: user,
+                              ));
+                      Navigator.push(context, route).then((value) => {
+                            _feedBloc.add(GetFeedRoom(
+                                feedRoomId: state.feedRoom.chatroom!.id))
+                          });
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
         }
         return Scaffold(
             backgroundColor: kBackgroundColor,
-            body: Center(child: const Loader()));
+            body: Center(
+              child: const Loader(),
+            ));
       }),
     );
   }

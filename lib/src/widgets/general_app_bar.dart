@@ -8,14 +8,24 @@ class GeneralAppBar extends StatelessWidget with PreferredSizeWidget {
   final Widget? title;
   final bool autoImplyEnd;
   final double elevation;
-  const GeneralAppBar(
-      {Key? key, this.title, this.autoImplyEnd = true, this.elevation = 0})
-      : super(key: key);
+  final Function()? backTap;
+  const GeneralAppBar({
+    Key? key,
+    this.title,
+    this.autoImplyEnd = true,
+    this.elevation = 0,
+    this.backTap,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      automaticallyImplyLeading: true,
+      leading: BackButton(
+        onPressed: backTap ??
+            () {
+              Navigator.pop(context);
+            },
+      ),
       actions: [
         autoImplyEnd
             ? GestureDetector(

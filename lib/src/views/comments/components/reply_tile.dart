@@ -51,8 +51,8 @@ class _ReplyTileState extends State<ReplyTile> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(color: kWhiteColor),
-      padding: EdgeInsets.all(kPaddingLarge),
+      decoration: const BoxDecoration(color: kWhiteColor),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -99,75 +99,17 @@ class _ReplyTileState extends State<ReplyTile> {
                     })),
                   ),
                   kHorizontalPaddingSmall,
-                  Text(
+                  const Text(
                     'Like',
                     style: TextStyle(fontSize: kFontSmall, color: kGrey3Color),
                   ),
                 ],
               ),
-              // kHorizontalPaddingMedium,
-              // Text(
-              //   '|',
-              //   style: TextStyle(fontSize: kFontSmall, color: kGrey3Color),
-              // ),
-              // kHorizontalPaddingMedium,
-              // Text(
-              //   'Reply',
-              //   style: TextStyle(fontSize: kFontSmall, color: kGrey3Color),
-              // ),
-              // kHorizontalPaddingMedium,
-              // Text(
-              //   '·',
-              //   style: TextStyle(fontSize: kFontSmall, color: kGrey3Color),
-              // ),
-              // kHorizontalPaddingMedium,
-              // GestureDetector(
-              //   onTap: () {
-              //     _commentRepliesBloc.add(GetCommentReplies(
-              //         commentDetailRequest: CommentDetailRequest(
-              //             commentId: reply.id, page: 1, postId: postId),
-              //         forLoadMore: false));
-              //   },
-              //   child: Text(
-              //     "${widget.reply.repliesCount}  replies",
-              //     style: TextStyle(fontSize: kFontSmall, color: kPrimaryColor),
-              //   ),
-              // ),
-              // BlocBuilder(
-              //     bloc: _commentRepliesBloc,
-              //     builder: ((context, state) {
-              //       if (state is CommentRepliesLoading) {
-              //         return Container(
-              //           height: 20,
-              //           width: 20,
-              //           child: CircularProgressIndicator(),
-              //         );
-              //       }
-              //       if (state is CommentRepliesLoaded) {
-              //         return ListView.builder(
-              //           itemBuilder: ((context, index) {
-              //             return ReplyTile(
-              //               reply:
-              //                   state.commentDetails.postReplies.replies[index],
-              //               user: state.commentDetails.users[state
-              //                   .commentDetails
-              //                   .postReplies
-              //                   .replies[index]
-              //                   .userId]!,
-              //               postId: postId,
-              //             );
-              //           }),
-              //           itemCount:
-              //               state.commentDetails.postReplies.replies.length,
-              //           shrinkWrap: true,
-              //         );
-              //       }
-              //       return Container();
-              //     })),
               Spacer(),
               Text(
                 reply.createdAt.timeAgo(),
-                style: TextStyle(fontSize: kFontSmall, color: kGrey3Color),
+                style:
+                    const TextStyle(fontSize: kFontSmall, color: kGrey3Color),
               ),
             ],
           )

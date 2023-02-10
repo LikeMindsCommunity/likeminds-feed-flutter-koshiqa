@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:feed_sx/src/utils/constants/string_constants.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/packages/expandable_text/expandable_text.dart';
@@ -39,7 +40,9 @@ class _CommentTileState extends State<CommentTile>
   late final Reply reply;
   late final PostUser user;
   late final String postId;
-  bool isLiked = false;
+  late final int likeCount;
+  bool isLiked = false, _replyVisible = false;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -48,6 +51,7 @@ class _CommentTileState extends State<CommentTile>
     user = widget.user;
     postId = widget.postId;
     isLiked = reply.isLiked;
+    likeCount = reply.likesCount;
     FeedApi feedApi = locator<LikeMindsService>().getFeedApi();
     _toggleLikeCommentBloc = ToggleLikeCommentBloc(feedApi: feedApi);
     _commentRepliesBloc = CommentRepliesBloc(feedApi: feedApi);
@@ -59,23 +63,30 @@ class _CommentTileState extends State<CommentTile>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Container(
-      decoration: BoxDecoration(color: kWhiteColor),
-      padding: EdgeInsets.all(kPaddingLarge),
+      decoration: const BoxDecoration(color: kWhiteColor),
+      padding: const EdgeInsets.all(kPaddingLarge),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Text(
-                widget.user.name,
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                user.name,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
               )
             ],
           ),
           kVerticalPaddingSmall,
-          ExpandableText(widget.reply.text,
-              expandText: 'show more', collapseText: 'show less'),
+          ExpandableText(
+            reply.text,
+            expandText: 'show more',
+            collapseText: 'show less',
+          ),
           kVerticalPaddingLarge,
           Row(
             children: [
@@ -84,6 +95,11 @@ class _CommentTileState extends State<CommentTile>
                   GestureDetector(
                     onTap: () {
                       setState(() {
+                        if (isLiked) {
+                          likeCount--;
+                        } else {
+                          likeCount++;
+                        }
                         isLiked = !isLiked;
                       });
 
@@ -109,51 +125,78 @@ class _CommentTileState extends State<CommentTile>
                   ),
                   kHorizontalPaddingSmall,
                   Text(
-                    'Like',
-                    style: TextStyle(fontSize: kFontSmall, color: kGrey3Color),
+                    likeCount > 0
+                        ? "$likeCount ${likeCount > 1 ? kStringLikes : kStringLike}"
+                        : kStringLike,
+                    style: const TextStyle(
+                      fontSize: kFontSmall,
+                      color: kGrey3Color,
+                    ),
                   ),
                 ],
               ),
               kHorizontalPaddingMedium,
-              Text(
+              const Text(
                 '|',
-                style: TextStyle(fontSize: kFontSmall, color: kGrey3Color),
+                style: TextStyle(
+                  fontSize: kFontSmall,
+                  color: kGrey3Color,
+                ),
               ),
               kHorizontalPaddingMedium,
               GestureDetector(
                 onTap: () => widget.onReply(reply.id, user.name),
-                child: Text(
+                child: const Text(
                   'Reply',
-                  style: TextStyle(fontSize: kFontSmall, color: kGrey3Color),
+                  style: TextStyle(
+                    fontSize: kFontSmall,
+                    color: kGrey3Color,
+                  ),
                 ),
               ),
               kHorizontalPaddingMedium,
-              Text(
+              const Text(
                 '·',
-                style: TextStyle(fontSize: kFontSmall, color: kGrey3Color),
+                style: TextStyle(
+                  fontSize: kFontSmall,
+                  color: kGrey3Color,
+                ),
               ),
               kHorizontalPaddingMedium,
               widget.reply.repliesCount > 0
                   ? GestureDetector(
                       onTap: () {
-                        _commentRepliesBloc.add(GetCommentReplies(
-                            commentDetailRequest: CommentDetailRequest(
-                                commentId: reply.id, page: 1, postId: postId),
-                            forLoadMore: false));
+                        if (_replyVisible) {
+                          setState(() {
+                            _replyVisible = false;
+                          });
+                          return;
+                        } else {
+                          _commentRepliesBloc.add(GetCommentReplies(
+                              commentDetailRequest: CommentDetailRequest(
+                                  commentId: reply.id, page: 1, postId: postId),
+                              forLoadMore: false));
+                          _replyVisible = true;
+                        }
                       },
                       child: Text(
                         widget.reply.repliesCount > 1
                             ? "${widget.reply.repliesCount}  replies"
                             : "${widget.reply.repliesCount}  reply",
-                        style: TextStyle(
-                            fontSize: kFontSmall, color: kPrimaryColor),
+                        style: const TextStyle(
+                          fontSize: kFontSmall,
+                          color: kPrimaryColor,
+                        ),
                       ),
                     )
                   : Container(),
-              Spacer(),
+              const Spacer(),
               Text(
                 reply.createdAt.timeAgo(),
-                style: TextStyle(fontSize: kFontSmall, color: kGrey3Color),
+                style: const TextStyle(
+                  fontSize: kFontSmall,
+                  color: kGrey3Color,
+                ),
               ),
             ],
           ),
@@ -179,15 +222,38 @@ class _CommentTileState extends State<CommentTile>
                   replies = state.prevCommentDetails.postReplies.replies;
                   users = state.prevCommentDetails.users;
                 }
-
-                List<Widget> repliesW = replies.mapIndexed((index, element) {
-                  return ReplyTile(
-                    key: ValueKey(element.id),
-                    reply: element,
-                    user: users[element.userId]!,
-                    postId: postId,
-                  );
-                }).toList();
+                List<Widget> repliesW = [];
+                if (_replyVisible) {
+                  repliesW = replies.mapIndexed((index, element) {
+                    return ReplyTile(
+                      // key: Key(element.id),
+                      reply: element,
+                      user: users[element.userId]!,
+                      postId: postId,
+                    );
+                    // if (index > 0) {
+                    //   if (element.id == replies[index - 1].id) {
+                    //     return const SizedBox(height: 0);
+                    //   } else {
+                    //     return ReplyTile(
+                    //       // key: Key(element.id),
+                    //       reply: element,
+                    //       user: users[element.userId]!,
+                    //       postId: postId,
+                    //     );
+                    //   }
+                    // } else {
+                    //   return ReplyTile(
+                    //     // key: Key(element.id),
+                    //     reply: element,
+                    //     user: users[element.userId]!,
+                    //     postId: postId,
+                    //   );
+                    // }
+                  }).toList();
+                } else {
+                  repliesW = [];
+                }
 
                 if (replies.length % 10 == 0) {
                   repliesW = [
@@ -202,7 +268,7 @@ class _CommentTileState extends State<CommentTile>
                                   postId: postId),
                               forLoadMore: true));
                         },
-                        child: Text(
+                        child: const Text(
                           'View more replies',
                           style: TextStyle(color: kBlueGreyColor, fontSize: 14),
                         ))
@@ -210,7 +276,7 @@ class _CommentTileState extends State<CommentTile>
                   // replies.add();
                 }
                 return Container(
-                  padding: EdgeInsets.only(left: 48),
+                  padding: const EdgeInsets.only(left: 48),
                   // width: MediaQuery.of(context).size.width,
                   // constraints: BoxConstraints(
                   //     maxHeight: MediaQuery.of(context).size.height * 0.5),

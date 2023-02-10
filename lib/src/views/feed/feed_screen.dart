@@ -81,6 +81,7 @@ class _FeedScreenState extends State<FeedScreen> {
                   postType: 1,
                   postDetails: item,
                   user: feedResponse.users[item.userId]!,
+                  refresh: refresh(),
                 ),
               ),
             );
