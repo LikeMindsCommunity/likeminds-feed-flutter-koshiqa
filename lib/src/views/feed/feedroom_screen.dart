@@ -17,8 +17,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 // import 'package:likeminds_feed/likeminds_feed.dart';
 
-// const List<int> DUMMY_FEEDROOMS = [72345, 72346, 72347];
-const List<int> DUMMY_FEEDROOMS = [72200, 72232, 72233];
+const List<int> DUMMY_FEEDROOMS = [72345, 72346, 72347];
+// const List<int> DUMMY_FEEDROOMS = [72200, 72232, 72233];
 
 class FeedRoomScreen extends StatefulWidget {
   final bool isCm;
