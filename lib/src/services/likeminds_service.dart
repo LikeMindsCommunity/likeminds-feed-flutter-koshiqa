@@ -24,7 +24,10 @@ class LikeMindsService implements ILikeMindsService {
   late final SdkApplication _sdkApplication;
 
   LikeMindsService() {
-    _sdkApplication = LMClient.initiateLikeMinds(BETA_API_KEY);
+    _sdkApplication = LMClient.initiateLikeMinds(
+      apiKey: BETA_API_KEY,
+      isProduction: false,
+    );
   }
 
   @override

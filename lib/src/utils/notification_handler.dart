@@ -39,7 +39,9 @@ class LMNotificationHandler {
   }
 
   Future<void> handleNotification(RemoteMessage message) async {
-    print("Notification received - ${message.notification!.title}");
+    if (message.data.isNotEmpty) {
+      print("Notification received - ${message.data["sub_title"]}");
+    }
     message.data.forEach((key, value) {
       print("$key: $value");
     });
