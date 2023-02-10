@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:feed_sx/credentials.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
-import 'package:feed_sx/src/services/credential_service.dart';
 
 abstract class ILikeMindsService {
   FeedApi getFeedApi();
@@ -18,6 +17,7 @@ abstract class ILikeMindsService {
   Future<DeletePostResponse> deletePost(DeletePostRequest request);
   Future<LikePostResponse> likePost(LikePostRequest request);
   Future<String?> uploadFile(File file);
+  Future<RegisterDeviceResponse> registerDevice(RegisterDeviceRequest request);
 }
 
 class LikeMindsService implements ILikeMindsService {
@@ -87,5 +87,11 @@ class LikeMindsService implements ILikeMindsService {
   @override
   Future<bool> getMemberState() async {
     return await _sdkApplication.getAccessApi().getMemberState();
+  }
+
+  @override
+  Future<RegisterDeviceResponse> registerDevice(
+      RegisterDeviceRequest request) async {
+    return await LMNotifications.registerDevice(request);
   }
 }

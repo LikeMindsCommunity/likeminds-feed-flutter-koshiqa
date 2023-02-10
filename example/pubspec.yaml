@@ -11,10 +11,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
   feed_sx:
     path: ../
   cupertino_icons: ^1.0.2
+  device_info_plus: ^8.0.0
+  firebase_core: ^2.4.1
+  firebase_messaging: ^14.2.1
 
 dev_dependencies:
   flutter_test:
