@@ -72,6 +72,7 @@ class _CredScreenState extends State<CredScreen> {
             GestureDetector(
               onTap: () {
                 MaterialPageRoute route = MaterialPageRoute(
+                    //STEP 2 - Get the LMFeed instance and pass the credentials (if any)
                     builder: (context) => LMFeed.instance(
                         userId: _userIdController.text,
                         userName: _usernameController.text));

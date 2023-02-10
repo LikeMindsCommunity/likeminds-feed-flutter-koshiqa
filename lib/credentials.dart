@@ -10,3 +10,6 @@
 //These are Flutter Sample community credentials
 const String BETA_API_KEY = "bad53fff-c85a-4098-b011-ac36703cc98b";
 const String BETA_BOT_ID = "22b6a64f-66bf-4bca-800e-b40ca66f924d";
+
+const String PROD_API_KEY = "cc07bf87-4265-4645-b64c-70404721b4b9";
+const String PROD_BOT_ID = "e95cf0e1-98a8-48dd-8e7d-eaea4a21566d";

@@ -2,6 +2,7 @@ library feed;
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:feed_sx/credentials.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/navigation/arguments.dart';
@@ -18,6 +19,7 @@ export 'src/views/comments/all_comments_screen.dart';
 export 'src/views/new_post/new_post_screen.dart';
 export 'src/views/following_tab/following_tab_screen.dart';
 export 'src/service_locator.dart';
+export 'src/utils/notification_handler.dart';
 
 class LMFeed extends StatefulWidget {
   final String? userId;
@@ -34,27 +36,26 @@ class LMFeed extends StatefulWidget {
   }) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _LMFeedState createState() => _LMFeedState();
 }
 
 class _LMFeedState extends State<LMFeed> {
-  late final deviceInfo;
   User? user;
 
   @override
   void initState() {
     super.initState();
-    device();
+    firebase();
   }
 
-  device() async {
-    final deviceInfoPlugin = DeviceInfoPlugin();
-    final deviceInfo = await deviceInfoPlugin.deviceInfo;
-    final allInfo = deviceInfo.data;
-    allInfo.forEach((key, value) {
-      print("$key: $value");
-    });
-    print("Device id - ${allInfo["identifierForVendor"]}");
+  firebase() {
+    try {
+      final firebase = Firebase.app();
+      print("Firebase - ${firebase.options.appId}");
+    } on FirebaseException catch (e) {
+      print("Make sure you have initialized firebase, ${e.toString()}");
+    }
   }
 
   @override
@@ -73,6 +74,7 @@ class _LMFeedState extends State<LMFeed> {
           InitiateUserResponse response = snapshot.data;
           if (response.success) {
             user = User.fromJson(response.data!["user"]);
+            LMNotificationHandler.instance.registerDevice(user!.id);
             return MaterialApp(
               debugShowCheckedModeBanner: false,
               onGenerateRoute: (settings) {
