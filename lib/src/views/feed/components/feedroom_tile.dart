@@ -35,8 +35,7 @@ class FeedRoomTile extends StatelessWidget {
                         shape: BoxShape.circle,
                         image: DecorationImage(
                           fit: BoxFit.fill,
-                          image: NetworkImage(
-                              item.chatroom!["chatroom_image_url"]),
+                          image: NetworkImage(item.chatroom!.chatroomImageUrl),
                         ),
                       ),
                     ),
@@ -46,15 +45,15 @@ class FeedRoomTile extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            item.chatroom!["header"],
-                            style: TextStyle(
+                            item.chatroom!.header,
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                           Text(
-                            "${item.chatroom!["participants_count"]} participants",
-                            style: TextStyle(
+                            "${item.chatroom!.participantsCount} participants",
+                            style: const TextStyle(
                               fontStyle: FontStyle.italic,
                               fontSize: 14,
                             ),

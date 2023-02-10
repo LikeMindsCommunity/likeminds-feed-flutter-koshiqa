@@ -25,6 +25,11 @@ class DropdownOptions extends StatelessWidget {
       return PopupMenuButton<int>(
         itemBuilder: (context) => menuItems
             .mapIndexed((index, element) => PopupMenuItem(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  height: 42,
                   value: index,
                   child: Text(element.title),
                   onTap: () async {
@@ -43,6 +48,15 @@ class DropdownOptions extends StatelessWidget {
                 ))
             .toList(),
         color: kWhiteColor,
+        child: const SizedBox(
+          height: 24,
+          width: 24,
+          child: Icon(
+            Icons.more_horiz,
+            color: kGrey1Color,
+            size: 24,
+          ),
+        ),
       );
     });
   }

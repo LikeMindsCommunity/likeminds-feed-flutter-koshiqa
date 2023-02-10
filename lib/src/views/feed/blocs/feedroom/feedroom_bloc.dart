@@ -27,13 +27,20 @@ class FeedRoomBloc extends Bloc<FeedRoomEvent, FeedRoomState> {
             page: 1,
           ),
         );
-        if (response == null) {
+        if (!response.success) {
           emit(FeedRoomError(message: "No data found"));
         } else {
-          emit(FeedRoomLoaded(
-            feed: response,
-            feedRoom: feedRoomResponse,
-          ));
+          if (response.posts == null || response.posts!.isEmpty) {
+            emit(FeedRoomEmpty(
+              feedRoom: feedRoomResponse,
+              feed: response,
+            ));
+          } else {
+            emit(FeedRoomLoaded(
+              feed: response,
+              feedRoom: feedRoomResponse,
+            ));
+          }
         }
       } else if (event is GetFeedRoomList) {
         emit(FeedRoomLoading());
@@ -51,7 +58,11 @@ class FeedRoomBloc extends Bloc<FeedRoomEvent, FeedRoomState> {
               feedRooms.add(response);
             }
           }
-          emit(FeedRoomListLoaded(feedRooms: feedRooms));
+          if (feedRooms.isEmpty) {
+            emit(FeedRoomListEmpty());
+          } else {
+            emit(FeedRoomListLoaded(feedRooms: feedRooms));
+          }
         } catch (e) {
           emit(FeedRoomError(message: "${e.toString()} No data found"));
         }

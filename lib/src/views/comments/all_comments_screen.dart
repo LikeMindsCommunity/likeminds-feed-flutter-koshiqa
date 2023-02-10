@@ -15,9 +15,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 class AllCommentsScreen extends StatefulWidget {
-  final String postId;
+  final Post post;
   static const String route = "/all_comments_screen";
-  const AllCommentsScreen({super.key, required this.postId});
+  const AllCommentsScreen({super.key, required this.post});
 
   @override
   State<AllCommentsScreen> createState() => _AllCommentsScreenState();
@@ -35,12 +35,11 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
   String? selectedUsername;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     FeedApi feedApi = locator<LikeMindsService>().getFeedApi();
     _allCommentsBloc = AllCommentsBloc(feedApi: feedApi);
     _allCommentsBloc.add(GetAllComments(
-        postDetailRequest: PostDetailRequest(postId: widget.postId, page: 1),
+        postDetailRequest: PostDetailRequest(postId: widget.post.id, page: 1),
         forLoadMore: false));
     _addCommentBloc = AddCommentBloc(feedApi: feedApi);
     _addCommentReplyBloc = AddCommentReplyBloc(feedApi: feedApi);
@@ -50,10 +49,9 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
   int _page = 1;
   _addPaginationListener() {
     _pagingController.addPageRequestListener((pageKey) {
-      print(pageKey.toString() + " : Page Key");
       _allCommentsBloc.add(GetAllComments(
           postDetailRequest:
-              PostDetailRequest(postId: widget.postId, page: pageKey),
+              PostDetailRequest(postId: widget.post.id, page: pageKey),
           forLoadMore: true));
     });
   }
@@ -75,8 +73,8 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      bottomNavigationBar: SafeArea(
+      resizeToAvoidBottomInset: true,
+      bottomSheet: SafeArea(
         child: Container(
           decoration: BoxDecoration(color: kWhiteColor, boxShadow: [
             BoxShadow(
@@ -133,6 +131,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                   });
                 },
                 decoration: InputDecoration(
+                  border: InputBorder.none,
                   suffixIconConstraints: BoxConstraints(
                     maxHeight: 50,
                     maxWidth: 50,
@@ -153,20 +152,21 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                             }
                           }),
                           builder: (context, state) {
-                            if (state is AddCommentLoading)
+                            if (state is AddCommentLoading) {
                               return Padding(
                                 padding: const EdgeInsets.all(16),
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
                                 ),
                               );
+                            }
                             return IconButton(
                               onPressed: commentVal.isEmpty
                                   ? null
                                   : () {
                                       _addCommentBloc.add(AddComment(
                                           addCommentRequest: AddCommentRequest(
-                                              postId: widget.postId,
+                                              postId: widget.post.id,
                                               text: commentVal)));
                                     },
                               icon: Icon(
@@ -192,13 +192,14 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                             }
                           }),
                           builder: (context, state) {
-                            if (state is AddCommentReplyLoading)
+                            if (state is AddCommentReplyLoading) {
                               return Padding(
                                 padding: const EdgeInsets.all(16),
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
                                 ),
                               );
+                            }
                             return IconButton(
                               onPressed: commentVal.isEmpty
                                   ? null
@@ -206,7 +207,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                       _addCommentReplyBloc.add(AddCommentReply(
                                           addCommentRequest:
                                               AddCommentReplyRequest(
-                                                  postId: widget.postId,
+                                                  postId: widget.post.id,
                                                   text: commentVal,
                                                   commentId:
                                                       selectedCommentId!)));
@@ -224,7 +225,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                           },
                         ),
                   contentPadding:
-                      EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+                      EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                   hintText: 'Write a comment',
                 ),
               ),
@@ -245,13 +246,13 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                   fontWeight: FontWeight.w500,
                   color: kHeadingColor),
             ),
-            // const Text(
-            //   '12 Comments',
-            //   style: TextStyle(
-            //       fontSize: 13,
-            //       fontWeight: FontWeight.w500,
-            //       color: kHeadingColor),
-            // ),
+            Text(
+              '${widget.post.commentCount} Comments',
+              style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: kHeadingColor),
+            ),
           ],
         ),
       ),
@@ -305,6 +306,8 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                     user: postDetailResponse
                         .users[postDetailResponse.postReplies.userId]!,
                     postType: 0,
+                    isFeed: false,
+                    refresh: () {},
                   ),
                 ),
                 SliverPadding(padding: EdgeInsets.only(bottom: 12)),
@@ -322,6 +325,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                     );
                   }),
                 ),
+                // SizedBox(height: 24),
                 // SliverList(
                 //   delegate: SliverChildBuilderDelegate(
                 //     (context, index) {

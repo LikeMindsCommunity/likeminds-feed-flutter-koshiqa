@@ -29,7 +29,7 @@ class CommentRepliesBloc
     // if (!hasReachedMax(state, forLoadMore)) {
     Map<String, PostUser> users = {};
     List<CommentReply> comments = [];
-    if (state is CommentRepliesLoaded) {
+    if (state is CommentRepliesLoaded && forLoadMore) {
       comments =
           (state as CommentRepliesLoaded).commentDetails.postReplies.replies;
       users = (state as CommentRepliesLoaded).commentDetails.users;

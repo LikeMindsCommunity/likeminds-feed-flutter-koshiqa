@@ -1,5 +1,6 @@
 library feed;
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:feed_sx/credentials.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
@@ -26,7 +27,7 @@ class LMFeed extends StatefulWidget {
   static LMFeed instance({String? userId, String? userName}) =>
       _instance ??= LMFeed._(userId: userId, userName: userName);
 
-  LMFeed._({
+  const LMFeed._({
     Key? key,
     this.userId,
     this.userName,
@@ -37,7 +38,25 @@ class LMFeed extends StatefulWidget {
 }
 
 class _LMFeedState extends State<LMFeed> {
+  late final deviceInfo;
   User? user;
+
+  @override
+  void initState() {
+    super.initState();
+    device();
+  }
+
+  device() async {
+    final deviceInfoPlugin = DeviceInfoPlugin();
+    final deviceInfo = await deviceInfoPlugin.deviceInfo;
+    final allInfo = deviceInfo.data;
+    allInfo.forEach((key, value) {
+      print("$key: $value");
+    });
+    print("Device id - ${allInfo["identifierForVendor"]}");
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<InitiateUserResponse>(
@@ -51,57 +70,60 @@ class _LMFeedState extends State<LMFeed> {
       initialData: null,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.hasData) {
-          user = User.fromJson(snapshot.data.data["user"]);
-          return MaterialApp(
-            debugShowCheckedModeBanner: false,
-            onGenerateRoute: (settings) {
-              if (settings.name == AllCommentsScreen.route) {
-                final args = settings.arguments as AllCommentsScreenArguments;
-                return MaterialPageRoute(
-                  builder: (context) {
-                    return AllCommentsScreen(
-                      postId: args.postId,
-                    );
-                  },
-                );
-              }
-              // if (settings.name == LikesScreen.route) {
-              //   return MaterialPageRoute(
-              //     builder: (context) {
-              //       return LikesScreen();
-              //     },
-              //   );
-              // }
-              if (settings.name == ReportPostScreen.route) {
-                return MaterialPageRoute(
-                  builder: (context) {
-                    return ReportPostScreen();
-                  },
-                );
-              }
-              // if (settings.name == NewPostScreen.route) {
-              //   return MaterialPageRoute(
-              //     builder: (context) {
-              //       return NewPostScreen();
-              //     },
-              //   );
-              // }
-            },
-            home: FutureBuilder(
-              future: locator<LikeMindsService>().getMemberState(),
-              initialData: null,
-              builder: (BuildContext context, AsyncSnapshot snapshot) {
-                if (snapshot.hasData) {
-                  return FeedRoomScreen(
-                    isCm: snapshot.data,
-                    user: user!,
+          InitiateUserResponse response = snapshot.data;
+          if (response.success) {
+            user = User.fromJson(response.data!["user"]);
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              onGenerateRoute: (settings) {
+                if (settings.name == AllCommentsScreen.route) {
+                  final args = settings.arguments as AllCommentsScreenArguments;
+                  return MaterialPageRoute(
+                    builder: (context) {
+                      return AllCommentsScreen(
+                        post: args.post,
+                      );
+                    },
                   );
-                } else {
-                  return const Center(child: CircularProgressIndicator());
                 }
+                // if (settings.name == LikesScreen.route) {
+                //   return MaterialPageRoute(
+                //     builder: (context) {
+                //       return LikesScreen();
+                //     },
+                //   );
+                // }
+                if (settings.name == ReportPostScreen.route) {
+                  return MaterialPageRoute(
+                    builder: (context) {
+                      return const ReportPostScreen();
+                    },
+                  );
+                }
+                // if (settings.name == NewPostScreen.route) {
+                //   return MaterialPageRoute(
+                //     builder: (context) {
+                //       return NewPostScreen();
+                //     },
+                //   );
+                // }
               },
-            ),
-          );
+              home: FutureBuilder(
+                future: locator<LikeMindsService>().getMemberState(),
+                initialData: null,
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (snapshot.hasData) {
+                    return FeedRoomScreen(
+                      isCm: snapshot.data,
+                      user: user!,
+                    );
+                  } else {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                },
+              ),
+            );
+          } else {}
         }
         return Container();
       },
