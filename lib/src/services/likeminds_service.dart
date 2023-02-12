@@ -18,16 +18,19 @@ abstract class ILikeMindsService {
   Future<LikePostResponse> likePost(LikePostRequest request);
   Future<String?> uploadFile(File file);
   Future<RegisterDeviceResponse> registerDevice(RegisterDeviceRequest request);
+  Future<BrandingResponse> getBranding(BrandingRequest request);
 }
 
 class LikeMindsService implements ILikeMindsService {
   late final SdkApplication _sdkApplication;
 
-  LikeMindsService() {
+  LikeMindsService(LMSdkCallback sdkCallback) {
     _sdkApplication = LMClient.initiateLikeMinds(
       apiKey: BETA_API_KEY,
       isProduction: false,
+      sdkCallback: sdkCallback,
     );
+    LMAnalytics.get().initialize();
   }
 
   @override
@@ -38,6 +41,11 @@ class LikeMindsService implements ILikeMindsService {
   @override
   FeedApi getFeedApi() {
     return _sdkApplication.getFeedApi();
+  }
+
+  @override
+  Future<BrandingResponse> getBranding(BrandingRequest request) async {
+    return await _sdkApplication.getBrandingApi().getBranding(request);
   }
 
   @override
