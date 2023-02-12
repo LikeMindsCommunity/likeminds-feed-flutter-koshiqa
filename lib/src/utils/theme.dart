@@ -1,9 +1,10 @@
-import 'package:feed_sx/src/data/models/branding/branding.dart';
 import 'package:flutter/material.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
+import 'package:likeminds_feed/likeminds_feed.dart';
 
 ThemeData getThemeDataFromBrandingData(Branding? branding) {
   print(branding?.basic?.primaryColor.toString());
+
   final ThemeData lightTheme = ThemeData.light();
   final ThemeData brandedTheme = lightTheme.copyWith(
     primaryColor: branding?.basic?.primaryColor,
