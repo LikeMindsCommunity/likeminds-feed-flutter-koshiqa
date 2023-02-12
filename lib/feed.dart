@@ -1,6 +1,5 @@
 library feed;
 
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:feed_sx/credentials.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
@@ -8,8 +7,6 @@ import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/views/feed/feedroom_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'src/services/likeminds_service.dart';
 
 export 'src/views/feed/feed_screen.dart';
@@ -18,7 +15,7 @@ export 'src/views/report_post/report_screen.dart';
 export 'src/views/comments/all_comments_screen.dart';
 export 'src/views/new_post/new_post_screen.dart';
 export 'src/views/following_tab/following_tab_screen.dart';
-export 'src/service_locator.dart';
+export 'src/services/service_locator.dart';
 export 'src/utils/notification_handler.dart';
 
 class LMFeed extends StatefulWidget {
@@ -26,8 +23,14 @@ class LMFeed extends StatefulWidget {
   final String? userName;
 
   static LMFeed? _instance;
-  static LMFeed instance({String? userId, String? userName}) =>
-      _instance ??= LMFeed._(userId: userId, userName: userName);
+  static LMFeed instance({
+    String? userId,
+    String? userName,
+  }) =>
+      _instance ??= LMFeed._(
+        userId: userId,
+        userName: userName,
+      );
 
   const LMFeed._({
     Key? key,
@@ -65,7 +68,6 @@ class _LMFeedState extends State<LMFeed> {
         InitiateUserRequest(
           userId: widget.userId!.isEmpty ? BETA_BOT_ID : widget.userId,
           userName: widget.userName!.isEmpty ? "Jane Doe" : widget.userName,
-          // userName: "Divyansh Gandhi Integration",
         ),
       ),
       initialData: null,

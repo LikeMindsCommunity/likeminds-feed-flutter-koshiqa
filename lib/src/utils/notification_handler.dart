@@ -1,4 +1,4 @@
-import 'package:feed_sx/src/service_locator.dart';
+import 'package:feed_sx/src/services/service_locator.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
@@ -35,13 +35,13 @@ class LMNotificationHandler {
     } else {
       throw Exception("Device registration for notification failed");
     }
-    // print("Register Device Response - ${response.toString()}");
   }
 
   Future<void> handleNotification(RemoteMessage message) async {
-    if (message.data.isNotEmpty) {
-      print("Notification received - ${message.data["sub_title"]}");
-    }
+    //TODO: Add logic to handle notification
+    // First, check if the message contains a data payload.
+    // Second, check if this is a LM notification
+    // Third, extract the notification data and routes to the appropriate screen
     message.data.forEach((key, value) {
       print("$key: $value");
     });

@@ -121,6 +121,7 @@ class _PostActionsState extends State<PostActions> {
             )
           ],
         ),
+        // TODO: Add bookmark and share icons
         // const Spacer(),
         // Row(
         //   children: [
