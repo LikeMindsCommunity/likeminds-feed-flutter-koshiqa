@@ -40,7 +40,7 @@ class _CommentTileState extends State<CommentTile>
   late final Reply reply;
   late final PostUser user;
   late final String postId;
-  late final int likeCount;
+  int? likeCount;
   bool isLiked = false, _replyVisible = false;
 
   @override
@@ -96,9 +96,9 @@ class _CommentTileState extends State<CommentTile>
                     onTap: () {
                       setState(() {
                         if (isLiked) {
-                          likeCount--;
+                          likeCount = likeCount! - 1;
                         } else {
-                          likeCount++;
+                          likeCount = likeCount! + 1;
                         }
                         isLiked = !isLiked;
                       });
@@ -125,8 +125,8 @@ class _CommentTileState extends State<CommentTile>
                   ),
                   kHorizontalPaddingSmall,
                   Text(
-                    likeCount > 0
-                        ? "$likeCount ${likeCount > 1 ? kStringLikes : kStringLike}"
+                    likeCount! > 0
+                        ? "$likeCount ${likeCount! > 1 ? kStringLikes : kStringLike}"
                         : kStringLike,
                     style: const TextStyle(
                       fontSize: kFontSmall,

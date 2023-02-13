@@ -1,5 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:feed_sx/feed.dart';
+import 'package:overlay_support/overlay_support.dart';
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return OverlaySupport.global(
+      child: MaterialApp(
+        title: 'Integration App for UI + SDK package',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: const CredScreen(),
+      ),
+    );
+  }
+}
 
 class CredScreen extends StatefulWidget {
   const CredScreen({super.key});
@@ -72,10 +91,13 @@ class _CredScreenState extends State<CredScreen> {
             GestureDetector(
               onTap: () {
                 MaterialPageRoute route = MaterialPageRoute(
-                    //STEP 2 - Get the LMFeed instance and pass the credentials (if any)
-                    builder: (context) => LMFeed.instance(
-                        userId: _userIdController.text,
-                        userName: _usernameController.text));
+                  // INIT - Get the LMFeed instance and pass the credentials (if any)
+                  builder: (context) => LMFeed.instance(
+                    userId: _userIdController.text,
+                    userName: _usernameController.text,
+                    // isProd: false,
+                  ),
+                );
                 Navigator.pushReplacement(context, route);
               },
               child: Container(

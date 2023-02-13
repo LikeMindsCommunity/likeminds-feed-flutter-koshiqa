@@ -1,21 +1,21 @@
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/utils.dart';
-import 'package:feed_sx/src/views/comments/all_comments_screen.dart';
 import 'package:feed_sx/src/views/feed/components/dropdown_options.dart';
-import 'package:feed_sx/src/views/report_post/report_screen.dart';
 import 'package:flutter/material.dart';
 
 class PostHeader extends StatelessWidget {
   final PostUser user;
   final Post postDetails;
   final List<PopupMenuItemModel> menuItems;
-  // final
+  final Function() refresh;
+
   const PostHeader(
       {super.key,
       required this.user,
       required this.menuItems,
-      required this.postDetails});
+      required this.postDetails,
+      required this.refresh});
 
   @override
   Widget build(BuildContext context) {
@@ -34,13 +34,14 @@ class PostHeader extends StatelessWidget {
             child: user.imageUrl.isEmpty
                 ? Center(
                     child: Text(
-                    user.name[0].toUpperCase(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w600,
+                      user.name[0].toUpperCase(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ))
+                  )
                 : Image.network(user.imageUrl),
           ),
           kHorizontalPaddingLarge,
@@ -57,7 +58,6 @@ class PostHeader extends StatelessWidget {
                         fontWeight: FontWeight.w500),
                   ),
                   kHorizontalPaddingLarge,
-                  // )
                 ],
               ),
               Row(
@@ -65,17 +65,26 @@ class PostHeader extends StatelessWidget {
                 children: [
                   Text(
                     postDetails.createdAt.timeAgo(),
-                    style: TextStyle(fontSize: kFontSmall, color: kGrey3Color),
+                    style: const TextStyle(
+                      fontSize: kFontSmall,
+                      color: kGrey3Color,
+                    ),
                   ),
                   kHorizontalPaddingXSmall,
                   Text(
                     isEdited ? '·' : '',
-                    style: TextStyle(fontSize: kFontSmall, color: kGrey3Color),
+                    style: const TextStyle(
+                      fontSize: kFontSmall,
+                      color: kGrey3Color,
+                    ),
                   ),
                   kHorizontalPaddingXSmall,
                   Text(
                     isEdited ? 'Edited' : '',
-                    style: TextStyle(fontSize: kFontSmall, color: kGrey3Color),
+                    style: const TextStyle(
+                      fontSize: kFontSmall,
+                      color: kGrey3Color,
+                    ),
                   ),
                 ],
               )
@@ -85,6 +94,7 @@ class PostHeader extends StatelessWidget {
           DropdownOptions(
             menuItems: menuItems,
             postDetails: postDetails,
+            refresh: refresh,
           )
         ],
       ),

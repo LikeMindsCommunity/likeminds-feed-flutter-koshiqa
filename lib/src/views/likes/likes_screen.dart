@@ -1,12 +1,16 @@
 import 'package:likeminds_feed/likeminds_feed.dart';
-import 'package:likeminds_feed/src/models/post/get_likes_response_model.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:flutter/material.dart';
 
 class LikesScreen extends StatefulWidget {
   static const String route = "/likes_screen";
   final GetPostLikesResponse response;
-  const LikesScreen({super.key, required this.response});
+  final String postId;
+  const LikesScreen({
+    super.key,
+    required this.response,
+    required this.postId,
+  });
 
   @override
   State<LikesScreen> createState() => _LikesScreenState();
@@ -16,6 +20,13 @@ class _LikesScreenState extends State<LikesScreen> {
   @override
   Widget build(BuildContext context) {
     final GetPostLikesResponse response = widget.response;
+    LMAnalytics.get().logEvent(
+      AnalyticsKeys.likeListOpen,
+      {
+        "post_id": widget.postId,
+        "total_likes": response.totalCount,
+      },
+    );
     return Scaffold(
       body: Column(
         children: [

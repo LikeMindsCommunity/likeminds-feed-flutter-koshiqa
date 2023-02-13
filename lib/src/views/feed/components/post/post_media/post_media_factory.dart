@@ -6,17 +6,27 @@ import 'package:feed_sx/src/views/feed/components/post/post_media/post_video.dar
 import 'package:flutter/cupertino.dart';
 
 class PostMediaFactory extends StatelessWidget {
-  // final int postType;
+  final String postId;
   final List<Attachment>? attachments;
-  const PostMediaFactory({super.key, this.attachments});
+
+  const PostMediaFactory({
+    super.key,
+    this.attachments,
+    required this.postId,
+  });
 
   @override
   Widget build(BuildContext context) {
-    if (attachments == null) return SizedBox.shrink();
+    if (attachments == null) return const SizedBox.shrink();
     return attachments?.length == 1
-        ? PostImage(url: attachments![0].attachmentMeta.url ?? "")
+        ? PostImage(
+            url: attachments![0].attachmentMeta.url ?? "",
+            postId: postId,
+          )
         : PostMediaCarousel(
-            urls: attachments!.map((e) => e.attachmentMeta.url ?? "").toList());
+            urls: attachments!.map((e) => e.attachmentMeta.url ?? "").toList(),
+            postId: postId,
+          );
   }
 
   Widget postFactory(int postType) {
@@ -26,6 +36,7 @@ class PostMediaFactory extends StatelessWidget {
       case 2:
         return PostImage(
           url: 'https://wallpaperaccess.com/full/2637581.jpg',
+          postId: postId,
         );
       // case 3:
       // return PostMediaCarousel();
@@ -34,7 +45,7 @@ class PostMediaFactory extends StatelessWidget {
             url:
                 'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4');
       default:
-        return SizedBox.shrink();
+        return const SizedBox.shrink();
     }
   }
 }

@@ -1,15 +1,12 @@
 import 'dart:io';
-
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/views/feed/blocs/feedroom/feedroom_bloc.dart';
-import 'package:feed_sx/src/views/feed/feedroom_screen.dart';
-import 'package:feed_sx/src/widgets/general_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:feed_sx/src/service_locator.dart';
+import 'package:feed_sx/src/services/service_locator.dart';
 import 'package:image_picker/image_picker.dart';
 
 class NewPostScreen extends StatefulWidget {
@@ -79,6 +76,18 @@ class _NewPostScreenState extends State<NewPostScreen> {
                       final AddPostResponse response =
                           await locator<LikeMindsService>().addPost(request);
                       if (response.success) {
+                        LMAnalytics.get().track(
+                          AnalyticsKeys.postCreationCompleted,
+                          {
+                            "user_tagged": "no",
+                            "link_attached": "no",
+                            "image_attached": {
+                              "yes": {"image_count": "1"}
+                            },
+                            "video_attached": "no",
+                            "document_attached": "no",
+                          },
+                        );
                         Navigator.of(context).pop();
                       }
                     }
