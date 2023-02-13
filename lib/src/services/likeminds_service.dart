@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:feed_sx/credentials.dart';
+import 'package:feed_sx/src/utils/credentials/credentials.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 abstract class ILikeMindsService {
@@ -24,10 +24,12 @@ abstract class ILikeMindsService {
 class LikeMindsService implements ILikeMindsService {
   late final SdkApplication _sdkApplication;
 
-  LikeMindsService(LMSdkCallback sdkCallback) {
+  LikeMindsService(LMSdkCallback sdkCallback, {bool isProd = false}) {
+    print("UI Layer: LikeMindsService initialized");
+    final apiKey = isProd ? CredsProd.apiKey : CredsDev.apiKey;
     _sdkApplication = LMClient.initiateLikeMinds(
-      apiKey: BETA_API_KEY,
-      isProduction: false,
+      apiKey: apiKey,
+      isProduction: isProd,
       sdkCallback: sdkCallback,
     );
     LMAnalytics.get().initialize();
