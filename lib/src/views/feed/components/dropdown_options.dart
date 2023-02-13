@@ -12,11 +12,13 @@ import 'package:likeminds_feed/likeminds_feed.dart' as sdk;
 class DropdownOptions extends StatelessWidget {
   final Post postDetails;
   final List<PopupMenuItemModel> menuItems;
+  final Function() refresh;
 
   DropdownOptions({
     super.key,
     required this.menuItems,
     required this.postDetails,
+    required this.refresh,
   });
 
   @override
@@ -34,13 +36,26 @@ class DropdownOptions extends StatelessWidget {
                   child: Text(element.title),
                   onTap: () async {
                     if (element.title.split(' ').first == "Delete") {
+                      final res =
+                          await locator<LikeMindsService>().getMemberState();
+                      //Implement delete post analytics tracking
+                      LMAnalytics.get().track(
+                        AnalyticsKeys.postDeleted,
+                        {
+                          "user_state": res ? "CM" : "member",
+                          "post_id": postDetails.id,
+                          "user_id": postDetails.userId,
+                        },
+                      );
                       final response =
                           await locator<LikeMindsService>().deletePost(
                         DeletePostRequest(
-                            postId: postDetails.id,
-                            deleteReason: "deleteReason"),
+                          postId: postDetails.id,
+                          deleteReason: "deleteReason",
+                        ),
                       );
                       print(response.toString());
+                      refresh();
                     } else if (element.title.split(' ').first == "Pin") {
                       print("Pinning functionality");
                     }

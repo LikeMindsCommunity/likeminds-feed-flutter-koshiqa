@@ -31,6 +31,13 @@ class AddCommentReplyBloc
     if (response == null) {
       emit(AddCommentReplyError(message: "No data found"));
     } else {
+      LMAnalytics.get().logEvent(
+        AnalyticsKeys.replyPosted,
+        {
+          "post_id": addCommentReplyRequest.postId,
+          "comment_id": addCommentReplyRequest.commentId,
+        },
+      );
       emit(AddCommentReplySuccess(addCommentResponse: response));
     }
   }

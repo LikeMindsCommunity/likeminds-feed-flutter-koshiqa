@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:feed_sx/credentials.dart';
+import 'package:feed_sx/src/utils/credentials/credentials.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 abstract class ILikeMindsService {
@@ -18,16 +18,21 @@ abstract class ILikeMindsService {
   Future<LikePostResponse> likePost(LikePostRequest request);
   Future<String?> uploadFile(File file);
   Future<RegisterDeviceResponse> registerDevice(RegisterDeviceRequest request);
+  Future<BrandingResponse> getBranding(BrandingRequest request);
 }
 
 class LikeMindsService implements ILikeMindsService {
   late final SdkApplication _sdkApplication;
 
-  LikeMindsService() {
+  LikeMindsService(LMSdkCallback sdkCallback, {bool isProd = false}) {
+    print("UI Layer: LikeMindsService initialized");
+    final apiKey = isProd ? CredsProd.apiKey : CredsDev.koshiqaBetaApiKey;
     _sdkApplication = LMClient.initiateLikeMinds(
-      apiKey: BETA_API_KEY,
-      isProduction: false,
+      apiKey: apiKey,
+      isProduction: isProd,
+      sdkCallback: sdkCallback,
     );
+    LMAnalytics.get().initialize();
   }
 
   @override
@@ -38,6 +43,11 @@ class LikeMindsService implements ILikeMindsService {
   @override
   FeedApi getFeedApi() {
     return _sdkApplication.getFeedApi();
+  }
+
+  @override
+  Future<BrandingResponse> getBranding(BrandingRequest request) async {
+    return await _sdkApplication.getBrandingApi().getBranding(request);
   }
 
   @override

@@ -82,7 +82,10 @@ class _PostActionsState extends State<PostActions> {
                             GetPostLikesRequest(postId: postDetails.id));
                     Navigator.push(context, MaterialPageRoute(
                       builder: (context) {
-                        return LikesScreen(response: response);
+                        return LikesScreen(
+                          response: response,
+                          postId: postDetails.id,
+                        );
                       },
                     ));
                   },
@@ -121,6 +124,7 @@ class _PostActionsState extends State<PostActions> {
             )
           ],
         ),
+        // TODO: Add bookmark and share icons
         // const Spacer(),
         // Row(
         //   children: [

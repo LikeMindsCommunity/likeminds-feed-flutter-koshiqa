@@ -6,7 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/navigation/arguments.dart';
-import 'package:feed_sx/src/simple_bloc_observer.dart';
+import 'package:feed_sx/src/utils/simple_bloc_observer.dart';
 import 'package:feed_sx/src/views/feed/blocs/feedroom/feedroom_bloc.dart';
 import 'package:feed_sx/src/views/feed/components/feedroom_tile.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_widget.dart';
@@ -60,6 +60,16 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
       listener: (context, state) {},
       builder: ((context, state) {
         if (state is FeedRoomLoaded) {
+          LMAnalytics.get().logEvent(
+            AnalyticsKeys.feedOpened,
+            {
+              "feed_type": {
+                "feedroom": {
+                  "id": state.feedRoom.chatroom!.id,
+                }
+              }
+            },
+          );
           GetFeedOfFeedRoomResponse feedResponse = state.feed;
           GetFeedRoomResponse feedRoom = state.feedRoom;
           return Scaffold(

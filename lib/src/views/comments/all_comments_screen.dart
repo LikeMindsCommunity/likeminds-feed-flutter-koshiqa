@@ -72,6 +72,13 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    LMAnalytics.get().logEvent(
+      AnalyticsKeys.commentListOpen,
+      {
+        "post_id": widget.post.id,
+        "comment_count": widget.post.commentCount.toString(),
+      },
+    );
     return Scaffold(
       resizeToAvoidBottomInset: true,
       bottomSheet: SafeArea(
