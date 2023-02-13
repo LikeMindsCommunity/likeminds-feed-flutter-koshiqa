@@ -3,6 +3,7 @@
 library feed;
 
 import 'package:feed_sx/src/utils/credentials/credentials.dart';
+import 'package:feed_sx/src/views/previews/image_preview.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
@@ -133,6 +134,17 @@ class _LMFeedState extends State<LMFeed> {
                       return NewPostScreen(
                         feedRoomId: args.feedroomId,
                         user: args.user,
+                      );
+                    },
+                  );
+                }
+                if (settings.name == ImagePreview.route) {
+                  final args = settings.arguments as ImagePreviewArguments;
+                  return MaterialPageRoute(
+                    builder: (context) {
+                      return ImagePreview(
+                        url: args.url,
+                        postId: args.postId,
                       );
                     },
                   );

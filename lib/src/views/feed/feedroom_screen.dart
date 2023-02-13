@@ -6,7 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/navigation/arguments.dart';
-import 'package:feed_sx/src/simple_bloc_observer.dart';
+import 'package:feed_sx/src/utils/simple_bloc_observer.dart';
 import 'package:feed_sx/src/views/feed/blocs/feedroom/feedroom_bloc.dart';
 import 'package:feed_sx/src/views/feed/components/feedroom_tile.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_widget.dart';
@@ -17,8 +17,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 // import 'package:likeminds_feed/likeminds_feed.dart';
 
-const List<int> DUMMY_FEEDROOMS = [72345, 72346, 72347];
-// const List<int> DUMMY_FEEDROOMS = [72200, 72232, 72233];
+// const List<int> DUMMY_FEEDROOMS = [72345, 72346, 72347];
+const List<int> DUMMY_FEEDROOMS = [72200, 72232, 72233];
 
 class FeedRoomScreen extends StatefulWidget {
   final bool isCm;

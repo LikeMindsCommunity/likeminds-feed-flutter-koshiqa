@@ -64,7 +64,10 @@ class _PostWidgetState extends State<PostWidget> {
             PostDescription(
               text: postDetails.text,
             ),
-            PostMediaFactory(attachments: postDetails.attachments),
+            PostMediaFactory(
+              attachments: postDetails.attachments,
+              postId: postDetails.id,
+            ),
             showActions
                 ? PostActions(
                     postDetails: postDetails,

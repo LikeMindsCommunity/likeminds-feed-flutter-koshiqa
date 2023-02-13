@@ -1,5 +1,4 @@
 import 'package:feed_sx/src/navigation/arguments.dart';
-import 'package:feed_sx/src/navigation/navigation_service.dart';
 import 'package:feed_sx/src/services/service_locator.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/views/comments/all_comments_screen.dart';
@@ -14,7 +13,6 @@ import 'package:overlay_support/overlay_support.dart';
 /// It routes the notification to the appropriate screen
 /// Since this is a singleton class, it is initialized on the client side
 class LMNotificationHandler {
-  // late final Key notifKey;
   late final String deviceId;
   late final String fcmToken;
   int? memberId;
@@ -28,15 +26,12 @@ class LMNotificationHandler {
   /// Initialize the notification handler
   /// This is called from the client side
   /// It initializes the [fcmToken] and the [deviceId]
-  /// It also initializes the [notifKey] which is used to show the notification
   void init({
     required String deviceId,
     required String fcmToken,
-    // String notifKey = "likeminds-notification",
   }) {
     this.deviceId = deviceId;
     this.fcmToken = fcmToken;
-    // this.notifKey = ValueKey(notifKey);
   }
 
   /// Register the device for notifications
@@ -53,7 +48,7 @@ class LMNotificationHandler {
     this.memberId = memberId;
     final response = await locator<LikeMindsService>().registerDevice(request);
     if (response.success) {
-      print("Device registered for notifications successfully");
+      debugPrint("Device registered for notifications successfully");
     } else {
       throw Exception("Device registration for notification failed");
     }
@@ -63,50 +58,59 @@ class LMNotificationHandler {
   /// This is called from the client side when notification [message] is received
   /// and is needed to be handled, i.e. shown and routed to the appropriate screen
   Future<void> handleNotification(RemoteMessage message, bool show) async {
-    print("--- Notification received in LEVEL 2 ---");
+    debugPrint("--- Notification received in LEVEL 2 ---");
+    message.toMap().forEach((key, value) {
+      debugPrint("$key: $value");
+      if (key == "data") {
+        message.data.forEach((key, value) {
+          debugPrint("$key: $value");
+        });
+      }
+    });
+
+    // First, check if the message contains a data payload.
     if (show && message.data.isNotEmpty) {
       showNotification(message);
     } else if (message.data.isNotEmpty) {
+      // Second, extract the notification data and routes to the appropriate screen
       routeNotification(message);
-    } else if (message.notification != null) {
-      print("Notification data is empty");
-      message.toMap().forEach((key, value) {
-        print("$key: $value");
-      });
     }
-    //TODO: Add logic to handle notification
-    // First, check if the message contains a data payload.
-    // Second, check if this is a LM notification
-    // Third, extract the notification data and routes to the appropriate screen
-    // message.data.forEach((key, value) {
-    //   print("$key: $value");
-    // });
-    message.toMap().forEach((key, value) {
-      print("$key: $value");
-    });
+    // Third, check if the message contains a notification payload.
+    // else if (message.notification != null) {
+    //   print("Notification data is empty");
+    //   message.toMap().forEach((key, value) {
+    //     print("$key: $value");
+    //   });
+    // }
   }
 
   void routeNotification(RemoteMessage message) async {
     Map<String, String> queryParams = {};
     String host = "";
+
+    // Only notifications with data payload are handled
     if (message.data.isNotEmpty) {
       final Map<String, dynamic> notifData = message.data;
       final String category = notifData["category"];
       final String route = notifData["route"]!;
 
+      // If the notification is a feed notification, extract the route params
       if (category.toString().toLowerCase() == "feed") {
         final Uri routeUri = Uri.parse(route);
         final Map<String, String> routeParams =
             routeUri.hasQuery ? routeUri.queryParameters : {};
         final String routeHost = routeUri.host;
         host = routeHost;
-        print("The route host is $routeHost");
+        debugPrint("The route host is $routeHost");
         queryParams.addAll(routeParams);
         queryParams.forEach((key, value) {
-          print("$key: $value");
+          debugPrint("$key: $value");
         });
       }
     }
+
+    // Route the notification to the appropriate screen
+    // If the notification is post related, route to the post detail screen
     if (host == "post_detail") {
       final String postId = queryParams["post_id"]!;
       final GetPostResponse postDetails =
@@ -132,7 +136,6 @@ class LMNotificationHandler {
   void showNotification(RemoteMessage message) {
     if (message.data.isNotEmpty) {
       showSimpleNotification(
-        // key: notifKey.runtimeType == ValueKey ? notifKey : const ValueKey(""),
         GestureDetector(
           onTap: () {
             routeNotification(message);

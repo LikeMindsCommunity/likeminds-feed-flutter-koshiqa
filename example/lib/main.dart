@@ -36,7 +36,7 @@ void setupNotifications() async {
   final devId = await deviceId();
   final fcmToken = await setupMessaging();
   if (fcmToken == null) {
-    print("FCM token is null or permission declined");
+    debugPrint("FCM token is null or permission declined");
     return;
   }
   LMNotificationHandler.instance.init(deviceId: devId, fcmToken: fcmToken);
@@ -45,17 +45,17 @@ void setupNotifications() async {
     _handleNotification(message);
   });
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
-    print("---The app is opened from a notification---");
+    debugPrint("---The app is opened from a notification---");
     await LMNotificationHandler.instance.handleNotification(message, false);
   });
-  FirebaseMessaging.instance
-      .getInitialMessage()
-      .then((RemoteMessage? message) async {
-    if (message != null) {
-      print("---The terminated app is opened from a notification---");
-      await LMNotificationHandler.instance.handleNotification(message, false);
-    }
-  });
+  FirebaseMessaging.instance.getInitialMessage().then(
+    (RemoteMessage? message) async {
+      if (message != null) {
+        debugPrint("---The terminated app is opened from a notification---");
+        await LMNotificationHandler.instance.handleNotification(message, false);
+      }
+    },
+  );
 }
 
 /// Get device id

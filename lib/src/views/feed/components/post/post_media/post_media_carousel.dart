@@ -6,7 +6,13 @@ import 'package:flutter/material.dart';
 
 class PostMediaCarousel extends StatefulWidget {
   List<String> urls;
-  PostMediaCarousel({super.key, required this.urls});
+  final String postId;
+
+  PostMediaCarousel({
+    super.key,
+    required this.urls,
+    required this.postId,
+  });
 
   @override
   State<PostMediaCarousel> createState() => _PostMediaCarouselState();
@@ -21,7 +27,12 @@ class _PostMediaCarouselState extends State<PostMediaCarousel> {
   @override
   void initState() {
     super.initState();
-    widgets = widget.urls.map((e) => PostImage(url: e)).toList();
+    widgets = widget.urls
+        .map((e) => PostImage(
+              url: e,
+              postId: widget.postId,
+            ))
+        .toList();
   }
 
   Widget _indicator(bool isActive) {

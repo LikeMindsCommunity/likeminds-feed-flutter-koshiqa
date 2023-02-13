@@ -15,3 +15,12 @@ class NewPostScreenArguments {
   final int feedroomId;
   NewPostScreenArguments({required this.user, required this.feedroomId});
 }
+
+class ImagePreviewArguments {
+  final String postId;
+  final String url;
+  ImagePreviewArguments({
+    required this.url,
+    required this.postId,
+  });
+}
