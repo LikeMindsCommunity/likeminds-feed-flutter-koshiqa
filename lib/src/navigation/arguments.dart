@@ -7,7 +7,11 @@ class AllCommentsScreenArguments {
 
 class LikesScreenArguments {
   final GetPostLikesResponse response;
-  LikesScreenArguments({required this.response});
+  final String postId;
+  LikesScreenArguments({
+    required this.response,
+    required this.postId,
+  });
 }
 
 class NewPostScreenArguments {

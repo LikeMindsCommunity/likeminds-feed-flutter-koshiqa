@@ -21,13 +21,19 @@ class AddCommentBloc extends Bloc<AddCommentEvent, AddCommentState> {
   }
 
   FutureOr<void> _mapAddCommentToState(
-      {required addCommentRequest,
+      {required AddCommentRequest addCommentRequest,
       required Emitter<AddCommentState> emit}) async {
     emit(AddCommentLoading());
     AddCommentResponse? response = await feedApi.addComment(addCommentRequest);
     if (response == null) {
       emit(AddCommentError(message: "No data found"));
     } else {
+      LMAnalytics.get().logEvent(
+        AnalyticsKeys.commentPosted,
+        {
+          "post_id": addCommentRequest.postId,
+        },
+      );
       emit(AddCommentSuccess(addCommentResponse: response));
     }
   }

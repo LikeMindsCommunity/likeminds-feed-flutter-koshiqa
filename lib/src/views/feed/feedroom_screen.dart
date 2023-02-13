@@ -60,6 +60,16 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
       listener: (context, state) {},
       builder: ((context, state) {
         if (state is FeedRoomLoaded) {
+          LMAnalytics.get().logEvent(
+            AnalyticsKeys.feedOpened,
+            {
+              "feed_type": {
+                "feedroom": {
+                  "id": state.feedRoom.chatroom!.id,
+                }
+              }
+            },
+          );
           GetFeedOfFeedRoomResponse feedResponse = state.feed;
           GetFeedRoomResponse feedRoom = state.feedRoom;
           return Scaffold(

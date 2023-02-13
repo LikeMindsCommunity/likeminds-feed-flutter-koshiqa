@@ -76,6 +76,18 @@ class _NewPostScreenState extends State<NewPostScreen> {
                       final AddPostResponse response =
                           await locator<LikeMindsService>().addPost(request);
                       if (response.success) {
+                        LMAnalytics.get().track(
+                          AnalyticsKeys.postCreationCompleted,
+                          {
+                            "user_tagged": "no",
+                            "link_attached": "no",
+                            "image_attached": {
+                              "yes": {"image_count": "1"}
+                            },
+                            "video_attached": "no",
+                            "document_attached": "no",
+                          },
+                        );
                         Navigator.of(context).pop();
                       }
                     }
