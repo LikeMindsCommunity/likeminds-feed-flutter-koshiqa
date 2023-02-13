@@ -26,7 +26,7 @@ class LikeMindsService implements ILikeMindsService {
 
   LikeMindsService(LMSdkCallback sdkCallback, {bool isProd = false}) {
     print("UI Layer: LikeMindsService initialized");
-    final apiKey = isProd ? CredsProd.apiKey : CredsDev.apiKey;
+    final apiKey = isProd ? CredsProd.apiKey : CredsDev.koshiqaBetaApiKey;
     _sdkApplication = LMClient.initiateLikeMinds(
       apiKey: apiKey,
       isProduction: isProd,
