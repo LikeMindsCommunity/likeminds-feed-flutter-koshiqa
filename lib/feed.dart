@@ -64,10 +64,13 @@ class _LMFeedState extends State<LMFeed> {
   @override
   void initState() {
     super.initState();
-    userId =
-        widget.userId!.isEmpty ? CredsDev.koshiqaBetaBotId : widget.userId!;
-    userName = widget.userName!.isEmpty ? "Flutter Bot" : widget.userName!;
     isProd = widget.isProd;
+    userId = widget.userId!.isEmpty
+        ? isProd
+            ? CredsProd.botId
+            : CredsDev.koshiqaBetaBotId
+        : widget.userId!;
+    userName = widget.userName!.isEmpty ? "Test user" : widget.userName!;
     firebase();
   }
 
@@ -97,7 +100,7 @@ class _LMFeedState extends State<LMFeed> {
             user = response.initiateUser?.user;
             LMNotificationHandler.instance.registerDevice(user!.id);
             return MaterialApp(
-              debugShowCheckedModeBanner: isProd,
+              debugShowCheckedModeBanner: !isProd,
               title: 'LikeMinds Feed',
               navigatorKey: locator<NavigationService>().navigatorKey,
               onGenerateRoute: (settings) {
