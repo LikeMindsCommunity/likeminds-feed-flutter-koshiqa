@@ -19,6 +19,7 @@ abstract class ILikeMindsService {
   Future<String?> uploadFile(File file);
   Future<RegisterDeviceResponse> registerDevice(RegisterDeviceRequest request);
   Future<BrandingResponse> getBranding(BrandingRequest request);
+  Future<TagResponseModel> getTags({int? feedroomId});
 }
 
 class LikeMindsService implements ILikeMindsService {
@@ -26,7 +27,7 @@ class LikeMindsService implements ILikeMindsService {
 
   LikeMindsService(LMSdkCallback sdkCallback, {bool isProd = false}) {
     print("UI Layer: LikeMindsService initialized");
-    final apiKey = isProd ? CredsProd.apiKey : CredsDev.koshiqaBetaApiKey;
+    final apiKey = isProd ? CredsProd.apiKey : CredsDev.apiKey;
     _sdkApplication = LMClient.initiateLikeMinds(
       apiKey: apiKey,
       isProduction: isProd,
@@ -106,5 +107,10 @@ class LikeMindsService implements ILikeMindsService {
   Future<RegisterDeviceResponse> registerDevice(
       RegisterDeviceRequest request) async {
     return await LMNotifications.registerDevice(request);
+  }
+
+  @override
+  Future<TagResponseModel> getTags({int? feedroomId}) async {
+    return await _sdkApplication.getHelperApi().getTags(feedroomId: feedroomId);
   }
 }

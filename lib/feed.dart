@@ -4,6 +4,7 @@ library feed;
 
 import 'package:feed_sx/src/utils/credentials/credentials.dart';
 import 'package:feed_sx/src/views/previews/image_preview.dart';
+import 'package:feed_sx/src/views/tagging_test.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
@@ -64,10 +65,13 @@ class _LMFeedState extends State<LMFeed> {
   @override
   void initState() {
     super.initState();
-    userId =
-        widget.userId!.isEmpty ? CredsDev.koshiqaBetaBotId : widget.userId!;
-    userName = widget.userName!.isEmpty ? "Flutter Bot" : widget.userName!;
     isProd = widget.isProd;
+    userId = widget.userId!.isEmpty
+        ? isProd
+            ? CredsProd.botId
+            : CredsDev.botId
+        : widget.userId!;
+    userName = widget.userName!.isEmpty ? "Test username" : widget.userName!;
     firebase();
   }
 
@@ -97,7 +101,7 @@ class _LMFeedState extends State<LMFeed> {
             user = response.initiateUser?.user;
             LMNotificationHandler.instance.registerDevice(user!.id);
             return MaterialApp(
-              debugShowCheckedModeBanner: isProd,
+              debugShowCheckedModeBanner: !isProd,
               title: 'LikeMinds Feed',
               navigatorKey: locator<NavigationService>().navigatorKey,
               onGenerateRoute: (settings) {
@@ -161,6 +165,7 @@ class _LMFeedState extends State<LMFeed> {
                       isCm: snapshot.data,
                       user: user!,
                     );
+                    // return TaggingTestView();
                   } else {
                     return const Center(child: CircularProgressIndicator());
                   }

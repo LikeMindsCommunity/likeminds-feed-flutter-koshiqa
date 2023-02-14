@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:overlay_support/overlay_support.dart';
 
+//TODO: Check for LM notifications
+
 /// This class handles all the notification related logic
 /// It registers the device for notifications in the SDK
 /// It handles the notification when it is received and shows it
@@ -70,6 +72,7 @@ class LMNotificationHandler {
 
     // First, check if the message contains a data payload.
     if (show && message.data.isNotEmpty) {
+      //TODO: Add LM check for showing LM notifications
       showNotification(message);
     } else if (message.data.isNotEmpty) {
       // Second, extract the notification data and routes to the appropriate screen
