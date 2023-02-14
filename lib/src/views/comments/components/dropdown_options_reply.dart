@@ -9,18 +9,20 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:likeminds_feed/likeminds_feed.dart' as sdk;
 
-class DropdownOptionsComments extends StatelessWidget {
+class DropdownOptionsReply extends StatelessWidget {
   final String postId;
-  final Reply replyDetails;
+  final String commentId;
+  final CommentReply replyDetails;
   final List<PopupMenuItemModel> menuItems;
   final Function() refresh;
 
-  DropdownOptionsComments({
+  DropdownOptionsReply({
     super.key,
     required this.menuItems,
     required this.replyDetails,
     required this.refresh,
     required this.postId,
+    required this.commentId,
   });
 
   @override
@@ -42,10 +44,11 @@ class DropdownOptionsComments extends StatelessWidget {
                           await locator<LikeMindsService>().getMemberState();
                       //Implement delete post analytics tracking
                       LMAnalytics.get().track(
-                        AnalyticsKeys.commentDeleted,
+                        AnalyticsKeys.replyDeleted,
                         {
                           "post_id": postId,
-                          "comment_id": replyDetails.id,
+                          "comment_id": commentId,
+                          "reply_id": replyDetails.id,
                         },
                       );
                       final response =
