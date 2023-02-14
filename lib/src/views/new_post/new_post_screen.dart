@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:feed_sx/src/views/feed/components/post/post_media/post_media_carousel.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
@@ -8,6 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:feed_sx/src/services/service_locator.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:overlay_support/overlay_support.dart';
+
+List<Attachment> attachments = [];
 
 class NewPostScreen extends StatefulWidget {
   static const String route = "/new_post_screen";
@@ -27,10 +31,8 @@ class NewPostScreen extends StatefulWidget {
 class _NewPostScreenState extends State<NewPostScreen> {
   final TextEditingController _textEditingController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
-  List<Attachment> attachments = [];
   bool uploaded = false;
   bool isUploading = false;
-  late final String uploadedUrl;
   late final User user;
   late final FeedRoomBloc feedBloc;
   late final int feedRoomId;
@@ -82,7 +84,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                             "user_tagged": "no",
                             "link_attached": "no",
                             "image_attached": {
-                              "yes": {"image_count": "1"}
+                              "yes": {"image_count": attachments.length},
                             },
                             "video_attached": "no",
                             "document_attached": "no",
@@ -90,6 +92,18 @@ class _NewPostScreenState extends State<NewPostScreen> {
                         );
                         Navigator.of(context).pop();
                       }
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text(
+                            "The text in a post can't be empty",
+                            style: TextStyle(
+                              fontSize: 18,
+                            ),
+                          ),
+                          backgroundColor: Colors.grey.shade500,
+                        ),
+                      );
                     }
                   },
                   child: const Text(
@@ -140,20 +154,14 @@ class _NewPostScreenState extends State<NewPostScreen> {
                 style: const TextStyle(fontSize: 18),
                 maxLines: 100,
                 decoration: const InputDecoration(
-                    border: InputBorder.none, hintText: "Write something here"),
+                  border: InputBorder.none,
+                  hintText: "Write something here",
+                ),
               ),
             ),
             kVerticalPaddingXLarge,
             if (isUploading) const CircularProgressIndicator(),
-            if (uploaded)
-              // const Text(
-              //   "Successfully uploaded",
-              //   style: TextStyle(
-              //     color: Colors.green,
-              //     fontSize: 24,
-              //     fontWeight: FontWeight.w500,
-              //   ),
-              // ),
+            if (uploaded && attachments.isNotEmpty)
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
@@ -161,7 +169,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
                     color: kGrey2Color.withOpacity(0.2),
                     image: DecorationImage(
                       fit: BoxFit.cover,
-                      image: NetworkImage(uploadedUrl),
+                      image:
+                          NetworkImage(attachments.first.attachmentMeta.url!),
                     ),
                   ),
                 ),
@@ -179,18 +188,11 @@ class _NewPostScreenState extends State<NewPostScreen> {
                   isUploading = true;
                 });
               },
-              onUploaded: (String? response) {
-                if (response != null && response.isNotEmpty) {
-                  attachments.add(Attachment(
-                    attachmentType: 1,
-                    attachmentMeta: AttachmentMeta(
-                      url: response,
-                    ),
-                  ));
+              onUploaded: (bool uploadResponse) {
+                if (uploadResponse) {
                   setState(() {
                     uploaded = true;
                     isUploading = false;
-                    uploadedUrl = response;
                   });
                 } else {
                   setState(() {
@@ -218,7 +220,7 @@ class AddAssetsButton extends StatelessWidget {
   final Widget title;
   final Widget leading;
   final ImagePicker picker;
-  final Function(String? response) onUploaded;
+  final Function(bool uploadResponse) onUploaded;
   final Function() uploading;
 
   const AddAssetsButton({
@@ -235,21 +237,40 @@ class AddAssetsButton extends StatelessWidget {
     return GestureDetector(
       onTap: () async {
         uploading();
-        final XFile? image =
-            await picker.pickImage(source: ImageSource.gallery);
-        if (image != null) {
-          File file = File.fromUri(Uri(path: image.path));
-          final String? response =
-              await locator<LikeMindsService>().uploadFile(file);
-          if (response != null) {
-            onUploaded(response);
-          } else {
-            print('Error uploading file');
+        final list = await picker.pickMultiImage();
+        for (final image in list) {
+          try {
+            File file = File.fromUri(Uri(path: image.path));
+            final String? response =
+                await locator<LikeMindsService>().uploadFile(file);
+            if (response != null) {
+              attachments.add(Attachment(
+                attachmentType: 1,
+                attachmentMeta: AttachmentMeta(
+                  url: response,
+                ),
+              ));
+            } else {
+              throw ('Error uploading file');
+            }
+          } catch (e) {
+            print(e);
           }
-        } else {
-          print('No image selected');
-          onUploaded(null);
         }
+        // if (image != null) {
+        //   File file = File.fromUri(Uri(path: image.path));
+        //   final String? response =
+        //       await locator<LikeMindsService>().uploadFile(file);
+        //   if (response != null) {
+        //     onUploaded(response);
+        //   } else {
+        //     print('Error uploading file');
+        //   }
+        // } else {
+        //   print('No image selected');
+        //   onUploaded(null);
+        // }
+        onUploaded(true);
       },
       child: Container(
         height: 72,
