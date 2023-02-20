@@ -1,12 +1,15 @@
+import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 
 class Loader extends StatelessWidget {
-  const Loader({super.key});
+  final bool isPrimary;
+
+  const Loader({super.key, this.isPrimary = true});
 
   @override
   Widget build(BuildContext context) {
-    return const CircularProgressIndicator();
+    return CircularProgressIndicator(
+      color: isPrimary ? kPrimaryColor : Colors.white,
+    );
   }
 }

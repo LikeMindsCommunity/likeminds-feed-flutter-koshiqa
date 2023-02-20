@@ -7,6 +7,7 @@ import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/utils/constants/string_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 class PostActions extends StatefulWidget {
   final Post postDetails;
@@ -56,9 +57,29 @@ class _PostActionsState extends State<PostActions> {
                 IconButton(
                   enableFeedback: false,
                   onPressed: () async {
+                    setState(() {
+                      if (isLiked) {
+                        postLikes--;
+                      } else {
+                        postLikes++;
+                      }
+                      isLiked = !isLiked;
+                      // refresh();
+                    });
                     final response = await locator<LikeMindsService>()
                         .likePost(LikePostRequest(postId: postDetails.id));
-                    if (response.success) {
+                    if (!response.success) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text(
+                            "There was an error liking the post",
+                            style: TextStyle(
+                              fontSize: 18,
+                            ),
+                          ),
+                          backgroundColor: Colors.grey.shade500,
+                        ),
+                      );
                       setState(() {
                         if (isLiked) {
                           postLikes--;
@@ -102,6 +123,13 @@ class _PostActionsState extends State<PostActions> {
             TextButton.icon(
               onPressed: isFeed
                   ? () {
+                      LMAnalytics.get().logEvent(
+                        AnalyticsKeys.commentListOpen,
+                        {
+                          "post_id": postDetails.id,
+                          "comment_count": postDetails.commentCount.toString(),
+                        },
+                      );
                       Navigator.pushNamed(
                         context,
                         AllCommentsScreen.route,

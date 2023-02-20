@@ -45,7 +45,7 @@ class NewPostButton extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 'New Post'.toUpperCase(),
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 14,
                 ),

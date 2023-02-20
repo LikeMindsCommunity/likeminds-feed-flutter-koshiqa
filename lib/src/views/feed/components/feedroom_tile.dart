@@ -8,7 +8,7 @@ class FeedRoomTile extends StatelessWidget {
     required this.onTap,
   }) : super(key: key);
 
-  final GetFeedRoomResponse item;
+  final FeedRoom item;
   final Function() onTap;
 
   @override
@@ -33,10 +33,12 @@ class FeedRoomTile extends StatelessWidget {
                       height: 64,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        image: DecorationImage(
-                          fit: BoxFit.fill,
-                          image: NetworkImage(item.chatroom!.chatroomImageUrl),
-                        ),
+                        image: item.chatroomImageUrl != null
+                            ? DecorationImage(
+                                fit: BoxFit.fill,
+                                image: NetworkImage(item.chatroomImageUrl!),
+                              )
+                            : null,
                       ),
                     ),
                     const SizedBox(width: 24),
@@ -45,14 +47,14 @@ class FeedRoomTile extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            item.chatroom!.header,
+                            item.header,
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                           Text(
-                            "${item.chatroom!.participantsCount} participants",
+                            "${item.participantsCount} participants",
                             style: const TextStyle(
                               fontStyle: FontStyle.italic,
                               fontSize: 14,

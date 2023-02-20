@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:feed_sx/src/utils/constants/string_constants.dart';
+import 'package:feed_sx/src/views/comments/components/dropdown_options_comment.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/packages/expandable_text/expandable_text.dart';
@@ -21,13 +22,16 @@ class CommentTile extends StatefulWidget {
   final String postId;
   final Reply reply;
   final PostUser user;
+  final Function() refresh;
   final Function(String commentId, String username) onReply;
-  const CommentTile(
-      {super.key,
-      required this.reply,
-      required this.user,
-      required this.postId,
-      required this.onReply});
+  const CommentTile({
+    super.key,
+    required this.reply,
+    required this.user,
+    required this.postId,
+    required this.onReply,
+    required this.refresh,
+  });
 
   @override
   State<CommentTile> createState() => _CommentTileState();
@@ -40,6 +44,7 @@ class _CommentTileState extends State<CommentTile>
   late final Reply reply;
   late final PostUser user;
   late final String postId;
+  late final Function() refresh;
   int? likeCount;
   bool isLiked = false, _replyVisible = false;
 
@@ -52,6 +57,7 @@ class _CommentTileState extends State<CommentTile>
     postId = widget.postId;
     isLiked = reply.isLiked;
     likeCount = reply.likesCount;
+    refresh = widget.refresh;
     FeedApi feedApi = locator<LikeMindsService>().getFeedApi();
     _toggleLikeCommentBloc = ToggleLikeCommentBloc(feedApi: feedApi);
     _commentRepliesBloc = CommentRepliesBloc(feedApi: feedApi);
@@ -78,7 +84,14 @@ class _CommentTileState extends State<CommentTile>
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
-              )
+              ),
+              Spacer(),
+              DropdownOptionsComments(
+                menuItems: reply.menuItems,
+                replyDetails: reply,
+                postId: postId,
+                refresh: refresh,
+              ),
             ],
           ),
           kVerticalPaddingSmall,
@@ -230,26 +243,9 @@ class _CommentTileState extends State<CommentTile>
                       reply: element,
                       user: users[element.userId]!,
                       postId: postId,
+                      refresh: refresh,
+                      commentId: reply.id,
                     );
-                    // if (index > 0) {
-                    //   if (element.id == replies[index - 1].id) {
-                    //     return const SizedBox(height: 0);
-                    //   } else {
-                    //     return ReplyTile(
-                    //       // key: Key(element.id),
-                    //       reply: element,
-                    //       user: users[element.userId]!,
-                    //       postId: postId,
-                    //     );
-                    //   }
-                    // } else {
-                    //   return ReplyTile(
-                    //     // key: Key(element.id),
-                    //     reply: element,
-                    //     user: users[element.userId]!,
-                    //     postId: postId,
-                    //   );
-                    // }
                   }).toList();
                 } else {
                   repliesW = [];

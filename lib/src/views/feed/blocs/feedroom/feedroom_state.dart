@@ -13,7 +13,7 @@ class FeedRoomLoading extends FeedRoomState {}
 
 class FeedRoomEmpty extends FeedRoomState {
   final GetFeedOfFeedRoomResponse feed;
-  final GetFeedRoomResponse feedRoom;
+  final FeedRoom feedRoom;
   FeedRoomEmpty({
     required this.feedRoom,
     required this.feed,
@@ -24,7 +24,7 @@ class FeedRoomEmpty extends FeedRoomState {
 
 class FeedRoomLoaded extends FeedRoomState {
   final GetFeedOfFeedRoomResponse feed;
-  final GetFeedRoomResponse feedRoom;
+  final FeedRoom feedRoom;
   FeedRoomLoaded({
     required this.feedRoom,
     required this.feed,
@@ -34,10 +34,14 @@ class FeedRoomLoaded extends FeedRoomState {
 }
 
 class FeedRoomListLoaded extends FeedRoomState {
-  final List<GetFeedRoomResponse> feedRooms;
-  FeedRoomListLoaded({required this.feedRooms});
+  final List<FeedRoom> feedList;
+  final int size;
+  FeedRoomListLoaded({
+    required this.feedList,
+    required this.size,
+  });
   @override
-  List<Object> get props => [feedRooms];
+  List<Object> get props => [feedList];
 }
 
 class FeedRoomListLoading extends FeedRoomState {}

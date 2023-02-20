@@ -9,18 +9,14 @@ abstract class FeedRoomEvent extends Equatable {
 
 class GetFeedRoom extends FeedRoomEvent {
   final int feedRoomId;
-  final GetFeedRoomResponse? feedRoomResponse;
+  final FeedRoom? feedRoom;
+
   GetFeedRoom({
+    this.feedRoom,
     required this.feedRoomId,
-    this.feedRoomResponse,
   });
   @override
   List<Object> get props => [feedRoomId];
 }
 
-class GetFeedRoomList extends FeedRoomEvent {
-  final List<int> feedRoomIds;
-  GetFeedRoomList({required this.feedRoomIds});
-  @override
-  List<Object> get props => [feedRoomIds];
-}
+class GetFeedRoomList extends FeedRoomEvent {}

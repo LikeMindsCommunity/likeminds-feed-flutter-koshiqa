@@ -14,12 +14,8 @@ import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:flutter/material.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-// import 'package:likeminds_feed/likeminds_feed.dart';
 
-// const List<int> DUMMY_FEEDROOMS = [72345, 72346, 72347];
-const List<int> DUMMY_FEEDROOMS = [72200, 72232, 72233];
-// const List<int> DUMMY_FEEDROOMS = [1262837];
+const int DUMMY_FEEDROOM = 72200;
 
 class FeedRoomScreen extends StatefulWidget {
   final bool isCm;
@@ -44,134 +40,60 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     _feedBloc = FeedRoomBloc();
   }
 
-  int _page = 0;
-  bool _addButton = false;
-
   @override
   Widget build(BuildContext context) {
     final isCm = widget.isCm;
     final user = widget.user;
     if (isCm) {
-      _feedBloc.add(GetFeedRoomList(feedRoomIds: DUMMY_FEEDROOMS));
+      _feedBloc.add(GetFeedRoomList());
     } else {
-      _feedBloc.add(GetFeedRoom(feedRoomId: DUMMY_FEEDROOMS.first));
+      _feedBloc.add(GetFeedRoom(feedRoomId: DUMMY_FEEDROOM));
     }
     return BlocConsumer(
       bloc: _feedBloc,
       listener: (context, state) {},
       builder: ((context, state) {
         if (state is FeedRoomLoaded) {
+          // Log the event in the analytics
           LMAnalytics.get().logEvent(
             AnalyticsKeys.feedOpened,
             {
               "feed_type": {
                 "feedroom": {
-                  "id": state.feedRoom.chatroom!.id,
+                  "id": state.feedRoom.id,
                 }
               }
             },
           );
-          GetFeedOfFeedRoomResponse feedResponse = state.feed;
-          GetFeedRoomResponse feedRoom = state.feedRoom;
-          return Scaffold(
-            backgroundColor: kBackgroundColor,
-            appBar: AppBar(
-              leading: isCm
-                  ? BackButton(
-                      color: Colors.white,
-                      onPressed: () {
-                        _feedBloc
-                            .add(GetFeedRoomList(feedRoomIds: DUMMY_FEEDROOMS));
-                      },
-                    )
-                  : null,
-              title: Text(feedRoom.chatroom!.title),
-              backgroundColor: kPrimaryColor,
-            ),
-            body: Column(
-              children: [
-                SizedBox(height: 18),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: feedResponse.posts!.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      final item = feedResponse.posts![index];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.pushNamed(context, AllCommentsScreen.route,
-                                  arguments:
-                                      AllCommentsScreenArguments(post: item))
-                              .then((value) => {
-                                    _feedBloc.add(GetFeedRoom(
-                                        feedRoomId: feedRoom.chatroom!.id))
-                                  });
-                        },
-                        child: PostWidget(
-                          postType: 1,
-                          postDetails: item,
-                          user: feedResponse.users[item.userId]!,
-                          refresh: () {
-                            _feedBloc.add(
-                                GetFeedRoom(feedRoomId: feedRoom.chatroom!.id));
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-            floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
-            floatingActionButton: NewPostButton(
-              onTap: () {
-                MaterialPageRoute route = MaterialPageRoute(
-                    builder: (context) => NewPostScreen(
-                          feedRoomId: feedRoom.chatroom!.id,
-                          user: user,
-                        ));
-                Navigator.push(context, route).then((value) => {
-                      _feedBloc
-                          .add(GetFeedRoom(feedRoomId: feedRoom.chatroom!.id))
-                    });
-              },
-            ),
+          // When the state is FeedRoomLoaded, we return the FeedRoomFeed
+          return FeedRoomFeed(
+            isCm: isCm,
+            feedBloc: _feedBloc,
+            feedResponse: state.feed,
+            user: user,
+            feedRoom: state.feedRoom,
           );
         } else if (state is FeedRoomListLoaded) {
-          return Scaffold(
-            backgroundColor: kBackgroundColor,
-            appBar: AppBar(
-              title: Text("Choose FeedRoom"),
-              backgroundColor: kPrimaryColor,
-            ),
-            body: Column(
-              children: [
-                SizedBox(height: 18),
-                Expanded(
-                  child: ListView.builder(
-                    padding: EdgeInsets.zero,
-                    itemCount: state.feedRooms.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      final item = state.feedRooms[index];
-                      return FeedRoomTile(
-                          item: item,
-                          onTap: () {
-                            _feedBloc.add(
-                              GetFeedRoom(
-                                feedRoomId: item.chatroom!.id,
-                                feedRoomResponse: item,
-                              ),
-                            );
-                          });
-                    },
-                  ),
-                ),
-              ],
-            ),
+          // When the state is FeedRoomListLoaded, we return the FeedRoomList
+          return FeedRoomList(
+            feedBloc: _feedBloc,
+            feedRooms: state.feedList,
+            size: state.size,
+          );
+        } else if (state is FeedRoomEmpty) {
+          return FeedRoomEmptyView(
+            isCm: isCm,
+            feedBloc: _feedBloc,
+            user: user,
+            feedRoom: state.feedRoom,
           );
         } else if (state is FeedRoomError) {
           return Scaffold(
-              backgroundColor: kBackgroundColor,
-              body: Center(child: Text(state.message)));
+            backgroundColor: kBackgroundColor,
+            body: Center(
+              child: Text(state.message),
+            ),
+          );
         } else if (state is FeedRoomListEmpty) {
           return Scaffold(
             backgroundColor: kBackgroundColor,
@@ -179,67 +101,222 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
               child: Text("No feedrooms found"),
             ),
           );
-        } else if (state is FeedRoomEmpty) {
+        } else if (state is FeedRoomLoading || state is FeedRoomListLoading) {
           return Scaffold(
             backgroundColor: kBackgroundColor,
-            appBar: AppBar(
-              leading: isCm
-                  ? BackButton(
-                      color: Colors.white,
-                      onPressed: () {
-                        _feedBloc
-                            .add(GetFeedRoomList(feedRoomIds: DUMMY_FEEDROOMS));
-                      },
-                    )
-                  : null,
-              title: Text(state.feedRoom.chatroom!.title),
-              backgroundColor: kPrimaryColor,
-            ),
             body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SvgPicture.asset(
-                    kAssetPostsIcon,
-                    color: kGrey3Color,
-                  ),
-                  SizedBox(height: 12),
-                  Text("No posts to show",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      )),
-                  SizedBox(height: 12),
-                  Text("Be the first one to post here",
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w300,
-                          color: kGrey2Color)),
-                  SizedBox(height: 28),
-                  NewPostButton(
-                    onTap: () {
-                      MaterialPageRoute route = MaterialPageRoute(
-                          builder: (context) => NewPostScreen(
-                                feedRoomId: state.feedRoom.chatroom!.id,
-                                user: user,
-                              ));
-                      Navigator.push(context, route).then((value) => {
-                            _feedBloc.add(GetFeedRoom(
-                                feedRoomId: state.feedRoom.chatroom!.id))
-                          });
-                    },
-                  ),
-                ],
-              ),
+              child: Loader(),
             ),
           );
         }
-        return Scaffold(
-            backgroundColor: kBackgroundColor,
-            body: Center(
-              child: const Loader(),
-            ));
+
+        return Container(
+          color: Colors.red,
+        );
       }),
+    );
+  }
+}
+
+class FeedRoomEmptyView extends StatelessWidget {
+  const FeedRoomEmptyView(
+      {Key? key,
+      required this.isCm,
+      required FeedRoomBloc feedBloc,
+      required this.user,
+      required this.feedRoom})
+      : _feedBloc = feedBloc,
+        super(key: key);
+
+  final bool isCm;
+  final FeedRoomBloc _feedBloc;
+  final User user;
+  final FeedRoom feedRoom;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: kBackgroundColor,
+      appBar: AppBar(
+        leading: isCm
+            ? BackButton(
+                color: Colors.white,
+                onPressed: () {
+                  _feedBloc.add(GetFeedRoomList());
+                },
+              )
+            : null,
+        title: Text(feedRoom.title),
+        backgroundColor: kPrimaryColor,
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              kAssetPostsIcon,
+              color: kGrey3Color,
+            ),
+            SizedBox(height: 12),
+            Text("No posts to show",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                )),
+            SizedBox(height: 12),
+            Text("Be the first one to post here",
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w300,
+                    color: kGrey2Color)),
+            SizedBox(height: 28),
+            NewPostButton(
+              onTap: () {
+                locator<NavigationService>().navigateTo(
+                  NewPostScreen.route,
+                  arguments: NewPostScreenArguments(
+                    feedroomId: feedRoom.id,
+                    user: user,
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class FeedRoomList extends StatelessWidget {
+  final int size;
+  final List<FeedRoom> feedRooms;
+
+  const FeedRoomList({
+    Key? key,
+    required FeedRoomBloc feedBloc,
+    required this.feedRooms,
+    required this.size,
+  })  : _feedBloc = feedBloc,
+        super(key: key);
+
+  final FeedRoomBloc _feedBloc;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: kBackgroundColor,
+      appBar: AppBar(
+        title: Text("Choose FeedRoom"),
+        backgroundColor: kPrimaryColor,
+      ),
+      body: Column(
+        children: [
+          SizedBox(height: 18),
+          Expanded(
+            child: ListView.builder(
+              padding: EdgeInsets.zero,
+              itemCount: size,
+              itemBuilder: (BuildContext context, int index) {
+                final item = feedRooms[index];
+                return FeedRoomTile(
+                    item: item,
+                    onTap: () {
+                      _feedBloc.add(
+                        GetFeedRoom(
+                          feedRoomId: item.id,
+                          // feedRoomResponse: state.feedRooms,
+                        ),
+                      );
+                    });
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class FeedRoomFeed extends StatelessWidget {
+  const FeedRoomFeed({
+    Key? key,
+    required this.isCm,
+    required FeedRoomBloc feedBloc,
+    required this.feedResponse,
+    required this.user,
+    required this.feedRoom,
+  })  : _feedBloc = feedBloc,
+        super(key: key);
+
+  final bool isCm;
+  final FeedRoomBloc _feedBloc;
+  final FeedRoom feedRoom;
+  final GetFeedOfFeedRoomResponse feedResponse;
+  final User user;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: kBackgroundColor,
+      appBar: AppBar(
+        leading: isCm
+            ? BackButton(
+                color: Colors.white,
+                onPressed: () {
+                  _feedBloc.add(GetFeedRoomList());
+                },
+              )
+            : null,
+        title: Text(feedRoom.title),
+        backgroundColor: kPrimaryColor,
+      ),
+      body: Column(
+        children: [
+          SizedBox(height: 18),
+          Expanded(
+            child: ListView.builder(
+              itemCount: feedResponse.posts!.length,
+              itemBuilder: (BuildContext context, int index) {
+                final item = feedResponse.posts![index];
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, AllCommentsScreen.route,
+                            arguments: AllCommentsScreenArguments(post: item))
+                        .then((value) => {
+                              _feedBloc.add(GetFeedRoom(
+                                feedRoomId: feedRoom.id,
+                              ))
+                            });
+                  },
+                  child: PostWidget(
+                    postType: 1,
+                    postDetails: item,
+                    user: feedResponse.users[item.userId]!,
+                    refresh: () {
+                      _feedBloc.add(GetFeedRoom(
+                        feedRoomId: feedRoom.id,
+                      ));
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+      floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
+      floatingActionButton: NewPostButton(
+        onTap: () {
+          locator<NavigationService>().navigateTo(
+            NewPostScreen.route,
+            arguments: NewPostScreenArguments(
+              feedroomId: feedRoom.id,
+              user: user,
+            ),
+          );
+        },
+      ),
     );
   }
 }
