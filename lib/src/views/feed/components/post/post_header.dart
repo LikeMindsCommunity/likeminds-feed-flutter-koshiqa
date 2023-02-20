@@ -1,3 +1,4 @@
+import 'package:feed_sx/src/widgets/profile_picture.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/utils.dart';
@@ -24,26 +25,7 @@ class PostHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          Container(
-            height: 48,
-            width: 48,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              color: kPrimaryColor,
-            ),
-            child: user.imageUrl.isEmpty
-                ? Center(
-                    child: Text(
-                      user.name[0].toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  )
-                : Image.network(user.imageUrl),
-          ),
+          ProfilePicture(user: user),
           kHorizontalPaddingLarge,
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,15 +33,20 @@ class PostHeader extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    user.name,
-                    style: const TextStyle(
-                        fontSize: kFontMedium,
-                        color: kGrey1Color,
-                        fontWeight: FontWeight.w500),
+                    user.name.isNotEmpty ? user.name : "Deleted user",
+                    style: TextStyle(
+                      fontSize: kFontMedium,
+                      color: kGrey1Color,
+                      fontWeight: FontWeight.w500,
+                      fontStyle: user.name.isNotEmpty
+                          ? FontStyle.normal
+                          : FontStyle.italic,
+                    ),
                   ),
                   kHorizontalPaddingLarge,
                 ],
               ),
+              kVerticalPaddingSmall,
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [

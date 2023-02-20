@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_media_carousel.dart';
+import 'package:feed_sx/src/widgets/profile_picture.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
@@ -119,25 +120,15 @@ class _NewPostScreenState extends State<NewPostScreen> {
             ),
             const SizedBox(height: 24),
             Row(children: [
-              Container(
-                height: 48,
-                width: 48,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
-                  color: kPrimaryColor,
-                ),
-                child: user.imageUrl.isNotEmpty
-                    ? Image.network(user.imageUrl)
-                    : Center(
-                        child: Text(
-                        user.name[0],
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      )),
-              ),
+              ProfilePicture(
+                  user: PostUser(
+                id: user.id,
+                imageUrl: user.imageUrl,
+                name: user.name,
+                userUniqueId: user.userUniqueId,
+                isGuest: user.isGuest,
+                isDeleted: false,
+              )),
               kHorizontalPaddingLarge,
               Text(
                 user.name,
