@@ -1,7 +1,13 @@
+import 'package:extended_text_field/extended_text_field.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/views/tagging/bloc/tagging_bloc.dart';
+import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
+import 'package:feed_sx/src/views/tagging/tagging_textfield.dart';
+import 'package:feed_sx/src/widgets/loader.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 class TaggingTestView extends StatefulWidget {
@@ -14,20 +20,20 @@ class TaggingTestView extends StatefulWidget {
 class _TaggingTestViewState extends State<TaggingTestView> {
   late final TaggingBloc taggingBloc;
 
+  List<UserTag> userTags = [];
+  String? result;
+
   @override
   void initState() {
     super.initState();
     taggingBloc = TaggingBloc()..add(GetTaggingListEvent(feedroomId: 72200));
   }
 
-  static String _displayStringForOption(UserTag option) =>
-      "@${option.name}" ?? '';
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          leading: BackButton(),
+          // leading: BackButton(),
           title: const Text('Tagging Test'),
           backgroundColor: kPrimaryColor,
         ),
@@ -40,39 +46,50 @@ class _TaggingTestViewState extends State<TaggingTestView> {
                 if (state is TaggingLoaded) {
                   final TagResponseModel taggingData = state.taggingData;
                   final groupTags = taggingData.groupTags;
-                  final userTags = taggingData.members;
+                  final items = taggingData.members!;
 
-                  return Column(
-                    children: [
-                      Autocomplete<UserTag>(
-                        displayStringForOption: _displayStringForOption,
-                        optionsBuilder: (TextEditingValue textEditingValue) {
-                          if (textEditingValue.text == '') {
-                            return const Iterable.empty();
-                          } else if (textEditingValue.text.startsWith('@')) {
-                            String text = textEditingValue.text.substring(1);
-                            return userTags!.where((userTag) {
-                              return userTag.name!.toLowerCase().contains(
-                                    text.toLowerCase(),
-                                  );
-                            });
-                          } else {
-                            return const Iterable.empty();
-                          }
-                          // return userTags!.where((userTag) {
-                          //   return userTag.name!
-                          //       .toLowerCase()
-                          //       .contains(textEditingValue.text.toLowerCase());
-                          // });
-                        },
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: TaggingTextField(
+                              userTags: items,
+                              onTagSelected: (tag) {
+                                print(tag);
+                                userTags.add(tag);
+                              },
+                              result: (text) {
+                                print(text);
+                                setState(() {
+                                  userTags =
+                                      TaggingHelper.matchTags(text, items);
+                                  result = TaggingHelper.encodeString(
+                                      text, userTags);
+                                });
+                              },
+                            ),
+                          ),
+                          kVerticalPaddingLarge,
+                          Expanded(
+                            child: Text(result != null
+                                ? TaggingHelper.decodeString(result!)
+                                : ''),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   );
                 }
                 if (state is TaggingError) {
                   return const Center(child: Text('Error'));
                 }
-                return const Center(child: CircularProgressIndicator());
+                return const Center(
+                  child: Loader(
+                    isPrimary: true,
+                  ),
+                );
               },
             ),
           ],
