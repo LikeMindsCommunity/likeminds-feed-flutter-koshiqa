@@ -10,26 +10,31 @@ part 'feedroom_state.dart';
 class FeedRoomBloc extends Bloc<FeedRoomEvent, FeedRoomState> {
   FeedRoomBloc() : super(FeedRoomInitial()) {
     on<FeedRoomEvent>((event, emit) async {
+      Map<String, PostUser> users = {};
+      if (state is FeedRoomLoaded) {
+        users = (state as FeedRoomLoaded).feed.users;
+      }
       if (event is GetFeedRoom) {
         emit(FeedRoomLoading());
         GetFeedOfFeedRoomResponse? response =
             await locator<LikeMindsService>().getFeedOfFeedRoom(
           GetFeedOfFeedRoomRequest(
             feedroomId: event.feedRoomId,
-            page: 1,
-            pageSize: 20,
+            page: event.offset,
+            pageSize: 10,
           ),
         );
         GetFeedRoomResponse? feedRoomResponse =
             await locator<LikeMindsService>().getFeedRoom(
           GetFeedRoomRequest(
             feedroomId: event.feedRoomId,
-            page: 1,
+            page: event.offset,
           ),
         );
         if (!response.success) {
           emit(FeedRoomError(message: "No data found"));
         } else {
+          response.users.addAll(users);
           if (response.posts == null || response.posts!.isEmpty) {
             emit(FeedRoomEmpty(
               feedRoom: feedRoomResponse,
@@ -37,9 +42,9 @@ class FeedRoomBloc extends Bloc<FeedRoomEvent, FeedRoomState> {
             ));
           } else {
             emit(FeedRoomLoaded(
-              feed: response,
-              feedRoom: feedRoomResponse,
-            ));
+                feed: response,
+                feedRoom: feedRoomResponse,
+                hasReachedMax: response.posts!.isEmpty));
           }
         }
       } else if (event is GetFeedRoomList) {
@@ -51,17 +56,20 @@ class FeedRoomBloc extends Bloc<FeedRoomEvent, FeedRoomState> {
                 await locator<LikeMindsService>().getFeedRoom(
               GetFeedRoomRequest(
                 feedroomId: feedRoomId,
-                page: 1,
+                page: event.offset,
               ),
             );
             if (response.success) {
               feedRooms.add(response);
             }
           }
-          if (feedRooms.isEmpty) {
+          if (feedRooms.isEmpty && event.offset > 1) {
+            emit(FeedRoomListLoaded(feedRooms: feedRooms, hasReachedMax: true));
+          } else if (feedRooms.isEmpty) {
             emit(FeedRoomListEmpty());
           } else {
-            emit(FeedRoomListLoaded(feedRooms: feedRooms));
+            emit(
+                FeedRoomListLoaded(feedRooms: feedRooms, hasReachedMax: false));
           }
         } catch (e) {
           emit(FeedRoomError(message: "${e.toString()} No data found"));

@@ -25,17 +25,20 @@ class FeedRoomEmpty extends FeedRoomState {
 class FeedRoomLoaded extends FeedRoomState {
   final GetFeedOfFeedRoomResponse feed;
   final GetFeedRoomResponse feedRoom;
-  FeedRoomLoaded({
-    required this.feedRoom,
-    required this.feed,
-  });
+  final bool hasReachedMax;
+  FeedRoomLoaded(
+      {required this.feedRoom,
+      required this.feed,
+      required this.hasReachedMax});
   @override
   List<Object> get props => [feedRoom];
 }
 
 class FeedRoomListLoaded extends FeedRoomState {
   final List<GetFeedRoomResponse> feedRooms;
-  FeedRoomListLoaded({required this.feedRooms});
+  final bool hasReachedMax;
+
+  FeedRoomListLoaded({required this.feedRooms, required this.hasReachedMax});
   @override
   List<Object> get props => [feedRooms];
 }

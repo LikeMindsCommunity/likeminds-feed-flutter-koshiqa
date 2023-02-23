@@ -29,12 +29,17 @@ class PostHeader extends StatelessWidget {
             width: 48,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
-              color: kPrimaryColor,
+              color: user.name.isNotEmpty ? kPrimaryColor : kGrey3Color,
+              image: user.imageUrl.isNotEmpty
+                  ? DecorationImage(
+                      image: NetworkImage(user.imageUrl),
+                    )
+                  : null,
             ),
             child: user.imageUrl.isEmpty
                 ? Center(
                     child: Text(
-                      user.name[0].toUpperCase(),
+                      user.name.isNotEmpty ? user.name[0].toUpperCase() : "",
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 24,
@@ -42,7 +47,7 @@ class PostHeader extends StatelessWidget {
                       ),
                     ),
                   )
-                : Image.network(user.imageUrl),
+                : null,
           ),
           kHorizontalPaddingLarge,
           Column(
@@ -50,16 +55,19 @@ class PostHeader extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Text(
-                    user.name,
-                    style: const TextStyle(
+                  Text(user.name.isNotEmpty ? user.name : "Deleted user",
+                      style: TextStyle(
                         fontSize: kFontMedium,
                         color: kGrey1Color,
-                        fontWeight: FontWeight.w500),
-                  ),
+                        fontWeight: FontWeight.w500,
+                        fontStyle: user.name.isNotEmpty
+                            ? FontStyle.normal
+                            : FontStyle.italic,
+                      )),
                   kHorizontalPaddingLarge,
                 ],
               ),
+              kVerticalPaddingSmall,
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [

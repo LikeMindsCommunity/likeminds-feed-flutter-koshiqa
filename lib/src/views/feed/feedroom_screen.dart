@@ -3,6 +3,7 @@
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/views/feed/components/new_post_button.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/navigation/arguments.dart';
@@ -15,8 +16,8 @@ import 'package:flutter/material.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-const List<int> DUMMY_FEEDROOMS = [72345, 72346, 72347];
-// const List<int> DUMMY_FEEDROOMS = [72200, 72232, 72233];
+//const List<int> DUMMY_FEEDROOMS = [72345, 72346, 72347];
+const List<int> DUMMY_FEEDROOMS = [72200, 72232, 72233];
 
 class FeedRoomScreen extends StatefulWidget {
   final bool isCm;
@@ -33,29 +34,90 @@ class FeedRoomScreen extends StatefulWidget {
 
 class _FeedRoomScreenState extends State<FeedRoomScreen> {
   late final FeedRoomBloc _feedBloc;
+  bool? isCm;
+  final ScrollController scrollController =
+      ScrollController(initialScrollOffset: 0.0, keepScrollOffset: true);
+
+  final PagingController<int, Post> _pagingController =
+      PagingController(firstPageKey: 1);
+
+  final PagingController<int, GetFeedRoomResponse>
+      _pagingControllerFeedRoomList = PagingController(firstPageKey: 1);
 
   @override
   void initState() {
     super.initState();
+    _addPaginationListener();
     Bloc.observer = SimpleBlocObserver();
     _feedBloc = FeedRoomBloc();
   }
 
-  int _page = 0;
+  @override
+  void dispose() {
+    _pagingController.dispose();
+    _pagingControllerFeedRoomList.dispose();
+    super.dispose();
+  }
+
+  _addPaginationListener() {
+    _pagingController.addPageRequestListener((pageKey) {
+      _feedBloc.add(GetFeedRoom(
+          feedRoomId: DUMMY_FEEDROOMS.first,
+          offset: pageKey,
+          forLoadMore: false));
+    });
+    _pagingControllerFeedRoomList.addPageRequestListener((pageKey) {
+      _feedBloc.add(GetFeedRoomList(
+          feedRoomIds: DUMMY_FEEDROOMS, offset: pageKey, forLoadMore: false));
+    });
+  }
+
+  refresh() => () {
+        setState(() {});
+      };
+
+  int _pageFeedRoom = 0;
+  int _pageFeedRoomList = 0;
   bool _addButton = false;
 
   @override
   Widget build(BuildContext context) {
-    final isCm = widget.isCm;
+    isCm = widget.isCm;
     final user = widget.user;
-    if (isCm) {
-      _feedBloc.add(GetFeedRoomList(feedRoomIds: DUMMY_FEEDROOMS));
+    if (isCm!) {
+      _feedBloc.add(GetFeedRoomList(
+          feedRoomIds: DUMMY_FEEDROOMS, offset: 1, forLoadMore: false));
     } else {
-      _feedBloc.add(GetFeedRoom(feedRoomId: DUMMY_FEEDROOMS.first));
+      _feedBloc.add(GetFeedRoom(
+          feedRoomId: DUMMY_FEEDROOMS.first, offset: 1, forLoadMore: false));
     }
     return BlocConsumer(
       bloc: _feedBloc,
-      listener: (context, state) {},
+      buildWhen: (prev, curr) {
+        if ((prev is FeedRoomLoaded && curr is FeedRoomLoading) ||
+            (prev is FeedRoomListLoaded && curr is FeedRoomListLoading)) {
+          return false;
+        }
+        return true;
+      },
+      listener: (context, state) {
+        if (state is FeedRoomLoaded) {
+          _pageFeedRoom++;
+          if (state.feed.posts!.length < 10) {
+            _pagingController.appendLastPage(state.feed.posts ?? []);
+          } else {
+            _pagingController.appendPage(state.feed.posts ?? [], _pageFeedRoom);
+          }
+        } else if (state is FeedRoomListLoaded) {
+          _pageFeedRoomList++;
+          if (state.feedRooms.length < 10) {
+            _pagingControllerFeedRoomList.appendLastPage(state.feedRooms);
+          } else {
+            _pagingControllerFeedRoomList.appendPage(
+                state.feedRooms, _pageFeedRoomList);
+          }
+        }
+      },
       builder: ((context, state) {
         if (state is FeedRoomLoaded) {
           LMAnalytics.get().logEvent(
@@ -73,12 +135,17 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
           return Scaffold(
             backgroundColor: kBackgroundColor,
             appBar: AppBar(
-              leading: isCm
+              leading: isCm!
                   ? BackButton(
                       color: Colors.white,
                       onPressed: () {
-                        _feedBloc
-                            .add(GetFeedRoomList(feedRoomIds: DUMMY_FEEDROOMS));
+                        _pagingController.nextPageKey = _pageFeedRoom = 1;
+                        _pagingController.itemList!.clear();
+                        _pagingControllerFeedRoomList.itemList!.clear();
+                        _feedBloc.add(GetFeedRoomList(
+                            feedRoomIds: DUMMY_FEEDROOMS,
+                            offset: 1,
+                            forLoadMore: true));
                       },
                     )
                   : null,
@@ -89,33 +156,20 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
               children: [
                 SizedBox(height: 18),
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: feedResponse.posts!.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      final item = feedResponse.posts![index];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.pushNamed(context, AllCommentsScreen.route,
-                                  arguments:
-                                      AllCommentsScreenArguments(post: item))
-                              .then((value) => {
-                                    _feedBloc.add(GetFeedRoom(
-                                        feedRoomId: feedRoom.chatroom!.id))
-                                  });
-                        },
-                        child: PostWidget(
-                          postType: 1,
-                          postDetails: item,
-                          user: feedResponse.users[item.userId]!,
-                          refresh: () {
-                            _feedBloc.add(
-                                GetFeedRoom(feedRoomId: feedRoom.chatroom!.id));
-                          },
-                        ),
+                  child: PagedListView<int, Post>(
+                    pagingController: _pagingController,
+                    scrollController: scrollController,
+                    builderDelegate: PagedChildBuilderDelegate<Post>(
+                        itemBuilder: (context, item, index) {
+                      return PostWidget(
+                        postType: 1,
+                        postDetails: item,
+                        user: feedResponse.users[item.userId]!,
+                        refresh: refresh,
                       );
-                    },
+                    }),
                   ),
-                ),
+                )
               ],
             ),
             floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
@@ -126,10 +180,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                           feedRoomId: feedRoom.chatroom!.id,
                           user: user,
                         ));
-                Navigator.push(context, route).then((value) => {
-                      _feedBloc
-                          .add(GetFeedRoom(feedRoomId: feedRoom.chatroom!.id))
-                    });
+                Navigator.push(context, route);
               },
             ),
           );
@@ -144,24 +195,24 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
               children: [
                 SizedBox(height: 18),
                 Expanded(
-                  child: ListView.builder(
-                    padding: EdgeInsets.zero,
-                    itemCount: state.feedRooms.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      final item = state.feedRooms[index];
+                  child: PagedListView<int, GetFeedRoomResponse>(
+                    pagingController: _pagingControllerFeedRoomList,
+                    scrollController: scrollController,
+                    builderDelegate:
+                        PagedChildBuilderDelegate<GetFeedRoomResponse>(
+                            itemBuilder: (context, item, index) {
                       return FeedRoomTile(
                           item: item,
                           onTap: () {
-                            _feedBloc.add(
-                              GetFeedRoom(
+                            _feedBloc.add(GetFeedRoom(
                                 feedRoomId: item.chatroom!.id,
                                 feedRoomResponse: item,
-                              ),
-                            );
+                                offset: 1,
+                                forLoadMore: true));
                           });
-                    },
+                    }),
                   ),
-                ),
+                )
               ],
             ),
           );
@@ -180,12 +231,17 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
           return Scaffold(
             backgroundColor: kBackgroundColor,
             appBar: AppBar(
-              leading: isCm
+              leading: isCm!
                   ? BackButton(
                       color: Colors.white,
                       onPressed: () {
-                        _feedBloc
-                            .add(GetFeedRoomList(feedRoomIds: DUMMY_FEEDROOMS));
+                        _pagingController.nextPageKey = _pageFeedRoom = 1;
+                        _pagingController.itemList!.clear();
+                        _pagingControllerFeedRoomList.itemList!.clear();
+                        _feedBloc.add(GetFeedRoomList(
+                            feedRoomIds: DUMMY_FEEDROOMS,
+                            offset: 1,
+                            forLoadMore: true));
                       },
                     )
                   : null,
@@ -220,10 +276,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                                 feedRoomId: state.feedRoom.chatroom!.id,
                                 user: user,
                               ));
-                      Navigator.push(context, route).then((value) => {
-                            _feedBloc.add(GetFeedRoom(
-                                feedRoomId: state.feedRoom.chatroom!.id))
-                          });
+                      Navigator.push(context, route);
                     },
                   ),
                 ],
