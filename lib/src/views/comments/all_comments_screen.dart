@@ -317,6 +317,8 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                   // addAutomaticKeepAlives: true,
                   pagingController: _pagingController,
                   builderDelegate: PagedChildBuilderDelegate<Reply>(
+                      noMoreItemsIndicatorBuilder: (context) =>
+                          SizedBox(height: 64),
                       noItemsFoundIndicatorBuilder: (context) =>
                           Column(children: const <Widget>[
                             SizedBox(height: 40),
