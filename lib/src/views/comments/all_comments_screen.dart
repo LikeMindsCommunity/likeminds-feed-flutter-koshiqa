@@ -317,26 +317,35 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                   // addAutomaticKeepAlives: true,
                   pagingController: _pagingController,
                   builderDelegate: PagedChildBuilderDelegate<Reply>(
+                      noItemsFoundIndicatorBuilder: (context) =>
+                          Column(children: const <Widget>[
+                            SizedBox(height: 40),
+                            Text('No comment found',
+                                style: TextStyle(fontSize: kFontMedium)),
+                            SizedBox(height: 10),
+                            Text('Be the first one to comment',
+                                style: TextStyle(fontSize: kFontSmall))
+                          ]),
                       itemBuilder: (context, item, index) {
-                    return CommentTile(
-                      key: ValueKey(item.id),
-                      reply: item,
-                      user: postDetailResponse.users[item.userId]!,
-                      postId: postDetailResponse.postReplies.id,
-                      onReply: selectCommentToReply,
-                      refresh: () {
-                        // _allCommentsBloc.add(GetAllComments(
-                        //   postDetailRequest: PostDetailRequest(
-                        //     postId: postDetailResponse.postReplies.id,
-                        //     page: 1,
-                        //   ),
-                        //   forLoadMore: false,
-                        // ));
-                        // setState(() {});
-                        _pagingController.refresh();
-                      },
-                    );
-                  }),
+                        return CommentTile(
+                          key: ValueKey(item.id),
+                          reply: item,
+                          user: postDetailResponse.users[item.userId]!,
+                          postId: postDetailResponse.postReplies.id,
+                          onReply: selectCommentToReply,
+                          refresh: () {
+                            // _allCommentsBloc.add(GetAllComments(
+                            //   postDetailRequest: PostDetailRequest(
+                            //     postId: postDetailResponse.postReplies.id,
+                            //     page: 1,
+                            //   ),
+                            //   forLoadMore: false,
+                            // ));
+                            // setState(() {});
+                            _pagingController.refresh();
+                          },
+                        );
+                      }),
                 ),
                 // SizedBox(height: 24),
                 // SliverList(
