@@ -11,7 +11,7 @@ class GetFeedRoom extends FeedRoomEvent {
   final int feedRoomId;
   final int offset;
   final bool forLoadMore;
-  final GetFeedRoomResponse? feedRoomResponse;
+  final FeedRoom? feedRoomResponse;
   GetFeedRoom({
     required this.feedRoomId,
     required this.offset,
@@ -23,13 +23,6 @@ class GetFeedRoom extends FeedRoomEvent {
 }
 
 class GetFeedRoomList extends FeedRoomEvent {
-  final List<int> feedRoomIds;
   final int offset;
-  final bool forLoadMore;
-  GetFeedRoomList(
-      {required this.feedRoomIds,
-      required this.offset,
-      required this.forLoadMore});
-  @override
-  List<Object> get props => [feedRoomIds];
+  const GetFeedRoomList({required this.offset});
 }
