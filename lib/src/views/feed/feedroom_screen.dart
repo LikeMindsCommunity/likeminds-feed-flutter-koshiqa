@@ -6,7 +6,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/utils/simple_bloc_observer.dart';
 import 'package:feed_sx/src/views/feed/blocs/feedroom/feedroom_bloc.dart';
 import 'package:feed_sx/src/views/feed/components/feedroom_tile.dart';
@@ -35,8 +34,6 @@ class FeedRoomScreen extends StatefulWidget {
 class _FeedRoomScreenState extends State<FeedRoomScreen> {
   late final FeedRoomBloc _feedBloc;
   bool? isCm;
-  final ScrollController scrollController =
-      ScrollController(initialScrollOffset: 0.0, keepScrollOffset: true);
 
   final PagingController<int, Post> _pagingController =
       PagingController(firstPageKey: 1);
@@ -158,16 +155,20 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                 Expanded(
                   child: PagedListView<int, Post>(
                     pagingController: _pagingController,
-                    scrollController: scrollController,
                     builderDelegate: PagedChildBuilderDelegate<Post>(
+                        noItemsFoundIndicatorBuilder: (context) => Scaffold(
+                            backgroundColor: kBackgroundColor,
+                            body: Center(
+                              child: const Loader(),
+                            )),
                         itemBuilder: (context, item, index) {
-                      return PostWidget(
-                        postType: 1,
-                        postDetails: item,
-                        user: feedResponse.users[item.userId]!,
-                        refresh: refresh,
-                      );
-                    }),
+                          return PostWidget(
+                            postType: 1,
+                            postDetails: item,
+                            user: feedResponse.users[item.userId]!,
+                            refresh: refresh,
+                          );
+                        }),
                   ),
                 )
               ],
@@ -197,20 +198,24 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                 Expanded(
                   child: PagedListView<int, GetFeedRoomResponse>(
                     pagingController: _pagingControllerFeedRoomList,
-                    scrollController: scrollController,
                     builderDelegate:
                         PagedChildBuilderDelegate<GetFeedRoomResponse>(
+                            noItemsFoundIndicatorBuilder: (context) => Scaffold(
+                                backgroundColor: kBackgroundColor,
+                                body: Center(
+                                  child: const Loader(),
+                                )),
                             itemBuilder: (context, item, index) {
-                      return FeedRoomTile(
-                          item: item,
-                          onTap: () {
-                            _feedBloc.add(GetFeedRoom(
-                                feedRoomId: item.chatroom!.id,
-                                feedRoomResponse: item,
-                                offset: 1,
-                                forLoadMore: true));
-                          });
-                    }),
+                              return FeedRoomTile(
+                                  item: item,
+                                  onTap: () {
+                                    _feedBloc.add(GetFeedRoom(
+                                        feedRoomId: item.chatroom!.id,
+                                        feedRoomResponse: item,
+                                        offset: 1,
+                                        forLoadMore: true));
+                                  });
+                            }),
                   ),
                 )
               ],
