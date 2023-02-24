@@ -61,7 +61,12 @@ class _NewPostScreenState extends State<NewPostScreen> {
               children: [
                 BackButton(
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    locator<NavigationService>().goBack(
+                      result: {
+                        "feedroomId": feedRoomId,
+                        "isBack": false,
+                      },
+                    );
                   },
                 ),
                 const Text(
@@ -91,7 +96,10 @@ class _NewPostScreenState extends State<NewPostScreen> {
                             "document_attached": "no",
                           },
                         );
-                        Navigator.of(context).pop();
+                        locator<NavigationService>().goBack(result: {
+                          "feedroomId": feedRoomId,
+                          "isBack": true,
+                        });
                       }
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(

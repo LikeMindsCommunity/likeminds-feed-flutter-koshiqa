@@ -11,6 +11,8 @@ class FeedRoomInitial extends FeedRoomState {}
 
 class FeedRoomLoading extends FeedRoomState {}
 
+class PaginationLoading extends FeedRoomState {}
+
 class FeedRoomEmpty extends FeedRoomState {
   final GetFeedOfFeedRoomResponse feed;
   final FeedRoom feedRoom;

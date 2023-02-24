@@ -9,7 +9,7 @@ class NavigationService {
         .pushNamed(routeName, arguments: arguments);
   }
 
-  void goBack() {
-    return navigatorKey.currentState!.pop();
+  void goBack({Map<String, dynamic>? result}) {
+    return navigatorKey.currentState!.pop(result ?? {});
   }
 }

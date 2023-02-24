@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/views/feed/components/new_post_button.dart';
 import 'package:flutter_svg/svg.dart';
@@ -62,20 +63,23 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
   _addPaginationListener() {
     _pagingController.addPageRequestListener((pageKey) {
       _feedBloc.add(GetFeedRoom(
-          feedRoomId: DUMMY_FEEDROOM, offset: pageKey, forLoadMore: false));
+          feedRoomId: DUMMY_FEEDROOM,
+          offset: pageKey,
+          isPaginationLoading: true));
     });
     _pagingControllerFeedRoomList.addPageRequestListener((pageKey) {
-      _feedBloc.add(GetFeedRoomList(offset: pageKey));
+      _feedBloc
+          .add(GetFeedRoomList(offset: pageKey, isPaginationLoading: true));
     });
   }
 
-  refresh() => () {
-        setState(() {});
-      };
+  refresh() {
+    _pagingController.refresh();
+    clearPagingController();
+  }
 
   int _pageFeedRoom = 0; // current index of FeedRoom
   int _pageFeedRoomList = 0; // current index of FeedRoomList
-  bool _addButton = false;
 
   void updatePagingControllers(Object? state) {
     if (state is FeedRoomLoaded) {
@@ -111,15 +115,14 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     if (isCm!) {
       _feedBloc.add(GetFeedRoomList(offset: 1));
     } else {
-      _feedBloc.add(GetFeedRoom(
-          feedRoomId: DUMMY_FEEDROOM, offset: 1, forLoadMore: false));
+      _feedBloc.add(GetFeedRoom(feedRoomId: DUMMY_FEEDROOM, offset: 1));
     }
     return BlocConsumer(
       bloc: _feedBloc,
       buildWhen: (prev, curr) {
         // Prevents changin the state while paginating the feed
-        if ((prev is FeedRoomLoaded && curr is FeedRoomLoading) ||
-            (prev is FeedRoomListLoaded && curr is FeedRoomListLoading)) {
+        if ((prev is FeedRoomLoaded && curr is PaginationLoading) ||
+            (prev is FeedRoomListLoaded && curr is PaginationLoading)) {
           return false;
         }
         return true;
@@ -164,9 +167,11 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
               isCm: isCm!,
               onPressedBack: clearPagingController,
               feedBloc: _feedBloc,
+              onRefresh: refresh,
               user: user,
               feedRoom: state.feedRoom);
         }
+
         return Scaffold(
             backgroundColor: kBackgroundColor,
             body: Center(
@@ -193,6 +198,7 @@ class FeedRoomEmptyView extends StatelessWidget {
       {Key? key,
       required this.isCm,
       required this.onPressedBack,
+      required this.onRefresh,
       required FeedRoomBloc feedBloc,
       required this.user,
       required this.feedRoom})
@@ -203,6 +209,7 @@ class FeedRoomEmptyView extends StatelessWidget {
   final FeedRoomBloc _feedBloc;
   final User user;
   final FeedRoom feedRoom;
+  final VoidCallback onRefresh;
   final VoidCallback onPressedBack;
 
   @override
@@ -245,12 +252,19 @@ class FeedRoomEmptyView extends StatelessWidget {
             SizedBox(height: 28),
             NewPostButton(
               onTap: () {
-                MaterialPageRoute route = MaterialPageRoute(
-                    builder: (context) => NewPostScreen(
-                          feedRoomId: feedRoom.id,
-                          user: user,
-                        ));
-                Navigator.push(context, route);
+                locator<NavigationService>()
+                    .navigateTo(
+                  NewPostScreen.route,
+                  arguments: NewPostScreenArguments(
+                    feedroomId: feedRoom.id,
+                    user: user,
+                  ),
+                )
+                    .then((result) {
+                  if (result != null && result['isBack']) {
+                    onRefresh();
+                  }
+                });
               },
             ),
           ],
@@ -326,12 +340,19 @@ class FeedRoomView extends StatelessWidget {
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
       floatingActionButton: NewPostButton(
         onTap: () {
-          MaterialPageRoute route = MaterialPageRoute(
-              builder: (context) => NewPostScreen(
-                    feedRoomId: feedRoom.id,
-                    user: user,
-                  ));
-          Navigator.push(context, route);
+          locator<NavigationService>()
+              .navigateTo(
+            NewPostScreen.route,
+            arguments: NewPostScreenArguments(
+              feedroomId: feedRoom.id,
+              user: user,
+            ),
+          )
+              .then((result) {
+            if (result != null && result['isBack']) {
+              onRefresh();
+            }
+          });
         },
       ),
     );
@@ -373,8 +394,7 @@ class FeedRoomListView extends StatelessWidget {
                           feedRoomBloc.add(GetFeedRoom(
                               feedRoomId: item.id,
                               feedRoomResponse: item,
-                              offset: 1,
-                              forLoadMore: true));
+                              offset: 1));
                         });
                   }),
             ),

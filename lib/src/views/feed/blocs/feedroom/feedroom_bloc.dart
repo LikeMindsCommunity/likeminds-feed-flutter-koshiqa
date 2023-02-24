@@ -15,7 +15,9 @@ class FeedRoomBloc extends Bloc<FeedRoomEvent, FeedRoomState> {
         users = (state as FeedRoomLoaded).feed.users;
       }
       if (event is GetFeedRoom) {
-        emit(FeedRoomLoading());
+        event.isPaginationLoading
+            ? emit(PaginationLoading())
+            : emit(FeedRoomLoading());
         try {
           GetFeedOfFeedRoomResponse? response =
               await locator<LikeMindsService>().getFeedOfFeedRoom(
@@ -36,7 +38,8 @@ class FeedRoomBloc extends Bloc<FeedRoomEvent, FeedRoomState> {
             emit(FeedRoomError(message: "No data found"));
           } else {
             response.users.addAll(users);
-            if (response.posts == null || response.posts!.isEmpty) {
+            if ((response.posts == null || response.posts!.isEmpty) &&
+                event.offset <= 1) {
               emit(FeedRoomEmpty(
                 feedRoom: feedRoomResponse.chatroom!,
                 feed: response,
@@ -50,7 +53,9 @@ class FeedRoomBloc extends Bloc<FeedRoomEvent, FeedRoomState> {
           emit(FeedRoomError(message: e.toString()));
         }
       } else if (event is GetFeedRoomList) {
-        emit(FeedRoomLoading());
+        event.isPaginationLoading
+            ? emit(PaginationLoading())
+            : emit(FeedRoomLoading());
         try {
           GetFeedRoomResponse? response = await locator<LikeMindsService>()
               .getFeedRoom(GetFeedRoomRequest(page: event.offset));

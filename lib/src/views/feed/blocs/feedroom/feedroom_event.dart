@@ -10,12 +10,12 @@ abstract class FeedRoomEvent extends Equatable {
 class GetFeedRoom extends FeedRoomEvent {
   final int feedRoomId;
   final int offset;
-  final bool forLoadMore;
+  final bool isPaginationLoading;
   final FeedRoom? feedRoomResponse;
   GetFeedRoom({
     required this.feedRoomId,
     required this.offset,
-    required this.forLoadMore,
+    this.isPaginationLoading = false,
     this.feedRoomResponse,
   });
   @override
@@ -24,5 +24,7 @@ class GetFeedRoom extends FeedRoomEvent {
 
 class GetFeedRoomList extends FeedRoomEvent {
   final int offset;
-  const GetFeedRoomList({required this.offset});
+  final bool isPaginationLoading;
+  const GetFeedRoomList(
+      {required this.offset, this.isPaginationLoading = false});
 }
