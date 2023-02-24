@@ -72,13 +72,6 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    LMAnalytics.get().logEvent(
-      AnalyticsKeys.commentListOpen,
-      {
-        "post_id": widget.post.id,
-        "comment_count": widget.post.commentCount.toString(),
-      },
-    );
     return Scaffold(
       resizeToAvoidBottomInset: true,
       bottomSheet: SafeArea(
@@ -314,7 +307,9 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                         .users[postDetailResponse.postReplies.userId]!,
                     postType: 0,
                     isFeed: false,
-                    refresh: () {},
+                    refresh: () {
+                      locator<NavigationService>().goBack();
+                    },
                   ),
                 ),
                 SliverPadding(padding: EdgeInsets.only(bottom: 12)),
@@ -329,6 +324,17 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                       user: postDetailResponse.users[item.userId]!,
                       postId: postDetailResponse.postReplies.id,
                       onReply: selectCommentToReply,
+                      refresh: () {
+                        // _allCommentsBloc.add(GetAllComments(
+                        //   postDetailRequest: PostDetailRequest(
+                        //     postId: postDetailResponse.postReplies.id,
+                        //     page: 1,
+                        //   ),
+                        //   forLoadMore: false,
+                        // ));
+                        // setState(() {});
+                        _pagingController.refresh();
+                      },
                     );
                   }),
                 ),

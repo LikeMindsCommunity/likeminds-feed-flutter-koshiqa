@@ -16,6 +16,7 @@ abstract class ILikeMindsService {
   Future<GetPostLikesResponse> getPostLikes(GetPostLikesRequest request);
   Future<DeletePostResponse> deletePost(DeletePostRequest request);
   Future<LikePostResponse> likePost(LikePostRequest request);
+  Future<DeleteCommentResponse> deleteComment(DeleteCommentRequest request);
   Future<String?> uploadFile(File file);
   Future<RegisterDeviceResponse> registerDevice(RegisterDeviceRequest request);
   Future<BrandingResponse> getBranding(BrandingRequest request);
@@ -79,6 +80,14 @@ class LikeMindsService implements ILikeMindsService {
   @override
   Future<LikePostResponse> likePost(LikePostRequest likePostRequest) async {
     return await _sdkApplication.getPostApi().likePost(likePostRequest);
+  }
+
+  @override
+  Future<DeleteCommentResponse> deleteComment(
+      DeleteCommentRequest deleteCommentRequest) async {
+    return await _sdkApplication
+        .getFeedApi()
+        .deleteComment(deleteCommentRequest);
   }
 
   @override

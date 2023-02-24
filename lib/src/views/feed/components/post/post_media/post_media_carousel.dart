@@ -20,9 +20,9 @@ class PostMediaCarousel extends StatefulWidget {
 
 class _PostMediaCarouselState extends State<PostMediaCarousel> {
   late List<Widget> widgets;
+  late final int itemCount;
   final PageController carouselController = PageController();
 
-  final int itemCount = 3;
   double currPage = 0;
   @override
   void initState() {
@@ -33,6 +33,7 @@ class _PostMediaCarouselState extends State<PostMediaCarousel> {
               postId: widget.postId,
             ))
         .toList();
+    itemCount = widgets.length;
   }
 
   Widget _indicator(bool isActive) {
@@ -72,7 +73,7 @@ class _PostMediaCarouselState extends State<PostMediaCarousel> {
                   pageIndex = value;
                 });
               },
-              itemCount: 2,
+              itemCount: itemCount,
               pageSnapping: true,
               controller: carouselController,
               itemBuilder: (context, pagePosition) {

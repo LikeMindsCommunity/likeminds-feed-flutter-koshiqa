@@ -83,11 +83,22 @@ class LikesTile extends StatelessWidget {
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(27),
+                      color: kPrimaryColor,
                     ),
                     height: 54,
                     width: 54,
-                    child: Image.asset(
-                        'packages/feed_sx/assets/images/avatar2.png'),
+                    child: user!.imageUrl.isEmpty
+                        ? Center(
+                            child: Text(
+                              user!.name[0].toUpperCase(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          )
+                        : Image.network(user!.imageUrl),
                   ),
                   kHorizontalPaddingSmall,
                   kHorizontalPaddingMedium,

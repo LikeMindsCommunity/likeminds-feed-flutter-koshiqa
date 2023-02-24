@@ -1,3 +1,5 @@
+import 'package:feed_sx/src/views/comments/components/dropdown_options_comment.dart';
+import 'package:feed_sx/src/views/comments/components/dropdown_options_reply.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/packages/expandable_text/expandable_text.dart';
@@ -16,13 +18,19 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class ReplyTile extends StatefulWidget {
   final String postId;
+  final String commentId;
   final CommentReply reply;
   final PostUser user;
-  const ReplyTile(
-      {super.key,
-      required this.reply,
-      required this.user,
-      required this.postId});
+  final Function() refresh;
+
+  const ReplyTile({
+    super.key,
+    required this.reply,
+    required this.user,
+    required this.postId,
+    required this.commentId,
+    required this.refresh,
+  });
 
   @override
   State<ReplyTile> createState() => _ReplyTileState();
@@ -34,6 +42,9 @@ class _ReplyTileState extends State<ReplyTile> {
   late final CommentReply reply;
   late final PostUser user;
   late final String postId;
+  late final String commentId;
+  late final Function() refresh;
+
   bool isLiked = false;
   @override
   void initState() {
@@ -43,6 +54,8 @@ class _ReplyTileState extends State<ReplyTile> {
     user = widget.user;
     postId = widget.postId;
     isLiked = reply.isLiked;
+    commentId = widget.commentId;
+    refresh = widget.refresh;
     FeedApi feedApi = locator<LikeMindsService>().getFeedApi();
     _toggleLikeCommentBloc = ToggleLikeCommentBloc(feedApi: feedApi);
     _commentRepliesBloc = CommentRepliesBloc(feedApi: feedApi);
@@ -60,8 +73,19 @@ class _ReplyTileState extends State<ReplyTile> {
             children: [
               Text(
                 widget.user.name,
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-              )
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Spacer(),
+              DropdownOptionsReply(
+                menuItems: reply.menuItems,
+                replyDetails: reply,
+                postId: postId,
+                commentId: widget.commentId,
+                refresh: refresh,
+              ),
             ],
           ),
           kVerticalPaddingSmall,
