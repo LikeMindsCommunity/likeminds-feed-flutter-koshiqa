@@ -1,3 +1,4 @@
+import 'package:feed_sx/src/widgets/profile_picture.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:flutter/material.dart';
@@ -80,26 +81,7 @@ class LikesTile extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: Row(
                 children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(27),
-                      color: kPrimaryColor,
-                    ),
-                    height: 54,
-                    width: 54,
-                    child: user!.imageUrl.isEmpty
-                        ? Center(
-                            child: Text(
-                              user!.name[0].toUpperCase(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          )
-                        : Image.network(user!.imageUrl),
-                  ),
+                  ProfilePicture(user: user!),
                   kHorizontalPaddingSmall,
                   kHorizontalPaddingMedium,
                   Text(
