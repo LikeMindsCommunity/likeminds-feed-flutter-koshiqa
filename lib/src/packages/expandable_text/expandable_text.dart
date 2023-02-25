@@ -2,8 +2,10 @@ library expandable_text;
 
 import 'dart:math';
 
+import 'package:feed_sx/src/utils/constants/string_constants.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import './text_parser.dart';
 
@@ -81,6 +83,7 @@ class ExpandableText extends StatefulWidget {
 class ExpandableTextState extends State<ExpandableText>
     with TickerProviderStateMixin {
   bool _expanded = false;
+  RegExp regExp = RegExp(kRegexLinksAndTags);
   late TapGestureRecognizer _linkTapGestureRecognizer;
   late TapGestureRecognizer _prefixTapGestureRecognizer;
 
@@ -183,11 +186,7 @@ class ExpandableTextState extends State<ExpandableText>
       ],
     );
 
-    final prefix = TextSpan(
-      text: prefixText,
-      style: effectiveTextStyle.merge(widget.prefixStyle),
-      recognizer: _prefixTapGestureRecognizer,
-    );
+    final prefix = extractLinksAndTags(prefixText);
 
     final text = _textSegments.isNotEmpty
         ? TextSpan(
@@ -195,7 +194,7 @@ class ExpandableTextState extends State<ExpandableText>
         : TextSpan(text: widget.text);
 
     final content = TextSpan(
-      children: <TextSpan>[prefix, text],
+      children: <TextSpan>[...prefix, text],
       style: effectiveTextStyle,
     );
 
@@ -262,7 +261,7 @@ class ExpandableTextState extends State<ExpandableText>
           textSpan = TextSpan(
             style: effectiveTextStyle,
             children: <TextSpan>[
-              prefix,
+              ...prefix,
               text,
               link,
             ],
@@ -376,5 +375,48 @@ class ExpandableTextState extends State<ExpandableText>
     }
 
     return spans;
+  }
+
+  List<TextSpan> extractLinksAndTags(String text) {
+    List<TextSpan> textSpans = [];
+    int lastIndex = 0;
+    for (Match match in regExp.allMatches(text)) {
+      int startIndex = match.start;
+      int endIndex = match.end;
+      String? link = match.group(0);
+
+      if (lastIndex != startIndex) {
+        // Add a TextSpan for the preceding text
+        textSpans.add(TextSpan(
+          text: text.substring(lastIndex, startIndex),
+          style: widget.style,
+        ));
+      }
+      bool isTag = link != null && link[0] == '@';
+      // Add a TextSpan for the URL
+      textSpans.add(TextSpan(
+        text: link,
+        style: widget.linkStyle ?? TextStyle(color: Colors.blue),
+        recognizer: TapGestureRecognizer()
+          ..onTap = () async {
+            if (!isTag) {
+              if (await canLaunchUrlString(link ?? '')) {
+                launchUrlString(link.toString());
+              }
+            }
+          },
+      ));
+
+      lastIndex = endIndex;
+    }
+
+    if (lastIndex != text.length) {
+      // Add a TextSpan for the remaining text
+      textSpans.add(TextSpan(
+        text: text.substring(lastIndex),
+        style: widget.style,
+      ));
+    }
+    return textSpans;
   }
 }
