@@ -18,8 +18,15 @@ class PostHeader extends StatelessWidget {
       required this.postDetails,
       required this.refresh});
 
+  void removeReportIntegration() {
+    menuItems.removeWhere((element) {
+      return element.title == 'Report';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    removeReportIntegration();
     final bool isEdited = postDetails.createdAt != postDetails.updatedAt;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -78,11 +85,13 @@ class PostHeader extends StatelessWidget {
             ],
           ),
           const Spacer(),
-          DropdownOptions(
-            menuItems: menuItems,
-            postDetails: postDetails,
-            refresh: refresh,
-          )
+          menuItems.isNotEmpty
+              ? DropdownOptions(
+                  menuItems: menuItems,
+                  postDetails: postDetails,
+                  refresh: refresh,
+                )
+              : const SizedBox()
         ],
       ),
     );
