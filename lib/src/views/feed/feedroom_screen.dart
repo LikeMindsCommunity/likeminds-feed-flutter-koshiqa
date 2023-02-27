@@ -313,30 +313,35 @@ class FeedRoomView extends StatelessWidget {
         title: Text(feedRoom.title),
         backgroundColor: kPrimaryColor,
       ),
-      body: Column(
-        children: [
-          SizedBox(height: 18),
-          Expanded(
-            child: PagedListView<int, Post>(
-              pagingController: feedRoomPagingController,
-              builderDelegate: PagedChildBuilderDelegate<Post>(
-                  noItemsFoundIndicatorBuilder: (context) => Scaffold(
-                      backgroundColor: kBackgroundColor,
-                      body: Center(
-                        child: const Loader(),
-                      )),
-                  itemBuilder: (context, item, index) {
-                    return PostWidget(
-                      postType: 1,
-                      postDetails: item,
-                      user: feedResponse.users[item.userId]!,
-                      refresh: onRefresh,
-                    );
-                  }),
-            ),
-          )
-        ],
-      ),
+      body: RefreshIndicator(
+          onRefresh: () async {
+            feedRoomBloc.add(GetFeedRoom(feedRoomId: feedRoom.id, offset: 0));
+            onRefresh();
+          },
+          child: Column(
+            children: [
+              SizedBox(height: 18),
+              Expanded(
+                child: PagedListView<int, Post>(
+                  pagingController: feedRoomPagingController,
+                  builderDelegate: PagedChildBuilderDelegate<Post>(
+                      noItemsFoundIndicatorBuilder: (context) => Scaffold(
+                          backgroundColor: kBackgroundColor,
+                          body: Center(
+                            child: const Loader(),
+                          )),
+                      itemBuilder: (context, item, index) {
+                        return PostWidget(
+                          postType: 1,
+                          postDetails: item,
+                          user: feedResponse.users[item.userId]!,
+                          refresh: onRefresh,
+                        );
+                      }),
+                ),
+              )
+            ],
+          )),
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
       floatingActionButton: NewPostButton(
         onTap: () {
@@ -375,32 +380,37 @@ class FeedRoomListView extends StatelessWidget {
         title: Text("Choose FeedRoom"),
         backgroundColor: kPrimaryColor,
       ),
-      body: Column(
-        children: [
-          SizedBox(height: 18),
-          Expanded(
-            child: PagedListView<int, FeedRoom>(
-              pagingController: pagingControllerFeedRoomList,
-              builderDelegate: PagedChildBuilderDelegate<FeedRoom>(
-                  noItemsFoundIndicatorBuilder: (context) => Scaffold(
-                      backgroundColor: kBackgroundColor,
-                      body: Center(
-                        child: const Loader(),
-                      )),
-                  itemBuilder: (context, item, index) {
-                    return FeedRoomTile(
-                        item: item,
-                        onTap: () {
-                          feedRoomBloc.add(GetFeedRoom(
-                              feedRoomId: item.id,
-                              feedRoomResponse: item,
-                              offset: 1));
-                        });
-                  }),
-            ),
-          )
-        ],
-      ),
+      body: RefreshIndicator(
+          onRefresh: () async {
+            feedRoomBloc.add(GetFeedRoomList(offset: 0));
+            pagingControllerFeedRoomList.itemList!.clear();
+          },
+          child: Column(
+            children: [
+              SizedBox(height: 18),
+              Expanded(
+                child: PagedListView<int, FeedRoom>(
+                  pagingController: pagingControllerFeedRoomList,
+                  builderDelegate: PagedChildBuilderDelegate<FeedRoom>(
+                      noItemsFoundIndicatorBuilder: (context) => Scaffold(
+                          backgroundColor: kBackgroundColor,
+                          body: Center(
+                            child: const Loader(),
+                          )),
+                      itemBuilder: (context, item, index) {
+                        return FeedRoomTile(
+                            item: item,
+                            onTap: () {
+                              feedRoomBloc.add(GetFeedRoom(
+                                  feedRoomId: item.id,
+                                  feedRoomResponse: item,
+                                  offset: 1));
+                            });
+                      }),
+                ),
+              )
+            ],
+          )),
     );
   }
 }
