@@ -331,7 +331,8 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                 style: TextStyle(fontSize: kFontMedium)),
                             SizedBox(height: 10),
                             Text('Be the first one to comment',
-                                style: TextStyle(fontSize: kFontSmall))
+                                style: TextStyle(fontSize: kFontSmall)),
+                            SizedBox(height: 120),
                           ]),
                       itemBuilder: (context, item, index) {
                         return CommentTile(
