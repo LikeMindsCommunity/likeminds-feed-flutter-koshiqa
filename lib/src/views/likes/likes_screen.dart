@@ -1,3 +1,4 @@
+import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/widgets/profile_picture.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
@@ -28,41 +29,48 @@ class _LikesScreenState extends State<LikesScreen> {
         "total_likes": response.totalCount,
       },
     );
-    return Scaffold(
-      body: Column(
-        children: [
-          SizedBox(height: 64),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18.0),
-            child: Row(
-              children: [
-                kHorizontalPaddingSmall,
-                IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  icon: const Icon(Icons.arrow_back_ios),
-                ),
-                kHorizontalPaddingSmall,
-                Text(
-                  "${response.totalCount} Likes",
-                  style: const TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.w500),
-                )
-              ],
+    return WillPopScope(
+      onWillPop: () {
+        locator<NavigationService>().goBack();
+        return Future(() => false);
+      },
+      child: Scaffold(
+        body: Column(
+          children: [
+            SizedBox(height: 64),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18.0),
+              child: Row(
+                children: [
+                  kHorizontalPaddingSmall,
+                  IconButton(
+                    onPressed: () {
+                      locator<NavigationService>().goBack();
+                    },
+                    icon: const Icon(Icons.arrow_back_ios),
+                  ),
+                  kHorizontalPaddingSmall,
+                  Text(
+                    "${response.totalCount} Likes",
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.w500),
+                  )
+                ],
+              ),
             ),
-          ),
-          kVerticalPaddingLarge,
-          Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.zero,
-              itemBuilder: (context, index) {
-                return LikesTile(user: response.users?.values.toList()[index]);
-              },
-              itemCount: response.totalCount,
+            kVerticalPaddingLarge,
+            Expanded(
+              child: ListView.builder(
+                padding: EdgeInsets.zero,
+                itemBuilder: (context, index) {
+                  return LikesTile(
+                      user: response.users?.values.toList()[index]);
+                },
+                itemCount: response.totalCount,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
