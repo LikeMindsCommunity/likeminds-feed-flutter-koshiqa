@@ -82,7 +82,7 @@ class _CommentTileState extends State<CommentTile>
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              Spacer(),
+              const Spacer(),
               DropdownOptionsComments(
                 menuItems: reply.menuItems,
                 replyDetails: reply,
@@ -124,12 +124,12 @@ class _CommentTileState extends State<CommentTile>
                           ? SvgPicture.asset(
                               kAssetLikeFilledIcon,
                               // color: kPrimaryColor,
-                              height: 12,
+                              height: 17,
                             )
                           : SvgPicture.asset(
                               kAssetLikeIcon,
                               color: kGrey3Color,
-                              height: 12,
+                              height: 13,
                             );
                     })),
                   ),
@@ -139,7 +139,7 @@ class _CommentTileState extends State<CommentTile>
                         ? "$likeCount ${likeCount! > 1 ? kStringLikes : kStringLike}"
                         : kStringLike,
                     style: const TextStyle(
-                      fontSize: kFontSmall,
+                      fontSize: kFontSmallMed,
                       color: kGrey3Color,
                     ),
                   ),
@@ -149,7 +149,7 @@ class _CommentTileState extends State<CommentTile>
               const Text(
                 '|',
                 style: TextStyle(
-                  fontSize: kFontSmall,
+                  fontSize: kFontSmallMed,
                   color: kGrey3Color,
                 ),
               ),
@@ -159,7 +159,7 @@ class _CommentTileState extends State<CommentTile>
                 child: const Text(
                   'Reply',
                   style: TextStyle(
-                    fontSize: kFontSmall,
+                    fontSize: kFontSmallMed,
                     color: kGrey3Color,
                   ),
                 ),
@@ -168,7 +168,7 @@ class _CommentTileState extends State<CommentTile>
               const Text(
                 '·',
                 style: TextStyle(
-                  fontSize: kFontSmall,
+                  fontSize: kFontSmallMed,
                   color: kGrey3Color,
                 ),
               ),
@@ -194,7 +194,7 @@ class _CommentTileState extends State<CommentTile>
                             ? "${widget.reply.repliesCount}  replies"
                             : "${widget.reply.repliesCount}  reply",
                         style: const TextStyle(
-                          fontSize: kFontSmall,
+                          fontSize: kFontSmallMed,
                           color: kPrimaryColor,
                         ),
                       ),
@@ -204,7 +204,7 @@ class _CommentTileState extends State<CommentTile>
               Text(
                 reply.createdAt.timeAgo(),
                 style: const TextStyle(
-                  fontSize: kFontSmall,
+                  fontSize: kFontSmallMed,
                   color: kGrey3Color,
                 ),
               ),
@@ -214,7 +214,7 @@ class _CommentTileState extends State<CommentTile>
             bloc: _commentRepliesBloc,
             builder: ((context, state) {
               if (state is CommentRepliesLoading) {
-                return Container(
+                return const SizedBox(
                   height: 20,
                   width: 20,
                   child: CircularProgressIndicator(),

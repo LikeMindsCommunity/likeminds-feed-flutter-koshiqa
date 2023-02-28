@@ -17,6 +17,7 @@ const Color kBorderColor = Color.fromRGBO(208, 216, 226, 0.5);
 const double kFontSmall = 12;
 const double kButtonFontSize = 12;
 const double kFontXSmall = 11;
+const double kFontSmallMed = 14;
 const double kFontMedium = 16;
 const double kPaddingXSmall = 2;
 const double kPaddingSmall = 4;

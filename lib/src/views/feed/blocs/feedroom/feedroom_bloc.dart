@@ -10,60 +10,61 @@ part 'feedroom_state.dart';
 class FeedRoomBloc extends Bloc<FeedRoomEvent, FeedRoomState> {
   FeedRoomBloc() : super(FeedRoomInitial()) {
     on<FeedRoomEvent>((event, emit) async {
+      Map<String, PostUser> users = {};
+      if (state is FeedRoomLoaded) {
+        users = (state as FeedRoomLoaded).feed.users;
+      }
       if (event is GetFeedRoom) {
-        emit(FeedRoomLoading());
+        event.isPaginationLoading
+            ? emit(PaginationLoading())
+            : emit(FeedRoomLoading());
         try {
-          GetFeedOfFeedRoomResponse? feedResponse =
+          GetFeedOfFeedRoomResponse? response =
               await locator<LikeMindsService>().getFeedOfFeedRoom(
             GetFeedOfFeedRoomRequest(
               feedroomId: event.feedRoomId,
-              page: 1,
-              pageSize: 20,
+              page: event.offset,
+              pageSize: 10,
             ),
           );
-
           GetFeedRoomResponse? feedRoomResponse =
               await locator<LikeMindsService>().getFeedRoom(
             GetFeedRoomRequest(
-              page: 1,
               feedroomId: event.feedRoomId,
+              page: event.offset,
             ),
           );
-          final FeedRoom feedRoom = feedRoomResponse.chatroom!;
-
-          if (!feedResponse.success) {
-            emit(FeedRoomError(message: "An error has occured"));
+          if (!response.success) {
+            emit(FeedRoomError(message: "No data found"));
           } else {
-            if (feedResponse.posts == null || feedResponse.posts!.isEmpty) {
+            response.users.addAll(users);
+            if ((response.posts == null || response.posts!.isEmpty) &&
+                event.offset <= 1) {
               emit(FeedRoomEmpty(
-                feedRoom: feedRoom,
-                feed: feedResponse,
+                feedRoom: feedRoomResponse.chatroom!,
+                feed: response,
               ));
             } else {
               emit(FeedRoomLoaded(
-                feed: feedResponse,
-                feedRoom: feedRoom,
-              ));
+                  feed: response, feedRoom: feedRoomResponse.chatroom!));
             }
           }
         } catch (e) {
-          emit(FeedRoomError(message: "${e.toString()}"));
+          emit(FeedRoomError(message: e.toString()));
         }
       } else if (event is GetFeedRoomList) {
-        emit(FeedRoomLoading());
+        event.isPaginationLoading
+            ? emit(PaginationLoading())
+            : emit(FeedRoomLoading());
         try {
           GetFeedRoomResponse? response = await locator<LikeMindsService>()
-              .getFeedRoom(GetFeedRoomRequest(page: 1));
+              .getFeedRoom(GetFeedRoomRequest(page: event.offset));
           final List<FeedRoom> feedList = response.chatrooms!;
 
           if (response.success) {
             emit(FeedRoomListLoaded(
               feedList: feedList,
               size: feedList.length,
-            ));
-          } else {
-            emit(FeedRoomError(
-              message: "No data found",
             ));
           }
         } catch (e) {

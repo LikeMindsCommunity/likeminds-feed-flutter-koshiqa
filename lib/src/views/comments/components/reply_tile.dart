@@ -78,7 +78,7 @@ class _ReplyTileState extends State<ReplyTile> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              Spacer(),
+              const Spacer(),
               DropdownOptionsReply(
                 menuItems: reply.menuItems,
                 replyDetails: reply,
@@ -113,27 +113,28 @@ class _ReplyTileState extends State<ReplyTile> {
                           ? SvgPicture.asset(
                               kAssetLikeFilledIcon,
                               // color: kPrimaryColor,
-                              height: 12,
+                              height: 17,
                             )
                           : SvgPicture.asset(
                               kAssetLikeIcon,
                               color: kGrey3Color,
-                              height: 12,
+                              height: 13,
                             );
                     })),
                   ),
                   kHorizontalPaddingSmall,
                   const Text(
                     'Like',
-                    style: TextStyle(fontSize: kFontSmall, color: kGrey3Color),
+                    style:
+                        TextStyle(fontSize: kFontSmallMed, color: kGrey3Color),
                   ),
                 ],
               ),
-              Spacer(),
+              const Spacer(),
               Text(
                 reply.createdAt.timeAgo(),
-                style:
-                    const TextStyle(fontSize: kFontSmall, color: kGrey3Color),
+                style: const TextStyle(
+                    fontSize: kFontSmallMed, color: kGrey3Color),
               ),
             ],
           )

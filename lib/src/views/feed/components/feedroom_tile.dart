@@ -69,10 +69,7 @@ class FeedRoomTile extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          Divider(
-            color: Colors.grey,
-            height: 1,
-          ),
+          const Divider(color: Colors.grey, height: 1),
         ],
       ),
     );
