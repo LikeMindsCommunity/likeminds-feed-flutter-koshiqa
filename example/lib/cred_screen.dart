@@ -95,7 +95,7 @@ class _CredScreenState extends State<CredScreen> {
                   builder: (context) => LMFeed.instance(
                     userId: _userIdController.text,
                     userName: _usernameController.text,
-                    // isProd: true,
+                    isProd: true,
                   ),
                 );
                 Navigator.pushReplacement(context, route);
