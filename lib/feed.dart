@@ -2,8 +2,11 @@
 
 library feed;
 
+import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/credentials/credentials.dart';
 import 'package:feed_sx/src/views/previews/image_preview.dart';
+import 'package:feed_sx/src/views/tagging_test.dart';
+import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
@@ -68,9 +71,9 @@ class _LMFeedState extends State<LMFeed> {
     userId = widget.userId!.isEmpty
         ? isProd
             ? CredsProd.botId
-            : CredsDev.koshiqaBetaBotId
+            : CredsDev.botId
         : widget.userId!;
-    userName = widget.userName!.isEmpty ? "Test user" : widget.userName!;
+    userName = widget.userName!.isEmpty ? "Test username" : widget.userName!;
     firebase();
   }
 
@@ -110,6 +113,7 @@ class _LMFeedState extends State<LMFeed> {
                     builder: (context) {
                       return AllCommentsScreen(
                         post: args.post,
+                        feedRoomId: args.feedroomId,
                       );
                     },
                   );
@@ -164,15 +168,29 @@ class _LMFeedState extends State<LMFeed> {
                       isCm: snapshot.data,
                       user: user!,
                     );
-                  } else {
-                    return const Center(child: CircularProgressIndicator());
+                    // return TaggingTestView();
                   }
+
+                  return Container(
+                    height: MediaQuery.of(context).size.height,
+                    width: MediaQuery.of(context).size.width,
+                    color: kBackgroundColor,
+                    child: const Center(
+                      child: Loader(
+                        isPrimary: true,
+                      ),
+                    ),
+                  );
                 },
               ),
             );
           } else {}
         }
-        return Container();
+        return Container(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          color: kBackgroundColor,
+        );
       },
     );
   }

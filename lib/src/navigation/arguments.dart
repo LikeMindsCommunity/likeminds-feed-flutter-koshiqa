@@ -2,7 +2,11 @@ import 'package:likeminds_feed/likeminds_feed.dart';
 
 class AllCommentsScreenArguments {
   final Post post;
-  AllCommentsScreenArguments({required this.post});
+  final int feedroomId;
+  AllCommentsScreenArguments({
+    required this.post,
+    required this.feedroomId,
+  });
 }
 
 class LikesScreenArguments {

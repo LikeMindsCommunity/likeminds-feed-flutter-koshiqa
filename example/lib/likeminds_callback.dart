@@ -30,4 +30,9 @@ class LikeMindsCallback implements LMSdkCallback {
   void logoutCallback() {
     // TODO: implement logoutCallback
   }
+
+  @override
+  void profileRouteCallback({required String lmUserId}) {
+    print("LM User ID caught in callback : $lmUserId");
+  }
 }

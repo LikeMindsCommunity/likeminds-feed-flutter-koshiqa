@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:feed_sx/src/utils/credentials/credentials.dart';
+import 'package:flutter/foundation.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 abstract class ILikeMindsService {
@@ -20,14 +21,26 @@ abstract class ILikeMindsService {
   Future<String?> uploadFile(File file);
   Future<RegisterDeviceResponse> registerDevice(RegisterDeviceRequest request);
   Future<BrandingResponse> getBranding(BrandingRequest request);
+  Future<TagResponseModel> getTags({int? feedroomId});
+  void routeToProfile(String userId);
 }
 
 class LikeMindsService implements ILikeMindsService {
   late final SdkApplication _sdkApplication;
+  late final bool isProd;
 
-  LikeMindsService(LMSdkCallback sdkCallback, {bool isProd = false}) {
+  int? feedroomId;
+
+  set setFeedroomId(int feedroomId) {
+    debugPrint("UI Layer: FeedroomId set to $feedroomId");
+    this.feedroomId = feedroomId;
+  }
+
+  get getFeedroomId => feedroomId;
+
+  LikeMindsService(LMSdkCallback sdkCallback, {this.isProd = false}) {
     print("UI Layer: LikeMindsService initialized");
-    final apiKey = isProd ? CredsProd.apiKey : CredsDev.koshiqaBetaApiKey;
+    final apiKey = isProd ? CredsProd.apiKey : CredsDev.apiKey;
     _sdkApplication = LMClient.initiateLikeMinds(
       apiKey: apiKey,
       isProduction: isProd,
@@ -115,5 +128,25 @@ class LikeMindsService implements ILikeMindsService {
   Future<RegisterDeviceResponse> registerDevice(
       RegisterDeviceRequest request) async {
     return await LMNotifications.registerDevice(request);
+  }
+
+  @override
+  Future<TagResponseModel> getTags({
+    int? feedroomId,
+    int? page,
+    int? pageSize,
+    String? searchQuery,
+  }) async {
+    return await _sdkApplication.getHelperApi().getTags(
+          feedroomId: feedroomId,
+          page: page,
+          pageSize: pageSize,
+          searchQuery: searchQuery,
+        );
+  }
+
+  @override
+  void routeToProfile(String userId) {
+    _sdkApplication.getHelperApi().routeProfilePage(userId);
   }
 }

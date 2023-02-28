@@ -68,7 +68,9 @@ class FeedRoomBloc extends Bloc<FeedRoomEvent, FeedRoomState> {
             ));
           }
         } catch (e) {
-          emit(FeedRoomError(message: "${e.toString()} No data found"));
+          emit(FeedRoomError(
+            message: "${e.toString()} No data found",
+          ));
         }
       }
     });

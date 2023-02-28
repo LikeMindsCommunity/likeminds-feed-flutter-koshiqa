@@ -1,4 +1,5 @@
 import 'package:feed_sx/src/utils/constants/string_constants.dart';
+import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -7,8 +8,12 @@ class TextWithLinks extends StatefulWidget {
   final String text;
   final TextStyle? style;
   final TextStyle? linkStyle;
-  const TextWithLinks(
-      {super.key, required this.text, this.linkStyle, this.style});
+  const TextWithLinks({
+    super.key,
+    required this.text,
+    this.linkStyle,
+    this.style,
+  });
 
   @override
   State<TextWithLinks> createState() => _TextWithLinksState();
@@ -48,19 +53,21 @@ class _TextWithLinksState extends State<TextWithLinks> {
           style: widget.style,
         ));
       }
-      bool isTag = link != null && link[0] == '@';
+      bool isTag = link != null && link[0] == '<';
       // Add a TextSpan for the URL
       textSpans.add(TextSpan(
-        text: link,
-        style: widget.linkStyle ?? TextStyle(color: Colors.blue),
+        text: isTag ? TaggingHelper.decodeString(link).keys.first : link,
+        style: widget.linkStyle ?? const TextStyle(color: Colors.blue),
         recognizer: TapGestureRecognizer()
           ..onTap = () async {
             if (!isTag) {
-              print('helo');
               if (await canLaunchUrlString(link ?? '')) {
-                print('helo');
                 launchUrlString(link.toString());
               }
+            } else {
+              TaggingHelper.routeToProfile(
+                TaggingHelper.decodeString(link).values.first,
+              );
             }
           },
       ));

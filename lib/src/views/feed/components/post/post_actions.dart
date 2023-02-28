@@ -1,3 +1,4 @@
+import 'package:feed_sx/src/views/feed/feedroom_screen.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
@@ -56,6 +57,7 @@ class _PostActionsState extends State<PostActions> {
               children: [
                 IconButton(
                   enableFeedback: false,
+                  splashColor: Colors.transparent,
                   onPressed: () async {
                     setState(() {
                       if (isLiked) {
@@ -92,8 +94,10 @@ class _PostActionsState extends State<PostActions> {
                     }
                   },
                   icon: isLiked
-                      ? SvgPicture.asset(kAssetLikeFilledIcon)
-                      : SvgPicture.asset(kAssetLikeIcon),
+                      ? SvgPicture.asset(kAssetLikeFilledIcon,
+                          height: 28, width: 28)
+                      : SvgPicture.asset(kAssetLikeIcon,
+                          height: 21.5, width: 21.5),
                   color: isLiked ? Colors.red : kGrey2Color,
                 ),
                 GestureDetector(
@@ -119,7 +123,8 @@ class _PostActionsState extends State<PostActions> {
                 ),
               ],
             ),
-            kHorizontalPaddingSmall,
+            kHorizontalPaddingMedium,
+            //kHorizontalPaddingSmall,
             TextButton.icon(
               onPressed: isFeed
                   ? () {
@@ -133,12 +138,15 @@ class _PostActionsState extends State<PostActions> {
                       Navigator.pushNamed(
                         context,
                         AllCommentsScreen.route,
-                        arguments:
-                            AllCommentsScreenArguments(post: postDetails),
+                        arguments: AllCommentsScreenArguments(
+                          post: postDetails,
+                          feedroomId: locator<LikeMindsService>().getFeedroomId,
+                        ),
                       ).then((value) => refresh());
                     }
                   : () {},
-              icon: SvgPicture.asset(kAssetCommentIcon),
+              icon: SvgPicture.asset(kAssetCommentIcon,
+                  width: 21.5, height: 21.5),
               label: Text(
                 comments > 0
                     ? "$comments ${comments > 1 ? " Comments" : " Comment"}"

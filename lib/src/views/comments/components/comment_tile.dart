@@ -1,9 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:feed_sx/src/utils/constants/string_constants.dart';
 import 'package:feed_sx/src/views/comments/components/dropdown_options_comment.dart';
+import 'package:feed_sx/src/widgets/text_with_links.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/packages/expandable_text/expandable_text.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
@@ -11,10 +11,7 @@ import 'package:feed_sx/src/utils/utils.dart';
 import 'package:feed_sx/src/views/comments/blocs/comment_replies/comment_replies_bloc.dart';
 import 'package:feed_sx/src/views/comments/blocs/toggle_like_comment/toggle_like_comment_bloc.dart';
 import 'package:feed_sx/src/views/comments/components/reply_tile.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -85,7 +82,7 @@ class _CommentTileState extends State<CommentTile>
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              Spacer(),
+              const Spacer(),
               DropdownOptionsComments(
                 menuItems: reply.menuItems,
                 replyDetails: reply,
@@ -95,10 +92,10 @@ class _CommentTileState extends State<CommentTile>
             ],
           ),
           kVerticalPaddingSmall,
-          ExpandableText(
-            reply.text,
-            expandText: 'show more',
-            collapseText: 'show less',
+          TextWithLinks(
+            text: reply.text,
+            // expandText: 'show more',
+            // collapseText: 'show less',
           ),
           kVerticalPaddingLarge,
           Row(
@@ -127,12 +124,12 @@ class _CommentTileState extends State<CommentTile>
                           ? SvgPicture.asset(
                               kAssetLikeFilledIcon,
                               // color: kPrimaryColor,
-                              height: 12,
+                              height: 17,
                             )
                           : SvgPicture.asset(
                               kAssetLikeIcon,
                               color: kGrey3Color,
-                              height: 12,
+                              height: 13,
                             );
                     })),
                   ),
@@ -142,7 +139,7 @@ class _CommentTileState extends State<CommentTile>
                         ? "$likeCount ${likeCount! > 1 ? kStringLikes : kStringLike}"
                         : kStringLike,
                     style: const TextStyle(
-                      fontSize: kFontSmall,
+                      fontSize: kFontSmallMed,
                       color: kGrey3Color,
                     ),
                   ),
@@ -152,7 +149,7 @@ class _CommentTileState extends State<CommentTile>
               const Text(
                 '|',
                 style: TextStyle(
-                  fontSize: kFontSmall,
+                  fontSize: kFontSmallMed,
                   color: kGrey3Color,
                 ),
               ),
@@ -162,7 +159,7 @@ class _CommentTileState extends State<CommentTile>
                 child: const Text(
                   'Reply',
                   style: TextStyle(
-                    fontSize: kFontSmall,
+                    fontSize: kFontSmallMed,
                     color: kGrey3Color,
                   ),
                 ),
@@ -171,7 +168,7 @@ class _CommentTileState extends State<CommentTile>
               const Text(
                 '·',
                 style: TextStyle(
-                  fontSize: kFontSmall,
+                  fontSize: kFontSmallMed,
                   color: kGrey3Color,
                 ),
               ),
@@ -197,7 +194,7 @@ class _CommentTileState extends State<CommentTile>
                             ? "${widget.reply.repliesCount}  replies"
                             : "${widget.reply.repliesCount}  reply",
                         style: const TextStyle(
-                          fontSize: kFontSmall,
+                          fontSize: kFontSmallMed,
                           color: kPrimaryColor,
                         ),
                       ),
@@ -207,7 +204,7 @@ class _CommentTileState extends State<CommentTile>
               Text(
                 reply.createdAt.timeAgo(),
                 style: const TextStyle(
-                  fontSize: kFontSmall,
+                  fontSize: kFontSmallMed,
                   color: kGrey3Color,
                 ),
               ),
@@ -217,7 +214,7 @@ class _CommentTileState extends State<CommentTile>
             bloc: _commentRepliesBloc,
             builder: ((context, state) {
               if (state is CommentRepliesLoading) {
-                return Container(
+                return const SizedBox(
                   height: 20,
                   width: 20,
                   child: CircularProgressIndicator(),
