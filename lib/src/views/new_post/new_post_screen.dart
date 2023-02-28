@@ -1,5 +1,8 @@
 import 'dart:io';
-import 'package:feed_sx/src/views/feed/components/post/post_media/post_media_carousel.dart';
+import 'package:feed_sx/src/views/tagging/bloc/tagging_bloc.dart';
+import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
+import 'package:feed_sx/src/views/tagging/tagging_textfield_ta.dart';
+import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:feed_sx/src/widgets/profile_picture.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
@@ -10,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:feed_sx/src/services/service_locator.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:overlay_support/overlay_support.dart';
 
 List<Attachment> attachments = [];
 
@@ -30,7 +32,7 @@ class NewPostScreen extends StatefulWidget {
 }
 
 class _NewPostScreenState extends State<NewPostScreen> {
-  final TextEditingController _textEditingController = TextEditingController();
+  TextEditingController? _controller;
   final ImagePicker _picker = ImagePicker();
   bool uploaded = false;
   bool isUploading = false;
@@ -38,11 +40,17 @@ class _NewPostScreenState extends State<NewPostScreen> {
   late final FeedRoomBloc feedBloc;
   late final int feedRoomId;
 
+  List<UserTag> userTags = [];
+  String? result;
+  late final TaggingBloc taggingBloc;
+
   @override
   void initState() {
     super.initState();
     user = widget.user;
     feedRoomId = widget.feedRoomId;
+    taggingBloc = TaggingBloc()
+      ..add(GetTaggingListEvent(feedroomId: feedRoomId));
   }
 
   @override
@@ -85,9 +93,13 @@ class _NewPostScreenState extends State<NewPostScreen> {
                   ),
                   TextButton(
                     onPressed: () async {
-                      if (_textEditingController.text.isNotEmpty) {
+                      if (_controller != null && _controller!.text.isNotEmpty) {
+                        userTags = TaggingHelper.matchTags(
+                            _controller!.text, userTags);
+                        result = TaggingHelper.encodeString(
+                            _controller!.text, userTags);
                         final AddPostRequest request = AddPostRequest(
-                          text: _textEditingController.text,
+                          text: result!,
                           attachments: attachments,
                           feedroomId: feedRoomId,
                         );
@@ -133,7 +145,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
               const SizedBox(height: 24),
@@ -157,19 +169,22 @@ class _NewPostScreenState extends State<NewPostScreen> {
                 ),
               ]),
               kVerticalPaddingMedium,
-              Expanded(
-                child: TextField(
-                  controller: _textEditingController,
-                  style: const TextStyle(fontSize: 18),
-                  maxLines: 100,
-                  decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    hintText: "Write something here",
-                  ),
-                ),
+              TaggingAheadTextField(
+                feedroomId: feedRoomId,
+                isDown: true,
+                onTagSelected: (tag) {
+                  print(tag);
+                  userTags.add(tag);
+                },
+                getController: ((p0) {
+                  _controller = p0;
+                }),
+                onChange: (p0) {
+                  print(p0);
+                },
               ),
-              kVerticalPaddingXLarge,
-              if (isUploading) const CircularProgressIndicator(),
+              Spacer(),
+              if (isUploading) const Loader(),
               if (uploaded && attachments.isNotEmpty)
                 Expanded(
                   child: Container(
@@ -267,26 +282,11 @@ class AddAssetsButton extends StatelessWidget {
             print(e);
           }
         }
-        // if (image != null) {
-        //   File file = File.fromUri(Uri(path: image.path));
-        //   final String? response =
-        //       await locator<LikeMindsService>().uploadFile(file);
-        //   if (response != null) {
-        //     onUploaded(response);
-        //   } else {
-        //     print('Error uploading file');
-        //   }
-        // } else {
-        //   print('No image selected');
-        //   onUploaded(null);
-        // }
         onUploaded(true);
       },
       child: Container(
         height: 72,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        // decoration: const BoxDecoration(
-        //     border: Border(bottom: BorderSide(color: kBorderColor, width: 1))),
         child: Row(
           children: [leading, kHorizontalPaddingLarge, title],
         ),

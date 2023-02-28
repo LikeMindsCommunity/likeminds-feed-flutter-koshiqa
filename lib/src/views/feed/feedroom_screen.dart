@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:feed_sx/src/navigation/arguments.dart';
+import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/views/feed/components/new_post_button.dart';
 import 'package:flutter_svg/svg.dart';
@@ -104,7 +105,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     /* Clearing paging controller while changing the
      event to prevent duplication of list */
     _pagingController.nextPageKey = _pageFeedRoom = 1;
-    _pagingController.itemList!.clear();
+    // _pagingController.itemList!.clear();
     _pagingControllerFeedRoomList.itemList!.clear();
   }
 
@@ -130,6 +131,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
       listener: (context, state) => updatePagingControllers(state),
       builder: ((context, state) {
         if (state is FeedRoomLoaded) {
+          // Log the event in the analytics
           LMAnalytics.get().logEvent(
             AnalyticsKeys.feedOpened,
             {
@@ -214,6 +216,7 @@ class FeedRoomEmptyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    locator<LikeMindsService>().setFeedroomId = feedRoom.id;
     return Scaffold(
       backgroundColor: kBackgroundColor,
       appBar: AppBar(
@@ -284,7 +287,7 @@ class FeedRoomView extends StatelessWidget {
   final PagingController<int, Post> feedRoomPagingController;
   final VoidCallback onRefresh;
 
-  const FeedRoomView({
+  FeedRoomView({
     super.key,
     required this.isCm,
     required this.feedResponse,
@@ -294,7 +297,9 @@ class FeedRoomView extends StatelessWidget {
     required this.feedRoomPagingController,
     required this.user,
     required this.onRefresh,
-  });
+  }) {
+    locator<LikeMindsService>().setFeedroomId = feedRoom.id;
+  }
 
   @override
   Widget build(BuildContext context) {

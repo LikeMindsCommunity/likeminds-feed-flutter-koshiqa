@@ -2,10 +2,13 @@ import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/services/service_locator.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/views/comments/all_comments_screen.dart';
+import 'package:feed_sx/src/views/feed/feedroom_screen.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:overlay_support/overlay_support.dart';
+
+//TODO: Check for LM notifications
 
 /// This class handles all the notification related logic
 /// It registers the device for notifications in the SDK
@@ -70,6 +73,7 @@ class LMNotificationHandler {
 
     // First, check if the message contains a data payload.
     if (show && message.data.isNotEmpty) {
+      //TODO: Add LM check for showing LM notifications
       showNotification(message);
     } else if (message.data.isNotEmpty) {
       // Second, extract the notification data and routes to the appropriate screen
@@ -125,6 +129,7 @@ class LMNotificationHandler {
         AllCommentsScreen.route,
         arguments: AllCommentsScreenArguments(
           post: postDetails.post!,
+          feedroomId: locator<LikeMindsService>().feedroomId!,
         ),
       );
     }

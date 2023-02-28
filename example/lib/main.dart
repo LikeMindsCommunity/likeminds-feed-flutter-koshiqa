@@ -13,7 +13,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 /// to handle notifications at the second level (inside the app)
 /// Make sure to call [setupNotifications] before this function
 Future<void> _handleNotification(RemoteMessage message) async {
-  print("--- Notification received in LEVEL 1 ---");
+  debugPrint("--- Notification received in LEVEL 1 ---");
   await LMNotificationHandler.instance.handleNotification(message, true);
 }
 
@@ -39,6 +39,7 @@ void setupNotifications() async {
     debugPrint("FCM token is null or permission declined");
     return;
   }
+  // Register device with LM, and listen for notifications
   LMNotificationHandler.instance.init(deviceId: devId, fcmToken: fcmToken);
   FirebaseMessaging.onBackgroundMessage(_handleNotification);
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
@@ -66,7 +67,7 @@ Future<String> deviceId() async {
   final deviceInfo = await DeviceInfoPlugin().deviceInfo;
   final deviceId =
       deviceInfo.data["identifierForVendor"] ?? deviceInfo.data["id"];
-  print("Device id - $deviceId");
+  debugPrint("Device id - $deviceId");
   return deviceId.toString();
 }
 
@@ -78,7 +79,6 @@ Future<String> deviceId() async {
 /// 4. Return FCM token
 Future<String?> setupMessaging() async {
   final messaging = FirebaseMessaging.instance;
-  NotificationSettings android = await messaging.getNotificationSettings();
   NotificationSettings settings = await messaging.requestPermission(
     alert: true,
     announcement: false,
@@ -91,8 +91,8 @@ Future<String?> setupMessaging() async {
 
   if (settings.authorizationStatus == AuthorizationStatus.authorized) {
     final token = await messaging.getToken();
-    print('User granted permission: ${settings.authorizationStatus}');
-    print("Token - $token");
+    debugPrint('User granted permission: ${settings.authorizationStatus}');
+    debugPrint("Token - $token");
     return token.toString();
   } else {
     toast('User declined or has not accepted notification permissions');
