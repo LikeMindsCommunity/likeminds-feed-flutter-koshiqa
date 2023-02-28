@@ -1,9 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:feed_sx/src/utils/constants/string_constants.dart';
 import 'package:feed_sx/src/views/comments/components/dropdown_options_comment.dart';
+import 'package:feed_sx/src/widgets/text_with_links.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/packages/expandable_text/expandable_text.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
@@ -11,10 +11,7 @@ import 'package:feed_sx/src/utils/utils.dart';
 import 'package:feed_sx/src/views/comments/blocs/comment_replies/comment_replies_bloc.dart';
 import 'package:feed_sx/src/views/comments/blocs/toggle_like_comment/toggle_like_comment_bloc.dart';
 import 'package:feed_sx/src/views/comments/components/reply_tile.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -95,10 +92,10 @@ class _CommentTileState extends State<CommentTile>
             ],
           ),
           kVerticalPaddingSmall,
-          ExpandableText(
-            reply.text,
-            expandText: 'show more',
-            collapseText: 'show less',
+          TextWithLinks(
+            text: reply.text,
+            // expandText: 'show more',
+            // collapseText: 'show less',
           ),
           kVerticalPaddingLarge,
           Row(

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:feed_sx/src/views/tagging/bloc/tagging_bloc.dart';
 import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
 import 'package:feed_sx/src/views/tagging/tagging_textfield.dart';
+import 'package:feed_sx/src/views/tagging/tagging_textfield_ta.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:feed_sx/src/widgets/profile_picture.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,7 +34,7 @@ class NewPostScreen extends StatefulWidget {
 }
 
 class _NewPostScreenState extends State<NewPostScreen> {
-  final TextEditingController _textEditingController = TextEditingController();
+  TextEditingController? _controller;
   final ImagePicker _picker = ImagePicker();
   bool uploaded = false;
   bool isUploading = false;
@@ -76,7 +77,11 @@ class _NewPostScreenState extends State<NewPostScreen> {
                 ),
                 TextButton(
                   onPressed: () async {
-                    if (result != null && result!.isNotEmpty) {
+                    if (_controller != null && _controller!.text.isNotEmpty) {
+                      userTags =
+                          TaggingHelper.matchTags(_controller!.text, userTags);
+                      result = TaggingHelper.encodeString(
+                          _controller!.text, userTags);
                       final AddPostRequest request = AddPostRequest(
                         text: result!,
                         attachments: attachments,
@@ -156,53 +161,17 @@ class _NewPostScreenState extends State<NewPostScreen> {
             //     ),
             //   ),
             // ),
-            BlocBuilder(
-              bloc: taggingBloc,
-              builder: (context, state) {
-                if (state is TaggingLoaded) {
-                  final TagResponseModel taggingData = state.taggingData;
-                  final groupTags = taggingData.groupTags;
-                  final items = taggingData.members!;
-
-                  return Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: TaggingTextField(
-                              userTags: items,
-                              onTagSelected: (tag) {
-                                print(tag);
-                                userTags.add(tag);
-                              },
-                              result: (text) {
-                                print(text);
-                                setState(() {
-                                  userTags =
-                                      TaggingHelper.matchTags(text, items);
-                                  result = TaggingHelper.encodeString(
-                                      text, userTags);
-                                });
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-                if (state is TaggingError) {
-                  return const Center(child: Text('Error'));
-                }
-                return const Center(
-                  child: Loader(
-                    isPrimary: true,
-                  ),
-                );
+            TaggingAheadTextField(
+              isDown: true,
+              onTagSelected: (tag) {
+                print(tag);
+                userTags.add(tag);
               },
+              getController: ((p0) {
+                _controller = p0;
+              }),
             ),
-            kVerticalPaddingXLarge,
+            Spacer(),
             if (isUploading) const CircularProgressIndicator(),
             if (uploaded && attachments.isNotEmpty)
               Expanded(

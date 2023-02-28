@@ -1,5 +1,11 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:feed_sx/src/views/feed/feedroom_screen.dart';
+import 'package:feed_sx/src/views/tagging/bloc/tagging_bloc.dart';
+import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
+import 'package:feed_sx/src/views/tagging/tagging_textfield.dart';
+import 'package:feed_sx/src/views/tagging/tagging_textfield_ta.dart';
+import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
@@ -16,8 +22,13 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 class AllCommentsScreen extends StatefulWidget {
   final Post post;
+  final int? feedRoomId;
   static const String route = "/all_comments_screen";
-  const AllCommentsScreen({super.key, required this.post});
+  const AllCommentsScreen({
+    super.key,
+    required this.post,
+    this.feedRoomId,
+  });
 
   @override
   State<AllCommentsScreen> createState() => _AllCommentsScreenState();
@@ -27,12 +38,18 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
   late final AllCommentsBloc _allCommentsBloc;
   late final AddCommentBloc _addCommentBloc;
   late final AddCommentReplyBloc _addCommentReplyBloc;
-  final TextEditingController _commentController = TextEditingController();
-  String commentVal = "";
+
+  TextEditingController? _commentController;
   final PagingController<int, Reply> _pagingController =
       PagingController(firstPageKey: 1);
+
+  List<UserTag> userTags = [];
+  String? result;
+  late final TaggingBloc taggingBloc;
+
   String? selectedCommentId;
   String? selectedUsername;
+
   @override
   void initState() {
     super.initState();
@@ -43,6 +60,12 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
         forLoadMore: false));
     _addCommentBloc = AddCommentBloc(feedApi: feedApi);
     _addCommentReplyBloc = AddCommentReplyBloc(feedApi: feedApi);
+    taggingBloc = TaggingBloc()
+      ..add(
+        GetTaggingListEvent(
+          feedroomId: widget.feedRoomId ?? DUMMY_FEEDROOM,
+        ),
+      );
     _addPaginationListener();
   }
 
@@ -76,6 +99,8 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
       resizeToAvoidBottomInset: true,
       bottomSheet: SafeArea(
         child: Container(
+          width: double.infinity,
+          height: 72,
           decoration: BoxDecoration(color: kWhiteColor, boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
@@ -85,6 +110,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
           ]),
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               selectedCommentId != null
                   ? Container(
@@ -123,12 +149,17 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                       ),
                     )
                   : SizedBox(),
-              TextField(
-                controller: _commentController,
-                onChanged: (val) {
-                  setState(() {
-                    commentVal = val;
-                  });
+              TaggingAheadTextField(
+                isDown: false,
+                getController: (controller) {
+                  _commentController = controller;
+                },
+                onTagSelected: (tag) {
+                  print(tag);
+                  userTags.add(tag);
+                },
+                onChange: (val) {
+                  setState(() {});
                 },
                 decoration: InputDecoration(
                   border: InputBorder.none,
@@ -141,14 +172,9 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                           bloc: _addCommentBloc,
                           listener: ((context, state) {
                             if (state is AddCommentSuccess) {
-                              _commentController.clear();
+                              _commentController!.clear();
                               _pagingController.refresh();
                               _page = 1;
-
-                              // _allCommentsBloc.add(GetAllComments(
-                              //     postDetailRequest: PostDetailRequest(
-                              //         postId: widget.postId, page: 1),
-                              //     forLoadMore: false));
                             }
                           }),
                           builder: (context, state) {
@@ -161,17 +187,26 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                               );
                             }
                             return IconButton(
-                              onPressed: commentVal.isEmpty
+                              onPressed: _commentController!.text.isEmpty
                                   ? null
                                   : () {
-                                      _addCommentBloc.add(AddComment(
+                                      final commentText =
+                                          TaggingHelper.encodeString(
+                                        _commentController!.text,
+                                        userTags,
+                                      );
+                                      _addCommentBloc.add(
+                                        AddComment(
                                           addCommentRequest: AddCommentRequest(
-                                              postId: widget.post.id,
-                                              text: commentVal)));
+                                            postId: widget.post.id,
+                                            text: commentText,
+                                          ),
+                                        ),
+                                      );
                                     },
                               icon: Icon(
                                 Icons.send,
-                                color: commentVal.isNotEmpty
+                                color: _commentController!.text.isNotEmpty
                                     ? kPrimaryColor
                                     : kGreyColor,
                               ),
@@ -182,7 +217,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                           bloc: _addCommentReplyBloc,
                           listener: ((context, state) {
                             if (state is AddCommentReplySuccess) {
-                              _commentController.clear();
+                              _commentController!.clear();
                               _pagingController.refresh();
                               selectedCommentId = null;
                               selectedUsername = null;
@@ -201,14 +236,18 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                               );
                             }
                             return IconButton(
-                              onPressed: commentVal.isEmpty
+                              onPressed: _commentController!.text.isEmpty
                                   ? null
                                   : () {
+                                      final commentText =
+                                          TaggingHelper.encodeString(
+                                              _commentController!.text,
+                                              userTags);
                                       _addCommentReplyBloc.add(AddCommentReply(
                                           addCommentRequest:
                                               AddCommentReplyRequest(
                                                   postId: widget.post.id,
-                                                  text: commentVal,
+                                                  text: commentText,
                                                   commentId:
                                                       selectedCommentId!)));
                                       selectedCommentId = null;
@@ -217,7 +256,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                     },
                               icon: Icon(
                                 Icons.send,
-                                color: commentVal.isNotEmpty
+                                color: _commentController!.text.isNotEmpty
                                     ? kPrimaryColor
                                     : kGreyColor,
                               ),
@@ -325,40 +364,15 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                       postId: postDetailResponse.postReplies.id,
                       onReply: selectCommentToReply,
                       refresh: () {
-                        // _allCommentsBloc.add(GetAllComments(
-                        //   postDetailRequest: PostDetailRequest(
-                        //     postId: postDetailResponse.postReplies.id,
-                        //     page: 1,
-                        //   ),
-                        //   forLoadMore: false,
-                        // ));
-                        // setState(() {});
                         _pagingController.refresh();
                       },
                     );
                   }),
                 ),
-                // SizedBox(height: 24),
-                // SliverList(
-                //   delegate: SliverChildBuilderDelegate(
-                //     (context, index) {
-                //       return CommentTile(
-                //         reply: postDetailResponse.postReplies.replies[index],
-                //         user: postDetailResponse.users[postDetailResponse
-                //             .postReplies.replies[index].userId]!,
-                //         postId: postDetailResponse.postReplies.id,
-                //       );
-                //     },
-                //     childCount: postDetailResponse.postReplies.replies.length,
-                //   ),
-                // ),
               ],
             );
           }
           return const Center(child: CircularProgressIndicator());
-          // if (state is AllCommentsLoading) {
-
-          // }
         },
       ),
     );

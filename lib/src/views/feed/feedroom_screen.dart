@@ -172,13 +172,16 @@ class FeedRoomEmptyView extends StatelessWidget {
             SizedBox(height: 28),
             NewPostButton(
               onTap: () {
-                locator<NavigationService>().navigateTo(
-                  NewPostScreen.route,
-                  arguments: NewPostScreenArguments(
-                    feedroomId: feedRoom.id,
-                    user: user,
-                  ),
-                );
+                locator<NavigationService>()
+                    .navigateTo(
+                      NewPostScreen.route,
+                      arguments: NewPostScreenArguments(
+                        feedroomId: feedRoom.id,
+                        user: user,
+                      ),
+                    )
+                    .then((value) =>
+                        _feedBloc.add(GetFeedRoom(feedRoomId: feedRoom.id)));
               },
             ),
           ],
