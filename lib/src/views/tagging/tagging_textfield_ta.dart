@@ -33,6 +33,8 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
   final FocusNode _focusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
   final TaggingBloc taggingBloc = TaggingBloc();
+  final SuggestionsBoxController _suggestionsBoxController =
+      SuggestionsBoxController();
 
   List<UserTag> userTags = [];
 
@@ -79,10 +81,22 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
       bloc: taggingBloc,
       listener: (context, state) {
         if (state is TaggingLoaded) {
+          ++page;
           userTags.addAll(
             state.taggingData.members!.map((e) => e),
           );
+          if (_suggestionsBoxController.suggestionsBox != null) {
+            String text = _controller.text;
+            _controller.clear();
+            _controller.text = text;
+          }
         }
+      },
+      buildWhen: (previous, current) {
+        if (previous is TaggingLoaded && current is TaggingPaginationLoading) {
+          return false;
+        }
+        return true;
       },
       builder: (context, state) {
         if (state is TaggingLoading) {
@@ -92,16 +106,18 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
             if (_scrollController.position.pixels ==
                 _scrollController.position.maxScrollExtent) {
               taggingBloc.add(GetTaggingListEvent(
-                feedroomId: DUMMY_FEEDROOM,
-                page: ++page,
-                limit: TaggingBloc.FIXED_SIZE,
-              ));
+                  feedroomId: DUMMY_FEEDROOM,
+                  page: page,
+                  limit: TaggingBloc.FIXED_SIZE,
+                  isPaginationEvent: true));
             }
           });
           return TypeAheadField<UserTag>(
             onTagTap: (p) {
               print(p);
             },
+            suggestionsBoxController: _suggestionsBoxController,
+            keepSuggestionsOnLoading: true,
             hideOnEmpty: true,
             scrollController: _scrollController,
             textFieldConfiguration: TextFieldConfiguration(
@@ -115,7 +131,7 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
                     border: InputBorder.none,
                   ),
               onChanged: ((value) {
-                widget.onChange ?? (value);
+                widget.onChange!(value);
                 final int newTagCount = '@'.allMatches(value).length;
                 if (tagCount != newTagCount) {
                   setState(() {

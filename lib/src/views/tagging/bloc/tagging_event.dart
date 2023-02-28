@@ -12,11 +12,13 @@ class GetTaggingListEvent extends TaggingEvent {
   final int? page;
   final int? limit;
   final String? search;
+  final bool isPaginationEvent;
 
   GetTaggingListEvent({
     this.feedroomId,
     this.page,
     this.limit,
     this.search,
+    this.isPaginationEvent = false,
   });
 }

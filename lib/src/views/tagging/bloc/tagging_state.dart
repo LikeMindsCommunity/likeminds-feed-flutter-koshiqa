@@ -11,6 +11,8 @@ class TaggingInitial extends TaggingState {}
 
 class TaggingLoading extends TaggingState {}
 
+class TaggingPaginationLoading extends TaggingState {}
+
 class TaggingLoaded extends TaggingState {
   final TagResponseModel taggingData;
 

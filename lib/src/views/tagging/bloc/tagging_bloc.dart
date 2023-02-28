@@ -8,11 +8,13 @@ part 'tagging_event.dart';
 part 'tagging_state.dart';
 
 class TaggingBloc extends Bloc<TaggingEvent, TaggingState> {
-  static const FIXED_SIZE = 5;
+  static const FIXED_SIZE = 6;
   TaggingBloc() : super(TaggingInitial()) {
     on<TaggingEvent>((event, emit) async {
       if (event is GetTaggingListEvent) {
-        emit(TaggingLoading());
+        event.isPaginationEvent
+            ? emit(TaggingPaginationLoading())
+            : emit(TaggingLoading());
         try {
           final taggingData = await locator<LikeMindsService>().getTags(
             feedroomId: event.feedroomId,
@@ -20,7 +22,9 @@ class TaggingBloc extends Bloc<TaggingEvent, TaggingState> {
             pageSize: FIXED_SIZE,
             searchQuery: event.search,
           );
-          emit(TaggingLoaded(taggingData: taggingData));
+          if (taggingData.members != null && taggingData.members!.isNotEmpty) {
+            emit(TaggingLoaded(taggingData: taggingData));
+          }
         } catch (e) {
           emit(TaggingError());
         }
