@@ -170,6 +170,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
               ]),
               kVerticalPaddingMedium,
               TaggingAheadTextField(
+                feedroomId: feedRoomId,
                 isDown: true,
                 onTagSelected: (tag) {
                   print(tag);
@@ -178,6 +179,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
                 getController: ((p0) {
                   _controller = p0;
                 }),
+                onChange: (p0) {
+                  print(p0);
+                },
               ),
               Spacer(),
               if (isUploading) const Loader(),

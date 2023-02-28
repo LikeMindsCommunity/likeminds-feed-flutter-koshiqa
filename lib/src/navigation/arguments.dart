@@ -2,10 +2,10 @@ import 'package:likeminds_feed/likeminds_feed.dart';
 
 class AllCommentsScreenArguments {
   final Post post;
-  final int? feedroomId;
+  final int feedroomId;
   AllCommentsScreenArguments({
     required this.post,
-    this.feedroomId,
+    required this.feedroomId,
   });
 }
 

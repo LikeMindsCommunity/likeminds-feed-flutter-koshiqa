@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/views/feed/feedroom_screen.dart';
 import 'package:feed_sx/src/views/tagging/bloc/tagging_bloc.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
@@ -14,10 +15,12 @@ class TaggingAheadTextField extends StatefulWidget {
   final Function(TextEditingController) getController;
   final InputDecoration? decoration;
   final Function(String)? onChange;
+  final int feedroomId;
 
   TaggingAheadTextField({
     super.key,
     required this.isDown,
+    required this.feedroomId,
     required this.onTagSelected,
     required this.getController,
     this.decoration,
@@ -47,7 +50,7 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
   void initState() {
     super.initState();
     taggingBloc.add(GetTaggingListEvent(
-      feedroomId: DUMMY_FEEDROOM,
+      feedroomId: widget.feedroomId,
       page: 1,
       limit: TaggingBloc.FIXED_SIZE,
     ));
@@ -56,11 +59,11 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
   TextEditingController? get controller => _controller;
 
   FutureOr<Iterable<UserTag>> _getSuggestions(String query) {
+    String currentText = query.trim();
     if (query.isEmpty) {
       return const Iterable.empty();
-    } else if (!tagComplete) {
+    } else if (!tagComplete && currentText.length > 0) {
       return userTags.where((tag) {
-        String currentText = query.trim();
         if (tagCount > 1) {
           int index = currentText.nThIndexOf('@', tagCount);
           String newTag = currentText.substring(index);
@@ -106,7 +109,7 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
             if (_scrollController.position.pixels ==
                 _scrollController.position.maxScrollExtent) {
               taggingBloc.add(GetTaggingListEvent(
-                  feedroomId: DUMMY_FEEDROOM,
+                  feedroomId: widget.feedroomId,
                   page: page,
                   limit: TaggingBloc.FIXED_SIZE,
                   isPaginationEvent: true));
@@ -117,6 +120,12 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
               print(p);
             },
             suggestionsBoxController: _suggestionsBoxController,
+            suggestionsBoxDecoration: SuggestionsBoxDecoration(
+              elevation: 0,
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.22,
+              ),
+            ),
             keepSuggestionsOnLoading: true,
             hideOnEmpty: true,
             scrollController: _scrollController,
@@ -134,10 +143,8 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
                 widget.onChange!(value);
                 final int newTagCount = '@'.allMatches(value).length;
                 if (tagCount != newTagCount) {
-                  setState(() {
-                    tagCount = newTagCount;
-                    tagComplete = false;
-                  });
+                  tagCount = newTagCount;
+                  tagComplete = false;
                 }
               }),
             ),
@@ -145,32 +152,39 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
             suggestionsCallback: (suggestion) => _getSuggestions(suggestion),
             itemBuilder: ((context, opt) {
               return Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  border: Border(
+                    bottom: BorderSide(
+                      color: kGrey3Color,
+                      width: 0.5,
+                    ),
+                  ),
+                ),
                 child: Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: Card(
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(10),
-                      child: Row(
-                        children: [
-                          ProfilePicture(
-                              user: PostUser(
-                            id: opt.id!,
-                            imageUrl: opt.imageUrl!,
-                            name: opt.name!,
-                            userUniqueId: opt.userUniqueId!,
-                            isGuest: opt.isGuest!,
-                            isDeleted: false,
-                          )),
-                          const SizedBox(width: 12),
-                          Text(
-                            opt.name!,
-                            style: const TextStyle(
-                              fontSize: 16,
-                            ),
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(10),
+                    child: Row(
+                      children: [
+                        ProfilePicture(
+                            user: PostUser(
+                          id: opt.id!,
+                          imageUrl: opt.imageUrl!,
+                          name: opt.name!,
+                          userUniqueId: opt.userUniqueId!,
+                          isGuest: opt.isGuest!,
+                          isDeleted: false,
+                        )),
+                        const SizedBox(width: 12),
+                        Text(
+                          opt.name!,
+                          style: const TextStyle(
+                            fontSize: 16,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

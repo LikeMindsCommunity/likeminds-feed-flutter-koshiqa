@@ -1,3 +1,4 @@
+import 'package:feed_sx/src/views/feed/feedroom_screen.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
@@ -137,8 +138,10 @@ class _PostActionsState extends State<PostActions> {
                       Navigator.pushNamed(
                         context,
                         AllCommentsScreen.route,
-                        arguments:
-                            AllCommentsScreenArguments(post: postDetails),
+                        arguments: AllCommentsScreenArguments(
+                          post: postDetails,
+                          feedroomId: locator<LikeMindsService>().getFeedroomId,
+                        ),
                       ).then((value) => refresh());
                     }
                   : () {},

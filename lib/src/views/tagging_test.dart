@@ -1,13 +1,9 @@
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/views/feed/feedroom_screen.dart';
-import 'package:feed_sx/src/views/tagging/bloc/tagging_bloc.dart';
 import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
-import 'package:feed_sx/src/views/tagging/tagging_textfield.dart';
 import 'package:feed_sx/src/views/tagging/tagging_textfield_ta.dart';
-import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:feed_sx/src/widgets/text_with_links.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 class TaggingTestView extends StatefulWidget {
@@ -53,6 +49,7 @@ class _TaggingTestViewState extends State<TaggingTestView> {
               child: Column(
                 children: [
                   TaggingAheadTextField(
+                    feedroomId: DUMMY_FEEDROOM,
                     isDown: true,
                     onTagSelected: (tag) {
                       print(tag);

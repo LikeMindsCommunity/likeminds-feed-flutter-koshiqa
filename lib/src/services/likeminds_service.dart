@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:feed_sx/src/utils/credentials/credentials.dart';
+import 'package:flutter/foundation.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 abstract class ILikeMindsService {
@@ -27,6 +28,15 @@ abstract class ILikeMindsService {
 class LikeMindsService implements ILikeMindsService {
   late final SdkApplication _sdkApplication;
   late final bool isProd;
+
+  int? feedroomId;
+
+  set setFeedroomId(int feedroomId) {
+    debugPrint("UI Layer: FeedroomId set to $feedroomId");
+    this.feedroomId = feedroomId;
+  }
+
+  get getFeedroomId => feedroomId;
 
   LikeMindsService(LMSdkCallback sdkCallback, {this.isProd = false}) {
     print("UI Layer: LikeMindsService initialized");
