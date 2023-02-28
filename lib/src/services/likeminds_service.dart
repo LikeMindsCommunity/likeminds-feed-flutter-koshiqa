@@ -121,8 +121,18 @@ class LikeMindsService implements ILikeMindsService {
   }
 
   @override
-  Future<TagResponseModel> getTags({int? feedroomId}) async {
-    return await _sdkApplication.getHelperApi().getTags(feedroomId: feedroomId);
+  Future<TagResponseModel> getTags({
+    int? feedroomId,
+    int? page,
+    int? pageSize,
+    String? searchQuery,
+  }) async {
+    return await _sdkApplication.getHelperApi().getTags(
+          feedroomId: feedroomId,
+          page: page,
+          pageSize: pageSize,
+          searchQuery: searchQuery,
+        );
   }
 
   @override

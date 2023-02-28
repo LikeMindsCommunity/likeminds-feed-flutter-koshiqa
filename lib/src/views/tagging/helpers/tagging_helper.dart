@@ -7,6 +7,7 @@ import 'package:overlay_support/overlay_support.dart';
 class TaggingHelper {
   static final RegExp tagRegExp = RegExp(r'@([a-z\sA-Z]+)~');
 
+  /// Encodes the string with the user tags and returns the encoded string
   static String encodeString(String string, List<UserTag> userTags) {
     final Iterable<RegExpMatch> matches = tagRegExp.allMatches(string);
     for (final match in matches) {
@@ -21,6 +22,7 @@ class TaggingHelper {
     return string;
   }
 
+  /// Decodes the string with the user tags and returns the decoded string
   static Map<String, String> decodeString(String string) {
     Map<String, String> result = {};
     final Iterable<RegExpMatch> matches =
@@ -30,11 +32,12 @@ class TaggingHelper {
       final String tag = match.group(1)!;
       final String id = match.group(2)!;
       string = string.replaceAll('<<$tag|route://member/$id>>', '@$tag');
-      result.addAll({string: id});
+      result.addAll({tag: id});
     }
     return result;
   }
 
+  /// Matches the tags in the string and returns the list of matched tags
   static List<UserTag> matchTags(String text, List<UserTag> items) {
     final List<UserTag> tags = [];
     final Iterable<RegExpMatch> matches = tagRegExp.allMatches(text);
@@ -53,7 +56,8 @@ class TaggingHelper {
     print(userId);
     if (!locator<LikeMindsService>().isProd) {
       toast('Profile call back fired');
-      locator<LikeMindsService>().routeToProfile(userId);
     }
+
+    locator<LikeMindsService>().routeToProfile(userId);
   }
 }

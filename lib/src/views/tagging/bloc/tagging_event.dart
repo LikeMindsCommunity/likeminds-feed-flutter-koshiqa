@@ -9,6 +9,14 @@ abstract class TaggingEvent extends Equatable {
 
 class GetTaggingListEvent extends TaggingEvent {
   final int? feedroomId;
+  final int? page;
+  final int? limit;
+  final String? search;
 
-  GetTaggingListEvent({this.feedroomId});
+  GetTaggingListEvent({
+    this.feedroomId,
+    this.page,
+    this.limit,
+    this.search,
+  });
 }

@@ -8,6 +8,7 @@ part 'tagging_event.dart';
 part 'tagging_state.dart';
 
 class TaggingBloc extends Bloc<TaggingEvent, TaggingState> {
+  static const FIXED_SIZE = 5;
   TaggingBloc() : super(TaggingInitial()) {
     on<TaggingEvent>((event, emit) async {
       if (event is GetTaggingListEvent) {
@@ -15,6 +16,9 @@ class TaggingBloc extends Bloc<TaggingEvent, TaggingState> {
         try {
           final taggingData = await locator<LikeMindsService>().getTags(
             feedroomId: event.feedroomId,
+            page: event.page,
+            pageSize: FIXED_SIZE,
+            searchQuery: event.search,
           );
           emit(TaggingLoaded(taggingData: taggingData));
         } catch (e) {
