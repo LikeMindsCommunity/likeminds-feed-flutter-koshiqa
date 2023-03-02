@@ -30,7 +30,7 @@ class _PostImageState extends State<PostImage> {
   @override
   Widget build(BuildContext context) {
     screenSize = MediaQuery.of(context).size;
-    return widget.url.isEmpty || (widget.height != null && widget.height! < 80)
+    return widget.url.isEmpty
         ? const SizedBox.shrink()
         : GestureDetector(
             onTap: () {
@@ -47,7 +47,7 @@ class _PostImageState extends State<PostImage> {
               );
             },
             child: Container(
-              width: widget.height ?? MediaQuery.of(context).size.width,
+              width: MediaQuery.of(context).size.width,
               padding: const EdgeInsets.only(top: kPaddingMedium),
               child: widget.url.length > 1
                   ? Column(children: [
