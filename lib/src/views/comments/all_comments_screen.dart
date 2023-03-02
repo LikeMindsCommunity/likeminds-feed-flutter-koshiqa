@@ -1,11 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'package:feed_sx/src/views/feed/feedroom_screen.dart';
-import 'package:feed_sx/src/views/tagging/bloc/tagging_bloc.dart';
 import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
-import 'package:feed_sx/src/views/tagging/tagging_textfield.dart';
 import 'package:feed_sx/src/views/tagging/tagging_textfield_ta.dart';
-import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
@@ -383,18 +379,29 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                     // addAutomaticKeepAlives: true,
                     pagingController: _pagingController,
                     builderDelegate: PagedChildBuilderDelegate<Reply>(
+                        noMoreItemsIndicatorBuilder: (context) =>
+                            SizedBox(height: 64),
+                        noItemsFoundIndicatorBuilder: (context) =>
+                            Column(children: const <Widget>[
+                              SizedBox(height: 40),
+                              Text('No comment found',
+                                  style: TextStyle(fontSize: kFontMedium)),
+                              SizedBox(height: 10),
+                              Text('Be the first one to comment',
+                                  style: TextStyle(fontSize: kFontSmall))
+                            ]),
                         itemBuilder: (context, item, index) {
-                      return CommentTile(
-                        key: ValueKey(item.id),
-                        reply: item,
-                        user: postDetailResponse.users[item.userId]!,
-                        postId: postDetailResponse.postReplies.id,
-                        onReply: selectCommentToReply,
-                        refresh: () {
-                          _pagingController.refresh();
-                        },
-                      );
-                    }),
+                          return CommentTile(
+                            key: ValueKey(item.id),
+                            reply: item,
+                            user: postDetailResponse.users[item.userId]!,
+                            postId: postDetailResponse.postReplies.id,
+                            onReply: selectCommentToReply,
+                            refresh: () {
+                              _pagingController.refresh();
+                            },
+                          );
+                        }),
                   ),
                 ],
               );
