@@ -26,7 +26,7 @@ class NewPostScreenArguments {
 
 class ImagePreviewArguments {
   final String postId;
-  final String url;
+  final List<String> url;
   ImagePreviewArguments({
     required this.url,
     required this.postId,

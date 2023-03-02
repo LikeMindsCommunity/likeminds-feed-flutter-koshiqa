@@ -42,6 +42,9 @@ dependencies:
 
   flutter_typeahead: 
     path: lib/src/packages/flutter_typeahead-4.3.7
+  cached_network_image: ^3.2.3
+  carousel_slider: ^4.2.1
+  multi_image_crop: ^0.0.3
   
 
   # likeminds_feed: 

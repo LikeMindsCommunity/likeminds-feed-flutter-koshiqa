@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:math';
+import 'package:feed_sx/src/views/feed/components/post/post_media/post_image.dart';
 import 'package:feed_sx/src/views/tagging/bloc/tagging_bloc.dart';
 import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
 import 'package:feed_sx/src/views/tagging/tagging_textfield_ta.dart';
@@ -13,8 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:feed_sx/src/services/service_locator.dart';
 import 'package:image_picker/image_picker.dart';
-
-List<Attachment> attachments = [];
+import 'package:multi_image_crop/multi_image_crop.dart';
 
 class NewPostScreen extends StatefulWidget {
   static const String route = "/new_post_screen";
@@ -34,11 +35,13 @@ class NewPostScreen extends StatefulWidget {
 class _NewPostScreenState extends State<NewPostScreen> {
   TextEditingController? _controller;
   final ImagePicker _picker = ImagePicker();
+  Size? screenSize;
   bool uploaded = false;
   bool isUploading = false;
   late final User user;
   late final FeedRoomBloc feedBloc;
   late final int feedRoomId;
+  List<Attachment> attachments = [];
 
   List<UserTag> userTags = [];
   String? result;
@@ -48,13 +51,16 @@ class _NewPostScreenState extends State<NewPostScreen> {
   void initState() {
     super.initState();
     user = widget.user;
+    attachments.clear();
     feedRoomId = widget.feedRoomId;
+
     taggingBloc = TaggingBloc()
       ..add(GetTaggingListEvent(feedroomId: feedRoomId));
   }
 
   @override
   Widget build(BuildContext context) {
+    screenSize = MediaQuery.of(context).size;
     return WillPopScope(
       onWillPop: () {
         locator<NavigationService>().goBack(
@@ -70,7 +76,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
           // appBar: const GeneralAppBar(
           //     autoImplyEnd: false,
           //     title: ),
-          body: Padding(
+          body: Container(
             padding: const EdgeInsets.all(16),
             child: Column(children: [
               const SizedBox(height: 48),
@@ -183,23 +189,40 @@ class _NewPostScreenState extends State<NewPostScreen> {
                   print(p0);
                 },
               ),
-              Spacer(),
+
+              const Spacer(),
               if (isUploading) const Loader(),
               if (uploaded && attachments.isNotEmpty)
                 Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      color: kGrey2Color.withOpacity(0.2),
-                      image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image:
-                            NetworkImage(attachments.first.attachmentMeta.url!),
-                      ),
-                    ),
-                  ),
+                  child: LayoutBuilder(builder: (
+                    context,
+                    constraints,
+                  ) {
+                    return Align(
+                      alignment: Alignment.bottomRight,
+                      child: PostImage(
+                          height: min(constraints.maxHeight, 150),
+                          url: attachments
+                              .map((e) => e.attachmentMeta.url.toString())
+                              .toList(),
+                          postId: ''),
+                    );
+                  }),
                 ),
-              kVerticalPaddingXLarge,
+              // Expanded(
+              //   child: Container(
+              //     decoration: BoxDecoration(
+              //       borderRadius: BorderRadius.circular(8),
+              //       color: kGrey2Color.withOpacity(0.2),
+              //       image: DecorationImage(
+              //         fit: BoxFit.cover,
+              //         image:
+              //             NetworkImage(attachments.first.attachmentMeta.url!),
+              //       ),
+              //     ),
+              //   ),
+              // ),
+              kVerticalPaddingSmall,
               AddAssetsButton(
                 leading: SvgPicture.asset(
                   'packages/feed_sx/assets/icons/add_photo.svg',
@@ -224,17 +247,10 @@ class _NewPostScreenState extends State<NewPostScreen> {
                     });
                   }
                 },
-              ),
-              // AddAssetsButton(
-              //     leading: SvgPicture.asset(
-              //         'packages/feed_sx/assets/icons/add_video.svg'),
-              //     title: const Text('Add Video'),
-              //     picker: _picker),
-              // AddAssetsButton(
-              //     leading: SvgPicture.asset(
-              //         'packages/feed_sx/assets/icons/add_attachment.svg'),
-              //     title: const Text('Attach Files'),
-              //     picker: _picker),
+                addAttachment: (Attachment attachment) {
+                  attachments.add(attachment);
+                },
+              )
             ]),
           )),
     );
@@ -247,6 +263,7 @@ class AddAssetsButton extends StatelessWidget {
   final ImagePicker picker;
   final Function(bool uploadResponse) onUploaded;
   final Function() uploading;
+  final Function(Attachment) addAttachment;
 
   const AddAssetsButton({
     super.key,
@@ -255,34 +272,49 @@ class AddAssetsButton extends StatelessWidget {
     required this.picker,
     required this.onUploaded,
     required this.uploading,
+    required this.addAttachment,
   });
+
+  void uploadImages(List<File> croppedFiles) async {
+    for (final image in croppedFiles) {
+      try {
+        File file = File.fromUri(Uri(path: image.path));
+        final String? response =
+            await locator<LikeMindsService>().uploadFile(file);
+        if (response != null) {
+          addAttachment(Attachment(
+            attachmentType: 1,
+            attachmentMeta: AttachmentMeta(
+              url: response,
+            ),
+          ));
+        } else {
+          throw ('Error uploading file');
+        }
+      } catch (e) {
+        print(e);
+      }
+    }
+    onUploaded(true);
+  }
 
   @override
   Widget build(BuildContext context) {
+    Size screenSize = MediaQuery.of(context).size;
     return GestureDetector(
       onTap: () async {
         uploading();
         final list = await picker.pickMultiImage();
-        for (final image in list) {
-          try {
-            File file = File.fromUri(Uri(path: image.path));
-            final String? response =
-                await locator<LikeMindsService>().uploadFile(file);
-            if (response != null) {
-              attachments.add(Attachment(
-                attachmentType: 1,
-                attachmentMeta: AttachmentMeta(
-                  url: response,
-                ),
-              ));
-            } else {
-              throw ('Error uploading file');
-            }
-          } catch (e) {
-            print(e);
-          }
-        }
-        onUploaded(true);
+        List<File> croppedFiles = [];
+        MultiImageCrop.startCropping(
+            context: context,
+            activeColor: kWhiteColor,
+            files: list.map((e) => File(e.path)).toList(),
+            aspectRatio: 1.0,
+            callBack: (List<File> images) {
+              croppedFiles = images;
+              uploadImages(croppedFiles);
+            });
       },
       child: Container(
         height: 72,
