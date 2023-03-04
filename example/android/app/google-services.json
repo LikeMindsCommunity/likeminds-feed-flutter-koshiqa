@@ -1,0 +1,118 @@
+{
+  "project_info": {
+    "project_number": "317419981427",
+    "project_id": "likeminds-sdk-app",
+    "storage_bucket": "likeminds-sdk-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:317419981427:android:39193e779135e11cd2f806",
+        "android_client_info": {
+          "package_name": "com.likeminds.feedsample"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "317419981427-2ephdi4q8i78sn2envf4aacob8o8d24a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCp2HimWufInSMnLc7ndFBEpeSDTj7Fxsw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "317419981427-2ephdi4q8i78sn2envf4aacob8o8d24a.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "317419981427-ol1klor2o4mjdcu24un0b3p0gffdf2np.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.sdk.likemindssdkapp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:317419981427:android:5f22dafa3d28d37bd2f806",
+        "android_client_info": {
+          "package_name": "com.likeminds.sampleapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "317419981427-2ephdi4q8i78sn2envf4aacob8o8d24a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCp2HimWufInSMnLc7ndFBEpeSDTj7Fxsw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "317419981427-2ephdi4q8i78sn2envf4aacob8o8d24a.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "317419981427-ol1klor2o4mjdcu24un0b3p0gffdf2np.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.sdk.likemindssdkapp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:317419981427:android:57cb52869617d6e2d2f806",
+        "android_client_info": {
+          "package_name": "com.likeminds.sampleapp.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "317419981427-2ephdi4q8i78sn2envf4aacob8o8d24a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCp2HimWufInSMnLc7ndFBEpeSDTj7Fxsw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "317419981427-2ephdi4q8i78sn2envf4aacob8o8d24a.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "317419981427-ol1klor2o4mjdcu24un0b3p0gffdf2np.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.sdk.likemindssdkapp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
