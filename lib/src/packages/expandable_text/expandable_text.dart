@@ -2,8 +2,11 @@ library expandable_text;
 
 import 'dart:math';
 
+import 'package:feed_sx/src/utils/constants/string_constants.dart';
+import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import './text_parser.dart';
 
@@ -81,6 +84,7 @@ class ExpandableText extends StatefulWidget {
 class ExpandableTextState extends State<ExpandableText>
     with TickerProviderStateMixin {
   bool _expanded = false;
+  RegExp regExp = RegExp(kRegexLinksAndTags);
   late TapGestureRecognizer _linkTapGestureRecognizer;
   late TapGestureRecognizer _prefixTapGestureRecognizer;
 
@@ -189,13 +193,14 @@ class ExpandableTextState extends State<ExpandableText>
       recognizer: _prefixTapGestureRecognizer,
     );
 
-    final text = _textSegments.isNotEmpty
-        ? TextSpan(
-            children: _buildTextSpans(_textSegments, effectiveTextStyle, null))
-        : TextSpan(text: widget.text);
+    final text = extractLinksAndTags(widget.text);
+    //  _textSegments.isNotEmpty
+    //     ? TextSpan(
+    //         children: _buildTextSpans(_textSegments, effectiveTextStyle, null))
+    //     : TextSpan(text: widget.text);
 
     final content = TextSpan(
-      children: <TextSpan>[prefix, text],
+      children: <TextSpan>[prefix, ...text],
       style: effectiveTextStyle,
     );
 
@@ -376,5 +381,52 @@ class ExpandableTextState extends State<ExpandableText>
     }
 
     return spans;
+  }
+
+  List<TextSpan> extractLinksAndTags(String text) {
+    List<TextSpan> textSpans = [];
+    int lastIndex = 0;
+    for (Match match in regExp.allMatches(text)) {
+      int startIndex = match.start;
+      int endIndex = match.end;
+      String? link = match.group(0);
+
+      if (lastIndex != startIndex) {
+        // Add a TextSpan for the preceding text
+        textSpans.add(TextSpan(
+          text: text.substring(lastIndex, startIndex),
+          style: widget.style,
+        ));
+      }
+      bool isTag = link != null && link[0] == '<';
+      // Add a TextSpan for the URL
+      textSpans.add(TextSpan(
+        text: isTag ? TaggingHelper.decodeString(link).keys.first : link,
+        style: widget.linkStyle ?? const TextStyle(color: Colors.blue),
+        recognizer: TapGestureRecognizer()
+          ..onTap = () async {
+            if (!isTag) {
+              if (await canLaunchUrlString(link ?? '')) {
+                launchUrlString(link.toString());
+              }
+            } else {
+              TaggingHelper.routeToProfile(
+                TaggingHelper.decodeString(link).values.first,
+              );
+            }
+          },
+      ));
+
+      lastIndex = endIndex;
+    }
+
+    if (lastIndex != text.length) {
+      // Add a TextSpan for the remaining text
+      textSpans.add(TextSpan(
+        text: text.substring(lastIndex),
+        style: widget.style,
+      ));
+    }
+    return textSpans;
   }
 }
