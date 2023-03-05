@@ -286,6 +286,7 @@ class FeedRoomView extends StatelessWidget {
   final GetFeedOfFeedRoomResponse feedResponse;
   final PagingController<int, Post> feedRoomPagingController;
   final VoidCallback onRefresh;
+  ValueNotifier<bool> rebuildPostWidget = ValueNotifier(false);
 
   FeedRoomView({
     super.key,
@@ -336,12 +337,35 @@ class FeedRoomView extends StatelessWidget {
                             child: const Loader(),
                           )),
                       itemBuilder: (context, item, index) {
-                        return PostWidget(
-                          postType: 1,
-                          postDetails: item,
-                          user: feedResponse.users[item.userId]!,
-                          refresh: onRefresh,
-                        );
+                        return ValueListenableBuilder(
+                            valueListenable: rebuildPostWidget,
+                            builder: (context, _, __) {
+                              return PostWidget(
+                                postType: 1,
+                                postDetails: item,
+                                user: feedResponse.users[item.userId]!,
+                                refresh: () async {
+                                  final GetPostResponse updatedPostDetails =
+                                      await locator<LikeMindsService>().getPost(
+                                    GetPostRequest(
+                                      postId: item.id,
+                                      page: 1,
+                                      pageSize: 10,
+                                    ),
+                                  );
+                                  item = updatedPostDetails.post!;
+                                  List<Post>? feedRoomItemList =
+                                      feedRoomPagingController.itemList;
+                                  feedRoomItemList![index] =
+                                      updatedPostDetails.post!;
+                                  feedRoomPagingController.itemList =
+                                      feedRoomItemList;
+                                  rebuildPostWidget.value =
+                                      !rebuildPostWidget.value;
+                                },
+                                //onRefresh,
+                              );
+                            });
                       }),
                 ),
               )
