@@ -105,8 +105,12 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     /* Clearing paging controller while changing the
      event to prevent duplication of list */
     _pagingController.nextPageKey = _pageFeedRoom = 1;
-    // _pagingController.itemList!.clear();
-    _pagingControllerFeedRoomList.itemList!.clear();
+    if (_pagingController.itemList != null) {
+      _pagingController.itemList!.clear();
+    }
+    if (_pagingControllerFeedRoomList.itemList != null) {
+      _pagingControllerFeedRoomList.itemList!.clear();
+    }
   }
 
   @override
