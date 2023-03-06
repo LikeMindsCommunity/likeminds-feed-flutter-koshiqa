@@ -31,23 +31,27 @@ class PostActions extends StatefulWidget {
 class _PostActionsState extends State<PostActions> {
   int postLikes = 0;
   int comments = 0;
-  late final Post postDetails;
+  Post? postDetails;
   late bool isLiked, isFeed;
   late Function() refresh;
 
   @override
   void initState() {
     super.initState();
+  }
+
+  setPostDetails() {
     postDetails = widget.postDetails;
-    postLikes = postDetails.likeCount;
-    comments = postDetails.commentCount;
-    isLiked = postDetails.isLiked;
+    postLikes = postDetails!.likeCount;
+    comments = postDetails!.commentCount;
+    isLiked = postDetails!.isLiked;
     refresh = widget.refresh;
     isFeed = widget.isFeed;
   }
 
   @override
   Widget build(BuildContext context) {
+    setPostDetails();
     return Row(
       children: [
         Row(
@@ -69,7 +73,7 @@ class _PostActionsState extends State<PostActions> {
                       // refresh();
                     });
                     final response = await locator<LikeMindsService>()
-                        .likePost(LikePostRequest(postId: postDetails.id));
+                        .likePost(LikePostRequest(postId: postDetails!.id));
                     if (!response.success) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -104,12 +108,12 @@ class _PostActionsState extends State<PostActions> {
                   onTap: () async {
                     final response = await locator<LikeMindsService>()
                         .getPostLikes(
-                            GetPostLikesRequest(postId: postDetails.id));
+                            GetPostLikesRequest(postId: postDetails!.id));
                     Navigator.push(context, MaterialPageRoute(
                       builder: (context) {
                         return LikesScreen(
                           response: response,
-                          postId: postDetails.id,
+                          postId: postDetails!.id,
                         );
                       },
                     ));
@@ -131,15 +135,15 @@ class _PostActionsState extends State<PostActions> {
                       LMAnalytics.get().logEvent(
                         AnalyticsKeys.commentListOpen,
                         {
-                          "post_id": postDetails.id,
-                          "comment_count": postDetails.commentCount.toString(),
+                          "post_id": postDetails!.id,
+                          "comment_count": postDetails!.commentCount.toString(),
                         },
                       );
                       Navigator.pushNamed(
                         context,
                         AllCommentsScreen.route,
                         arguments: AllCommentsScreenArguments(
-                          post: postDetails,
+                          post: postDetails!,
                           feedroomId: locator<LikeMindsService>().getFeedroomId,
                         ),
                       ).then((value) => refresh());
