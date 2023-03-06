@@ -29,7 +29,7 @@ class PostWidget extends StatefulWidget {
 }
 
 class _PostWidgetState extends State<PostWidget> {
-  Post? postDetails;
+  late final Post postDetails;
   late final PostUser user;
   late final bool showActions;
   late final Function() refresh;
@@ -38,19 +38,15 @@ class _PostWidgetState extends State<PostWidget> {
   @override
   void initState() {
     super.initState();
+    postDetails = widget.postDetails;
     user = widget.user;
     showActions = widget.showActions;
     refresh = widget.refresh;
     isFeed = widget.isFeed;
   }
 
-  setPostValues() {
-    postDetails = widget.postDetails;
-  }
-
   @override
   Widget build(BuildContext context) {
-    setPostValues();
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Container(
@@ -61,20 +57,20 @@ class _PostWidgetState extends State<PostWidget> {
           children: [
             PostHeader(
               user: user,
-              menuItems: postDetails!.menuItems,
-              postDetails: postDetails!,
+              menuItems: postDetails.menuItems,
+              postDetails: postDetails,
               refresh: refresh,
             ),
             PostDescription(
-              text: postDetails!.text,
+              text: postDetails.text,
             ),
             PostMediaFactory(
-              attachments: postDetails!.attachments,
-              postId: postDetails!.id,
+              attachments: postDetails.attachments,
+              postId: postDetails.id,
             ),
             showActions
                 ? PostActions(
-                    postDetails: postDetails!,
+                    postDetails: postDetails,
                     refresh: refresh,
                     isFeed: isFeed,
                   )
