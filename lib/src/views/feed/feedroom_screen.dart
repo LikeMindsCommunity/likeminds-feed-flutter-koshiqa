@@ -79,8 +79,8 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     clearPagingController();
   }
 
-  int _pageFeedRoom = 0; // current index of FeedRoom
-  int _pageFeedRoomList = 0; // current index of FeedRoomList
+  int _pageFeedRoom = 2; // current index of FeedRoom
+  int _pageFeedRoomList = 2; // current index of FeedRoomList
 
   void updatePagingControllers(Object? state) {
     if (state is FeedRoomLoaded) {
@@ -104,10 +104,8 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
   void clearPagingController() {
     /* Clearing paging controller while changing the
      event to prevent duplication of list */
-    _pagingController.nextPageKey = _pageFeedRoom = 1;
-    if (_pagingController.itemList != null) {
-      _pagingController.itemList!.clear();
-    }
+    _pagingController.nextPageKey = _pageFeedRoom = 2;
+    if (_pagingController.itemList != null) _pagingController.itemList!.clear();
     if (_pagingControllerFeedRoomList.itemList != null) {
       _pagingControllerFeedRoomList.itemList!.clear();
     }
