@@ -370,79 +370,80 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                 }
 
                 return RefreshIndicator(
-                  onRefresh: () async {
-                    await updatePostDetails();
-                  },
-                  child: CustomScrollView(
-                    slivers: [
-                      SliverToBoxAdapter(
-                          child: ValueListenableBuilder(
-                              valueListenable: rebuildPostWidget,
-                              builder: (context, _, __) {
-                                return PostWidget(
-                                  postDetails: postData!,
-                                  user: postDetailResponse.users[
-                                      postDetailResponse.postReplies.userId]!,
-                                  postType: 0,
-                                  isFeed: false,
-                                  refresh: () {
-                                    locator<NavigationService>().goBack();
-                                  },
-                                );
-                              })),
-                      SliverPadding(padding: EdgeInsets.only(bottom: 12)),
-                      postData!.commentCount >= 1
-                          ? SliverToBoxAdapter(
-                              child: ValueListenableBuilder(
-                                  valueListenable: rebuildPostWidget,
-                                  builder: (context, _, __) {
-                                    return Container(
-                                      color: kWhiteColor,
-                                      padding:
-                                          EdgeInsets.only(left: 15, top: 15),
-                                      child: Text(
-                                        '${postData!.commentCount} ${postData!.commentCount > 1 ? 'Comments' : 'Comment'}',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                    );
-                                  }))
-                          : const SliverToBoxAdapter(child: SizedBox.shrink()),
-
-                  SliverPadding(padding: EdgeInsets.only(bottom: 12)),
-                  PagedSliverList(
-                    // addAutomaticKeepAlives: true,
-                    pagingController: _pagingController,
-                    builderDelegate: PagedChildBuilderDelegate<Reply>(
-                        noMoreItemsIndicatorBuilder: (context) =>
-                            SizedBox(height: 64),
-                        noItemsFoundIndicatorBuilder: (context) =>
-                            Column(children: const <Widget>[
-                              SizedBox(height: 40),
-                              Text('No comment found',
-                                  style: TextStyle(fontSize: kFontMedium)),
-                              SizedBox(height: 10),
-                              Text('Be the first one to comment',
-                                  style: TextStyle(fontSize: kFontSmall))
-                            ]),
-                        itemBuilder: (context, item, index) {
-                          return CommentTile(
-                            key: ValueKey(item.id),
-                            reply: item,
-                            user: postDetailResponse.users[item.userId]!,
-                            postId: postDetailResponse.postReplies.id,
-                            onReply: selectCommentToReply,
-                            refresh: () {
-                              _pagingController.refresh();
-                            },
-                          );
-                        }),
-                  ),
-                ],
-              );
-            }
-            return const Center(child: CircularProgressIndicator());
-            // if (state is AllCommentsLoading) {
+                    onRefresh: () async {
+                      await updatePostDetails();
+                    },
+                    child: CustomScrollView(
+                      slivers: [
+                        SliverToBoxAdapter(
+                            child: ValueListenableBuilder(
+                                valueListenable: rebuildPostWidget,
+                                builder: (context, _, __) {
+                                  return PostWidget(
+                                    postDetails: postData!,
+                                    user: postDetailResponse.users[
+                                        postDetailResponse.postReplies.userId]!,
+                                    postType: 0,
+                                    isFeed: false,
+                                    refresh: () {
+                                      locator<NavigationService>().goBack();
+                                    },
+                                  );
+                                })),
+                        SliverPadding(padding: EdgeInsets.only(bottom: 12)),
+                        postData!.commentCount >= 1
+                            ? SliverToBoxAdapter(
+                                child: ValueListenableBuilder(
+                                    valueListenable: rebuildPostWidget,
+                                    builder: (context, _, __) {
+                                      return Container(
+                                        color: kWhiteColor,
+                                        padding:
+                                            EdgeInsets.only(left: 15, top: 15),
+                                        child: Text(
+                                          '${postData!.commentCount} ${postData!.commentCount > 1 ? 'Comments' : 'Comment'}',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600),
+                                        ),
+                                      );
+                                    }))
+                            : const SliverToBoxAdapter(
+                                child: SizedBox.shrink()),
+                        PagedSliverList(
+                            // addAutomaticKeepAlives: true,
+                            pagingController: _pagingController,
+                            builderDelegate: PagedChildBuilderDelegate<Reply>(
+                                noMoreItemsIndicatorBuilder: (context) =>
+                                    SizedBox(height: 64),
+                                noItemsFoundIndicatorBuilder: (context) =>
+                                    Column(children: const <Widget>[
+                                      SizedBox(height: 40),
+                                      Text('No comment found',
+                                          style:
+                                              TextStyle(fontSize: kFontMedium)),
+                                      SizedBox(height: 10),
+                                      Text('Be the first one to comment',
+                                          style:
+                                              TextStyle(fontSize: kFontSmall))
+                                    ]),
+                                itemBuilder: (context, item, index) {
+                                  return CommentTile(
+                                    key: ValueKey(item.id),
+                                    reply: item,
+                                    user:
+                                        postDetailResponse.users[item.userId]!,
+                                    postId: postDetailResponse.postReplies.id,
+                                    onReply: selectCommentToReply,
+                                    refresh: () {
+                                      _pagingController.refresh();
+                                    },
+                                  );
+                                })),
+                      ],
+                    ));
+              }
+              return const Center(child: CircularProgressIndicator());
+              // if (state is AllCommentsLoading) {
               // }
             },
           )),

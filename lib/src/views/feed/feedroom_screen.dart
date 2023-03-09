@@ -52,6 +52,11 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     _addPaginationListener();
     Bloc.observer = SimpleBlocObserver();
     _feedBloc = FeedRoomBloc();
+    if (widget.isCm) {
+      _feedBloc.add(GetFeedRoomList(offset: 1));
+    } else {
+      _feedBloc.add(GetFeedRoom(feedRoomId: DUMMY_FEEDROOM, offset: 1));
+    }
   }
 
   @override
@@ -74,13 +79,10 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     });
   }
 
-  refresh() {
-    _pagingController.refresh();
-    clearPagingController();
-  }
+  refresh() => _pagingController.refresh();
 
-  int _pageFeedRoom = 0; // current index of FeedRoom
-  int _pageFeedRoomList = 0; // current index of FeedRoomList
+  int _pageFeedRoom = 1; // current index of FeedRoom
+  int _pageFeedRoomList = 1; // current index of FeedRoomList
 
   void updatePagingControllers(Object? state) {
     if (state is FeedRoomLoaded) {
@@ -104,20 +106,18 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
   void clearPagingController() {
     /* Clearing paging controller while changing the
      event to prevent duplication of list */
-    _pagingController.nextPageKey = _pageFeedRoom = 1;
-    // _pagingController.itemList!.clear();
-    _pagingControllerFeedRoomList.itemList!.clear();
+    if (_pagingController.itemList != null) _pagingController.itemList!.clear();
+    if (_pagingControllerFeedRoomList.itemList != null) {
+      _pagingControllerFeedRoomList.itemList!.clear();
+    }
+    _pageFeedRoom = 1;
   }
 
   @override
   Widget build(BuildContext context) {
     isCm = widget.isCm;
     final user = widget.user;
-    if (isCm!) {
-      _feedBloc.add(GetFeedRoomList(offset: 1));
-    } else {
-      _feedBloc.add(GetFeedRoom(feedRoomId: DUMMY_FEEDROOM, offset: 1));
-    }
+
     return BlocConsumer(
       bloc: _feedBloc,
       buildWhen: (prev, curr) {
@@ -322,7 +322,8 @@ class FeedRoomView extends StatelessWidget {
       body: RefreshIndicator(
           onRefresh: () async {
             feedRoomBloc.add(GetFeedRoom(feedRoomId: feedRoom.id, offset: 0));
-            onRefresh();
+            //onRefresh();
+            onPressedBack();
           },
           child: Column(
             children: [
@@ -385,6 +386,7 @@ class FeedRoomView extends StatelessWidget {
               .then((result) {
             if (result != null && result['isBack']) {
               onRefresh();
+              onPressedBack();
             }
           });
         },
