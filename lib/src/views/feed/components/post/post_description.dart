@@ -9,21 +9,23 @@ class PostDescription extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-        padding: const EdgeInsets.symmetric(
-            horizontal: 24, vertical: kPaddingMedium),
-        child: ExpandableText(text,
-            expandText: 'show more',
-            collapseText: 'show less',
-            prefixStyle:
-                const TextStyle(fontSize: kFontMedium, color: kGreyColor),
-            linkStyle:
-                const TextStyle(fontSize: kFontMedium, color: kLinkColor))
-        // TextWithLinks(
-        //   text: text,
-        //   style: const TextStyle(fontSize: kFontMedium, color: kGreyColor),
-        //   linkStyle: const TextStyle(fontSize: kFontMedium, color: kLinkColor),
-        // )
-        );
+    return text.isEmpty
+        ? const SizedBox()
+        : Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: 24, vertical: kPaddingMedium),
+            child: ExpandableText(text,
+                expandText: 'show more',
+                collapseText: 'show less',
+                prefixStyle:
+                    const TextStyle(fontSize: kFontMedium, color: kGreyColor),
+                linkStyle:
+                    const TextStyle(fontSize: kFontMedium, color: kLinkColor))
+            // TextWithLinks(
+            //   text: text,
+            //   style: const TextStyle(fontSize: kFontMedium, color: kGreyColor),
+            //   linkStyle: const TextStyle(fontSize: kFontMedium, color: kLinkColor),
+            // )
+            );
   }
 }
