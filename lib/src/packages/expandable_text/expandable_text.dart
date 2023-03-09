@@ -187,11 +187,13 @@ class ExpandableTextState extends State<ExpandableText>
       ],
     );
 
-    final prefix = TextSpan(
-      text: prefixText,
-      style: effectiveTextStyle.merge(widget.prefixStyle),
-      recognizer: _prefixTapGestureRecognizer,
-    );
+    final prefix = extractLinksAndTags(prefixText);
+
+    // TextSpan(
+    //   text: prefixText,
+    //   style: effectiveTextStyle.merge(widget.prefixStyle),
+    //   recognizer: _prefixTapGestureRecognizer,
+    // );
 
     final text = extractLinksAndTags(widget.text);
     //  _textSegments.isNotEmpty
@@ -200,7 +202,7 @@ class ExpandableTextState extends State<ExpandableText>
     //     : TextSpan(text: widget.text);
 
     final content = TextSpan(
-      children: <TextSpan>[prefix, ...text],
+      children: <TextSpan>[...prefix, ...text],
       style: effectiveTextStyle,
     );
 
@@ -258,16 +260,21 @@ class ExpandableTextState extends State<ExpandableText>
                       recognizer),
                 )
               : TextSpan(
-                  text: _expanded
-                      ? widget.text
-                      : widget.text.substring(0, max(endOffset, 0)),
-                  recognizer: recognizer,
-                );
+                  children: _expanded
+                      ? extractLinksAndTags(widget.text)
+                      : extractLinksAndTags(
+                          widget.text.substring(0, max(endOffset, 0))));
+          // TextSpan(
+          //     text: _expanded
+          //         ? widget.text
+          //         : widget.text.substring(0, max(endOffset, 0)),
+          //     recognizer: recognizer,
+          //   );
 
           textSpan = TextSpan(
             style: effectiveTextStyle,
             children: <TextSpan>[
-              prefix,
+              ...prefix,
               text,
               link,
             ],

@@ -3,18 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 class ProfilePicture extends StatelessWidget {
-  const ProfilePicture({
-    Key? key,
-    required this.user,
-  }) : super(key: key);
+  final double size;
+  const ProfilePicture({Key? key, required this.user, this.size = 48})
+      : super(key: key);
 
   final PostUser user;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 48,
-      width: 48,
+      height: size,
+      width: size,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         color: user.name.isNotEmpty ? kPrimaryColor : kGrey3Color,
@@ -28,9 +27,9 @@ class ProfilePicture extends StatelessWidget {
           ? Center(
               child: Text(
                 user.name.isNotEmpty ? user.name[0].toUpperCase() : "",
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
-                  fontSize: 24,
+                  fontSize: size / 2,
                   fontWeight: FontWeight.w600,
                 ),
               ),

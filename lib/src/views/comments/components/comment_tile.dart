@@ -1,6 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collection/collection.dart';
+import 'package:feed_sx/src/packages/expandable_text/expandable_text.dart';
 import 'package:feed_sx/src/utils/constants/string_constants.dart';
 import 'package:feed_sx/src/views/comments/components/dropdown_options_comment.dart';
+import 'package:feed_sx/src/widgets/profile_picture.dart';
 import 'package:feed_sx/src/widgets/text_with_links.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
@@ -75,11 +78,13 @@ class _CommentTileState extends State<CommentTile>
         children: [
           Row(
             children: [
+              ProfilePicture(user: user, size: 28),
+              kHorizontalPaddingMedium,
               Text(
                 user.name,
                 style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 14.5,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               const Spacer(),
@@ -91,12 +96,14 @@ class _CommentTileState extends State<CommentTile>
               ),
             ],
           ),
-          kVerticalPaddingSmall,
-          TextWithLinks(
-            text: reply.text,
-            // expandText: 'show more',
-            // collapseText: 'show less',
-          ),
+          kVerticalPaddingMedium,
+          ExpandableText(reply.text,
+              expandText: 'show more', collapseText: 'show less'),
+          // TextWithLinks(
+          //   text: reply.text,
+          //   // expandText: 'show more',
+          //   // collapseText: 'show less',
+          // ),
           kVerticalPaddingLarge,
           Row(
             children: [
