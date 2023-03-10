@@ -339,7 +339,8 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                         ),
                       ],
                     );
-                  })),
+                  }),
+              elevation: 5),
           body: BlocConsumer<AllCommentsBloc, AllCommentsState>(
             listener: (context, state) {
               if (state is AllCommentsLoaded) {
@@ -414,7 +415,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                             pagingController: _pagingController,
                             builderDelegate: PagedChildBuilderDelegate<Reply>(
                                 noMoreItemsIndicatorBuilder: (context) =>
-                                    SizedBox(height: 64),
+                                    SizedBox(height: 75),
                                 noItemsFoundIndicatorBuilder: (context) =>
                                     Column(children: const <Widget>[
                                       SizedBox(height: 40),

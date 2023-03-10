@@ -75,6 +75,7 @@ class _PostImageState extends State<PostImage> {
                               });
                             }),
                       ),
+                      kVerticalPaddingMedium,
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: widget.url.map((url) {

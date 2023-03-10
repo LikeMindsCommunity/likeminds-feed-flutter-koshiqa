@@ -70,6 +70,7 @@ class _ImagePreviewState extends State<ImagePreview> {
                               });
                             }),
                       ),
+                      kVerticalPaddingMedium,
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: widget.url.map((url) {
