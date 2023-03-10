@@ -34,11 +34,7 @@ class _PostActionsState extends State<PostActions> {
   Post? postDetails;
   late bool isLiked, isFeed;
   late Function() refresh;
-
-  @override
-  void initState() {
-    super.initState();
-  }
+  ValueNotifier<bool> rebuildLikeWidget = ValueNotifier(false);
 
   setPostDetails() {
     postDetails = widget.postDetails;
@@ -63,15 +59,14 @@ class _PostActionsState extends State<PostActions> {
                   enableFeedback: false,
                   splashColor: Colors.transparent,
                   onPressed: () async {
-                    setState(() {
-                      if (isLiked) {
-                        postLikes--;
-                      } else {
-                        postLikes++;
-                      }
-                      isLiked = !isLiked;
-                      // refresh();
-                    });
+                    if (isLiked) {
+                      postLikes--;
+                    } else {
+                      postLikes++;
+                    }
+                    isLiked = !isLiked;
+                    rebuildLikeWidget.value = !rebuildLikeWidget.value;
+
                     final response = await locator<LikeMindsService>()
                         .likePost(LikePostRequest(postId: postDetails!.id));
                     if (!response.success) {
@@ -86,22 +81,26 @@ class _PostActionsState extends State<PostActions> {
                           backgroundColor: Colors.grey.shade500,
                         ),
                       );
-                      setState(() {
-                        if (isLiked) {
-                          postLikes--;
-                        } else {
-                          postLikes++;
-                        }
-                        isLiked = !isLiked;
-                        // refresh();
-                      });
+
+                      if (isLiked) {
+                        postLikes--;
+                      } else {
+                        postLikes++;
+                      }
+                      isLiked = !isLiked;
+                      // refresh();
+                      rebuildLikeWidget.value = !rebuildLikeWidget.value;
                     }
                   },
-                  icon: isLiked
-                      ? SvgPicture.asset(kAssetLikeFilledIcon,
-                          height: 28, width: 28)
-                      : SvgPicture.asset(kAssetLikeIcon,
-                          height: 21.5, width: 21.5),
+                  icon: ValueListenableBuilder(
+                      valueListenable: rebuildLikeWidget,
+                      builder: (context, _, __) {
+                        return isLiked
+                            ? SvgPicture.asset(kAssetLikeFilledIcon,
+                                height: 28, width: 28)
+                            : SvgPicture.asset(kAssetLikeIcon,
+                                height: 21.5, width: 21.5);
+                      }),
                   color: isLiked ? Colors.red : kGrey2Color,
                 ),
                 GestureDetector(
@@ -118,12 +117,16 @@ class _PostActionsState extends State<PostActions> {
                       },
                     ));
                   },
-                  child: Text(
-                    postLikes > 0
-                        ? "$postLikes ${postLikes > 1 ? kStringLikes : kStringLike}"
-                        : kStringLike,
-                    style: const TextStyle(fontSize: 14),
-                  ),
+                  child: ValueListenableBuilder(
+                      valueListenable: rebuildLikeWidget,
+                      builder: (context, _, __) {
+                        return Text(
+                          postLikes > 0
+                              ? "$postLikes ${postLikes > 1 ? kStringLikes : kStringLike}"
+                              : kStringLike,
+                          style: const TextStyle(fontSize: 14),
+                        );
+                      }),
                 ),
               ],
             ),
