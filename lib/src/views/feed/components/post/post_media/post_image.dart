@@ -5,9 +5,11 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
+import 'package:feed_sx/src/views/feed/components/post/post_media/post_image_shimmer.dart';
 import 'package:feed_sx/src/views/previews/image_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
+import 'package:shimmer/shimmer.dart';
 
 class PostImage extends StatefulWidget {
   final String postId;
@@ -54,9 +56,14 @@ class _PostImageState extends State<PostImage> {
                       CarouselSlider(
                         items: widget.url
                             .map((e) => CachedNetworkImage(
-                                  imageUrl: e,
-                                  fit: BoxFit.cover,
-                                ))
+                                imageUrl: e,
+                                fit: BoxFit.cover,
+                                fadeInDuration: const Duration(
+                                  milliseconds: 200,
+                                ),
+                                progressIndicatorBuilder:
+                                    (context, url, progress) =>
+                                        getPostShimmer(screenSize!)))
                             .toList(),
                         options: CarouselOptions(
                             aspectRatio: 1.0,
@@ -103,7 +110,11 @@ class _PostImageState extends State<PostImage> {
                   : CachedNetworkImage(
                       imageUrl: widget.url[0],
                       fit: BoxFit.cover,
-                    ),
+                      fadeInDuration: const Duration(
+                        milliseconds: 200,
+                      ),
+                      progressIndicatorBuilder: (context, url, progress) =>
+                          getPostShimmer(screenSize!)),
             ),
           );
   }
