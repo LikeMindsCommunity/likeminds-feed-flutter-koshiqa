@@ -19,14 +19,23 @@ class PostHeader extends StatelessWidget {
       required this.refresh});
 
   void removeReportIntegration() {
-    menuItems.removeWhere((element) {
-      return element.title == 'Report';
-    });
+    if (menuItems != null) {
+      menuItems.removeWhere((element) {
+        return element.title == 'Report';
+      });
+    }
+  }
+
+  void removePinIntegration() {
+    if (menuItems != null) {
+      menuItems.removeWhere((element) => element.title == 'Pin this Post');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     removeReportIntegration();
+    removePinIntegration();
     final bool isEdited = postDetails.createdAt != postDetails.updatedAt;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
