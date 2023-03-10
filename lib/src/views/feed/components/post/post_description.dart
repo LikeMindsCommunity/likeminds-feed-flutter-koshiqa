@@ -1,6 +1,5 @@
 import 'package:feed_sx/src/packages/expandable_text/expandable_text.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
-import 'package:feed_sx/src/widgets/text_with_links.dart';
 import 'package:flutter/material.dart';
 
 class PostDescription extends StatelessWidget {
@@ -20,12 +19,6 @@ class PostDescription extends StatelessWidget {
                 prefixStyle:
                     const TextStyle(fontSize: kFontMedium, color: kGreyColor),
                 linkStyle:
-                    const TextStyle(fontSize: kFontMedium, color: kLinkColor))
-            // TextWithLinks(
-            //   text: text,
-            //   style: const TextStyle(fontSize: kFontMedium, color: kGreyColor),
-            //   linkStyle: const TextStyle(fontSize: kFontMedium, color: kLinkColor),
-            // )
-            );
+                    const TextStyle(fontSize: kFontMedium, color: kLinkColor)));
   }
 }

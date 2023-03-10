@@ -188,18 +188,7 @@ class ExpandableTextState extends State<ExpandableText>
     );
 
     final prefix = extractLinksAndTags(prefixText);
-
-    // TextSpan(
-    //   text: prefixText,
-    //   style: effectiveTextStyle.merge(widget.prefixStyle),
-    //   recognizer: _prefixTapGestureRecognizer,
-    // );
-
     final text = extractLinksAndTags(widget.text);
-    //  _textSegments.isNotEmpty
-    //     ? TextSpan(
-    //         children: _buildTextSpans(_textSegments, effectiveTextStyle, null))
-    //     : TextSpan(text: widget.text);
 
     final content = TextSpan(
       children: <TextSpan>[...prefix, ...text],
@@ -264,12 +253,6 @@ class ExpandableTextState extends State<ExpandableText>
                       ? extractLinksAndTags(widget.text)
                       : extractLinksAndTags(
                           widget.text.substring(0, max(endOffset, 0))));
-          // TextSpan(
-          //     text: _expanded
-          //         ? widget.text
-          //         : widget.text.substring(0, max(endOffset, 0)),
-          //     recognizer: recognizer,
-          //   );
 
           textSpan = TextSpan(
             style: effectiveTextStyle,
