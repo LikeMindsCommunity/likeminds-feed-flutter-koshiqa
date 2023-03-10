@@ -95,8 +95,10 @@ class _CommentTileState extends State<CommentTile>
             ],
           ),
           kVerticalPaddingMedium,
-          ExpandableText(reply.text,
-              expandText: 'show more', collapseText: 'show less'),
+          ExpandableText(
+            reply.text,
+            expandText: 'show more',
+          ),
           kVerticalPaddingLarge,
           Row(
             children: [
