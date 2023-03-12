@@ -3,6 +3,7 @@
 import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
+import 'package:feed_sx/src/views/feed/blocs/feedroomlist/feedroom_list_bloc.dart';
 import 'package:feed_sx/src/views/feed/components/new_post_button.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -10,7 +11,6 @@ import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/utils/simple_bloc_observer.dart';
 import 'package:feed_sx/src/views/feed/blocs/feedroom/feedroom_bloc.dart';
-import 'package:feed_sx/src/views/feed/components/feedroom_tile.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_widget.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:flutter/material.dart';
@@ -24,11 +24,14 @@ const int DUMMY_FEEDROOM = 72200;
 class FeedRoomScreen extends StatefulWidget {
   final bool isCm;
   final User user;
-  const FeedRoomScreen({
-    super.key,
-    required this.isCm,
-    required this.user,
-  });
+  final int feedRoomId;
+  String? feedRoomTitle;
+  FeedRoomScreen(
+      {super.key,
+      required this.isCm,
+      required this.user,
+      required this.feedRoomId,
+      this.feedRoomTitle});
 
   @override
   State<FeedRoomScreen> createState() => _FeedRoomScreenState();
@@ -36,14 +39,13 @@ class FeedRoomScreen extends StatefulWidget {
 
 class _FeedRoomScreenState extends State<FeedRoomScreen> {
   late final FeedRoomBloc _feedBloc;
+  String? title;
   bool? isCm;
+
+  final ValueNotifier _rebuildAppBar = ValueNotifier(false);
 
   // to control paging on FeedRoom View
   final PagingController<int, Post> _pagingController =
-      PagingController(firstPageKey: 1);
-
-  // to control paging on FeedRoomList View
-  final PagingController<int, FeedRoom> _pagingControllerFeedRoomList =
       PagingController(firstPageKey: 1);
 
   @override
@@ -52,37 +54,28 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     _addPaginationListener();
     Bloc.observer = SimpleBlocObserver();
     _feedBloc = FeedRoomBloc();
-    if (widget.isCm) {
-      _feedBloc.add(GetFeedRoomList(offset: 1));
-    } else {
-      _feedBloc.add(GetFeedRoom(feedRoomId: DUMMY_FEEDROOM, offset: 1));
-    }
+    title = widget.feedRoomTitle;
+    _feedBloc.add(GetFeedRoom(feedRoomId: widget.feedRoomId, offset: 1));
   }
 
   @override
   void dispose() {
     _pagingController.dispose();
-    _pagingControllerFeedRoomList.dispose();
     super.dispose();
   }
 
   _addPaginationListener() {
     _pagingController.addPageRequestListener((pageKey) {
       _feedBloc.add(GetFeedRoom(
-          feedRoomId: DUMMY_FEEDROOM,
+          feedRoomId: widget.feedRoomId,
           offset: pageKey,
           isPaginationLoading: true));
-    });
-    _pagingControllerFeedRoomList.addPageRequestListener((pageKey) {
-      _feedBloc
-          .add(GetFeedRoomList(offset: pageKey, isPaginationLoading: true));
     });
   }
 
   refresh() => _pagingController.refresh();
 
   int _pageFeedRoom = 1; // current index of FeedRoom
-  int _pageFeedRoomList = 1; // current index of FeedRoomList
 
   void updatePagingControllers(Object? state) {
     if (state is FeedRoomLoaded) {
@@ -92,14 +85,16 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
       } else {
         _pagingController.appendPage(state.feed.posts ?? [], _pageFeedRoom);
       }
-    } else if (state is FeedRoomListLoaded) {
-      _pageFeedRoomList++;
-      if (state.size < 10) {
-        _pagingControllerFeedRoomList.appendLastPage(state.feedList);
-      } else {
-        _pagingControllerFeedRoomList.appendPage(
-            state.feedList, _pageFeedRoomList);
-      }
+      setTitleWidget(state.feedRoom.title);
+    } else if (state is FeedRoomEmpty) {
+      setTitleWidget(state.feedRoom.title);
+    }
+  }
+
+  setTitleWidget(String feedRoomTitle) {
+    if (title == null) {
+      title = feedRoomTitle;
+      _rebuildAppBar.value = !_rebuildAppBar.value;
     }
   }
 
@@ -107,9 +102,6 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     /* Clearing paging controller while changing the
      event to prevent duplication of list */
     if (_pagingController.itemList != null) _pagingController.itemList!.clear();
-    if (_pagingControllerFeedRoomList.itemList != null) {
-      _pagingControllerFeedRoomList.itemList!.clear();
-    }
     _pageFeedRoom = 1;
   }
 
@@ -118,68 +110,82 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     isCm = widget.isCm;
     final user = widget.user;
 
-    return BlocConsumer(
-      bloc: _feedBloc,
-      buildWhen: (prev, curr) {
-        // Prevents changin the state while paginating the feed
-        if ((prev is FeedRoomLoaded && curr is PaginationLoading) ||
-            (prev is FeedRoomListLoaded && curr is PaginationLoading)) {
-          return false;
-        }
-        return true;
-      },
-      listener: (context, state) => updatePagingControllers(state),
-      builder: ((context, state) {
-        if (state is FeedRoomLoaded) {
-          // Log the event in the analytics
-          LMAnalytics.get().logEvent(
-            AnalyticsKeys.feedOpened,
-            {
-              "feed_type": {
-                "feedroom": {
-                  "id": state.feedRoom.id,
-                }
-              }
-            },
-          );
-          return FeedRoomView(
-              isCm: isCm!,
-              feedResponse: state.feed,
-              onPressedBack: clearPagingController,
-              feedRoomBloc: _feedBloc,
-              feedRoom: state.feedRoom,
-              feedRoomPagingController: _pagingController,
-              user: user,
-              onRefresh: refresh);
-        } else if (state is FeedRoomListLoaded) {
-          return FeedRoomListView(
-              pagingControllerFeedRoomList: _pagingControllerFeedRoomList,
-              feedRoomBloc: _feedBloc);
-        } else if (state is FeedRoomError) {
-          return FeedRoomErrorView(message: state.message);
-        } else if (state is FeedRoomListEmpty) {
-          return Scaffold(
-            backgroundColor: kBackgroundColor,
-            body: Center(
-              child: Text("No feedrooms found"),
-            ),
-          );
-        } else if (state is FeedRoomEmpty) {
-          return FeedRoomEmptyView(
-              isCm: isCm!,
-              onPressedBack: clearPagingController,
-              feedBloc: _feedBloc,
-              onRefresh: refresh,
-              user: user,
-              feedRoom: state.feedRoom);
-        }
+    return Scaffold(
+      appBar: AppBar(
+        leading: isCm!
+            ? BackButton(
+                color: Colors.white,
+                onPressed: () {
+                  locator<NavigationService>().goBack();
+                },
+              )
+            : null,
+        title: ValueListenableBuilder(
+            valueListenable: _rebuildAppBar,
+            builder: (context, _, __) {
+              return Text(title ?? '...');
+            }),
+        backgroundColor: kPrimaryColor,
+      ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _feedBloc.add(GetFeedRoom(feedRoomId: widget.feedRoomId, offset: 0));
+          clearPagingController();
+        },
+        child: BlocConsumer(
+          bloc: _feedBloc,
+          buildWhen: (prev, curr) {
+            // Prevents changin the state while paginating the feed
+            if (prev is FeedRoomLoaded && curr is PaginationLoading) {
+              return false;
+            }
+            return true;
+          },
+          listener: (context, state) => updatePagingControllers(state),
+          builder: ((context, state) {
+            if (state is FeedRoomLoaded) {
+              // Log the event in the analytics
+              LMAnalytics.get().logEvent(
+                AnalyticsKeys.feedOpened,
+                {
+                  "feed_type": {
+                    "feedroom": {
+                      "id": state.feedRoom.id,
+                    }
+                  }
+                },
+              );
+              return FeedRoomView(
+                isCm: isCm!,
+                feedResponse: state.feed,
+                feedRoomBloc: _feedBloc,
+                feedRoom: state.feedRoom,
+                feedRoomPagingController: _pagingController,
+                user: user,
+                onRefresh: refresh,
+                onPressedBack: clearPagingController,
+              );
+            } else if (state is FeedRoomError) {
+              return FeedRoomErrorView(message: state.message);
+            } else if (state is FeedRoomEmpty) {
+              return FeedRoomEmptyView(
+                isCm: isCm!,
+                feedBloc: _feedBloc,
+                onRefresh: refresh,
+                user: user,
+                feedRoom: state.feedRoom,
+                onPressedBack: clearPagingController,
+              );
+            }
 
-        return Scaffold(
-            backgroundColor: kBackgroundColor,
-            body: Center(
-              child: const Loader(),
-            ));
-      }),
+            return Scaffold(
+                backgroundColor: kBackgroundColor,
+                body: Center(
+                  child: const Loader(),
+                ));
+          }),
+        ),
+      ),
     );
   }
 }
@@ -203,12 +209,9 @@ class FeedRoomEmptyView extends StatelessWidget {
       required this.onRefresh,
       required FeedRoomBloc feedBloc,
       required this.user,
-      required this.feedRoom})
-      : _feedBloc = feedBloc,
-        super(key: key);
+      required this.feedRoom});
 
   final bool isCm;
-  final FeedRoomBloc _feedBloc;
   final User user;
   final FeedRoom feedRoom;
   final VoidCallback onRefresh;
@@ -217,61 +220,45 @@ class FeedRoomEmptyView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     locator<LikeMindsService>().setFeedroomId = feedRoom.id;
-    return Scaffold(
-      backgroundColor: kBackgroundColor,
-      appBar: AppBar(
-        leading: isCm
-            ? BackButton(
-                color: Colors.white,
-                onPressed: () {
-                  onPressedBack();
-                  _feedBloc.add(GetFeedRoomList(offset: 1));
-                },
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SvgPicture.asset(
+            kAssetPostsIcon,
+            color: kGrey3Color,
+          ),
+          SizedBox(height: 12),
+          Text("No posts to show",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              )),
+          SizedBox(height: 12),
+          Text("Be the first one to post here",
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w300,
+                  color: kGrey2Color)),
+          SizedBox(height: 28),
+          NewPostButton(
+            onTap: () {
+              locator<NavigationService>()
+                  .navigateTo(
+                NewPostScreen.route,
+                arguments: NewPostScreenArguments(
+                  feedroomId: feedRoom.id,
+                  user: user,
+                ),
               )
-            : null,
-        title: Text(feedRoom.title),
-        backgroundColor: kPrimaryColor,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SvgPicture.asset(
-              kAssetPostsIcon,
-              color: kGrey3Color,
-            ),
-            SizedBox(height: 12),
-            Text("No posts to show",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                )),
-            SizedBox(height: 12),
-            Text("Be the first one to post here",
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w300,
-                    color: kGrey2Color)),
-            SizedBox(height: 28),
-            NewPostButton(
-              onTap: () {
-                locator<NavigationService>()
-                    .navigateTo(
-                  NewPostScreen.route,
-                  arguments: NewPostScreenArguments(
-                    feedroomId: feedRoom.id,
-                    user: user,
-                  ),
-                )
-                    .then((result) {
-                  if (result != null && result['isBack']) {
-                    onRefresh();
-                  }
-                });
-              },
-            ),
-          ],
-        ),
+                  .then((result) {
+                if (result != null && result['isBack']) {
+                  onRefresh();
+                }
+              });
+            },
+          ),
+        ],
       ),
     );
   }
@@ -306,72 +293,53 @@ class FeedRoomView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
-      appBar: AppBar(
-        leading: isCm
-            ? BackButton(
-                color: Colors.white,
-                onPressed: () {
-                  onPressedBack();
-                  feedRoomBloc.add(GetFeedRoomList(offset: 1));
-                },
-              )
-            : null,
-        title: Text(feedRoom.title),
-        backgroundColor: kPrimaryColor,
-      ),
-      body: RefreshIndicator(
-          onRefresh: () async {
-            feedRoomBloc.add(GetFeedRoom(feedRoomId: feedRoom.id, offset: 0));
-            //onRefresh();
-            onPressedBack();
-          },
-          child: Column(
-            children: [
-              SizedBox(height: 18),
-              Expanded(
-                child: PagedListView<int, Post>(
-                  pagingController: feedRoomPagingController,
-                  builderDelegate: PagedChildBuilderDelegate<Post>(
-                      noItemsFoundIndicatorBuilder: (context) => Scaffold(
-                          backgroundColor: kBackgroundColor,
-                          body: Center(
-                            child: const Loader(),
-                          )),
-                      itemBuilder: (context, item, index) {
-                        return ValueListenableBuilder(
-                            valueListenable: rebuildPostWidget,
-                            builder: (context, _, __) {
-                              return PostWidget(
-                                postType: 1,
-                                postDetails: item,
-                                user: feedResponse.users[item.userId]!,
-                                refresh: () async {
-                                  final GetPostResponse updatedPostDetails =
-                                      await locator<LikeMindsService>().getPost(
-                                    GetPostRequest(
-                                      postId: item.id,
-                                      page: 1,
-                                      pageSize: 10,
-                                    ),
-                                  );
-                                  item = updatedPostDetails.post!;
-                                  List<Post>? feedRoomItemList =
-                                      feedRoomPagingController.itemList;
-                                  feedRoomItemList![index] =
-                                      updatedPostDetails.post!;
-                                  feedRoomPagingController.itemList =
-                                      feedRoomItemList;
-                                  rebuildPostWidget.value =
-                                      !rebuildPostWidget.value;
-                                },
-                                //onRefresh,
+      body: Column(
+        children: [
+          SizedBox(height: 18),
+          Expanded(
+            child: PagedListView<int, Post>(
+              pagingController: feedRoomPagingController,
+              builderDelegate: PagedChildBuilderDelegate<Post>(
+                  noItemsFoundIndicatorBuilder: (context) => Scaffold(
+                      backgroundColor: kBackgroundColor,
+                      body: Center(
+                        child: const Loader(),
+                      )),
+                  itemBuilder: (context, item, index) {
+                    return ValueListenableBuilder(
+                        valueListenable: rebuildPostWidget,
+                        builder: (context, _, __) {
+                          return PostWidget(
+                            postType: 1,
+                            postDetails: item,
+                            user: feedResponse.users[item.userId]!,
+                            refresh: () async {
+                              final GetPostResponse updatedPostDetails =
+                                  await locator<LikeMindsService>().getPost(
+                                GetPostRequest(
+                                  postId: item.id,
+                                  page: 1,
+                                  pageSize: 10,
+                                ),
                               );
-                            });
-                      }),
-                ),
-              )
-            ],
-          )),
+                              item = updatedPostDetails.post!;
+                              List<Post>? feedRoomItemList =
+                                  feedRoomPagingController.itemList;
+                              feedRoomItemList![index] =
+                                  updatedPostDetails.post!;
+                              feedRoomPagingController.itemList =
+                                  feedRoomItemList;
+                              rebuildPostWidget.value =
+                                  !rebuildPostWidget.value;
+                            },
+                            //onRefresh,
+                          );
+                        });
+                  }),
+            ),
+          )
+        ],
+      ),
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
       floatingActionButton: NewPostButton(
         onTap: () {
@@ -391,57 +359,6 @@ class FeedRoomView extends StatelessWidget {
           });
         },
       ),
-    );
-  }
-}
-
-class FeedRoomListView extends StatelessWidget {
-  final FeedRoomBloc feedRoomBloc;
-  final PagingController<int, FeedRoom> pagingControllerFeedRoomList;
-  const FeedRoomListView(
-      {super.key,
-      required this.pagingControllerFeedRoomList,
-      required this.feedRoomBloc});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: kBackgroundColor,
-      appBar: AppBar(
-        title: Text("Choose FeedRoom"),
-        backgroundColor: kPrimaryColor,
-      ),
-      body: RefreshIndicator(
-          onRefresh: () async {
-            feedRoomBloc.add(GetFeedRoomList(offset: 0));
-            pagingControllerFeedRoomList.itemList!.clear();
-          },
-          child: Column(
-            children: [
-              SizedBox(height: 18),
-              Expanded(
-                child: PagedListView<int, FeedRoom>(
-                  pagingController: pagingControllerFeedRoomList,
-                  builderDelegate: PagedChildBuilderDelegate<FeedRoom>(
-                      noItemsFoundIndicatorBuilder: (context) => Scaffold(
-                          backgroundColor: kBackgroundColor,
-                          body: Center(
-                            child: const Loader(),
-                          )),
-                      itemBuilder: (context, item, index) {
-                        return FeedRoomTile(
-                            item: item,
-                            onTap: () {
-                              feedRoomBloc.add(GetFeedRoom(
-                                  feedRoomId: item.id,
-                                  feedRoomResponse: item,
-                                  offset: 1));
-                            });
-                      }),
-                ),
-              )
-            ],
-          )),
     );
   }
 }
