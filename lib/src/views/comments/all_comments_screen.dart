@@ -316,6 +316,9 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
           ),
           backgroundColor: kBackgroundColor,
           appBar: GeneralAppBar(
+              backTap: () {
+                locator<NavigationService>().goBack(result: {'isBack': false});
+              },
               autoImplyEnd: false,
               title: ValueListenableBuilder(
                   valueListenable: rebuildPostWidget,
