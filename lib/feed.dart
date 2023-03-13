@@ -152,10 +152,17 @@ class _LMFeedState extends State<LMFeed> {
                   final args = settings.arguments as ImagePreviewArguments;
                   return MaterialPageRoute(
                     builder: (context) {
-                      return ImagePreview(
-                        url: args.url,
-                        postId: args.postId,
-                      );
+                      if (args.url == null) {
+                        return ImagePreview(
+                          images: args.images,
+                          postId: args.postId,
+                        );
+                      } else {
+                        return ImagePreview(
+                          url: args.url,
+                          postId: args.postId,
+                        );
+                      }
                     },
                   );
                 }

@@ -49,16 +49,22 @@ class _PostImageState extends State<PostImage> {
         });
         locator<NavigationService>().navigateTo(
           ImagePreview.route,
-          arguments: ImagePreviewArguments(
-            url: widget.url!,
-            postId: widget.postId,
-          ),
+          arguments: widget.url == null
+              ? ImagePreviewArguments(
+                  images: widget.imagesFile,
+                  postId: widget.postId,
+                )
+              : ImagePreviewArguments(
+                  url: widget.url!,
+                  postId: widget.postId,
+                ),
         );
       },
       child: Container(
-          width: MediaQuery.of(context).size.width,
-          padding: const EdgeInsets.only(top: kPaddingMedium),
-          child: Column(children: [
+        width: MediaQuery.of(context).size.width,
+        padding: const EdgeInsets.only(top: kPaddingMedium),
+        child: Column(
+          children: [
             CarouselSlider(
               items: widget.url == null
                   ? widget.imagesFile!
@@ -148,7 +154,9 @@ class _PostImageState extends State<PostImage> {
                           }).toList(),
                   )
                 : const SizedBox(),
-          ])),
+          ],
+        ),
+      ),
     );
   }
 }
