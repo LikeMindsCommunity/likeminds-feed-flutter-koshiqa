@@ -9,7 +9,7 @@ class PostHeader extends StatelessWidget {
   final PostUser user;
   final Post postDetails;
   final List<PopupMenuItemModel> menuItems;
-  final Function() refresh;
+  final Function(bool) refresh;
 
   const PostHeader(
       {super.key,

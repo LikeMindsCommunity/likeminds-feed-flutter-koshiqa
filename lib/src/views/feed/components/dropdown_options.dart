@@ -12,7 +12,7 @@ import 'package:likeminds_feed/likeminds_feed.dart' as sdk;
 class DropdownOptions extends StatelessWidget {
   final Post postDetails;
   final List<PopupMenuItemModel> menuItems;
-  final Function() refresh;
+  final Function(bool) refresh;
 
   DropdownOptions({
     super.key,
@@ -55,7 +55,7 @@ class DropdownOptions extends StatelessWidget {
                         ),
                       );
                       print(response.toString());
-                      refresh();
+                      refresh(true);
                     } else if (element.title.split(' ').first == "Pin") {
                       print("Pinning functionality");
                     }

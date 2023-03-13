@@ -6,7 +6,6 @@ import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_image_shimmer.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_view/photo_view.dart';
 
 class ImagePreview extends StatefulWidget {
   static const route = '/image_preview';

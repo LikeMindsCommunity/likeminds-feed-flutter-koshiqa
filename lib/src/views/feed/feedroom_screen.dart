@@ -272,13 +272,18 @@ class _FeedRoomEmptyViewState extends State<FeedRoomEmptyView> {
                             ],
                           ),
                           SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                value: imageUploadProgress / imageFiles.length,
-                                backgroundColor: kGrey3Color,
-                                valueColor: AlwaysStoppedAnimation(kLinkColor),
-                              )),
+                            height: 20,
+                            width: 20,
+                            child: imageFiles != null && imageFiles.isNotEmpty
+                                ? CircularProgressIndicator(
+                                    value:
+                                        imageUploadProgress / imageFiles.length,
+                                    backgroundColor: kGrey3Color,
+                                    valueColor:
+                                        AlwaysStoppedAnimation(kLinkColor),
+                                  )
+                                : CircularProgressIndicator(),
+                          ),
                         ]),
                   ),
                 );
@@ -420,13 +425,18 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                             ],
                           ),
                           SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                value: imageUploadProgress / imageFiles.length,
-                                backgroundColor: kGrey3Color,
-                                valueColor: AlwaysStoppedAnimation(kLinkColor),
-                              )),
+                            height: 20,
+                            width: 20,
+                            child: imageFiles != null && imageFiles.isNotEmpty
+                                ? CircularProgressIndicator(
+                                    value:
+                                        imageUploadProgress / imageFiles.length,
+                                    backgroundColor: kGrey3Color,
+                                    valueColor:
+                                        AlwaysStoppedAnimation(kLinkColor),
+                                  )
+                                : CircularProgressIndicator(),
+                          ),
                         ]),
                   );
                 } else {
@@ -451,24 +461,29 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                             postType: 1,
                             postDetails: item,
                             user: widget.feedResponse.users[item.userId]!,
-                            refresh: () async {
-                              final GetPostResponse updatedPostDetails =
-                                  await locator<LikeMindsService>().getPost(
-                                GetPostRequest(
-                                  postId: item.id,
-                                  page: 1,
-                                  pageSize: 10,
-                                ),
-                              );
-                              item = updatedPostDetails.post!;
-                              List<Post>? feedRoomItemList =
-                                  widget.feedRoomPagingController.itemList;
-                              feedRoomItemList![index] =
-                                  updatedPostDetails.post!;
-                              widget.feedRoomPagingController.itemList =
-                                  feedRoomItemList;
-                              rebuildPostWidget.value =
-                                  !rebuildPostWidget.value;
+                            refresh: (bool isDeleted) async {
+                              if (!isDeleted) {
+                                final GetPostResponse updatedPostDetails =
+                                    await locator<LikeMindsService>().getPost(
+                                  GetPostRequest(
+                                    postId: item.id,
+                                    page: 1,
+                                    pageSize: 10,
+                                  ),
+                                );
+                                item = updatedPostDetails.post!;
+                                List<Post>? feedRoomItemList =
+                                    widget.feedRoomPagingController.itemList;
+                                feedRoomItemList![index] =
+                                    updatedPostDetails.post!;
+                                widget.feedRoomPagingController.itemList =
+                                    feedRoomItemList;
+                                rebuildPostWidget.value =
+                                    !rebuildPostWidget.value;
+                              } else {
+                                widget.onRefresh();
+                                widget.onPressedBack();
+                              }
                             },
                             //onRefresh,
                           );
