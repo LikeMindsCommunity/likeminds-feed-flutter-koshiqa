@@ -42,6 +42,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
   late final FeedRoomBloc feedBloc;
   late final int feedRoomId;
   List<Attachment> attachments = [];
+  List<File> croppedImages = [];
 
   List<UserTag> userTags = [];
   String? result;
@@ -94,24 +95,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
                   'Create a Post',
                   style: TextStyle(fontSize: 18, color: kGrey1Color),
                 ),
-                // TextButton(
-                //   onPressed: () async {
-                //     if (_controller != null && _controller!.text.isNotEmpty) {
-                //       userTags =
-                //           TaggingHelper.matchTags(_controller!.text, userTags);
-                //       result = TaggingHelper.encodeString(
-                //           _controller!.text, userTags);
-                //       final AddPostRequest request = AddPostRequest(
-                //         text: result!,
-                //         attachments: attachments,
-                //         feedroomId: feedRoomId,
-                //       );
-                //     },
-                //   ),
-                //   const Text(
-                //     'Create a Post',
-                //     style: TextStyle(fontSize: 18, color: kGrey1Color),
-                //   ),
                 TextButton(
                   onPressed: () async {
                     if (_controller != null) {
@@ -119,29 +102,12 @@ class _NewPostScreenState extends State<NewPostScreen> {
                           TaggingHelper.matchTags(_controller!.text, userTags);
                       result = TaggingHelper.encodeString(
                           _controller!.text, userTags);
-                      final AddPostRequest request = AddPostRequest(
-                        text: result ?? '',
-                        attachments: attachments,
-                        feedroomId: feedRoomId,
-                      );
-                      final AddPostResponse response =
-                          await locator<LikeMindsService>().addPost(request);
-                      if (response.success) {
-                        LMAnalytics.get()
-                            .track(AnalyticsKeys.postCreationCompleted, {
-                          "user_tagged": "no",
-                          "link_attached": "no",
-                          "image_attached": {
-                            "yes": {"image_count": attachments.length},
-                          },
-                          "video_attached": "no",
-                          "document_attached": "no",
-                        });
-                        locator<NavigationService>().goBack(result: {
-                          "feedroomId": feedRoomId,
-                          "isBack": true,
-                        });
-                      }
+                      locator<NavigationService>().goBack(result: {
+                        "feedroomId": feedRoomId,
+                        "isBack": true,
+                        "imageFiles": croppedImages,
+                        "result": result
+                      });
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -204,7 +170,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
             ),
             const Spacer(),
             if (isUploading) const Loader(),
-            if (uploaded && attachments.isNotEmpty)
+            if (uploaded &&
+                (attachments.isNotEmpty || croppedImages.isNotEmpty))
               Expanded(
                 child: LayoutBuilder(builder: (
                   context,
@@ -214,9 +181,10 @@ class _NewPostScreenState extends State<NewPostScreen> {
                     alignment: Alignment.bottomRight,
                     child: PostImage(
                         height: min(constraints.maxHeight, screenSize!.width),
-                        url: attachments
-                            .map((e) => e.attachmentMeta.url.toString())
-                            .toList(),
+                        // url: attachments
+                        //     .map((e) => e.attachmentMeta.url.toString())
+                        //     .toList(),
+                        imagesFile: croppedImages,
                         postId: ''),
                   );
                 }),
@@ -246,8 +214,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
                   });
                 }
               },
-              addAttachment: (Attachment attachment) {
-                attachments.add(attachment);
+              croppedImages: (List<File> images) {
+                croppedImages = images;
               },
             )
           ]),
@@ -263,7 +231,7 @@ class AddAssetsButton extends StatelessWidget {
   final ImagePicker picker;
   final Function(bool uploadResponse) onUploaded;
   final Function() uploading;
-  final Function(Attachment) addAttachment;
+  final Function(List<File>) croppedImages;
 
   const AddAssetsButton({
     super.key,
@@ -272,48 +240,23 @@ class AddAssetsButton extends StatelessWidget {
     required this.picker,
     required this.onUploaded,
     required this.uploading,
-    required this.addAttachment,
+    required this.croppedImages,
   });
-
-  void uploadImages(List<File> croppedFiles) async {
-    for (final image in croppedFiles) {
-      try {
-        File file = File.fromUri(Uri(path: image.path));
-        final String? response =
-            await locator<LikeMindsService>().uploadFile(file);
-        if (response != null) {
-          addAttachment(Attachment(
-            attachmentType: 1,
-            attachmentMeta: AttachmentMeta(
-              url: response,
-            ),
-          ));
-        } else {
-          throw ('Error uploading file');
-        }
-      } catch (e) {
-        print(e);
-      }
-    }
-    onUploaded(true);
-  }
 
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
     return GestureDetector(
       onTap: () async {
         uploading();
         final list = await picker.pickMultiImage();
-        List<File> croppedFiles = [];
         MultiImageCrop.startCropping(
           context: context,
           activeColor: kWhiteColor,
           files: list.map((e) => File(e.path)).toList(),
           aspectRatio: 1.0,
           callBack: (List<File> images) {
-            croppedFiles = images;
-            uploadImages(croppedFiles);
+            croppedImages(images);
+            onUploaded(true);
           },
         );
       },
