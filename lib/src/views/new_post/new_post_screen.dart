@@ -94,33 +94,49 @@ class _NewPostScreenState extends State<NewPostScreen> {
                   'Create a Post',
                   style: TextStyle(fontSize: 18, color: kGrey1Color),
                 ),
+                // TextButton(
+                //   onPressed: () async {
+                //     if (_controller != null && _controller!.text.isNotEmpty) {
+                //       userTags =
+                //           TaggingHelper.matchTags(_controller!.text, userTags);
+                //       result = TaggingHelper.encodeString(
+                //           _controller!.text, userTags);
+                //       final AddPostRequest request = AddPostRequest(
+                //         text: result!,
+                //         attachments: attachments,
+                //         feedroomId: feedRoomId,
+                //       );
+                //     },
+                //   ),
+                //   const Text(
+                //     'Create a Post',
+                //     style: TextStyle(fontSize: 18, color: kGrey1Color),
+                //   ),
                 TextButton(
                   onPressed: () async {
-                    if (_controller != null && _controller!.text.isNotEmpty) {
+                    if (_controller != null) {
                       userTags =
                           TaggingHelper.matchTags(_controller!.text, userTags);
                       result = TaggingHelper.encodeString(
                           _controller!.text, userTags);
                       final AddPostRequest request = AddPostRequest(
-                        text: result!,
+                        text: result ?? '',
                         attachments: attachments,
                         feedroomId: feedRoomId,
                       );
                       final AddPostResponse response =
                           await locator<LikeMindsService>().addPost(request);
                       if (response.success) {
-                        LMAnalytics.get().track(
-                          AnalyticsKeys.postCreationCompleted,
-                          {
-                            "user_tagged": "no",
-                            "link_attached": "no",
-                            "image_attached": {
-                              "yes": {"image_count": attachments.length},
-                            },
-                            "video_attached": "no",
-                            "document_attached": "no",
+                        LMAnalytics.get()
+                            .track(AnalyticsKeys.postCreationCompleted, {
+                          "user_tagged": "no",
+                          "link_attached": "no",
+                          "image_attached": {
+                            "yes": {"image_count": attachments.length},
                           },
-                        );
+                          "video_attached": "no",
+                          "document_attached": "no",
+                        });
                         locator<NavigationService>().goBack(result: {
                           "feedroomId": feedRoomId,
                           "isBack": true,
@@ -186,7 +202,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
                 print(p0);
               },
             ),
-
             const Spacer(),
             if (isUploading) const Loader(),
             if (uploaded && attachments.isNotEmpty)
@@ -206,20 +221,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
                   );
                 }),
               ),
-
-            // Expanded(
-            //   child: Container(
-            //     decoration: BoxDecoration(
-            //       borderRadius: BorderRadius.circular(8),
-            //       color: kGrey2Color.withOpacity(0.2),
-            //       image: DecorationImage(
-            //         fit: BoxFit.cover,
-            //         image:
-            //             NetworkImage(attachments.first.attachmentMeta.url!),
-            //       ),
-            //     ),
-            //   ),
-            // ),
             kVerticalPaddingSmall,
             AddAssetsButton(
               leading: SvgPicture.asset(
@@ -306,14 +307,15 @@ class AddAssetsButton extends StatelessWidget {
         final list = await picker.pickMultiImage();
         List<File> croppedFiles = [];
         MultiImageCrop.startCropping(
-            context: context,
-            activeColor: kWhiteColor,
-            files: list.map((e) => File(e.path)).toList(),
-            aspectRatio: 1.0,
-            callBack: (List<File> images) {
-              croppedFiles = images;
-              uploadImages(croppedFiles);
-            });
+          context: context,
+          activeColor: kWhiteColor,
+          files: list.map((e) => File(e.path)).toList(),
+          aspectRatio: 1.0,
+          callBack: (List<File> images) {
+            croppedFiles = images;
+            uploadImages(croppedFiles);
+          },
+        );
       },
       child: Container(
         height: 72,

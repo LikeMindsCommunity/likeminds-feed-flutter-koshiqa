@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
+import 'package:feed_sx/src/views/feed/components/post/post_media/post_image_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 
@@ -53,7 +54,14 @@ class _ImagePreviewState extends State<ImagePreview> {
                       CarouselSlider(
                         items: widget.url
                             .map((e) => CachedNetworkImage(
-                                imageUrl: e, fit: BoxFit.cover))
+                                imageUrl: e,
+                                fit: BoxFit.cover,
+                                fadeInDuration: const Duration(
+                                  milliseconds: 200,
+                                ),
+                                progressIndicatorBuilder:
+                                    (context, url, progress) =>
+                                        getPostShimmer(screenSize!)))
                             .toList(),
                         options: CarouselOptions(
                             aspectRatio: 1.0,
@@ -94,7 +102,13 @@ class _ImagePreviewState extends State<ImagePreview> {
                 : SizedBox(
                     width: screenSize!.width,
                     child: CachedNetworkImage(
-                        imageUrl: widget.url[0], fit: BoxFit.cover),
+                        imageUrl: widget.url[0],
+                        fit: BoxFit.cover,
+                        fadeInDuration: const Duration(
+                          milliseconds: 200,
+                        ),
+                        progressIndicatorBuilder: (context, url, progress) =>
+                            getPostShimmer(screenSize!)),
                   ),
           )),
     );

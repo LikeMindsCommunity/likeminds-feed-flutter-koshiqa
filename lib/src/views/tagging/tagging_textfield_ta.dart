@@ -62,7 +62,9 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
     String currentText = query.trim();
     if (query.isEmpty) {
       return const Iterable.empty();
-    } else if (!tagComplete && currentText.length > 0) {
+    } else if (!tagComplete &&
+        currentText.length > 0 &&
+        currentText.contains('@')) {
       return userTags.where((tag) {
         if (tagCount > 1) {
           int index = currentText.nThIndexOf('@', tagCount);
@@ -108,11 +110,14 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
           _scrollController.addListener(() {
             if (_scrollController.position.pixels ==
                 _scrollController.position.maxScrollExtent) {
-              taggingBloc.add(GetTaggingListEvent(
+              taggingBloc.add(
+                GetTaggingListEvent(
                   feedroomId: widget.feedroomId,
                   page: page,
                   limit: TaggingBloc.FIXED_SIZE,
-                  isPaginationEvent: true));
+                  isPaginationEvent: true,
+                ),
+              );
             }
           });
           return TypeAheadField<UserTag>(
@@ -121,7 +126,7 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
             },
             suggestionsBoxController: _suggestionsBoxController,
             suggestionsBoxDecoration: SuggestionsBoxDecoration(
-              elevation: 0,
+              elevation: 4,
               constraints: BoxConstraints(
                 maxHeight: MediaQuery.of(context).size.height * 0.22,
               ),
@@ -165,23 +170,25 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(12),
                     child: Row(
                       children: [
                         ProfilePicture(
-                            user: PostUser(
-                          id: opt.id!,
-                          imageUrl: opt.imageUrl!,
-                          name: opt.name!,
-                          userUniqueId: opt.userUniqueId!,
-                          isGuest: opt.isGuest!,
-                          isDeleted: false,
-                        )),
+                          user: PostUser(
+                            id: opt.id!,
+                            imageUrl: opt.imageUrl!,
+                            name: opt.name!,
+                            userUniqueId: opt.userUniqueId!,
+                            isGuest: opt.isGuest!,
+                            isDeleted: false,
+                          ),
+                          size: 36,
+                        ),
                         const SizedBox(width: 12),
                         Text(
                           opt.name!,
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 14,
                           ),
                         ),
                       ],
