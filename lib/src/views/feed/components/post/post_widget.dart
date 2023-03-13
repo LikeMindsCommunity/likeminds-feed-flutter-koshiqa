@@ -11,7 +11,7 @@ class PostWidget extends StatefulWidget {
   final PostUser user;
   final int postType;
   final bool showActions;
-  final Function() refresh;
+  final Function(bool) refresh;
   final bool isFeed;
 
   const PostWidget({
@@ -32,7 +32,7 @@ class _PostWidgetState extends State<PostWidget> {
   Post? postDetails;
   late final PostUser user;
   late final bool showActions;
-  late final Function() refresh;
+  late final Function(bool) refresh;
   late bool isFeed;
 
   @override

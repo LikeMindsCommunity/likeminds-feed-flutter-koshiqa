@@ -12,7 +12,7 @@ import 'package:overlay_support/overlay_support.dart';
 
 class PostActions extends StatefulWidget {
   final Post postDetails;
-  final Function() refresh;
+  final Function(bool) refresh;
   final bool isFeed;
 
   const PostActions({
@@ -33,7 +33,7 @@ class _PostActionsState extends State<PostActions> {
   int comments = 0;
   Post? postDetails;
   late bool isLiked, isFeed;
-  late Function() refresh;
+  late Function(bool) refresh;
   ValueNotifier<bool> rebuildLikeWidget = ValueNotifier(false);
 
   setPostDetails() {
@@ -142,14 +142,19 @@ class _PostActionsState extends State<PostActions> {
                           "comment_count": postDetails!.commentCount.toString(),
                         },
                       );
-                      Navigator.pushNamed(
-                        context,
+                      locator<NavigationService>()
+                          .navigateTo(
                         AllCommentsScreen.route,
                         arguments: AllCommentsScreenArguments(
                           post: postDetails!,
                           feedroomId: locator<LikeMindsService>().getFeedroomId,
                         ),
-                      ).then((value) => refresh());
+                      )
+                          .then((result) {
+                        if (result != null && result['isBack'] != null) {
+                          refresh(result['isBack']);
+                        }
+                      });
                     }
                   : () {},
               icon: SvgPicture.asset(kAssetCommentIcon,

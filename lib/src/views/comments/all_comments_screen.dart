@@ -107,7 +107,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () {
-        locator<NavigationService>().goBack();
+        locator<NavigationService>().goBack(result: {'isBack': false});
         return Future(() => false);
       },
       child: Scaffold(
@@ -316,6 +316,9 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
           ),
           backgroundColor: kBackgroundColor,
           appBar: GeneralAppBar(
+              backTap: () {
+                locator<NavigationService>().goBack(result: {'isBack': false});
+              },
               autoImplyEnd: false,
               title: ValueListenableBuilder(
                   valueListenable: rebuildPostWidget,
@@ -386,8 +389,9 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                         postDetailResponse.postReplies.userId]!,
                                     postType: 0,
                                     isFeed: false,
-                                    refresh: () {
-                                      locator<NavigationService>().goBack();
+                                    refresh: (bool isDeleted) {
+                                      locator<NavigationService>().goBack(
+                                          result: {'isBack': isDeleted});
                                     },
                                   );
                                 })),
