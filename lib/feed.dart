@@ -4,6 +4,7 @@ library feed;
 
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/credentials/credentials.dart';
+import 'package:feed_sx/src/views/feed/feedroom_list_screen.dart';
 import 'package:feed_sx/src/views/previews/image_preview.dart';
 import 'package:feed_sx/src/views/tagging_test.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
@@ -164,10 +165,15 @@ class _LMFeedState extends State<LMFeed> {
                 initialData: null,
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                   if (snapshot.hasData) {
-                    return FeedRoomScreen(
-                      isCm: snapshot.data,
-                      user: user!,
-                    );
+                    if (snapshot.data) {
+                      return FeedRoomListScreen(user: user!);
+                    } else {
+                      return FeedRoomScreen(
+                        isCm: snapshot.data,
+                        user: user!,
+                        feedRoomId: DUMMY_FEEDROOM,
+                      );
+                    }
                     // return TaggingTestView();
                   }
 

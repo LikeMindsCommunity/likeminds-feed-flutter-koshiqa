@@ -52,26 +52,6 @@ class FeedRoomBloc extends Bloc<FeedRoomEvent, FeedRoomState> {
         } catch (e) {
           emit(FeedRoomError(message: e.toString()));
         }
-      } else if (event is GetFeedRoomList) {
-        event.isPaginationLoading
-            ? emit(PaginationLoading())
-            : emit(FeedRoomLoading());
-        try {
-          GetFeedRoomResponse? response = await locator<LikeMindsService>()
-              .getFeedRoom(GetFeedRoomRequest(page: event.offset));
-          final List<FeedRoom> feedList = response.chatrooms!;
-
-          if (response.success) {
-            emit(FeedRoomListLoaded(
-              feedList: feedList,
-              size: feedList.length,
-            ));
-          }
-        } catch (e) {
-          emit(FeedRoomError(
-            message: "${e.toString()} No data found",
-          ));
-        }
       }
     });
   }

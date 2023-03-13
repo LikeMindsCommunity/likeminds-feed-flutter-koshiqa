@@ -32,18 +32,6 @@ class FeedRoomLoaded extends FeedRoomState {
   List<Object> get props => [feedRoom, feed];
 }
 
-class FeedRoomListLoaded extends FeedRoomState {
-  final List<FeedRoom> feedList;
-  final int size;
-  const FeedRoomListLoaded({required this.feedList, required this.size});
-  @override
-  List<Object> get props => [feedList];
-}
-
-class FeedRoomListLoading extends FeedRoomState {}
-
-class FeedRoomListEmpty extends FeedRoomState {}
-
 class FeedRoomError extends FeedRoomState {
   final String message;
   FeedRoomError({required this.message});

@@ -21,10 +21,3 @@ class GetFeedRoom extends FeedRoomEvent {
   @override
   List<Object> get props => [feedRoomId];
 }
-
-class GetFeedRoomList extends FeedRoomEvent {
-  final int offset;
-  final bool isPaginationLoading;
-  const GetFeedRoomList(
-      {required this.offset, this.isPaginationLoading = false});
-}
