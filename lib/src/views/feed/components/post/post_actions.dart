@@ -12,7 +12,7 @@ import 'package:overlay_support/overlay_support.dart';
 
 class PostActions extends StatefulWidget {
   final Post postDetails;
-  final Function() refresh;
+  final Function(bool) refresh;
   final bool isFeed;
 
   const PostActions({
@@ -31,23 +31,23 @@ class PostActions extends StatefulWidget {
 class _PostActionsState extends State<PostActions> {
   int postLikes = 0;
   int comments = 0;
-  late final Post postDetails;
+  Post? postDetails;
   late bool isLiked, isFeed;
-  late Function() refresh;
+  late Function(bool) refresh;
+  ValueNotifier<bool> rebuildLikeWidget = ValueNotifier(false);
 
-  @override
-  void initState() {
-    super.initState();
+  setPostDetails() {
     postDetails = widget.postDetails;
-    postLikes = postDetails.likeCount;
-    comments = postDetails.commentCount;
-    isLiked = postDetails.isLiked;
+    postLikes = postDetails!.likeCount;
+    comments = postDetails!.commentCount;
+    isLiked = postDetails!.isLiked;
     refresh = widget.refresh;
     isFeed = widget.isFeed;
   }
 
   @override
   Widget build(BuildContext context) {
+    setPostDetails();
     return Row(
       children: [
         Row(
@@ -59,17 +59,16 @@ class _PostActionsState extends State<PostActions> {
                   enableFeedback: false,
                   splashColor: Colors.transparent,
                   onPressed: () async {
-                    setState(() {
-                      if (isLiked) {
-                        postLikes--;
-                      } else {
-                        postLikes++;
-                      }
-                      isLiked = !isLiked;
-                      // refresh();
-                    });
+                    if (isLiked) {
+                      postLikes--;
+                    } else {
+                      postLikes++;
+                    }
+                    isLiked = !isLiked;
+                    rebuildLikeWidget.value = !rebuildLikeWidget.value;
+
                     final response = await locator<LikeMindsService>()
-                        .likePost(LikePostRequest(postId: postDetails.id));
+                        .likePost(LikePostRequest(postId: postDetails!.id));
                     if (!response.success) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -82,44 +81,52 @@ class _PostActionsState extends State<PostActions> {
                           backgroundColor: Colors.grey.shade500,
                         ),
                       );
-                      setState(() {
-                        if (isLiked) {
-                          postLikes--;
-                        } else {
-                          postLikes++;
-                        }
-                        isLiked = !isLiked;
-                        // refresh();
-                      });
+
+                      if (isLiked) {
+                        postLikes--;
+                      } else {
+                        postLikes++;
+                      }
+                      isLiked = !isLiked;
+                      // refresh();
+                      rebuildLikeWidget.value = !rebuildLikeWidget.value;
                     }
                   },
-                  icon: isLiked
-                      ? SvgPicture.asset(kAssetLikeFilledIcon,
-                          height: 28, width: 28)
-                      : SvgPicture.asset(kAssetLikeIcon,
-                          height: 21.5, width: 21.5),
+                  icon: ValueListenableBuilder(
+                      valueListenable: rebuildLikeWidget,
+                      builder: (context, _, __) {
+                        return isLiked
+                            ? SvgPicture.asset(kAssetLikeFilledIcon,
+                                height: 28, width: 28)
+                            : SvgPicture.asset(kAssetLikeIcon,
+                                height: 21.5, width: 21.5);
+                      }),
                   color: isLiked ? Colors.red : kGrey2Color,
                 ),
                 GestureDetector(
                   onTap: () async {
                     final response = await locator<LikeMindsService>()
                         .getPostLikes(
-                            GetPostLikesRequest(postId: postDetails.id));
+                            GetPostLikesRequest(postId: postDetails!.id));
                     Navigator.push(context, MaterialPageRoute(
                       builder: (context) {
                         return LikesScreen(
                           response: response,
-                          postId: postDetails.id,
+                          postId: postDetails!.id,
                         );
                       },
                     ));
                   },
-                  child: Text(
-                    postLikes > 0
-                        ? "$postLikes ${postLikes > 1 ? kStringLikes : kStringLike}"
-                        : kStringLike,
-                    style: const TextStyle(fontSize: 14),
-                  ),
+                  child: ValueListenableBuilder(
+                      valueListenable: rebuildLikeWidget,
+                      builder: (context, _, __) {
+                        return Text(
+                          postLikes > 0
+                              ? "$postLikes ${postLikes > 1 ? kStringLikes : kStringLike}"
+                              : kStringLike,
+                          style: const TextStyle(fontSize: 14),
+                        );
+                      }),
                 ),
               ],
             ),
@@ -131,18 +138,23 @@ class _PostActionsState extends State<PostActions> {
                       LMAnalytics.get().logEvent(
                         AnalyticsKeys.commentListOpen,
                         {
-                          "post_id": postDetails.id,
-                          "comment_count": postDetails.commentCount.toString(),
+                          "post_id": postDetails!.id,
+                          "comment_count": postDetails!.commentCount.toString(),
                         },
                       );
-                      Navigator.pushNamed(
-                        context,
+                      locator<NavigationService>()
+                          .navigateTo(
                         AllCommentsScreen.route,
                         arguments: AllCommentsScreenArguments(
-                          post: postDetails,
+                          post: postDetails!,
                           feedroomId: locator<LikeMindsService>().getFeedroomId,
                         ),
-                      ).then((value) => refresh());
+                      )
+                          .then((result) {
+                        if (result != null && result['isBack'] != null) {
+                          refresh(result['isBack']);
+                        }
+                      });
                     }
                   : () {},
               icon: SvgPicture.asset(kAssetCommentIcon,

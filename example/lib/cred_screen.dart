@@ -60,6 +60,7 @@ class _CredScreenState extends State<CredScreen> {
             const SizedBox(height: 18),
             TextField(
               cursorColor: Colors.white,
+              style: const TextStyle(color: Colors.white),
               controller: _usernameController,
               decoration: InputDecoration(
                 fillColor: Colors.white,
@@ -75,7 +76,9 @@ class _CredScreenState extends State<CredScreen> {
             ),
             const SizedBox(height: 12),
             TextField(
+              cursorColor: Colors.white,
               controller: _userIdController,
+              style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
                   fillColor: Colors.white,
                   focusColor: Colors.white,

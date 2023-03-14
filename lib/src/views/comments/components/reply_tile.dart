@@ -89,8 +89,10 @@ class _ReplyTileState extends State<ReplyTile> {
             ],
           ),
           kVerticalPaddingSmall,
-          ExpandableText(widget.reply.text,
-              expandText: 'show more', collapseText: 'show less'),
+          ExpandableText(
+            widget.reply.text,
+            expandText: 'show more',
+          ),
           kVerticalPaddingLarge,
           Row(
             children: [
