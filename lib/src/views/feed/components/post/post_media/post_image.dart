@@ -95,7 +95,7 @@ class _PostImageState extends State<PostImage> {
                   enlargeFactor: 0.0,
                   viewportFraction: 1.0,
                   height: widget.height != null
-                      ? max(widget.height! - 30, 0)
+                      ? max(widget.height! - 38, 0)
                       : screenSize!.width,
                   onPageChanged: (index, reason) {
                     setState(() {
