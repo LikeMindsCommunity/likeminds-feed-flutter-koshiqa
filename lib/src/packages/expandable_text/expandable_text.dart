@@ -251,11 +251,15 @@ class ExpandableTextState extends State<ExpandableText>
               : TextSpan(
                   children: _expanded
                       ? extractLinksAndTags(widget.text)
-                      : extractLinksAndTags(
-                          TaggingHelper.decodeString(widget.text)
-                              .keys
-                              .first
-                              .substring(0, max(endOffset, 0))));
+                      : widget.text.contains('<<')
+                          ? extractLinksAndTags(
+                              TaggingHelper.decodeString(widget.text)
+                                  .keys
+                                  .first
+                                  .substring(0, max(endOffset, 0)))
+                          : extractLinksAndTags(
+                              widget.text.substring(0, max(endOffset, 0))),
+                );
 
           textSpan = TextSpan(
             style: effectiveTextStyle,

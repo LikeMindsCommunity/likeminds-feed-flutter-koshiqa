@@ -32,7 +32,7 @@ class TaggingAheadTextField extends StatefulWidget {
 
 class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
   final TextEditingController _controller = TextEditingController();
-  final FocusNode _focusNode = FocusNode();
+  // final FocusNode _focusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
   final SuggestionsBoxController _suggestionsBoxController =
       SuggestionsBoxController();
@@ -69,7 +69,7 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
   TextEditingController? get controller => _controller;
 
   FutureOr<Iterable<UserTag>> _getSuggestions(String query) async {
-    String currentText = query.trim();
+    String currentText = query;
     if (currentText.isEmpty) {
       return const Iterable.empty();
     } else if (!tagComplete && currentText.contains('@')) {
@@ -113,7 +113,7 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
         scrollController: _scrollController,
         textFieldConfiguration: TextFieldConfiguration(
           controller: _controller,
-          focusNode: _focusNode,
+          // focusNode: _focusNode,
           minLines: 2,
           maxLines: 100,
           decoration: widget.decoration ??
@@ -122,11 +122,13 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
                 border: InputBorder.none,
               ),
           onChanged: ((value) {
-            // widget.onChange!(value);
+            widget.onChange!(value);
             final int newTagCount = '@'.allMatches(value).length;
             if (tagCount != newTagCount && value.contains('@')) {
+              // setState(() {
               tagValue = value.substring(value.lastIndexOf('@'));
               tagComplete = false;
+              // });
             } else {
               textValue = _controller.value.text;
               print(textValue);
@@ -134,7 +136,11 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
           }),
         ),
         direction: widget.isDown ? AxisDirection.down : AxisDirection.up,
-        suggestionsCallback: (suggestion) => _getSuggestions(suggestion),
+        suggestionsCallback: (suggestion) async {
+          var str = suggestion;
+          return await _getSuggestions(suggestion);
+        },
+        keepSuggestionsOnSuggestionSelected: true,
         itemBuilder: ((context, opt) {
           return Container(
             decoration: const BoxDecoration(
@@ -183,13 +189,11 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
           setState(() {
             tagComplete = true;
             tagCount = '@'.allMatches(_controller.text).length;
+            // _controller.text.substring(_controller.text.lastIndexOf('@'));
             textValue += "@${suggestion.name!}~";
             _controller.text = textValue + " ";
             tagValue = '';
           });
-          if (_focusNode.canRequestFocus) {
-            // _focusNode.requestFocus();
-          }
         }),
       ),
     );
