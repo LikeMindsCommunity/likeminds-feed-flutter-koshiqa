@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 class AllCommentsScreenArguments {
@@ -26,9 +28,11 @@ class NewPostScreenArguments {
 
 class ImagePreviewArguments {
   final String postId;
-  final String url;
+  final List<String>? url;
+  final List<File>? images;
   ImagePreviewArguments({
-    required this.url,
+    this.url,
+    this.images,
     required this.postId,
   });
 }

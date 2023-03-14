@@ -1,7 +1,8 @@
 import 'package:collection/collection.dart';
+import 'package:feed_sx/src/packages/expandable_text/expandable_text.dart';
 import 'package:feed_sx/src/utils/constants/string_constants.dart';
 import 'package:feed_sx/src/views/comments/components/dropdown_options_comment.dart';
-import 'package:feed_sx/src/widgets/text_with_links.dart';
+import 'package:feed_sx/src/widgets/profile_picture.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
@@ -75,11 +76,13 @@ class _CommentTileState extends State<CommentTile>
         children: [
           Row(
             children: [
+              ProfilePicture(user: user, size: 28),
+              kHorizontalPaddingMedium,
               Text(
                 user.name,
                 style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 14.5,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               const Spacer(),
@@ -91,11 +94,10 @@ class _CommentTileState extends State<CommentTile>
               ),
             ],
           ),
-          kVerticalPaddingSmall,
-          TextWithLinks(
-            text: reply.text,
-            // expandText: 'show more',
-            // collapseText: 'show less',
+          kVerticalPaddingMedium,
+          ExpandableText(
+            reply.text,
+            expandText: 'show more',
           ),
           kVerticalPaddingLarge,
           Row(
@@ -270,9 +272,6 @@ class _CommentTileState extends State<CommentTile>
                 }
                 return Container(
                   padding: const EdgeInsets.only(left: 48),
-                  // width: MediaQuery.of(context).size.width,
-                  // constraints: BoxConstraints(
-                  //     maxHeight: MediaQuery.of(context).size.height * 0.5),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,

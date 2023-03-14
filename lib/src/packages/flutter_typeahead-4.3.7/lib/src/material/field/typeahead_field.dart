@@ -522,14 +522,14 @@ class TypeAheadField<T> extends StatefulWidget {
   // Adds a callback for the suggestion box opening or closing
   final void Function(bool)? onSuggestionsBoxToggle;
 
-  final void Function(dynamic) onTagTap;
+  final void Function(dynamic)? onTagTap;
 
   /// Creates a [TypeAheadField]
   TypeAheadField({
     required this.suggestionsCallback,
     required this.itemBuilder,
     required this.onSuggestionSelected,
-    required this.onTagTap,
+    this.onTagTap,
     this.textFieldConfiguration = const TextFieldConfiguration(),
     this.suggestionsBoxDecoration = const SuggestionsBoxDecoration(),
     this.debounceDuration = const Duration(milliseconds: 300),
@@ -764,7 +764,7 @@ class _TypeAheadFieldState<T> extends State<TypeAheadField<T>>
           getImmediateSuggestions: widget.getImmediateSuggestions,
           onSuggestionSelected: (T selection) {
             if (!widget.keepSuggestionsOnSuggestionSelected) {
-              this._effectiveFocusNode!.unfocus();
+              // this._effectiveFocusNode!.unfocus();
               this._suggestionsBox!.close();
             }
             widget.onSuggestionSelected(selection);
@@ -852,8 +852,7 @@ class _TypeAheadFieldState<T> extends State<TypeAheadField<T>>
       link: this._layerLink,
       child: ExtendedTextField(
         specialTextSpanBuilder: MySpecialTextSpanBuilder(
-          showAtBackground: true,
-          onTagTap: widget.onTagTap,
+          onTagTap: widget.onTagTap ?? null,
         ),
         focusNode: this._effectiveFocusNode,
         controller: this._effectiveController,
@@ -896,7 +895,7 @@ class _TypeAheadFieldState<T> extends State<TypeAheadField<T>>
 class AtText extends SpecialText {
   static const String flag = "@";
   @override
-  final SpecialTextGestureTapCallback onTap;
+  final SpecialTextGestureTapCallback? onTap;
   final int start;
 
   /// whether show background for @somebody
@@ -906,7 +905,7 @@ class AtText extends SpecialText {
     TextStyle textStyle, {
     this.showAtBackground = false,
     required this.start,
-    required this.onTap,
+    this.onTap,
   }) : super(
           flag,
           "~",
@@ -925,7 +924,7 @@ class AtText extends SpecialText {
 
     return showAtBackground
         ? BackgroundTextSpan(
-            background: Paint()..color = Colors.blue.withOpacity(0.15),
+            background: Paint()..color = Colors.white,
             text: atTextWithoutFlag,
             actualText: atText,
             start: start,
@@ -935,7 +934,7 @@ class AtText extends SpecialText {
             style: textStyle,
             recognizer: (TapGestureRecognizer()
               ..onTap = () {
-                if (onTap != null) onTap(atText);
+                if (onTap != null) onTap!(atText);
               }),
           )
         : SpecialTextSpan(
@@ -945,7 +944,7 @@ class AtText extends SpecialText {
             style: textStyle,
             recognizer: (TapGestureRecognizer()
               ..onTap = () {
-                if (onTap != null) onTap(atText);
+                if (onTap != null) onTap!(atText);
               }),
           );
   }
@@ -954,12 +953,12 @@ class AtText extends SpecialText {
 class MySpecialTextSpanBuilder extends SpecialTextSpanBuilder {
   MySpecialTextSpanBuilder({
     this.showAtBackground = false,
-    required this.onTagTap,
+    this.onTagTap,
   });
 
   /// whether show background for @somebody
   final bool showAtBackground;
-  final void Function(dynamic) onTagTap;
+  final void Function(dynamic)? onTagTap;
 
   @override
   SpecialText? createSpecialText(String flag,
@@ -974,7 +973,7 @@ class MySpecialTextSpanBuilder extends SpecialTextSpanBuilder {
     if (isStart(flag, AtText.flag)) {
       return AtText(
         textStyle ?? TextStyle(),
-        onTap: onTap ?? onTagTap,
+        onTap: onTap ?? onTagTap ?? null,
         start: index! - (AtText.flag.length),
         showAtBackground: showAtBackground,
       );
