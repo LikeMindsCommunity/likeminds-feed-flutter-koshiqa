@@ -1,21 +1,42 @@
 import 'dart:io';
 import 'dart:math';
-import 'package:feed_sx/src/views/feed/components/post/post_media/post_image.dart';
+
+import 'package:flutter/material.dart';
+
+import 'package:feed_sx/src/views/feed/components/post/post_media/post_media.dart';
 import 'package:feed_sx/src/views/tagging/bloc/tagging_bloc.dart';
 import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
 import 'package:feed_sx/src/views/tagging/tagging_textfield_ta.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:feed_sx/src/widgets/profile_picture.dart';
-import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/views/feed/blocs/feedroom/feedroom_bloc.dart';
-import 'package:flutter/material.dart';
+
+import 'package:likeminds_feed/likeminds_feed.dart';
+
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:feed_sx/src/services/service_locator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:multi_image_crop/multi_image_crop.dart';
+import 'package:video_player/video_player.dart';
+
+/* key is mediatype, contains all asset button data 
+related to a particular media type */
+const Map<int, dynamic> assetButtonData = {
+  1: {
+    'title': 'Add Photo',
+    'svg_icon': 'packages/feed_sx/assets/icons/add_photo.svg',
+  },
+  2: {
+    'title': 'Add Video',
+    'svg_icon': 'packages/feed_sx/assets/icons/add_video.svg',
+  },
+  3: {
+    'title': 'Add Document',
+    'svg_icon': 'packages/feed_sx/assets/icons/add_attachment.svg',
+  },
+};
 
 class NewPostScreen extends StatefulWidget {
   static const String route = "/new_post_screen";
@@ -36,13 +57,12 @@ class _NewPostScreenState extends State<NewPostScreen> {
   TextEditingController? _controller;
   final ImagePicker _picker = ImagePicker();
   Size? screenSize;
-  bool uploaded = false;
   bool isUploading = false;
   late final User user;
   late final FeedRoomBloc feedBloc;
   late final int feedRoomId;
   List<Attachment> attachments = [];
-  List<File> croppedImages = [];
+  List<Map<String, dynamic>> postMedia = [];
 
   List<UserTag> userTags = [];
   String? result;
@@ -57,6 +77,39 @@ class _NewPostScreenState extends State<NewPostScreen> {
 
     taggingBloc = TaggingBloc()
       ..add(GetTaggingListEvent(feedroomId: feedRoomId));
+  }
+
+  // this function initiliases postMedia list
+  // with photos/videos picked by the user
+  void setPickedMediaFiles(List<Map<String, dynamic>> pickedMediaFiles) {
+    if (postMedia == null || postMedia.isEmpty) {
+      postMedia = <Map<String, dynamic>>[...pickedMediaFiles];
+    } else {
+      postMedia.addAll(pickedMediaFiles);
+    }
+  }
+
+  /* Changes state to uploading
+  for showing a circular loader while the user is 
+  picking files */
+  void onUploading() {
+    setState(() {
+      isUploading = true;
+    });
+  }
+
+  /* Changes state to uploaded
+  for showing the picked files */
+  void onUploaded(bool uploadResponse) {
+    if (uploadResponse) {
+      setState(() {
+        isUploading = false;
+      });
+    } else {
+      setState(() {
+        isUploading = false;
+      });
+    }
   }
 
   @override
@@ -106,11 +159,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
       child: Scaffold(
         backgroundColor: kWhiteColor,
         body: SafeArea(
-            child: Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            child: Column(
               children: [
                 BackButton(
                   onPressed: () {
@@ -178,155 +229,183 @@ class _NewPostScreenState extends State<NewPostScreen> {
                             style: TextStyle(
                               fontSize: 18,
                             ),
-                          ),
-                          backgroundColor: Colors.grey.shade500,
+                          );
+                        }
+                      },
+                      child: const Text(
+                        "POST",
+                        style: TextStyle(
+                          color: kPrimaryColor,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
                         ),
-                      );
-                    }
-                  },
-                  child: const Text(
-                    "POST",
-                    style: TextStyle(
-                      color: kPrimaryColor,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
+                  ],
                 ),
+                const SizedBox(height: 24),
+                Row(children: [
+                  ProfilePicture(
+                      user: PostUser(
+                    id: user.id,
+                    imageUrl: user.imageUrl,
+                    name: user.name,
+                    userUniqueId: user.userUniqueId,
+                    isGuest: user.isGuest,
+                    isDeleted: false,
+                  )),
+                  kHorizontalPaddingLarge,
+                  Text(
+                    user.name,
+                    style: const TextStyle(
+                        fontSize: kFontMedium,
+                        color: kGrey1Color,
+                        fontWeight: FontWeight.w500),
+                  ),
+                ]),
+                kVerticalPaddingMedium,
+                TaggingAheadTextField(
+                  feedroomId: feedRoomId,
+                  isDown: true,
+                  onTagSelected: (tag) {
+                    print(tag);
+                    userTags.add(tag);
+                  },
+                  getController: ((p0) {
+                    _controller = p0;
+                  }),
+                  onChange: (p0) {
+                    print(p0);
+                  },
+                ),
+                const Spacer(),
+                if (isUploading) const Loader(),
+                if ((attachments.isNotEmpty || postMedia.isNotEmpty))
+                  Expanded(
+                    child: LayoutBuilder(builder: (
+                      context,
+                      constraints,
+                    ) {
+                      return Container(
+                        alignment: Alignment.bottomRight,
+                        child: PostMedia(
+                            height:
+                                min(constraints.maxHeight, screenSize!.width),
+                            mediaFiles: postMedia,
+                            postId: ''),
+                      );
+                    }),
+                  ),
+                kVerticalPaddingSmall,
+                AddAssetsButton(
+                  mediaType: 1, // 1 for photos
+                  picker: _picker,
+                  uploading: onUploading,
+                  onUploaded: onUploaded,
+                  postMedia: setPickedMediaFiles,
+                ),
+                AddAssetsButton(
+                  mediaType: 2, // 2 for videos
+                  picker: _picker,
+                  uploading: onUploading,
+                  onUploaded: onUploaded,
+                  postMedia: setPickedMediaFiles,
+                )
               ],
             ),
-            const SizedBox(height: 24),
-            Row(children: [
-              ProfilePicture(
-                  user: PostUser(
-                id: user.id,
-                imageUrl: user.imageUrl,
-                name: user.name,
-                userUniqueId: user.userUniqueId,
-                isGuest: user.isGuest,
-                isDeleted: false,
-              )),
-              kHorizontalPaddingLarge,
-              Text(
-                user.name,
-                style: const TextStyle(
-                    fontSize: kFontMedium,
-                    color: kGrey1Color,
-                    fontWeight: FontWeight.w500),
-              ),
-            ]),
-            kVerticalPaddingMedium,
-            TaggingAheadTextField(
-              feedroomId: feedRoomId,
-              isDown: true,
-              onTagSelected: (tag) {
-                print(tag);
-                userTags.add(tag);
-              },
-              getController: ((p0) {
-                _controller = p0;
-              }),
-              onChange: (p0) {
-                print(p0);
-              },
-            ),
-            const Spacer(),
-            if (isUploading) const Loader(),
-            if (uploaded &&
-                (attachments.isNotEmpty || croppedImages.isNotEmpty))
-              Expanded(
-                child: LayoutBuilder(builder: (
-                  context,
-                  constraints,
-                ) {
-                  return Container(
-                    alignment: Alignment.bottomRight,
-                    child: PostImage(
-                        height: min(constraints.maxHeight, screenSize!.width),
-                        // url: attachments
-                        //     .map((e) => e.attachmentMeta.url.toString())
-                        //     .toList(),
-                        imagesFile: croppedImages,
-                        postId: ''),
-                  );
-                }),
-              ),
-            kVerticalPaddingSmall,
-            AddAssetsButton(
-              leading: SvgPicture.asset(
-                'packages/feed_sx/assets/icons/add_photo.svg',
-                height: 24,
-              ),
-              title: const Text('Add Photo'),
-              picker: _picker,
-              uploading: () {
-                setState(() {
-                  isUploading = true;
-                });
-              },
-              onUploaded: (bool uploadResponse) {
-                if (uploadResponse) {
-                  setState(() {
-                    uploaded = true;
-                    isUploading = false;
-                  });
-                } else {
-                  setState(() {
-                    isUploading = false;
-                  });
-                }
-              },
-              croppedImages: (List<File> images) {
-                croppedImages = images;
-              },
-            )
-          ]),
-        )),
+          ),
+        ),
       ),
     );
   }
 }
 
 class AddAssetsButton extends StatelessWidget {
-  final Widget title;
-  final Widget leading;
   final ImagePicker picker;
+  final int mediaType; // 1 for photo 2 for video
   final Function(bool uploadResponse) onUploaded;
   final Function() uploading;
-  final Function(List<File>) croppedImages;
+  final Function(List<Map<String, dynamic>>)
+      postMedia; // only return in List<File> format
 
   const AddAssetsButton({
     super.key,
-    required this.leading,
-    required this.title,
+    required this.mediaType,
     required this.picker,
     required this.onUploaded,
     required this.uploading,
-    required this.croppedImages,
+    required this.postMedia,
   });
+
+  void pickImages(BuildContext context) async {
+    uploading();
+    final List<XFile> list = await picker.pickMultiImage();
+    if (list.isNotEmpty) {
+      MultiImageCrop.startCropping(
+        context: context,
+        activeColor: kWhiteColor,
+        files: list.map((e) => File(e.path)).toList(),
+        aspectRatio: 1.0,
+        callBack: (List<File> images) {
+          List<Map<String, dynamic>> mediaFiles = images
+              .map(
+                (e) => {
+                  'mediaType': 1,
+                  'mediaFile': File(e.path),
+                },
+              )
+              .toList();
+          postMedia(mediaFiles);
+          onUploaded(true);
+        },
+      );
+    } else {
+      onUploaded(true);
+    }
+  }
+
+  void pickVideos() async {
+    uploading();
+    final XFile? xVideo = await picker.pickVideo(source: ImageSource.gallery);
+    if (xVideo != null) {
+      File video = File(xVideo.path);
+      VideoPlayerController controller = VideoPlayerController.file(video);
+      await controller.initialize();
+      Duration videoDuration = controller.value.duration;
+      Map<String, dynamic> videoFile = {
+        'mediaType': 2,
+        'mediaFile': video,
+        'duration': videoDuration.inSeconds,
+      };
+      List<Map<String, dynamic>> videoFiles = [];
+      videoFiles.add(videoFile);
+      postMedia(videoFiles);
+    }
+    onUploaded(true);
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () async {
-        uploading();
-        final list = await picker.pickMultiImage();
-        MultiImageCrop.startCropping(
-          context: context,
-          activeColor: kWhiteColor,
-          files: list.map((e) => File(e.path)).toList(),
-          aspectRatio: 1.0,
-          callBack: (List<File> images) {
-            croppedImages(images);
-            onUploaded(true);
-          },
-        );
+      onTap: () {
+        if (mediaType == 1) {
+          pickImages(context);
+        } else if (mediaType == 2) {
+          pickVideos();
+        }
       },
       child: Container(
-        height: 72,
+        height: 40,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: Row(
-          children: [leading, kHorizontalPaddingLarge, title],
+          children: [
+            SvgPicture.asset(
+              assetButtonData[mediaType]['svg_icon'],
+              height: 24,
+            ),
+            kHorizontalPaddingLarge,
+            Text(assetButtonData[mediaType]['title']),
+          ],
         ),
       ),
     );
