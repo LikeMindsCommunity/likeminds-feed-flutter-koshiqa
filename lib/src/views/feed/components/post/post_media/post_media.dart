@@ -1,41 +1,43 @@
-import 'dart:io';
 import 'dart:math';
 
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/material.dart';
+
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_image_shimmer.dart';
-import 'package:feed_sx/src/views/previews/image_preview.dart';
-import 'package:flutter/material.dart';
-import 'package:likeminds_feed/likeminds_feed.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:feed_sx/src/views/feed/components/post/post_media/post_video.dart';
+import 'package:feed_sx/src/views/previews/media_preview.dart';
 
-class PostImage extends StatefulWidget {
+import 'package:likeminds_feed/likeminds_feed.dart';
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+
+class PostMedia extends StatefulWidget {
   final String postId;
   double? height;
-  List<String>? url;
-  List<File>? imagesFile;
-  PostImage({
+  List<Attachment>? attachments;
+  List<Map<String, dynamic>>? mediaFiles;
+  PostMedia({
     super.key,
     this.height,
-    this.url,
+    this.attachments,
     required this.postId,
-    this.imagesFile,
+    this.mediaFiles,
   });
 
   @override
-  State<PostImage> createState() => _PostImageState();
+  State<PostMedia> createState() => _PostMediaState();
 }
 
-class _PostImageState extends State<PostImage> {
+class _PostMediaState extends State<PostMedia> {
   Size? screenSize;
   int currPosition = 0; // Current index of carousel
 
   bool checkIfMultipleAttachments() {
-    return ((widget.url != null && widget.url!.length > 1) ||
-        (widget.imagesFile != null && widget.imagesFile!.length > 1));
+    return ((widget.attachments != null && widget.attachments!.length > 1) ||
+        (widget.mediaFiles != null && widget.mediaFiles!.length > 1));
   }
 
   @override
@@ -48,14 +50,14 @@ class _PostImageState extends State<PostImage> {
           "type": "photo",
         });
         locator<NavigationService>().navigateTo(
-          ImagePreview.route,
-          arguments: widget.url == null
-              ? ImagePreviewArguments(
-                  images: widget.imagesFile,
+          MediaPreview.route,
+          arguments: widget.attachments == null
+              ? MediaPreviewArguments(
+                  mediaFiles: widget.mediaFiles!,
                   postId: widget.postId,
                 )
-              : ImagePreviewArguments(
-                  url: widget.url!,
+              : MediaPreviewArguments(
+                  attachments: widget.attachments!,
                   postId: widget.postId,
                 ),
         );
@@ -66,26 +68,39 @@ class _PostImageState extends State<PostImage> {
         child: Column(
           children: [
             CarouselSlider(
-              items: widget.url == null
-                  ? widget.imagesFile!
-                      .map((e) => Image.file(
-                            e,
-                            fit: BoxFit.cover,
-                          ))
-                      .toList()
-                  : widget.url!
-                      .map(
-                        (e) => CachedNetworkImage(
-                          imageUrl: e,
+              items: widget.attachments == null
+                  ? widget.mediaFiles!.map((e) {
+                      if (e['mediaType'] == 1) {
+                        return Image.file(
+                          e['mediaFile'],
+                          fit: BoxFit.cover,
+                        );
+                      } else if (e['mediaType'] == 2) {
+                        return PostVideo(
+                          videoFile: e['mediaFile'],
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    }).toList()
+                  : widget.attachments!.map((e) {
+                      if (e.attachmentType == 1) {
+                        return CachedNetworkImage(
+                          imageUrl: e.attachmentMeta.url!,
                           fit: BoxFit.cover,
                           fadeInDuration: const Duration(
                             milliseconds: 200,
                           ),
                           progressIndicatorBuilder: (context, url, progress) =>
-                              getPostShimmer(screenSize!),
-                        ),
-                      )
-                      .toList(),
+                              const PostShimmer(),
+                        );
+                      } else if ((e.attachmentType == 2)) {
+                        return PostVideo(
+                          url: e.attachmentMeta.url,
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    }).toList(),
               options: CarouselOptions(
                   aspectRatio: 1.0,
                   initialPage: 0,
@@ -109,9 +124,9 @@ class _PostImageState extends State<PostImage> {
             checkIfMultipleAttachments()
                 ? Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: widget.url != null
-                        ? widget.url!.map((url) {
-                            int index = widget.url!.indexOf(url);
+                    children: widget.attachments != null
+                        ? widget.attachments!.map((url) {
+                            int index = widget.attachments!.indexOf(url);
                             return Container(
                               width:
                                   widget.height != null && widget.height! < 150
@@ -131,8 +146,8 @@ class _PostImageState extends State<PostImage> {
                               ),
                             );
                           }).toList()
-                        : widget.imagesFile!.map((url) {
-                            int index = widget.imagesFile!.indexOf(url);
+                        : widget.mediaFiles!.map((data) {
+                            int index = widget.mediaFiles!.indexOf(data);
                             return Container(
                               width:
                                   widget.height != null && widget.height! < 150

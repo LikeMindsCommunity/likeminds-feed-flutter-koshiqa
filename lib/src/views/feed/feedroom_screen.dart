@@ -1,23 +1,24 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'dart:io';
+
+import 'package:flutter/material.dart';
 
 import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
-import 'package:feed_sx/src/views/feed/blocs/feedroomlist/feedroom_list_bloc.dart';
 import 'package:feed_sx/src/views/feed/components/new_post_button.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:likeminds_feed/likeminds_feed.dart';
-import 'package:feed_sx/feed.dart';
+import 'package:feed_sx/src/views/feed/components/post/post_media/post_video.dart';
+import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/simple_bloc_observer.dart';
 import 'package:feed_sx/src/views/feed/blocs/feedroom/feedroom_bloc.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_widget.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
-import 'package:flutter/material.dart';
-import 'package:feed_sx/src/utils/constants/ui_constants.dart';
+import 'package:feed_sx/feed.dart';
+
+import 'package:likeminds_feed/likeminds_feed.dart';
+
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 
 //const List<int> DUMMY_FEEDROOMS = [72345, 72346, 72347];
 //const List<int> DUMMY_FEEDROOMS = [72200, 72232, 72233];
@@ -385,7 +386,26 @@ class _FeedRoomViewState extends State<FeedRoomView> {
   ValueNotifier<bool> rebuildPostWidget = ValueNotifier(false);
   final ValueNotifier postUploading = ValueNotifier(false);
 
-  List<File> imageFiles = [];
+  List<Map<String, dynamic>> imageFiles = [];
+
+  Widget getLoaderThumbnail() {
+    if (imageFiles[0]['mediaType'] == 1) {
+      return Image.file(
+        imageFiles[0]['mediaFile'],
+        height: 50,
+        width: 50,
+        fit: BoxFit.cover,
+      );
+    } else {
+      return SizedBox(
+        height: 50,
+        width: 50,
+        child: PostVideo(
+          videoFile: imageFiles[0]['mediaFile'],
+        ),
+      );
+    }
+  }
 
   int imageUploadProgress = 0;
 
@@ -413,12 +433,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
                               imageFiles != null && imageFiles.isNotEmpty
-                                  ? Image.file(
-                                      imageFiles[0],
-                                      height: 50,
-                                      width: 50,
-                                      fit: BoxFit.cover,
-                                    )
+                                  ? getLoaderThumbnail()
                                   : const SizedBox(),
                               kHorizontalPaddingMedium,
                               Text('Posting')
@@ -506,7 +521,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
           )
               .then((result) async {
             if (result != null && result['isBack']) {
-              imageFiles = result['imageFiles'];
+              imageFiles = result['mediaFiles'];
               postUploading.value = true;
               await postContent(result, widget.feedRoom.id, (int progress) {
                 imageUploadProgress = progress;
@@ -527,7 +542,16 @@ class _FeedRoomViewState extends State<FeedRoomView> {
 Future postContent(Map<String, dynamic> postData, int feedRoomId,
     Function(int) updateProgress) async {
   List<Attachment> attachments =
-      await uploadImages(postData['imageFiles'], updateProgress);
+      await uploadImages(postData['mediaFiles'], updateProgress);
+  int imageCount = 0;
+  int videoCount = 0;
+  for (final attachment in attachments) {
+    if (attachment.attachmentType == 1) {
+      imageCount++;
+    } else if (attachment.attachmentType == 2) {
+      videoCount++;
+    }
+  }
   final AddPostRequest request = AddPostRequest(
     text: postData['result'] ?? '',
     attachments: attachments,
@@ -539,29 +563,35 @@ Future postContent(Map<String, dynamic> postData, int feedRoomId,
     LMAnalytics.get().track(AnalyticsKeys.postCreationCompleted, {
       "user_tagged": "no",
       "link_attached": "no",
-      "image_attached": {
-        "yes": {"image_count": attachments.length},
-      },
-      "video_attached": "no",
+      "image_attached": imageCount == 0
+          ? "no"
+          : {
+              "yes": {"image_count": imageCount},
+            },
+      "video_attached": videoCount == 0
+          ? "no"
+          : {
+              "yes": {"video_count": videoCount},
+            },
       "document_attached": "no",
     });
   }
 }
 
-Future<List<Attachment>> uploadImages(
-    List<File> croppedFiles, Function(int) updateProgress) async {
+Future<List<Attachment>> uploadImages(List<Map<String, dynamic>> croppedFiles,
+    Function(int) updateProgress) async {
   List<Attachment> attachments = [];
   int imageUploadCount = 0;
-  for (final image in croppedFiles) {
+  for (final media in croppedFiles) {
     try {
       final String? response =
-          await locator<LikeMindsService>().uploadFile(image);
+          await locator<LikeMindsService>().uploadFile(media['mediaFile']);
       if (response != null) {
         attachments.add(Attachment(
-          attachmentType: 1,
+          attachmentType: media['mediaType'],
           attachmentMeta: AttachmentMeta(
-            url: response,
-          ),
+              url: response,
+              duration: media['mediaType'] == 2 ? media['duration'] : null),
         ));
         imageUploadCount += 1;
         updateProgress(imageUploadCount);

@@ -26,13 +26,13 @@ class NewPostScreenArguments {
   NewPostScreenArguments({required this.user, required this.feedroomId});
 }
 
-class ImagePreviewArguments {
+class MediaPreviewArguments {
   final String postId;
-  final List<String>? url;
-  final List<File>? images;
-  ImagePreviewArguments({
-    this.url,
-    this.images,
+  final List<Attachment>? attachments;
+  final List<Map<String, dynamic>>? mediaFiles;
+  MediaPreviewArguments({
+    this.attachments,
+    this.mediaFiles,
     required this.postId,
   });
 }
