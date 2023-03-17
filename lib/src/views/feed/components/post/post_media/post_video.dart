@@ -11,7 +11,8 @@ import 'package:chewie/chewie.dart';
 class PostVideo extends StatefulWidget {
   final String? url;
   final File? videoFile;
-  const PostVideo({super.key, this.url, this.videoFile});
+  final double width;
+  const PostVideo({super.key, this.url, required this.width, this.videoFile});
 
   @override
   State<PostVideo> createState() => _PostVideoState();
@@ -28,6 +29,13 @@ class _PostVideoState extends State<PostVideo>
     initialiseControllers();
   }
 
+  @override
+  void dispose() {
+    videoPlayerController.dispose();
+    chewieController.dispose();
+    super.dispose();
+  }
+
   Future<void> initialiseControllers() async {
     if (widget.url != null) {
       videoPlayerController = VideoPlayerController.network(widget.url!);
@@ -35,25 +43,35 @@ class _PostVideoState extends State<PostVideo>
       videoPlayerController = VideoPlayerController.file(widget.videoFile!);
     }
     chewieController = ChewieController(
-      deviceOrientationsOnEnterFullScreen: [DeviceOrientation.portraitUp],
-      videoPlayerController: videoPlayerController,
-      aspectRatio: 1.0,
-      placeholder: const PostShimmer(),
-      autoPlay: true,
-      looping: true,
-      allowFullScreen: false,
-      showControls: false,
-      showOptions: false,
-    );
+        deviceOrientationsOnEnterFullScreen: [DeviceOrientation.portraitUp],
+        videoPlayerController: videoPlayerController,
+        aspectRatio: 1.0,
+        customControls: const MaterialControls(showPlayButton: true),
+        autoPlay: true,
+        looping: true,
+        placeholder: Container(
+          alignment: Alignment.center,
+          child: const PostShimmer(),
+        ),
+        allowFullScreen: false,
+        showControls: false,
+        showOptions: false,
+        autoInitialize: false);
   }
 
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
     return SizedBox(
+      height: widget.width,
+      width: widget.width,
+      child: FittedBox(
+        fit: BoxFit.cover,
+        alignment: Alignment.center,
         child: Chewie(
-      controller: chewieController,
-    ));
+          controller: chewieController,
+        ),
+      ),
+    );
   }
 
   @override

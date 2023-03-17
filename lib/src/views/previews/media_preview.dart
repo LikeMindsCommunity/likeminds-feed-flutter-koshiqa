@@ -79,6 +79,7 @@ class _MediaPreviewState extends State<MediaPreview> {
                             // return video player widget
                             return PostVideo(
                               videoFile: e['mediaFile'],
+                              width: screenSize!.width,
                             );
                           } else {
                             return const SizedBox();
@@ -99,6 +100,7 @@ class _MediaPreviewState extends State<MediaPreview> {
                         } else if (e.attachmentType == 2) {
                           return PostVideo(
                             url: e.attachmentMeta.url,
+                            width: screenSize!.width,
                           );
                         }
                         return const SizedBox.shrink();

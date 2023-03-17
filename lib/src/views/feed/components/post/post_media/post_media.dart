@@ -63,60 +63,62 @@ class _PostMediaState extends State<PostMedia> {
         );
       },
       child: Container(
-        width: MediaQuery.of(context).size.width,
         padding: const EdgeInsets.only(top: kPaddingMedium),
         child: Column(
           children: [
-            CarouselSlider(
-              items: widget.attachments == null
-                  ? widget.mediaFiles!.map((e) {
-                      if (e['mediaType'] == 1) {
-                        return Image.file(
-                          e['mediaFile'],
-                          fit: BoxFit.cover,
-                        );
-                      } else if (e['mediaType'] == 2) {
-                        return PostVideo(
-                          videoFile: e['mediaFile'],
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    }).toList()
-                  : widget.attachments!.map((e) {
-                      if (e.attachmentType == 1) {
-                        return CachedNetworkImage(
-                          imageUrl: e.attachmentMeta.url!,
-                          fit: BoxFit.cover,
-                          fadeInDuration: const Duration(
-                            milliseconds: 200,
-                          ),
-                          progressIndicatorBuilder: (context, url, progress) =>
-                              const PostShimmer(),
-                        );
-                      } else if ((e.attachmentType == 2)) {
-                        return PostVideo(
-                          url: e.attachmentMeta.url,
-                        );
-                      } else {
+            Container(
+              width: widget.height ?? screenSize!.width,
+              height: widget.height ?? screenSize!.width,
+              child: CarouselSlider(
+                items: widget.attachments == null
+                    ? widget.mediaFiles!.map((e) {
+                        if (e['mediaType'] == 1) {
+                          return Image.file(
+                            e['mediaFile'],
+                            fit: BoxFit.cover,
+                          );
+                        } else if (e['mediaType'] == 2) {
+                          return PostVideo(
+                            videoFile: e['mediaFile'],
+                            width: widget.height ?? screenSize!.width,
+                          );
+                        }
                         return const SizedBox.shrink();
-                      }
-                    }).toList(),
-              options: CarouselOptions(
-                  aspectRatio: 1.0,
-                  initialPage: 0,
-                  disableCenter: true,
-                  scrollDirection: Axis.horizontal,
-                  enableInfiniteScroll: false,
-                  enlargeFactor: 0.0,
-                  viewportFraction: 1.0,
-                  height: widget.height != null
-                      ? max(widget.height! - 38, 0)
-                      : screenSize!.width,
-                  onPageChanged: (index, reason) {
-                    setState(() {
-                      currPosition = index;
-                    });
-                  }),
+                      }).toList()
+                    : widget.attachments!.map((e) {
+                        if (e.attachmentType == 1) {
+                          return CachedNetworkImage(
+                            imageUrl: e.attachmentMeta.url!,
+                            fit: BoxFit.cover,
+                            fadeInDuration: const Duration(
+                              milliseconds: 200,
+                            ),
+                            progressIndicatorBuilder:
+                                (context, url, progress) => const PostShimmer(),
+                          );
+                        } else if ((e.attachmentType == 2)) {
+                          return PostVideo(
+                            url: e.attachmentMeta.url,
+                            width: widget.height ?? screenSize!.width,
+                          );
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      }).toList(),
+                options: CarouselOptions(
+                    aspectRatio: 1.0,
+                    initialPage: 0,
+                    disableCenter: true,
+                    scrollDirection: Axis.horizontal,
+                    enableInfiniteScroll: false,
+                    enlargeFactor: 0.0,
+                    viewportFraction: 1.0,
+                    onPageChanged: (index, reason) {
+                      setState(() {
+                        currPosition = index;
+                      });
+                    }),
+              ),
             ),
             checkIfMultipleAttachments()
                 ? kVerticalPaddingMedium
@@ -128,14 +130,8 @@ class _PostMediaState extends State<PostMedia> {
                         ? widget.attachments!.map((url) {
                             int index = widget.attachments!.indexOf(url);
                             return Container(
-                              width:
-                                  widget.height != null && widget.height! < 150
-                                      ? 4.0
-                                      : 8.0,
-                              height:
-                                  widget.height != null && widget.height! < 150
-                                      ? 4.0
-                                      : 8.0,
+                              width: 8.0,
+                              height: 8.0,
                               margin: const EdgeInsets.symmetric(
                                   vertical: 7.0, horizontal: 2.0),
                               decoration: BoxDecoration(
@@ -149,14 +145,8 @@ class _PostMediaState extends State<PostMedia> {
                         : widget.mediaFiles!.map((data) {
                             int index = widget.mediaFiles!.indexOf(data);
                             return Container(
-                              width:
-                                  widget.height != null && widget.height! < 150
-                                      ? 4.0
-                                      : 8.0,
-                              height:
-                                  widget.height != null && widget.height! < 150
-                                      ? 4.0
-                                      : 8.0,
+                              width: 8.0,
+                              height: 8.0,
                               margin: const EdgeInsets.symmetric(
                                   vertical: 7.0, horizontal: 2.0),
                               decoration: BoxDecoration(
