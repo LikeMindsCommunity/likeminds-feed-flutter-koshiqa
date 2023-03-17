@@ -263,6 +263,12 @@ class _NewPostScreenState extends State<NewPostScreen> {
                   uploading: onUploading,
                   onUploaded: onUploaded,
                   postMedia: setPickedMediaFiles,
+                  preUploadCheck: () {
+                    if (postMedia != null && postMedia.length >= 10) {
+                      return false;
+                    }
+                    return true;
+                  },
                 ),
                 AddAssetsButton(
                   mediaType: 2, // 2 for videos
@@ -270,6 +276,12 @@ class _NewPostScreenState extends State<NewPostScreen> {
                   uploading: onUploading,
                   onUploaded: onUploaded,
                   postMedia: setPickedMediaFiles,
+                  preUploadCheck: () {
+                    if (postMedia != null && postMedia.length >= 10) {
+                      return false;
+                    }
+                    return true;
+                  },
                 )
               ],
             ),
@@ -285,6 +297,7 @@ class AddAssetsButton extends StatelessWidget {
   final int mediaType; // 1 for photo 2 for video
   final Function(bool uploadResponse) onUploaded;
   final Function() uploading;
+  final Function() preUploadCheck;
   final Function(List<Map<String, dynamic>>)
       postMedia; // only return in List<File> format
 
@@ -295,6 +308,7 @@ class AddAssetsButton extends StatelessWidget {
     required this.onUploaded,
     required this.uploading,
     required this.postMedia,
+    required this.preUploadCheck,
   });
 
   void pickImages(BuildContext context) async {
@@ -346,12 +360,31 @@ class AddAssetsButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Size screenSize = MediaQuery.of(context).size;
     return GestureDetector(
       onTap: () {
-        if (mediaType == 1) {
-          pickImages(context);
-        } else if (mediaType == 2) {
-          pickVideos();
+        if (preUploadCheck()) {
+          if (mediaType == 1) {
+            pickImages(context);
+          } else if (mediaType == 2) {
+            pickVideos();
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              width: screenSize.width * 0.7,
+              backgroundColor: kGrey1Color,
+              elevation: 5,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+              content: const Text(
+                "A total of 10 attachments can be added to a post",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: kFontSmallMed),
+              ),
+            ),
+          );
         }
       },
       child: Container(
