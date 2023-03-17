@@ -402,6 +402,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
         width: 50,
         child: PostVideo(
           videoFile: imageFiles[0]['mediaFile'],
+          width: 50,
         ),
       );
     }

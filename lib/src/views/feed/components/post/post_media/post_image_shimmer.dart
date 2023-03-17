@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
-Widget getPostShimmer() {
-  return Shimmer.fromColors(
-    baseColor: Colors.black26,
-    highlightColor: Colors.black12,
-    child: Container(
-      color: Colors.white,
+Widget getPostShimmer(double width) {
+  return SizedBox(
+    child: Shimmer.fromColors(
+      baseColor: Colors.black26,
+      highlightColor: Colors.black12,
+      child: Container(
+        color: Colors.white,
+        width: width,
+        height: width,
+      ),
     ),
   );
 }

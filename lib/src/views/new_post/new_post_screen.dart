@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 
@@ -132,115 +131,132 @@ class _NewPostScreenState extends State<NewPostScreen> {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    BackButton(
-                      onPressed: () {
-                        locator<NavigationService>().goBack(
-                          result: {
-                            "feedroomId": feedRoomId,
-                            "isBack": false,
-                          },
-                        );
-                      },
-                    ),
-                    const Text(
-                      'Create a Post',
-                      style: TextStyle(fontSize: 18, color: kGrey1Color),
-                    ),
-                    TextButton(
-                      onPressed: () async {
-                        if (_controller != null) {
-                          userTags = TaggingHelper.matchTags(
-                              _controller!.text, userTags);
-                          result = TaggingHelper.encodeString(
-                              _controller!.text, userTags);
-                          locator<NavigationService>().goBack(result: {
-                            "feedroomId": feedRoomId,
-                            "isBack": true,
-                            "mediaFiles": postMedia,
-                            "result": result
-                          });
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text(
-                                "The text in a post can't be empty",
-                                style: TextStyle(
-                                  fontSize: 18,
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 48,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              BackButton(
+                                onPressed: () {
+                                  locator<NavigationService>().goBack(
+                                    result: {
+                                      "feedroomId": feedRoomId,
+                                      "isBack": false,
+                                    },
+                                  );
+                                },
+                              ),
+                              const Text(
+                                'Create a Post',
+                                style:
+                                    TextStyle(fontSize: 18, color: kGrey1Color),
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  if (_controller != null) {
+                                    userTags = TaggingHelper.matchTags(
+                                        _controller!.text, userTags);
+                                    result = TaggingHelper.encodeString(
+                                        _controller!.text, userTags);
+                                    locator<NavigationService>()
+                                        .goBack(result: {
+                                      "feedroomId": feedRoomId,
+                                      "isBack": true,
+                                      "mediaFiles": postMedia,
+                                      "result": result
+                                    });
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: const Text(
+                                          "The text in a post can't be empty",
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                        backgroundColor: Colors.grey.shade500,
+                                      ),
+                                    );
+                                  }
+                                },
+                                child: const Text(
+                                  "POST",
+                                  style: TextStyle(
+                                    color: kPrimaryColor,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
-                              backgroundColor: Colors.grey.shade500,
-                            ),
-                          );
-                        }
-                      },
-                      child: const Text(
-                        "POST",
-                        style: TextStyle(
-                          color: kPrimaryColor,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
+                            ],
+                          ),
                         ),
-                      ),
+                        kVerticalPaddingXLarge,
+                        SizedBox(
+                          height: 50,
+                          child: Row(children: [
+                            ProfilePicture(
+                                user: PostUser(
+                              id: user.id,
+                              imageUrl: user.imageUrl,
+                              name: user.name,
+                              userUniqueId: user.userUniqueId,
+                              isGuest: user.isGuest,
+                              isDeleted: false,
+                            )),
+                            kHorizontalPaddingLarge,
+                            Text(
+                              user.name,
+                              style: const TextStyle(
+                                  fontSize: kFontMedium,
+                                  color: kGrey1Color,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                          ]),
+                        ),
+                        kVerticalPaddingMedium,
+                        Container(
+                          constraints: const BoxConstraints(minHeight: 150),
+                          child: TaggingAheadTextField(
+                            feedroomId: feedRoomId,
+                            isDown: true,
+                            onTagSelected: (tag) {
+                              print(tag);
+                              userTags.add(tag);
+                            },
+                            getController: ((p0) {
+                              _controller = p0;
+                            }),
+                            onChange: (p0) {
+                              print(p0);
+                            },
+                          ),
+                        ),
+                        kVerticalPaddingSmall,
+                        if (isUploading)
+                          const Padding(
+                            padding: EdgeInsets.only(top: kPaddingSmall),
+                            child: Loader(),
+                          ),
+                        if ((attachments.isNotEmpty || postMedia.isNotEmpty))
+                          Container(
+                            padding: const EdgeInsets.only(top: kPaddingSmall),
+                            alignment: Alignment.bottomRight,
+                            child: PostMedia(
+                                height: screenSize!.width,
+                                //min(constraints.maxHeight, screenSize!.width),
+                                mediaFiles: postMedia,
+                                postId: ''),
+                          ),
+                      ],
                     ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                Row(children: [
-                  ProfilePicture(
-                      user: PostUser(
-                    id: user.id,
-                    imageUrl: user.imageUrl,
-                    name: user.name,
-                    userUniqueId: user.userUniqueId,
-                    isGuest: user.isGuest,
-                    isDeleted: false,
-                  )),
-                  kHorizontalPaddingLarge,
-                  Text(
-                    user.name,
-                    style: const TextStyle(
-                        fontSize: kFontMedium,
-                        color: kGrey1Color,
-                        fontWeight: FontWeight.w500),
                   ),
-                ]),
+                ),
                 kVerticalPaddingMedium,
-                TaggingAheadTextField(
-                  feedroomId: feedRoomId,
-                  isDown: true,
-                  onTagSelected: (tag) {
-                    print(tag);
-                    userTags.add(tag);
-                  },
-                  getController: ((p0) {
-                    _controller = p0;
-                  }),
-                  onChange: (p0) {
-                    print(p0);
-                  },
-                ),
-                const Spacer(),
-                if (isUploading) const Loader(),
-                if ((attachments.isNotEmpty || postMedia.isNotEmpty))
-                  Expanded(
-                    child: LayoutBuilder(builder: (
-                      context,
-                      constraints,
-                    ) {
-                      return Container(
-                        alignment: Alignment.bottomRight,
-                        child: PostMedia(
-                            height:
-                                min(constraints.maxHeight, screenSize!.width),
-                            mediaFiles: postMedia,
-                            postId: ''),
-                      );
-                    }),
-                  ),
-                kVerticalPaddingSmall,
                 AddAssetsButton(
                   mediaType: 1, // 1 for photos
                   picker: _picker,
