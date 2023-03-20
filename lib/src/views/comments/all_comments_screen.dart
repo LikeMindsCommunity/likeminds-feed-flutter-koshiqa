@@ -229,6 +229,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                                     ),
                                                   ),
                                                 );
+                                                closeOnScreenKeyboard();
                                               },
                                         icon: Icon(
                                           Icons.send,
@@ -292,6 +293,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                                                     selectedCommentId!)));
                                                     selectedCommentId = null;
                                                     selectedUsername = null;
+                                                    closeOnScreenKeyboard();
                                                     // deselectCommentToReply();
                                                   },
                                         icon: Icon(
@@ -454,4 +456,8 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
           )),
     );
   }
+}
+
+void closeOnScreenKeyboard() {
+  FocusManager.instance.primaryFocus?.unfocus();
 }
