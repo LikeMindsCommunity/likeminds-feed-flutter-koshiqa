@@ -1,7 +1,7 @@
+import 'package:feed_sx/src/views/feed/components/post/post_media/post_document_factory.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_media.dart';
-
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 class PostMediaFactory extends StatelessWidget {
@@ -16,10 +16,11 @@ class PostMediaFactory extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Size screenSize = MediaQuery.of(context).size;
     if (attachments == null) {
       return const SizedBox.shrink();
     } else if (attachments!.first.attachmentType == 3) {
-      return const SizedBox.shrink();
+      return postDocumentFactory(attachments, screenSize.width);
     } else {
       return PostMedia(
         attachments: attachments,

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:feed_sx/src/views/feed/components/post/post_media/post_image_shimmer.dart';
 import 'package:flutter/material.dart';
 
 import 'package:feed_sx/src/navigation/arguments.dart';
@@ -397,6 +398,8 @@ class _FeedRoomViewState extends State<FeedRoomView> {
         width: 50,
         fit: BoxFit.cover,
       );
+    } else if (imageFiles[0]['mediaType'] == 3) {
+      return getPostShimmer(50);
     } else {
       return SizedBox(
         height: 50,
@@ -571,9 +574,27 @@ Future postContent(BuildContext context, Map<String, dynamic> postData,
       {
         "user_tagged": "no",
         "link_attached": "no",
-        "image_attached": {
-          "yes": {"image_count": attachments.length},
-        },
+        "image_attached": imageCount == 0
+            ? "no"
+            : {
+                "yes": {
+                  "image_count": imageCount,
+                },
+              },
+        "video_attached": videoCount == 0
+            ? "no"
+            : {
+                "yes": {
+                  "video_count": videoCount,
+                },
+              },
+        "document_attached": documentCount == 0
+            ? "no"
+            : {
+                "yes": {
+                  "document_count": documentCount,
+                },
+              },
       },
     );
   } else {
@@ -589,6 +610,7 @@ Future<List<Attachment>> uploadImages(List<Map<String, dynamic>> croppedFiles,
   int imageUploadCount = 0;
   for (final media in croppedFiles) {
     try {
+      File mediaFile = media['mediaFile'];
       final String? response =
           await locator<LikeMindsService>().uploadFile(media['mediaFile']);
       if (response != null) {
@@ -596,6 +618,8 @@ Future<List<Attachment>> uploadImages(List<Map<String, dynamic>> croppedFiles,
           attachmentType: media['mediaType'],
           attachmentMeta: AttachmentMeta(
               url: response,
+              size: media['mediaType'] == 3 ? media['size'] : null,
+              format: media['mediaType'] == 3 ? media['format'] : null,
               duration: media['mediaType'] == 2 ? media['duration'] : null),
         ));
         imageUploadCount += 1;

@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:feed_sx/src/views/feed/components/post/post_media/post_document.dart';
+import 'package:feed_sx/src/views/feed/components/post/post_media/post_helper.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_media.dart';
@@ -19,6 +22,7 @@ import 'package:feed_sx/src/services/service_locator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:multi_image_crop/multi_image_crop.dart';
 import 'package:video_player/video_player.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 /* key is mediatype, contains all asset button data 
 related to a particular media type */
@@ -32,7 +36,7 @@ const Map<int, dynamic> assetButtonData = {
     'svg_icon': 'packages/feed_sx/assets/icons/add_video.svg',
   },
   3: {
-    'title': 'Add Document',
+    'title': 'Attach Files',
     'svg_icon': 'packages/feed_sx/assets/icons/add_attachment.svg',
   },
 };
@@ -55,6 +59,7 @@ class NewPostScreen extends StatefulWidget {
 class _NewPostScreenState extends State<NewPostScreen> {
   TextEditingController? _controller;
   final ImagePicker _picker = ImagePicker();
+  final FilePicker _filePicker = FilePicker.platform;
   Size? screenSize;
   bool isUploading = false;
   late final User user;
@@ -66,6 +71,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
   List<UserTag> userTags = [];
   String? result;
   late final TaggingBloc taggingBloc;
+  bool isDocumentPost = false;
+  bool isMediaPost = false;
 
   @override
   void initState() {
@@ -99,8 +106,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
 
   /* Changes state to uploaded
   for showing the picked files */
-  void onUploaded(bool uploadResponse) {
+  void onUploadedMedia(bool uploadResponse) {
     if (uploadResponse) {
+      isMediaPost = true;
       setState(() {
         isUploading = false;
       });
@@ -108,6 +116,44 @@ class _NewPostScreenState extends State<NewPostScreen> {
       setState(() {
         isUploading = false;
       });
+    }
+  }
+
+  void onUploadedDocument(bool uploadResponse) {
+    if (uploadResponse) {
+      isDocumentPost = true;
+      setState(() {
+        isUploading = false;
+      });
+    } else {
+      setState(() {
+        isUploading = false;
+      });
+    }
+  }
+
+  Widget getPostDocument(double width) {
+    if (postMedia.length > 1) {
+      return ListView.builder(
+        itemCount: postMedia.length,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemBuilder: (context, index) => PostDocument(
+          size: getFileSizeString(bytes: postMedia[index]['size']),
+          type: postMedia[index]['format'],
+          docFile: postMedia[index]['mediaFile'],
+        ),
+      );
+    } else {
+      return SizedBox(
+        height: width,
+        width: width,
+        child: SfPdfViewer.file(
+          postMedia.first['mediaFile'],
+          scrollDirection: PdfScrollDirection.horizontal,
+          canShowPaginationDialog: false,
+        ),
+      );
     }
   }
 
@@ -159,7 +205,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
         backgroundColor: kWhiteColor,
         body: SafeArea(
           child: Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               children: [
                 BackButton(
@@ -255,46 +301,72 @@ class _NewPostScreenState extends State<NewPostScreen> {
                             child: Loader(),
                           ),
                         if ((attachments.isNotEmpty || postMedia.isNotEmpty))
-                          Container(
-                            padding: const EdgeInsets.only(top: kPaddingSmall),
-                            alignment: Alignment.bottomRight,
-                            child: PostMedia(
-                                height: screenSize!.width,
-                                //min(constraints.maxHeight, screenSize!.width),
-                                mediaFiles: postMedia,
-                                postId: ''),
-                          ),
+                          postMedia.first['mediaType'] == 3
+                              ? getPostDocument(screenSize!.width)
+                              : Container(
+                                  padding:
+                                      const EdgeInsets.only(top: kPaddingSmall),
+                                  alignment: Alignment.bottomRight,
+                                  child: PostMedia(
+                                      height: screenSize!.width,
+                                      //min(constraints.maxHeight, screenSize!.width),
+                                      mediaFiles: postMedia,
+                                      postId: ''),
+                                ),
                       ],
                     ),
                   ),
                 ),
                 kVerticalPaddingMedium,
-                AddAssetsButton(
-                  mediaType: 1, // 1 for photos
-                  picker: _picker,
-                  uploading: onUploading,
-                  onUploaded: onUploaded,
-                  postMedia: setPickedMediaFiles,
-                  preUploadCheck: () {
-                    if (postMedia != null && postMedia.length >= 10) {
-                      return false;
-                    }
-                    return true;
-                  },
-                ),
-                AddAssetsButton(
-                  mediaType: 2, // 2 for videos
-                  picker: _picker,
-                  uploading: onUploading,
-                  onUploaded: onUploaded,
-                  postMedia: setPickedMediaFiles,
-                  preUploadCheck: () {
-                    if (postMedia != null && postMedia.length >= 10) {
-                      return false;
-                    }
-                    return true;
-                  },
-                )
+                isDocumentPost
+                    ? const SizedBox.shrink()
+                    : AddAssetsButton(
+                        mediaType: 1, // 1 for photos
+                        picker: _picker,
+                        filePicker: _filePicker,
+                        uploading: onUploading,
+                        onUploaded: onUploadedMedia,
+                        postMedia: setPickedMediaFiles,
+                        preUploadCheck: () {
+                          if (postMedia != null && postMedia.length >= 10) {
+                            return false;
+                          }
+                          return true;
+                        },
+                      ),
+                isDocumentPost
+                    ? const SizedBox.shrink()
+                    : AddAssetsButton(
+                        mediaType: 2, // 2 for videos
+                        picker: _picker,
+                        filePicker: _filePicker,
+                        uploading: onUploading,
+                        onUploaded: onUploadedMedia,
+                        postMedia: setPickedMediaFiles,
+                        preUploadCheck: () {
+                          if (postMedia != null && postMedia.length >= 10) {
+                            return false;
+                          }
+                          return true;
+                        },
+                      ),
+                isMediaPost
+                    ? const SizedBox.shrink()
+                    : AddAssetsButton(
+                        mediaType: 3, // 2 for videos
+                        picker: _picker,
+                        filePicker: _filePicker,
+                        uploading: onUploading,
+                        onUploaded: onUploadedDocument,
+                        postMedia: setPickedMediaFiles,
+                        preUploadCheck: () {
+                          if (postMedia != null && postMedia.length >= 10) {
+                            return false;
+                          }
+                          return true;
+                        },
+                      ),
+                kVerticalPaddingMedium
               ],
             ),
           ),
@@ -306,6 +378,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
 
 class AddAssetsButton extends StatelessWidget {
   final ImagePicker picker;
+  final FilePicker filePicker;
   final int mediaType; // 1 for photo 2 for video
   final Function(bool uploadResponse) onUploaded;
   final Function() uploading;
@@ -316,6 +389,7 @@ class AddAssetsButton extends StatelessWidget {
   const AddAssetsButton({
     super.key,
     required this.mediaType,
+    required this.filePicker,
     required this.picker,
     required this.onUploaded,
     required this.uploading,
@@ -370,6 +444,35 @@ class AddAssetsButton extends StatelessWidget {
     onUploaded(true);
   }
 
+  void pickFiles() async {
+    uploading();
+    final pickedFiles = await filePicker.pickFiles(
+      allowMultiple: true,
+      type: FileType.custom,
+      dialogTitle: 'Select files',
+      allowedExtensions: [
+        'pdf',
+        'doc',
+        'docx',
+      ],
+    );
+    if (pickedFiles != null) {
+      List<Map<String, dynamic>> attachedFiles = [];
+      attachedFiles = pickedFiles.files
+          .map((e) => {
+                'mediaType': 3,
+                'mediaFile': File(e.path!),
+                'format': e.extension,
+                'size': e.size
+              })
+          .toList();
+      postMedia(attachedFiles);
+      onUploaded(true);
+    } else {
+      onUploaded(false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
@@ -380,6 +483,8 @@ class AddAssetsButton extends StatelessWidget {
             pickImages(context);
           } else if (mediaType == 2) {
             pickVideos();
+          } else if (mediaType == 3) {
+            pickFiles();
           }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -400,8 +505,7 @@ class AddAssetsButton extends StatelessWidget {
         }
       },
       child: Container(
-        height: 40,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        height: 35,
         child: Row(
           children: [
             SvgPicture.asset(
