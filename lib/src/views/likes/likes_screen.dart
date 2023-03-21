@@ -1,6 +1,7 @@
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/utils/simple_bloc_observer.dart';
 import 'package:feed_sx/src/views/likes/bloc/likes_bloc.dart';
+import 'package:feed_sx/src/views/likes/likes_helper.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:feed_sx/src/widgets/profile_picture.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -167,11 +168,10 @@ Widget getLikesErrorView(String message) {
 }
 
 Widget getLikesLoadingView() {
-  return const Center(
-    child: SizedBox(
-      child: Loader(),
-    ),
-  );
+  return ListView.builder(
+      padding: const EdgeInsets.only(top: 120),
+      itemCount: 5,
+      itemBuilder: (context, index) => getLikesTileShimmer());
 }
 
 class LikesTile extends StatelessWidget {
