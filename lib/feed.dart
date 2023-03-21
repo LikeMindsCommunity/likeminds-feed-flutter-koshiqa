@@ -124,7 +124,6 @@ class _LMFeedState extends State<LMFeed> {
                   return MaterialPageRoute(
                     builder: (context) {
                       return LikesScreen(
-                        response: args.response,
                         postId: args.postId,
                       );
                     },

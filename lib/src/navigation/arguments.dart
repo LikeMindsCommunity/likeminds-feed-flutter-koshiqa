@@ -12,10 +12,8 @@ class AllCommentsScreenArguments {
 }
 
 class LikesScreenArguments {
-  final GetPostLikesResponse response;
   final String postId;
   LikesScreenArguments({
-    required this.response,
     required this.postId,
   });
 }

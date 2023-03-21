@@ -105,13 +105,9 @@ class _PostActionsState extends State<PostActions> {
                 ),
                 GestureDetector(
                   onTap: () async {
-                    final response = await locator<LikeMindsService>()
-                        .getPostLikes(
-                            GetPostLikesRequest(postId: postDetails!.id));
                     Navigator.push(context, MaterialPageRoute(
                       builder: (context) {
                         return LikesScreen(
-                          response: response,
                           postId: postDetails!.id,
                         );
                       },
