@@ -83,12 +83,43 @@ class _NewPostScreenState extends State<NewPostScreen> {
               children: [
                 BackButton(
                   onPressed: () {
-                    locator<NavigationService>().goBack(
-                      result: {
-                        "feedroomId": feedRoomId,
-                        "isBack": false,
-                      },
-                    );
+                    if (croppedImages.isNotEmpty ||
+                        (_controller != null && _controller!.text.isNotEmpty)) {
+                      showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                                title: const Text('Discard Post'),
+                                content: const Text(
+                                    'Are you sure want to discard the current post?'),
+                                actions: <Widget>[
+                                  TextButton(
+                                    child: const Text('No'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                  TextButton(
+                                    child: const Text('Yes'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                      locator<NavigationService>().goBack(
+                                        result: {
+                                          "feedroomId": feedRoomId,
+                                          "isBack": false,
+                                        },
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ));
+                    } else {
+                      locator<NavigationService>().goBack(
+                        result: {
+                          "feedroomId": feedRoomId,
+                          "isBack": false,
+                        },
+                      );
+                    }
                   },
                 ),
                 const Text(
