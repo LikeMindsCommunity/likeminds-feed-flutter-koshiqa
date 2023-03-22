@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 class AllCommentsScreenArguments {
@@ -27,7 +28,7 @@ class NewPostScreenArguments {
 class MediaPreviewArguments {
   final String postId;
   final List<Attachment>? attachments;
-  final List<Map<String, dynamic>>? mediaFiles;
+  final List<MediaModel>? mediaFiles;
   MediaPreviewArguments({
     this.attachments,
     this.mediaFiles,

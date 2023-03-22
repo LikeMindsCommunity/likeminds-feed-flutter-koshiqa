@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
 import 'package:flutter/material.dart';
 
 import 'package:feed_sx/feed.dart';
@@ -18,7 +19,7 @@ class PostMedia extends StatefulWidget {
   final String postId;
   double? height;
   List<Attachment>? attachments;
-  List<Map<String, dynamic>>? mediaFiles;
+  List<MediaModel>? mediaFiles;
   PostMedia({
     super.key,
     this.height,
@@ -72,14 +73,14 @@ class _PostMediaState extends State<PostMedia> {
               child: CarouselSlider(
                 items: widget.attachments == null
                     ? widget.mediaFiles!.map((e) {
-                        if (e['mediaType'] == 1) {
+                        if (e.mediaType == MediaType.image) {
                           return Image.file(
-                            e['mediaFile'],
+                            e.mediaFile,
                             fit: BoxFit.cover,
                           );
-                        } else if (e['mediaType'] == 2) {
+                        } else if (e.mediaType == MediaType.video) {
                           return PostVideo(
-                            videoFile: e['mediaFile'],
+                            videoFile: e.mediaFile,
                             width: widget.height ?? screenSize!.width,
                           );
                         }

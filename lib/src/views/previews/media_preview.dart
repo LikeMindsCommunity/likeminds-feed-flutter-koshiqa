@@ -1,3 +1,4 @@
+import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
 import 'package:flutter/material.dart';
 
 import 'package:feed_sx/feed.dart';
@@ -13,7 +14,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 class MediaPreview extends StatefulWidget {
   static const route = '/media_preview';
   final List<Attachment>? attachments;
-  final List<Map<String, dynamic>>? mediaFiles;
+  final List<MediaModel>? mediaFiles;
   final String postId;
 
   const MediaPreview({
@@ -70,15 +71,15 @@ class _MediaPreviewState extends State<MediaPreview> {
                 items: widget.attachments == null
                     ? widget.mediaFiles!.map(
                         (e) {
-                          if (e['mediaType'] == 1) {
+                          if (e.mediaType == MediaType.image) {
                             return Image.file(
-                              e['mediaFile'],
+                              e.mediaFile,
                               fit: BoxFit.cover,
                             );
-                          } else if (e['mediaType'] == 2) {
+                          } else if (e.mediaType == MediaType.video) {
                             // return video player widget
                             return PostVideo(
-                              videoFile: e['mediaFile'],
+                              videoFile: e.mediaFile,
                               width: screenSize!.width,
                             );
                           } else {

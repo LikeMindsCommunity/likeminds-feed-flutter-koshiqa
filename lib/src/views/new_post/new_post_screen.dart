@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_document.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_helper.dart';
 import 'package:file_picker/file_picker.dart';
@@ -66,7 +67,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
   late final FeedRoomBloc feedBloc;
   late final int feedRoomId;
   List<Attachment> attachments = [];
-  List<Map<String, dynamic>> postMedia = [];
+  List<MediaModel> postMedia = [];
 
   List<UserTag> userTags = [];
   String? result;
@@ -87,9 +88,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
 
   // this function initiliases postMedia list
   // with photos/videos picked by the user
-  void setPickedMediaFiles(List<Map<String, dynamic>> pickedMediaFiles) {
+  void setPickedMediaFiles(List<MediaModel> pickedMediaFiles) {
     if (postMedia == null || postMedia.isEmpty) {
-      postMedia = <Map<String, dynamic>>[...pickedMediaFiles];
+      postMedia = <MediaModel>[...pickedMediaFiles];
     } else {
       postMedia.addAll(pickedMediaFiles);
     }
@@ -139,9 +140,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemBuilder: (context, index) => PostDocument(
-          size: getFileSizeString(bytes: postMedia[index]['size']),
-          type: postMedia[index]['format'],
-          docFile: postMedia[index]['mediaFile'],
+          size: getFileSizeString(bytes: postMedia[index].size!),
+          type: postMedia[index].format!,
+          docFile: postMedia[index].mediaFile,
         ),
       );
     } else {
@@ -149,7 +150,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
         height: width,
         width: width,
         child: SfPdfViewer.file(
-          postMedia.first['mediaFile'],
+          postMedia.first.mediaFile,
           scrollDirection: PdfScrollDirection.horizontal,
           canShowPaginationDialog: false,
         ),
@@ -301,7 +302,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                             child: Loader(),
                           ),
                         if ((attachments.isNotEmpty || postMedia.isNotEmpty))
-                          postMedia.first['mediaType'] == 3
+                          postMedia.first.mediaType == MediaType.document
                               ? getPostDocument(screenSize!.width)
                               : Container(
                                   padding:
@@ -383,7 +384,7 @@ class AddAssetsButton extends StatelessWidget {
   final Function(bool uploadResponse) onUploaded;
   final Function() uploading;
   final Function() preUploadCheck;
-  final Function(List<Map<String, dynamic>>)
+  final Function(List<MediaModel>)
       postMedia; // only return in List<File> format
 
   const AddAssetsButton({
@@ -407,13 +408,9 @@ class AddAssetsButton extends StatelessWidget {
         files: list.map((e) => File(e.path)).toList(),
         aspectRatio: 1.0,
         callBack: (List<File> images) {
-          List<Map<String, dynamic>> mediaFiles = images
-              .map(
-                (e) => {
-                  'mediaType': 1,
-                  'mediaFile': File(e.path),
-                },
-              )
+          List<MediaModel> mediaFiles = images
+              .map((e) => MediaModel(
+                  mediaFile: File(e.path), mediaType: MediaType.image))
               .toList();
           postMedia(mediaFiles);
           onUploaded(true);
@@ -432,12 +429,11 @@ class AddAssetsButton extends StatelessWidget {
       VideoPlayerController controller = VideoPlayerController.file(video);
       await controller.initialize();
       Duration videoDuration = controller.value.duration;
-      Map<String, dynamic> videoFile = {
-        'mediaType': 2,
-        'mediaFile': video,
-        'duration': videoDuration.inSeconds,
-      };
-      List<Map<String, dynamic>> videoFiles = [];
+      MediaModel videoFile = MediaModel(
+          mediaType: MediaType.video,
+          mediaFile: video,
+          duration: videoDuration.inSeconds);
+      List<MediaModel> videoFiles = [];
       videoFiles.add(videoFile);
       postMedia(videoFiles);
     }
@@ -457,14 +453,13 @@ class AddAssetsButton extends StatelessWidget {
       ],
     );
     if (pickedFiles != null) {
-      List<Map<String, dynamic>> attachedFiles = [];
+      List<MediaModel> attachedFiles = [];
       attachedFiles = pickedFiles.files
-          .map((e) => {
-                'mediaType': 3,
-                'mediaFile': File(e.path!),
-                'format': e.extension,
-                'size': e.size
-              })
+          .map((e) => MediaModel(
+              mediaType: MediaType.document,
+              mediaFile: File(e.path!),
+              format: e.extension,
+              size: e.size))
           .toList();
       postMedia(attachedFiles);
       onUploaded(true);

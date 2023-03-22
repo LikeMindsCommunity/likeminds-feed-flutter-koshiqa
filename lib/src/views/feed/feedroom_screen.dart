@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_image_shimmer.dart';
 import 'package:flutter/material.dart';
 
@@ -230,7 +231,29 @@ class _FeedRoomEmptyViewState extends State<FeedRoomEmptyView> {
   final ValueNotifier postUploading = ValueNotifier(false);
   Size? screenSize;
 
-  List<File> imageFiles = [];
+  List<MediaModel> imageFiles = [];
+
+  Widget getLoaderThumbnail() {
+    if (imageFiles[0].mediaType == MediaType.image) {
+      return Image.file(
+        imageFiles[0].mediaFile,
+        height: 50,
+        width: 50,
+        fit: BoxFit.cover,
+      );
+    } else if (imageFiles[0].mediaType == MediaType.video) {
+      return getPostShimmer(50);
+    } else {
+      return SizedBox(
+        height: 50,
+        width: 50,
+        child: PostVideo(
+          videoFile: imageFiles[0].mediaFile,
+          width: 50,
+        ),
+      );
+    }
+  }
 
   int imageUploadProgress = 0;
 
@@ -263,12 +286,7 @@ class _FeedRoomEmptyViewState extends State<FeedRoomEmptyView> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
                               imageFiles != null && imageFiles.isNotEmpty
-                                  ? Image.file(
-                                      imageFiles[0],
-                                      height: 50,
-                                      width: 50,
-                                      fit: BoxFit.cover,
-                                    )
+                                  ? getLoaderThumbnail()
                                   : const SizedBox(),
                               kHorizontalPaddingMedium,
                               Text('Posting')
@@ -328,7 +346,7 @@ class _FeedRoomEmptyViewState extends State<FeedRoomEmptyView> {
                     )
                         .then((result) async {
                       if (result != null && result['isBack']) {
-                        imageFiles = result['imageFiles'];
+                        imageFiles = result['mediaFiles'] as List<MediaModel>;
                         postUploading.value = true;
                         await postContent(context, result, widget.feedRoom.id,
                             (int progress) {
@@ -339,10 +357,6 @@ class _FeedRoomEmptyViewState extends State<FeedRoomEmptyView> {
                         postUploading.value = false;
                         widget.onRefresh();
                         widget.onPressedBack();
-                        widget.feedBloc.add(
-                          GetFeedRoom(
-                              feedRoomId: widget.feedRoom.id, offset: 1),
-                        );
                       }
                     });
                   },
@@ -388,24 +402,24 @@ class _FeedRoomViewState extends State<FeedRoomView> {
   ValueNotifier<bool> rebuildPostWidget = ValueNotifier(false);
   final ValueNotifier postUploading = ValueNotifier(false);
 
-  List<Map<String, dynamic>> imageFiles = [];
+  List<MediaModel> imageFiles = [];
 
   Widget getLoaderThumbnail() {
-    if (imageFiles[0]['mediaType'] == 1) {
+    if (imageFiles[0].mediaType == MediaType.image) {
       return Image.file(
-        imageFiles[0]['mediaFile'],
+        imageFiles[0].mediaFile,
         height: 50,
         width: 50,
         fit: BoxFit.cover,
       );
-    } else if (imageFiles[0]['mediaType'] == 3) {
+    } else if (imageFiles[0].mediaType == MediaType.video) {
       return getPostShimmer(50);
     } else {
       return SizedBox(
         height: 50,
         width: 50,
         child: PostVideo(
-          videoFile: imageFiles[0]['mediaFile'],
+          videoFile: imageFiles[0].mediaFile,
           width: 50,
         ),
       );
@@ -526,7 +540,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
           )
               .then((result) async {
             if (result != null && result['isBack']) {
-              imageFiles = result['mediaFiles'];
+              imageFiles = result['mediaFiles'] as List<MediaModel>;
               postUploading.value = true;
               await postContent(context, result, widget.feedRoom.id,
                   (int progress) {
@@ -604,23 +618,25 @@ Future postContent(BuildContext context, Map<String, dynamic> postData,
   }
 }
 
-Future<List<Attachment>> uploadImages(List<Map<String, dynamic>> croppedFiles,
-    Function(int) updateProgress) async {
+Future<List<Attachment>> uploadImages(
+    List<MediaModel> croppedFiles, Function(int) updateProgress) async {
   List<Attachment> attachments = [];
   int imageUploadCount = 0;
   for (final media in croppedFiles) {
     try {
-      File mediaFile = media['mediaFile'];
+      File mediaFile = media.mediaFile;
       final String? response =
-          await locator<LikeMindsService>().uploadFile(media['mediaFile']);
+          await locator<LikeMindsService>().uploadFile(media.mediaFile);
       if (response != null) {
         attachments.add(Attachment(
-          attachmentType: media['mediaType'],
+          attachmentType: media.mapMediaTypeToInt(),
           attachmentMeta: AttachmentMeta(
               url: response,
-              size: media['mediaType'] == 3 ? media['size'] : null,
-              format: media['mediaType'] == 3 ? media['format'] : null,
-              duration: media['mediaType'] == 2 ? media['duration'] : null),
+              size: media.mediaType == MediaType.document ? media.size : null,
+              format:
+                  media.mediaType == MediaType.document ? media.format : null,
+              duration:
+                  media.mediaType == MediaType.video ? media.duration : null),
         ));
         imageUploadCount += 1;
         updateProgress(imageUploadCount);
