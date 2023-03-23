@@ -72,9 +72,10 @@ class _PostActionsState extends State<PostActions> {
                     if (!response.success) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: const Text(
-                            "There was an error liking the post",
-                            style: TextStyle(
+                          content: Text(
+                            response.errorMessage ??
+                                "There was an error liking the post",
+                            style: const TextStyle(
                               fontSize: 18,
                             ),
                           ),

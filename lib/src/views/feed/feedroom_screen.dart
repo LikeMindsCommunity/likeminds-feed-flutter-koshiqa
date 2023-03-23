@@ -18,6 +18,8 @@ import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:flutter/material.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
 
 //const List<int> DUMMY_FEEDROOMS = [72345, 72346, 72347];
 //const List<int> DUMMY_FEEDROOMS = [72200, 72232, 72233];
@@ -327,7 +329,7 @@ class _FeedRoomEmptyViewState extends State<FeedRoomEmptyView> {
                       if (result != null && result['isBack']) {
                         imageFiles = result['imageFiles'];
                         postUploading.value = true;
-                        await postContent(result, widget.feedRoom.id,
+                        await postContent(context, result, widget.feedRoom.id,
                             (int progress) {
                           imageUploadProgress = progress;
                           postUploading.value = false;
@@ -508,7 +510,8 @@ class _FeedRoomViewState extends State<FeedRoomView> {
             if (result != null && result['isBack']) {
               imageFiles = result['imageFiles'];
               postUploading.value = true;
-              await postContent(result, widget.feedRoom.id, (int progress) {
+              await postContent(context, result, widget.feedRoom.id,
+                  (int progress) {
                 imageUploadProgress = progress;
                 postUploading.value = false;
                 postUploading.value = true;
@@ -524,10 +527,22 @@ class _FeedRoomViewState extends State<FeedRoomView> {
   }
 }
 
-Future postContent(Map<String, dynamic> postData, int feedRoomId,
-    Function(int) updateProgress) async {
-  List<Attachment> attachments =
-      await uploadImages(postData['imageFiles'], updateProgress);
+Future postContent(BuildContext context, Map<String, dynamic> postData,
+    int feedRoomId, Function(int) updateProgress) async {
+  List<File> mediaFiles = postData['mediaFiles'];
+  List<Attachment> attachments = await uploadImages(mediaFiles, updateProgress);
+  int imageCount = 0;
+  int videoCount = 0;
+  int documentCount = 0;
+  for (final attachment in attachments) {
+    if (attachment.attachmentType == 1) {
+      imageCount++;
+    } else if (attachment.attachmentType == 2) {
+      videoCount++;
+    } else if (attachment.attachmentType == 3) {
+      documentCount++;
+    }
+  }
   final AddPostRequest request = AddPostRequest(
     text: postData['result'] ?? '',
     attachments: attachments,
@@ -536,15 +551,20 @@ Future postContent(Map<String, dynamic> postData, int feedRoomId,
   final AddPostResponse response =
       await locator<LikeMindsService>().addPost(request);
   if (response.success) {
-    LMAnalytics.get().track(AnalyticsKeys.postCreationCompleted, {
-      "user_tagged": "no",
-      "link_attached": "no",
-      "image_attached": {
-        "yes": {"image_count": attachments.length},
+    LMAnalytics.get().track(
+      AnalyticsKeys.postCreationCompleted,
+      {
+        "user_tagged": "no",
+        "link_attached": "no",
+        "image_attached": {
+          "yes": {"image_count": attachments.length},
+        },
       },
-      "video_attached": "no",
-      "document_attached": "no",
-    });
+    );
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
+        content: response.errorMessage ?? 'An error occured',
+        backgroundColor: kGrey1Color));
   }
 }
 

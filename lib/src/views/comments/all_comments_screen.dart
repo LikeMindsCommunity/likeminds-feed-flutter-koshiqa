@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
 import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
 import 'package:feed_sx/src/views/tagging/tagging_textfield_ta.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
@@ -90,7 +91,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     });
   }
 
-  updatePostDetails() async {
+  Future updatePostDetails(BuildContext context) async {
     final GetPostResponse postDetails =
         await locator<LikeMindsService>().getPost(
       GetPostRequest(
@@ -99,8 +100,14 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
         pageSize: 10,
       ),
     );
-    postData = postDetails.post;
-    rebuildPostWidget.value = !rebuildPostWidget.value;
+    if (postDetails.success) {
+      postData = postDetails.post;
+      rebuildPostWidget.value = !rebuildPostWidget.value;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
+          content: postDetails.errorMessage ?? 'An error occured',
+          backgroundColor: kGrey1Color));
+    }
   }
 
   @override
@@ -196,7 +203,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                   _commentController!.clear();
                                   _pagingController.refresh();
                                   _page = 1;
-                                  updatePostDetails();
+                                  updatePostDetails(context);
                                 }
                               }),
                               builder: (context, state) {
@@ -253,7 +260,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                   _page = 1;
 
                                   deselectCommentToReply();
-                                  updatePostDetails();
+                                  updatePostDetails(context);
                                 }
                               }),
                               builder: (context, state) {
@@ -366,18 +373,18 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                 late PostDetailResponse postDetailResponse;
                 if (state is AllCommentsLoaded) {
                   print("AllCommentsLoaded" + state.toString());
-                  updatePostDetails();
+                  updatePostDetails(context);
                   postDetailResponse = state.postDetails;
                 } else {
                   print("PaginatedAllCommentsLoading" + state.toString());
-                  updatePostDetails();
+                  updatePostDetails(context);
                   postDetailResponse =
                       (state as PaginatedAllCommentsLoading).prevPostDetails;
                 }
 
                 return RefreshIndicator(
                     onRefresh: () async {
-                      await updatePostDetails();
+                      await updatePostDetails(context);
                     },
                     child: CustomScrollView(
                       slivers: [
