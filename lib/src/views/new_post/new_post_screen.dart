@@ -115,6 +115,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
         isUploading = false;
       });
     } else {
+      if (postMedia.isEmpty) {
+        isMediaPost = false;
+      }
       setState(() {
         isUploading = false;
       });
@@ -128,6 +131,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
         isUploading = false;
       });
     } else {
+      if (postMedia.isEmpty) {
+        isDocumentPost = false;
+      }
       setState(() {
         isUploading = false;
       });
@@ -446,7 +452,17 @@ class AddAssetsButton extends StatelessWidget {
   void pickImages(BuildContext context) async {
     uploading();
     final List<XFile> list = await picker.pickMultiImage();
+
     if (list.isNotEmpty) {
+      for (XFile image in list) {
+        int fileBytes = await image.length();
+        if (getFileSizeInDouble(fileBytes) > 100) {
+          ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
+              content: 'File size should be smaller than 100MB',
+              backgroundColor: kGrey1Color));
+          return;
+        }
+      }
       MultiImageCrop.startCropping(
         context: context,
         activeColor: kWhiteColor,
@@ -462,15 +478,22 @@ class AddAssetsButton extends StatelessWidget {
         },
       );
     } else {
-      onUploaded(true);
+      onUploaded(false);
     }
   }
 
-  void pickVideos() async {
+  void pickVideos(BuildContext context) async {
     uploading();
     final XFile? xVideo = await picker.pickVideo(source: ImageSource.gallery);
     if (xVideo != null) {
       File video = File(xVideo.path);
+      int fileBytes = await video.length();
+      if (getFileSizeInDouble(fileBytes) > 100) {
+        ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
+            content: 'File size should be smaller than 100MB',
+            backgroundColor: kGrey1Color));
+        return;
+      }
       VideoPlayerController controller = VideoPlayerController.file(video);
       await controller.initialize();
       Duration videoDuration = controller.value.duration;
@@ -481,11 +504,13 @@ class AddAssetsButton extends StatelessWidget {
       List<MediaModel> videoFiles = [];
       videoFiles.add(videoFile);
       postMedia(videoFiles);
+      onUploaded(true);
+    } else {
+      onUploaded(false);
     }
-    onUploaded(true);
   }
 
-  void pickFiles() async {
+  void pickFiles(BuildContext context) async {
     uploading();
     final pickedFiles = await filePicker.pickFiles(
       allowMultiple: true,
@@ -495,7 +520,16 @@ class AddAssetsButton extends StatelessWidget {
         'pdf',
       ],
     );
+
     if (pickedFiles != null) {
+      for (var pickedFile in pickedFiles.files) {
+        if (getFileSizeInDouble(pickedFile.size) > 100) {
+          ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
+              content: 'File size should be smaller than 100MB',
+              backgroundColor: kGrey1Color));
+        }
+        return;
+      }
       List<MediaModel> attachedFiles = [];
       attachedFiles = pickedFiles.files
           .map((e) => MediaModel(
@@ -520,9 +554,9 @@ class AddAssetsButton extends StatelessWidget {
           if (mediaType == 1) {
             pickImages(context);
           } else if (mediaType == 2) {
-            pickVideos();
+            pickVideos(context);
           } else if (mediaType == 3) {
-            pickFiles();
+            pickFiles(context);
           }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -542,7 +576,7 @@ class AddAssetsButton extends StatelessWidget {
           );
         }
       },
-      child: Container(
+      child: SizedBox(
         height: 35,
         child: Row(
           children: [
