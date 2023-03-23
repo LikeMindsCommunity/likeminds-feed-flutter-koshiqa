@@ -9,21 +9,33 @@ import 'package:feed_sx/src/views/previews/document_preview.dart';
 
 Widget postDocumentFactory(List<Attachment>? attachments, double width) {
   if (attachments!.length == 1) {
-    return GestureDetector(
-      onTap: () {
-        locator<NavigationService>().navigateTo(DocumentPreview.route,
-            arguments: DocumentPreviewArguments(
-                docUrl: attachments.first.attachmentMeta.url!));
-      },
-      child: SizedBox(
-        height: width,
-        width: width,
-        child: SfPdfViewer.network(
-          attachments.first.attachmentMeta.url!,
-          scrollDirection: PdfScrollDirection.horizontal,
-          canShowPaginationDialog: false,
-          enableDoubleTapZooming: false,
-        ),
+    return SizedBox(
+      height: width,
+      width: width,
+      child: Stack(
+        children: [
+          SfPdfViewer.network(
+            attachments.first.attachmentMeta.url!,
+            scrollDirection: PdfScrollDirection.horizontal,
+            canShowPaginationDialog: false,
+            enableDoubleTapZooming: false,
+          ),
+          GestureDetector(
+            onTap: () {
+              locator<NavigationService>().navigateTo(
+                DocumentPreview.route,
+                arguments: DocumentPreviewArguments(
+                  docUrl: attachments.first.attachmentMeta.url!,
+                ),
+              );
+            },
+            behavior: HitTestBehavior.translucent,
+            child: SizedBox(
+              height: width,
+              width: width,
+            ),
+          )
+        ],
       ),
     );
   } else {
