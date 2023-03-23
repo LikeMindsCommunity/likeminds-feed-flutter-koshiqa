@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 class AllCommentsScreenArguments {
@@ -24,13 +25,20 @@ class NewPostScreenArguments {
   NewPostScreenArguments({required this.user, required this.feedroomId});
 }
 
-class ImagePreviewArguments {
+class MediaPreviewArguments {
   final String postId;
-  final List<String>? url;
-  final List<File>? images;
-  ImagePreviewArguments({
-    this.url,
-    this.images,
+  final List<Attachment>? attachments;
+  final List<MediaModel>? mediaFiles;
+  MediaPreviewArguments({
+    this.attachments,
+    this.mediaFiles,
     required this.postId,
+  });
+}
+
+class DocumentPreviewArguments {
+  final String docUrl;
+  DocumentPreviewArguments({
+    required this.docUrl,
   });
 }

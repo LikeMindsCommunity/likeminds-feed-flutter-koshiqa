@@ -46,7 +46,8 @@ dependencies:
   carousel_slider: ^4.2.1
   multi_image_crop: ^0.0.3
   shimmer: ^2.0.0
-  
+  syncfusion_flutter_pdfviewer: ^20.4.54
+  file_picker: ^5.2.6
 
   # likeminds_feed: 
   #   path: ../LikeMinds-Flutter-SDK

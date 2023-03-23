@@ -5,8 +5,8 @@ library feed;
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/credentials/credentials.dart';
 import 'package:feed_sx/src/views/feed/feedroom_list_screen.dart';
-import 'package:feed_sx/src/views/previews/image_preview.dart';
-import 'package:feed_sx/src/views/tagging_test.dart';
+import 'package:feed_sx/src/views/previews/media_preview.dart';
+import 'package:feed_sx/src/views/previews/document_preview.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
@@ -14,9 +14,8 @@ import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/views/feed/feedroom_screen.dart';
 import 'package:flutter/material.dart';
-import 'src/navigation/navigation_service.dart';
-import 'src/services/likeminds_service.dart';
 
+import 'src/services/likeminds_service.dart';
 export 'src/views/feed/feed_screen.dart';
 export 'src/views/likes/likes_screen.dart';
 export 'src/views/report_post/report_screen.dart';
@@ -147,21 +146,31 @@ class _LMFeedState extends State<LMFeed> {
                     },
                   );
                 }
-                if (settings.name == ImagePreview.route) {
-                  final args = settings.arguments as ImagePreviewArguments;
+                if (settings.name == MediaPreview.route) {
+                  final args = settings.arguments as MediaPreviewArguments;
                   return MaterialPageRoute(
                     builder: (context) {
-                      if (args.url == null) {
-                        return ImagePreview(
-                          images: args.images,
+                      if (args.attachments == null) {
+                        return MediaPreview(
+                          mediaFiles: args.mediaFiles,
                           postId: args.postId,
                         );
                       } else {
-                        return ImagePreview(
-                          url: args.url,
+                        return MediaPreview(
+                          attachments: args.attachments,
                           postId: args.postId,
                         );
                       }
+                    },
+                  );
+                }
+                if (settings.name == DocumentPreview.route) {
+                  final args = settings.arguments as DocumentPreviewArguments;
+                  return MaterialPageRoute(
+                    builder: (context) {
+                      return DocumentPreview(
+                        docURL: args.docUrl,
+                      );
                     },
                   );
                 }
