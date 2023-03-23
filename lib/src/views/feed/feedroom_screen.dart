@@ -231,27 +231,31 @@ class _FeedRoomEmptyViewState extends State<FeedRoomEmptyView> {
   final ValueNotifier postUploading = ValueNotifier(false);
   Size? screenSize;
 
-  List<MediaModel> imageFiles = [];
+  List<MediaModel>? imageFiles = [];
 
   Widget getLoaderThumbnail() {
-    if (imageFiles[0].mediaType == MediaType.image) {
-      return Image.file(
-        imageFiles[0].mediaFile,
-        height: 50,
-        width: 50,
-        fit: BoxFit.cover,
-      );
-    } else if (imageFiles[0].mediaType == MediaType.video) {
-      return getPostShimmer(50);
-    } else {
-      return SizedBox(
-        height: 50,
-        width: 50,
-        child: PostVideo(
-          videoFile: imageFiles[0].mediaFile,
+    if (imageFiles != null) {
+      if (imageFiles![0].mediaType == MediaType.image) {
+        return Image.file(
+          imageFiles![0].mediaFile,
+          height: 50,
           width: 50,
-        ),
-      );
+          fit: BoxFit.cover,
+        );
+      } else if (imageFiles![0].mediaType == MediaType.video) {
+        return getPostShimmer(50);
+      } else {
+        return SizedBox(
+          height: 50,
+          width: 50,
+          child: PostVideo(
+            videoFile: imageFiles![0].mediaFile,
+            width: 50,
+          ),
+        );
+      }
+    } else {
+      return const SizedBox(height: 50, width: 50);
     }
   }
 
@@ -285,7 +289,7 @@ class _FeedRoomEmptyViewState extends State<FeedRoomEmptyView> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
-                              imageFiles != null && imageFiles.isNotEmpty
+                              imageFiles != null && imageFiles!.isNotEmpty
                                   ? getLoaderThumbnail()
                                   : const SizedBox(),
                               kHorizontalPaddingMedium,
@@ -295,10 +299,10 @@ class _FeedRoomEmptyViewState extends State<FeedRoomEmptyView> {
                           SizedBox(
                             height: 20,
                             width: 20,
-                            child: imageFiles != null && imageFiles.isNotEmpty
+                            child: imageFiles != null && imageFiles!.isNotEmpty
                                 ? CircularProgressIndicator(
-                                    value:
-                                        imageUploadProgress / imageFiles.length,
+                                    value: imageUploadProgress /
+                                        imageFiles!.length,
                                     backgroundColor: kGrey3Color,
                                     valueColor:
                                         AlwaysStoppedAnimation(kLinkColor),
@@ -321,19 +325,19 @@ class _FeedRoomEmptyViewState extends State<FeedRoomEmptyView> {
                   kAssetPostsIcon,
                   color: kGrey3Color,
                 ),
-                SizedBox(height: 12),
-                Text("No posts to show",
+                const SizedBox(height: 12),
+                const Text("No posts to show",
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     )),
-                SizedBox(height: 12),
-                Text("Be the first one to post here",
+                const SizedBox(height: 12),
+                const Text("Be the first one to post here",
                     style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w300,
                         color: kGrey2Color)),
-                SizedBox(height: 28),
+                const SizedBox(height: 28),
                 NewPostButton(
                   onTap: () {
                     locator<NavigationService>()
@@ -346,7 +350,7 @@ class _FeedRoomEmptyViewState extends State<FeedRoomEmptyView> {
                     )
                         .then((result) async {
                       if (result != null && result['isBack']) {
-                        imageFiles = result['mediaFiles'] as List<MediaModel>;
+                        imageFiles = result['mediaFiles'] as List<MediaModel>?;
                         postUploading.value = true;
                         await postContent(context, result, widget.feedRoom.id,
                             (int progress) {
@@ -402,27 +406,31 @@ class _FeedRoomViewState extends State<FeedRoomView> {
   ValueNotifier<bool> rebuildPostWidget = ValueNotifier(false);
   final ValueNotifier postUploading = ValueNotifier(false);
 
-  List<MediaModel> imageFiles = [];
+  List<MediaModel>? imageFiles = [];
 
   Widget getLoaderThumbnail() {
-    if (imageFiles[0].mediaType == MediaType.image) {
-      return Image.file(
-        imageFiles[0].mediaFile,
-        height: 50,
-        width: 50,
-        fit: BoxFit.cover,
-      );
-    } else if (imageFiles[0].mediaType == MediaType.video) {
-      return getPostShimmer(50);
-    } else {
-      return SizedBox(
-        height: 50,
-        width: 50,
-        child: PostVideo(
-          videoFile: imageFiles[0].mediaFile,
+    if (imageFiles != null) {
+      if (imageFiles![0].mediaType == MediaType.image) {
+        return Image.file(
+          imageFiles![0].mediaFile,
+          height: 50,
           width: 50,
-        ),
-      );
+          fit: BoxFit.cover,
+        );
+      } else if (imageFiles![0].mediaType == MediaType.video) {
+        return getPostShimmer(50);
+      } else {
+        return SizedBox(
+          height: 50,
+          width: 50,
+          child: PostVideo(
+            videoFile: imageFiles![0].mediaFile,
+            width: 50,
+          ),
+        );
+      }
+    } else {
+      return const SizedBox(height: 50, width: 50);
     }
   }
 
@@ -451,23 +459,23 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
-                              imageFiles != null && imageFiles.isNotEmpty
+                              imageFiles != null && imageFiles!.isNotEmpty
                                   ? getLoaderThumbnail()
                                   : const SizedBox(),
                               kHorizontalPaddingMedium,
-                              Text('Posting')
+                              const Text('Posting')
                             ],
                           ),
                           SizedBox(
                             height: 20,
                             width: 20,
-                            child: imageFiles != null && imageFiles.isNotEmpty
+                            child: imageFiles != null && imageFiles!.isNotEmpty
                                 ? CircularProgressIndicator(
-                                    value:
-                                        imageUploadProgress / imageFiles.length,
+                                    value: imageUploadProgress /
+                                        imageFiles!.length,
                                     backgroundColor: kGrey3Color,
-                                    valueColor:
-                                        AlwaysStoppedAnimation(kLinkColor),
+                                    valueColor: const AlwaysStoppedAnimation(
+                                        kLinkColor),
                                   )
                                 : CircularProgressIndicator(),
                           ),
@@ -482,10 +490,10 @@ class _FeedRoomViewState extends State<FeedRoomView> {
             child: PagedListView<int, Post>(
               pagingController: widget.feedRoomPagingController,
               builderDelegate: PagedChildBuilderDelegate<Post>(
-                  noItemsFoundIndicatorBuilder: (context) => Scaffold(
+                  noItemsFoundIndicatorBuilder: (context) => const Scaffold(
                       backgroundColor: kBackgroundColor,
                       body: Center(
-                        child: const Loader(),
+                        child: Loader(),
                       )),
                   itemBuilder: (context, item, index) {
                     return ValueListenableBuilder(
@@ -540,7 +548,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
           )
               .then((result) async {
             if (result != null && result['isBack']) {
-              imageFiles = result['mediaFiles'] as List<MediaModel>;
+              imageFiles = result['mediaFiles'] as List<MediaModel>?;
               postUploading.value = true;
               await postContent(context, result, widget.feedRoom.id,
                   (int progress) {
@@ -561,18 +569,21 @@ class _FeedRoomViewState extends State<FeedRoomView> {
 
 Future postContent(BuildContext context, Map<String, dynamic> postData,
     int feedRoomId, Function(int) updateProgress) async {
-  List<File> mediaFiles = postData['mediaFiles'];
-  List<Attachment> attachments = await uploadImages(mediaFiles, updateProgress);
+  List<MediaModel>? mediaFiles = postData['mediaFiles'];
   int imageCount = 0;
   int videoCount = 0;
   int documentCount = 0;
-  for (final attachment in attachments) {
-    if (attachment.attachmentType == 1) {
-      imageCount++;
-    } else if (attachment.attachmentType == 2) {
-      videoCount++;
-    } else if (attachment.attachmentType == 3) {
-      documentCount++;
+  List<Attachment>? attachments;
+  if (mediaFiles != null) {
+    attachments = await uploadImages(mediaFiles, updateProgress);
+    for (final attachment in attachments) {
+      if (attachment.attachmentType == 1) {
+        imageCount++;
+      } else if (attachment.attachmentType == 2) {
+        videoCount++;
+      } else if (attachment.attachmentType == 3) {
+        documentCount++;
+      }
     }
   }
   final AddPostRequest request = AddPostRequest(
@@ -619,10 +630,10 @@ Future postContent(BuildContext context, Map<String, dynamic> postData,
 }
 
 Future<List<Attachment>> uploadImages(
-    List<MediaModel> croppedFiles, Function(int) updateProgress) async {
+    List<MediaModel> mediaFiles, Function(int) updateProgress) async {
   List<Attachment> attachments = [];
   int imageUploadCount = 0;
-  for (final media in croppedFiles) {
+  for (final media in mediaFiles) {
     try {
       File mediaFile = media.mediaFile;
       final String? response =

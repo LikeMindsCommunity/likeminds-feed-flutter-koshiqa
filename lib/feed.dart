@@ -6,6 +6,7 @@ import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/credentials/credentials.dart';
 import 'package:feed_sx/src/views/feed/feedroom_list_screen.dart';
 import 'package:feed_sx/src/views/previews/media_preview.dart';
+import 'package:feed_sx/src/views/previews/document_preview.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
@@ -160,6 +161,16 @@ class _LMFeedState extends State<LMFeed> {
                           postId: args.postId,
                         );
                       }
+                    },
+                  );
+                }
+                if (settings.name == DocumentPreview.route) {
+                  final args = settings.arguments as DocumentPreviewArguments;
+                  return MaterialPageRoute(
+                    builder: (context) {
+                      return DocumentPreview(
+                        docURL: args.docUrl,
+                      );
                     },
                   );
                 }

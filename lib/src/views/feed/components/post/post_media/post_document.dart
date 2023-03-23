@@ -1,14 +1,18 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:feed_sx/feed.dart';
+import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/views/feed/blocs/download_doc/download_doc_bloc.dart';
+import 'package:feed_sx/src/views/feed/components/post/post_media/post_image_shimmer.dart';
+import 'package:feed_sx/src/views/previews/document_preview.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shimmer/shimmer.dart';
 
 class PostDocument extends StatefulWidget {
   String? url;
@@ -72,7 +76,6 @@ class _PostDocumentState extends State<PostDocument> {
   @override
   void initState() {
     super.initState();
-    _downloadDocBloc = DownloadDocBloc(Dio());
   }
 
   @override
@@ -84,8 +87,10 @@ class _PostDocumentState extends State<PostDocument> {
               snapshot.hasData) {
             return InkWell(
               onTap: () {
-                if (_downloadDocBloc.state is Downloaded) {
-                  // TODO : Open file
+                if (widget.url != null) {
+                  locator<NavigationService>().navigateTo(DocumentPreview.route,
+                      arguments:
+                          DocumentPreviewArguments(docUrl: widget.url ?? ''));
                 }
               },
               child: Padding(
@@ -136,38 +141,16 @@ class _PostDocumentState extends State<PostDocument> {
                           ],
                         ),
                       ),
-                      BlocConsumer<DownloadDocBloc, DownloadDocState>(
-                        bloc: _downloadDocBloc,
-                        listener: (context, state) {
-                          // TODO: implement listener
-                        },
-                        builder: (context, state) {
-                          if (state is Downloading) {
-                            return SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                value: state.progress / 100,
-                              ),
-                            );
-                          }
-                          if (state is Downloaded) {
-                            return const SizedBox.shrink();
-                          }
-                          return IconButton(
-                            icon:
-                                const Icon(Icons.download_for_offline_outlined),
-                            onPressed: () {
-                              _downloadDocBloc.add(Download(url: url!));
-                            },
-                          );
-                        },
-                      )
+                      const SizedBox(
+                        width: 30,
+                      ),
                     ],
                   ),
                 ),
               ),
             );
+          } else if (snapshot.connectionState == ConnectionState.waiting) {
+            return getDocumentTileShimmer();
           } else {
             return const SizedBox.shrink();
           }

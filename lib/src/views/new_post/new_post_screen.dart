@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_document.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_helper.dart';
@@ -163,7 +164,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
     screenSize = MediaQuery.of(context).size;
     return WillPopScope(
       onWillPop: () {
-        if (croppedImages.isNotEmpty ||
+        if (postMedia.isNotEmpty ||
             (_controller != null && _controller!.text.isNotEmpty)) {
           showDialog(
               context: context,
@@ -209,74 +210,119 @@ class _NewPostScreenState extends State<NewPostScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               children: [
-                BackButton(
-                  onPressed: () {
-                    if (croppedImages.isNotEmpty ||
-                        (_controller != null && _controller!.text.isNotEmpty)) {
-                      showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                                title: const Text('Discard Post'),
-                                content: const Text(
-                                    'Are you sure want to discard the current post?'),
-                                actions: <Widget>[
-                                  TextButton(
-                                    child: const Text('No'),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 48,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              BackButton(
+                                onPressed: () {
+                                  if (postMedia.isNotEmpty ||
+                                      (_controller != null &&
+                                          _controller!.text.isNotEmpty)) {
+                                    showDialog(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                              title: const Text('Discard Post'),
+                                              content: const Text(
+                                                  'Are you sure want to discard the current post?'),
+                                              actions: <Widget>[
+                                                TextButton(
+                                                  child: const Text('No'),
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                ),
+                                                TextButton(
+                                                  child: const Text('Yes'),
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                    locator<NavigationService>()
+                                                        .goBack(
+                                                      result: {
+                                                        "feedroomId":
+                                                            feedRoomId,
+                                                        "isBack": false,
+                                                      },
+                                                    );
+                                                  },
+                                                ),
+                                              ],
+                                            ));
+                                  } else {
+                                    locator<NavigationService>().goBack(
+                                      result: {
+                                        "feedroomId": feedRoomId,
+                                        "isBack": false,
+                                      },
+                                    );
+                                  }
+                                },
+                              ),
+                              const Text(
+                                'Create a Post',
+                                style:
+                                    TextStyle(fontSize: 18, color: kGrey1Color),
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  if (_controller != null) {
+                                    userTags = TaggingHelper.matchTags(
+                                        _controller!.text, userTags);
+                                    result = TaggingHelper.encodeString(
+                                        _controller!.text, userTags);
+                                    locator<NavigationService>()
+                                        .goBack(result: {
+                                      "feedroomId": feedRoomId,
+                                      "isBack": true,
+                                      "mediaFiles": postMedia,
+                                      "result": result
+                                    });
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      confirmationToast(
+                                          content:
+                                              "The text in a post can't be empty",
+                                          backgroundColor: kGrey1Color),
+                                    );
+                                  }
+                                },
+                                child: const Text(
+                                  'Post',
+                                  style: TextStyle(
+                                    color: kPrimaryColor,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
                                   ),
-                                  TextButton(
-                                    child: const Text('Yes'),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                      locator<NavigationService>().goBack(
-                                        result: {
-                                          "feedroomId": feedRoomId,
-                                          "isBack": false,
-                                        },
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ));
-                    } else {
-                      locator<NavigationService>().goBack(
-                        result: {
-                          "feedroomId": feedRoomId,
-                          "isBack": false,
-                        },
-                      );
-                    }
-                  },
-                ),
-                const Text(
-                  'Create a Post',
-                  style: TextStyle(fontSize: 18, color: kGrey1Color),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    if (_controller != null) {
-                      userTags =
-                          TaggingHelper.matchTags(_controller!.text, userTags);
-                      result = TaggingHelper.encodeString(
-                          _controller!.text, userTags);
-                      locator<NavigationService>().goBack(result: {
-                        "feedroomId": feedRoomId,
-                        "isBack": true,
-                        "imageFiles": croppedImages,
-                        "result": result
-                      });
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text(
-                            "The text in a post can't be empty",
-                            style: TextStyle(
-                              fontSize: 18,
-                            ),
-                          ]),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
+                        kVerticalPaddingLarge,
+                        Row(children: [
+                          ProfilePicture(
+                              user: PostUser(
+                            id: user.id,
+                            imageUrl: user.imageUrl,
+                            name: user.name,
+                            userUniqueId: user.userUniqueId,
+                            isGuest: user.isGuest,
+                            isDeleted: false,
+                          )),
+                          kHorizontalPaddingLarge,
+                          Text(
+                            user.name,
+                            style: const TextStyle(
+                                fontSize: kFontMedium,
+                                color: kGrey1Color,
+                                fontWeight: FontWeight.w500),
+                          ),
+                        ]),
                         kVerticalPaddingMedium,
                         Container(
                           constraints: const BoxConstraints(minHeight: 150),
@@ -296,28 +342,28 @@ class _NewPostScreenState extends State<NewPostScreen> {
                           ),
                         ),
                         kVerticalPaddingSmall,
-                        if (isUploading)
-                          const Padding(
-                            padding: EdgeInsets.only(top: kPaddingSmall),
-                            child: Loader(),
-                          ),
-                        if ((attachments.isNotEmpty || postMedia.isNotEmpty))
-                          postMedia.first.mediaType == MediaType.document
-                              ? getPostDocument(screenSize!.width)
-                              : Container(
-                                  padding:
-                                      const EdgeInsets.only(top: kPaddingSmall),
-                                  alignment: Alignment.bottomRight,
-                                  child: PostMedia(
-                                      height: screenSize!.width,
-                                      //min(constraints.maxHeight, screenSize!.width),
-                                      mediaFiles: postMedia,
-                                      postId: ''),
-                                ),
+                        kVerticalPaddingMedium
                       ],
                     ),
                   ),
                 ),
+                if (isUploading)
+                  const Padding(
+                    padding: EdgeInsets.only(top: kPaddingSmall),
+                    child: Loader(),
+                  ),
+                if ((attachments.isNotEmpty || postMedia.isNotEmpty))
+                  postMedia.first.mediaType == MediaType.document
+                      ? getPostDocument(screenSize!.width)
+                      : Container(
+                          padding: const EdgeInsets.only(top: kPaddingSmall),
+                          alignment: Alignment.bottomRight,
+                          child: PostMedia(
+                              height: screenSize!.width,
+                              //min(constraints.maxHeight, screenSize!.width),
+                              mediaFiles: postMedia,
+                              postId: ''),
+                        ),
                 kVerticalPaddingMedium,
                 isDocumentPost
                     ? const SizedBox.shrink()
@@ -367,7 +413,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
                           return true;
                         },
                       ),
-                kVerticalPaddingMedium
               ],
             ),
           ),
@@ -448,8 +493,6 @@ class AddAssetsButton extends StatelessWidget {
       dialogTitle: 'Select files',
       allowedExtensions: [
         'pdf',
-        'doc',
-        'docx',
       ],
     );
     if (pickedFiles != null) {

@@ -35,3 +35,10 @@ class MediaPreviewArguments {
     required this.postId,
   });
 }
+
+class DocumentPreviewArguments {
+  final String docUrl;
+  DocumentPreviewArguments({
+    required this.docUrl,
+  });
+}
