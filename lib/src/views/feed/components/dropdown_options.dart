@@ -1,13 +1,10 @@
 import 'package:collection/collection.dart';
+import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
-import 'package:feed_sx/src/views/report_post/report_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:likeminds_feed/likeminds_feed.dart' as sdk;
 
 class DropdownOptions extends StatelessWidget {
   final Post postDetails;
@@ -36,26 +33,51 @@ class DropdownOptions extends StatelessWidget {
                   child: Text(element.title),
                   onTap: () async {
                     if (element.title.split(' ').first == "Delete") {
-                      final res =
-                          await locator<LikeMindsService>().getMemberState();
-                      //Implement delete post analytics tracking
-                      LMAnalytics.get().track(
-                        AnalyticsKeys.postDeleted,
-                        {
-                          "user_state": res ? "CM" : "member",
-                          "post_id": postDetails.id,
-                          "user_id": postDetails.userId,
-                        },
-                      );
-                      final response =
-                          await locator<LikeMindsService>().deletePost(
-                        DeletePostRequest(
-                          postId: postDetails.id,
-                          deleteReason: "deleteReason",
-                        ),
-                      );
-                      print(response.toString());
-                      refresh(true);
+                      showDialog(
+                          context: context,
+                          builder: (childContext) => confirmationDialog(
+                                  childContext,
+                                  title: 'Delete Post',
+                                  content:
+                                      'Are you sure you want to delete this post. This action can not be reversed.',
+                                  action: () async {
+                                Navigator.of(childContext).pop();
+                                final res = await locator<LikeMindsService>()
+                                    .getMemberState();
+                                //Implement delete post analytics tracking
+                                LMAnalytics.get().track(
+                                  AnalyticsKeys.postDeleted,
+                                  {
+                                    "user_state": res ? "CM" : "member",
+                                    "post_id": postDetails.id,
+                                    "user_id": postDetails.userId,
+                                  },
+                                );
+                                final response =
+                                    await locator<LikeMindsService>()
+                                        .deletePost(
+                                  DeletePostRequest(
+                                    postId: postDetails.id,
+                                    deleteReason: "deleteReason",
+                                  ),
+                                );
+                                print(response.toString());
+
+                                if (response.success) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      confirmationToast(
+                                          content: 'Post Deleted',
+                                          width: 200,
+                                          backgroundColor: kGrey1Color));
+                                  refresh(true);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      confirmationToast(
+                                          content: response.errorMessage ??
+                                              'An error occurred',
+                                          backgroundColor: kGrey1Color));
+                                }
+                              }, actionText: 'Delete'));
                     } else if (element.title.split(' ').first == "Pin") {
                       print("Pinning functionality");
                     }
