@@ -529,7 +529,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
 
 Future postContent(BuildContext context, Map<String, dynamic> postData,
     int feedRoomId, Function(int) updateProgress) async {
-  List<MediaModel> mediaFiles = postData['mediaFiles'];
+  List<File> mediaFiles = postData['mediaFiles'];
   List<Attachment> attachments = await uploadImages(mediaFiles, updateProgress);
   int imageCount = 0;
   int videoCount = 0;
@@ -551,11 +551,14 @@ Future postContent(BuildContext context, Map<String, dynamic> postData,
   final AddPostResponse response =
       await locator<LikeMindsService>().addPost(request);
   if (response.success) {
-    LMAnalytics.get().track(AnalyticsKeys.postCreationCompleted, {
-      "user_tagged": "no",
-      "link_attached": "no",
-      "image_attached": {
-        "yes": {"image_count": attachments.length},
+    LMAnalytics.get().track(
+      AnalyticsKeys.postCreationCompleted,
+      {
+        "user_tagged": "no",
+        "link_attached": "no",
+        "image_attached": {
+          "yes": {"image_count": attachments.length},
+        },
       },
     );
   } else {
