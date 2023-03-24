@@ -456,10 +456,12 @@ class AddAssetsButton extends StatelessWidget {
     if (list.isNotEmpty) {
       for (XFile image in list) {
         int fileBytes = await image.length();
-        if (getFileSizeInDouble(fileBytes) > 100) {
+        double fileSize = getFileSizeInDouble(fileBytes);
+        if (fileSize > 100) {
           ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
               content: 'File size should be smaller than 100MB',
               backgroundColor: kGrey1Color));
+          onUploaded(false);
           return;
         }
       }
@@ -492,19 +494,21 @@ class AddAssetsButton extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
             content: 'File size should be smaller than 100MB',
             backgroundColor: kGrey1Color));
+        onUploaded(false);
         return;
+      } else {
+        VideoPlayerController controller = VideoPlayerController.file(video);
+        await controller.initialize();
+        Duration videoDuration = controller.value.duration;
+        MediaModel videoFile = MediaModel(
+            mediaType: MediaType.video,
+            mediaFile: video,
+            duration: videoDuration.inSeconds);
+        List<MediaModel> videoFiles = [];
+        videoFiles.add(videoFile);
+        postMedia(videoFiles);
+        onUploaded(true);
       }
-      VideoPlayerController controller = VideoPlayerController.file(video);
-      await controller.initialize();
-      Duration videoDuration = controller.value.duration;
-      MediaModel videoFile = MediaModel(
-          mediaType: MediaType.video,
-          mediaFile: video,
-          duration: videoDuration.inSeconds);
-      List<MediaModel> videoFiles = [];
-      videoFiles.add(videoFile);
-      postMedia(videoFiles);
-      onUploaded(true);
     } else {
       onUploaded(false);
     }
@@ -527,8 +531,9 @@ class AddAssetsButton extends StatelessWidget {
           ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
               content: 'File size should be smaller than 100MB',
               backgroundColor: kGrey1Color));
+          onUploaded(false);
+          return;
         }
-        return;
       }
       List<MediaModel> attachedFiles = [];
       attachedFiles = pickedFiles.files

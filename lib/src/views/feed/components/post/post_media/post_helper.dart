@@ -8,6 +8,5 @@ String getFileSizeString({required int bytes, int decimals = 0}) {
 
 // Returns file size in double in MBs
 double getFileSizeInDouble(int bytes) {
-  int i = (log(bytes) / log(1024)).floor();
-  return (bytes / pow(1024, i));
+  return (bytes / pow(1024, 2));
 }
