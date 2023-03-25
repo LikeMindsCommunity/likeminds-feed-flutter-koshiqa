@@ -124,6 +124,8 @@ class _LMFeedState extends State<LMFeed> {
                     builder: (context) {
                       return LikesScreen(
                         postId: args.postId,
+                        commentId: args.commentId,
+                        isCommentLikes: args.isCommentLikes,
                       );
                     },
                   );

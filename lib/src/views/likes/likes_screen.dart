@@ -14,10 +14,12 @@ class LikesScreen extends StatefulWidget {
   static const String route = "/likes_screen";
   final String postId;
   final bool isCommentLikes;
-  const LikesScreen({
+  String? commentId;
+  LikesScreen({
     super.key,
     this.isCommentLikes = false,
     required this.postId,
+    this.commentId,
   });
 
   @override
@@ -30,11 +32,32 @@ class _LikesScreenState extends State<LikesScreen> {
       PagingController(firstPageKey: 1);
 
   _addPaginationListener() {
-    _pagingController.addPageRequestListener((pageKey) {
-      _likesBloc!.add(
-        GetLikes(postId: widget.postId, offset: pageKey, pageSize: 10),
+    if (widget.isCommentLikes) {
+      _pagingController.addPageRequestListener(
+        (pageKey) {
+          _likesBloc!.add(
+            GetCommentLikes(
+              offset: pageKey,
+              pageSize: 10,
+              postId: widget.postId,
+              commentId: widget.commentId!,
+            ),
+          );
+        },
       );
-    });
+    } else {
+      _pagingController.addPageRequestListener(
+        (pageKey) {
+          _likesBloc!.add(
+            GetLikes(
+              postId: widget.postId,
+              offset: pageKey,
+              pageSize: 10,
+            ),
+          );
+        },
+      );
+    }
   }
 
   @override
@@ -43,9 +66,24 @@ class _LikesScreenState extends State<LikesScreen> {
     Bloc.observer = SimpleBlocObserver();
     _likesBloc = LikesBloc();
     _addPaginationListener();
-    _likesBloc!.add(
-      GetLikes(offset: 1, pageSize: 10, postId: widget.postId),
-    );
+    if (widget.isCommentLikes && widget.commentId != null) {
+      _likesBloc!.add(
+        GetCommentLikes(
+          offset: 1,
+          pageSize: 10,
+          postId: widget.postId,
+          commentId: widget.commentId!,
+        ),
+      );
+    } else {
+      _likesBloc!.add(
+        GetLikes(
+          offset: 1,
+          pageSize: 10,
+          postId: widget.postId,
+        ),
+      );
+    }
   }
 
   @override
@@ -57,9 +95,23 @@ class _LikesScreenState extends State<LikesScreen> {
   void updatePagingControllers(Object? state) {
     if (state is LikesLoaded) {
       _offset++;
-      if (state.response.users!.length < 10) {
+      if (state.response.users == null) {
+        _pagingController.appendLastPage([]);
+      }
+      if (state.response.users != null && state.response.users!.length < 10) {
         _pagingController.appendLastPage(state.response.users!.values.toList());
-      } else {
+      } else if (state.response.users != null &&
+          state.response.users!.length >= 10) {
+        _pagingController.appendPage(
+            state.response.users!.values.toList(), _offset);
+      }
+    } else if (state is CommentLikesLoaded) {
+      _offset++;
+      if (state.response.users == null) {
+        _pagingController.appendLastPage([]);
+      } else if (state.response.users!.length < 10) {
+        _pagingController.appendLastPage(state.response.users!.values.toList());
+      } else if (state.response.users!.length >= 10) {
         _pagingController.appendPage(
             state.response.users!.values.toList(), _offset);
       }
@@ -91,7 +143,7 @@ class _LikesScreenState extends State<LikesScreen> {
             bloc: _likesBloc,
             buildWhen: (previous, current) {
               if (current is LikesPaginationLoading &&
-                  previous is LikesLoaded) {
+                  (previous is LikesLoaded || previous is CommentLikesLoaded)) {
                 return false;
               }
               return true;
@@ -103,8 +155,19 @@ class _LikesScreenState extends State<LikesScreen> {
               } else if (state is LikesError) {
                 return getLikesErrorView(state.message);
               } else if (state is LikesLoaded) {
-                logLikeListEvent(state.response.totalCount);
-                return getLikesLoadedView(state, _pagingController);
+                if (!widget.isCommentLikes) {
+                  logLikeListEvent(state.response.totalCount);
+                }
+                return getLikesLoadedView(
+                  state: state,
+                  _pagingController,
+                );
+              } else if (state is CommentLikesLoaded) {
+                return getLikesLoadedView(
+                  commentState: state,
+                  isCommentLikes: true,
+                  _pagingController,
+                );
               } else {
                 return const SizedBox();
               }
@@ -114,29 +177,39 @@ class _LikesScreenState extends State<LikesScreen> {
   }
 }
 
+Widget getAppBar(String text) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 18.0),
+    child: Row(
+      children: [
+        kHorizontalPaddingSmall,
+        IconButton(
+          onPressed: () {
+            locator<NavigationService>().goBack();
+          },
+          icon: const Icon(Icons.arrow_back_ios),
+        ),
+        kHorizontalPaddingSmall,
+        Text(
+          text,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+        )
+      ],
+    ),
+  );
+}
+
 Widget getLikesLoadedView(
-    LikesLoaded state, PagingController<int, PostUser> pagingController) {
+  PagingController<int, PostUser> pagingController, {
+  LikesLoaded? state,
+  CommentLikesLoaded? commentState,
+  bool isCommentLikes = false,
+}) {
   return Column(
     children: [
       const SizedBox(height: 64),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 18.0),
-        child: Row(
-          children: [
-            kHorizontalPaddingSmall,
-            IconButton(
-              onPressed: () {
-                locator<NavigationService>().goBack();
-              },
-              icon: const Icon(Icons.arrow_back_ios),
-            ),
-            kHorizontalPaddingSmall,
-            Text(
-              "${state.response.totalCount} Likes",
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-            )
-          ],
-        ),
+      getAppBar(
+        "${isCommentLikes ? commentState!.response.totalCount : state!.response.totalCount} Likes",
       ),
       kVerticalPaddingLarge,
       Expanded(
@@ -150,7 +223,7 @@ Widget getLikesLoadedView(
             noItemsFoundIndicatorBuilder: (context) => const Scaffold(
               backgroundColor: kBackgroundColor,
               body: Center(
-                child: Loader(),
+                child: SizedBox(),
               ),
             ),
             itemBuilder: (context, item, index) => LikesTile(user: item),

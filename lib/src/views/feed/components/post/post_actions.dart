@@ -106,13 +106,9 @@ class _PostActionsState extends State<PostActions> {
                 ),
                 GestureDetector(
                   onTap: () async {
-                    Navigator.push(context, MaterialPageRoute(
-                      builder: (context) {
-                        return LikesScreen(
-                          postId: postDetails!.id,
-                        );
-                      },
-                    ));
+                    locator<NavigationService>().navigateTo(LikesScreen.route,
+                        arguments: LikesScreenArguments(
+                            postId: widget.postDetails.id));
                   },
                   child: ValueListenableBuilder(
                       valueListenable: rebuildLikeWidget,
