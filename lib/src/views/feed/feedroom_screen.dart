@@ -340,29 +340,38 @@ class _FeedRoomEmptyViewState extends State<FeedRoomEmptyView> {
                 const SizedBox(height: 28),
                 NewPostButton(
                   onTap: () {
-                    locator<NavigationService>()
-                        .navigateTo(
-                      NewPostScreen.route,
-                      arguments: NewPostScreenArguments(
-                        feedroomId: widget.feedRoom.id,
-                        user: widget.user,
-                      ),
-                    )
-                        .then((result) async {
-                      if (result != null && result['isBack']) {
-                        imageFiles = result['mediaFiles'] as List<MediaModel>?;
-                        postUploading.value = true;
-                        await postContent(context, result, widget.feedRoom.id,
-                            (int progress) {
-                          imageUploadProgress = progress;
-                          postUploading.value = false;
+                    if (!postUploading.value) {
+                      locator<NavigationService>()
+                          .navigateTo(
+                        NewPostScreen.route,
+                        arguments: NewPostScreenArguments(
+                          feedroomId: widget.feedRoom.id,
+                          user: widget.user,
+                        ),
+                      )
+                          .then((result) async {
+                        if (result != null && result['isBack']) {
+                          imageFiles =
+                              result['mediaFiles'] as List<MediaModel>?;
                           postUploading.value = true;
-                        });
-                        postUploading.value = false;
-                        widget.onRefresh();
-                        widget.onPressedBack();
-                      }
-                    });
+                          await postContent(context, result, widget.feedRoom.id,
+                              (int progress) {
+                            imageUploadProgress = progress;
+                            postUploading.value = false;
+                            postUploading.value = true;
+                          });
+                          postUploading.value = false;
+                          widget.onRefresh();
+                          widget.onPressedBack();
+                        }
+                      });
+                    } else {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(confirmationToast(
+                        content: 'A post is already uploading.',
+                        backgroundColor: kGrey1Color,
+                      ));
+                    }
                   },
                 ),
               ],
@@ -538,29 +547,36 @@ class _FeedRoomViewState extends State<FeedRoomView> {
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
       floatingActionButton: NewPostButton(
         onTap: () {
-          locator<NavigationService>()
-              .navigateTo(
-            NewPostScreen.route,
-            arguments: NewPostScreenArguments(
-              feedroomId: widget.feedRoom.id,
-              user: widget.user,
-            ),
-          )
-              .then((result) async {
-            if (result != null && result['isBack']) {
-              imageFiles = result['mediaFiles'] as List<MediaModel>?;
-              postUploading.value = true;
-              await postContent(context, result, widget.feedRoom.id,
-                  (int progress) {
-                imageUploadProgress = progress;
-                postUploading.value = false;
+          if (!postUploading.value) {
+            locator<NavigationService>()
+                .navigateTo(
+              NewPostScreen.route,
+              arguments: NewPostScreenArguments(
+                feedroomId: widget.feedRoom.id,
+                user: widget.user,
+              ),
+            )
+                .then((result) async {
+              if (result != null && result['isBack']) {
+                imageFiles = result['mediaFiles'] as List<MediaModel>?;
                 postUploading.value = true;
-              });
-              postUploading.value = false;
-              widget.onRefresh();
-              widget.onPressedBack();
-            }
-          });
+                await postContent(context, result, widget.feedRoom.id,
+                    (int progress) {
+                  imageUploadProgress = progress;
+                  postUploading.value = false;
+                  postUploading.value = true;
+                });
+                postUploading.value = false;
+                widget.onRefresh();
+                widget.onPressedBack();
+              }
+            });
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
+              content: 'A post is already uploading.',
+              backgroundColor: kGrey1Color,
+            ));
+          }
         },
       ),
     );
