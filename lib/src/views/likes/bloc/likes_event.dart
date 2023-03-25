@@ -25,7 +25,7 @@ class GetCommentLikes extends LikesEvent {
   final int offset;
   final int pageSize;
   final String postId;
-  final int commentId;
+  final String commentId;
   const GetCommentLikes({
     required this.offset,
     required this.pageSize,

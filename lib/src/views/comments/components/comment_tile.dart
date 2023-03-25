@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/packages/expandable_text/expandable_text.dart';
 import 'package:feed_sx/src/utils/constants/string_constants.dart';
 import 'package:feed_sx/src/views/comments/components/dropdown_options_comment.dart';
@@ -136,13 +137,23 @@ class _CommentTileState extends State<CommentTile>
                     })),
                   ),
                   kHorizontalPaddingSmall,
-                  Text(
-                    likeCount! > 0
-                        ? "$likeCount ${likeCount! > 1 ? kStringLikes : kStringLike}"
-                        : kStringLike,
-                    style: const TextStyle(
-                      fontSize: kFontSmallMed,
-                      color: kGrey3Color,
+                  GestureDetector(
+                    onTap: () {
+                      locator<NavigationService>().navigateTo(LikesScreen.route,
+                          arguments: LikesScreenArguments(
+                            postId: postId,
+                            commentId: reply.id,
+                            isCommentLikes: true,
+                          ));
+                    },
+                    child: Text(
+                      likeCount! > 0
+                          ? "$likeCount ${likeCount! > 1 ? kStringLikes : kStringLike}"
+                          : kStringLike,
+                      style: const TextStyle(
+                        fontSize: kFontSmallMed,
+                        color: kGrey3Color,
+                      ),
                     ),
                   ),
                 ],
