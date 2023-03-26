@@ -41,6 +41,35 @@ class LikesBloc extends Bloc<LikesEvent, LikesState> {
         }
       } else if (event is GetCommentLikes) {
         // Implement pagination for GetCommentLikes
+        if (event.offset > 1) {
+          emit(LikesPaginationLoading());
+        } else {
+          emit(LikesLoading());
+        }
+        try {
+          GetCommentLikesResponse response =
+              await locator<LikeMindsService>().getCommentLikes(
+            GetCommentLikesRequest(
+              postId: event.postId,
+              commentId: event.commentId,
+              pageSize: event.pageSize,
+              page: event.offset,
+            ),
+          );
+          if (response.success) {
+            emit(
+              CommentLikesLoaded(response: response),
+            );
+          } else {
+            emit(
+              const LikesError(message: "An error occurred, Please try again"),
+            );
+          }
+        } catch (e) {
+          emit(
+            LikesError(message: "${e.toString()} No data found"),
+          );
+        }
       }
     });
   }

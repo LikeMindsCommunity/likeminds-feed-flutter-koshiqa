@@ -14,8 +14,12 @@ class AllCommentsScreenArguments {
 
 class LikesScreenArguments {
   final String postId;
+  String? commentId;
+  bool isCommentLikes;
   LikesScreenArguments({
     required this.postId,
+    this.commentId,
+    this.isCommentLikes = false,
   });
 }
 

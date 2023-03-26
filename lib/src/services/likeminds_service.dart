@@ -15,18 +15,19 @@ abstract class ILikeMindsService {
   Future<AddPostResponse> addPost(AddPostRequest request);
   Future<GetPostResponse> getPost(GetPostRequest request);
   Future<GetPostLikesResponse> getPostLikes(GetPostLikesRequest request);
+  Future<GetCommentLikesResponse> getCommentLikes(
+      GetCommentLikesRequest request);
   Future<DeletePostResponse> deletePost(DeletePostRequest request);
   Future<LikePostResponse> likePost(LikePostRequest request);
   Future<DeleteCommentResponse> deleteComment(DeleteCommentRequest request);
   Future<String?> uploadFile(File file);
   Future<RegisterDeviceResponse> registerDevice(RegisterDeviceRequest request);
-  Future<BrandingResponse> getBranding(BrandingRequest request);
-  Future<TagResponseModel> getTags({int? feedroomId});
+  Future<TagResponseModel> getTags({required TagRequestModel request});
   void routeToProfile(String userId);
 }
 
 class LikeMindsService implements ILikeMindsService {
-  late final SdkApplication _sdkApplication;
+  late final LMFeedClient _sdkApplication;
   late final bool isProd;
 
   int? feedroomId;
@@ -41,9 +42,8 @@ class LikeMindsService implements ILikeMindsService {
   LikeMindsService(LMSdkCallback sdkCallback, {this.isProd = false}) {
     print("UI Layer: LikeMindsService initialized");
     final apiKey = isProd ? CredsProd.apiKey : CredsDev.apiKey;
-    _sdkApplication = LMClient.initiateLikeMinds(
+    _sdkApplication = LMFeedClient.initiateLikeMinds(
       apiKey: apiKey,
-      isProduction: isProd,
       sdkCallback: sdkCallback,
     );
     LMAnalytics.get().initialize();
@@ -51,7 +51,7 @@ class LikeMindsService implements ILikeMindsService {
 
   @override
   Future<InitiateUserResponse> initiateUser(InitiateUserRequest request) async {
-    return await _sdkApplication.getAuthApi().initiateUser(request);
+    return await _sdkApplication.initiateUser(request);
   }
 
   @override
@@ -60,68 +60,67 @@ class LikeMindsService implements ILikeMindsService {
   }
 
   @override
-  Future<BrandingResponse> getBranding(BrandingRequest request) async {
-    return await _sdkApplication.getBrandingApi().getBranding(request);
-  }
-
-  @override
   Future<UniversalFeedResponse?> getUniversalFeed(
       UniversalFeedRequest request) async {
-    return await _sdkApplication.getFeedApi().getUniversalFeed(request);
+    return await _sdkApplication.getUniversalFeed(request);
   }
 
   @override
   Future<AddPostResponse> addPost(AddPostRequest request) async {
-    return await _sdkApplication.getPostApi().addPost(request);
+    return await _sdkApplication.addPost(request);
   }
 
   @override
   Future<DeletePostResponse> deletePost(DeletePostRequest request) async {
-    return await _sdkApplication.getPostApi().deletePost(request);
+    return await _sdkApplication.deletePost(request);
   }
 
   @override
   Future<GetPostResponse> getPost(GetPostRequest request) async {
-    return await _sdkApplication.getPostApi().getPost(request);
+    return await _sdkApplication.getPost(request);
   }
 
   @override
   Future<GetPostLikesResponse> getPostLikes(GetPostLikesRequest request) async {
-    return await _sdkApplication.getPostApi().getPostLikes(request);
+    return await _sdkApplication.getPostLikes(request);
+  }
+
+  @override
+  Future<GetCommentLikesResponse> getCommentLikes(
+      GetCommentLikesRequest request) async {
+    return await _sdkApplication.getCommentLikes(request);
   }
 
   @override
   Future<LikePostResponse> likePost(LikePostRequest likePostRequest) async {
-    return await _sdkApplication.getPostApi().likePost(likePostRequest);
+    return await _sdkApplication.likePost(likePostRequest);
   }
 
   @override
   Future<DeleteCommentResponse> deleteComment(
       DeleteCommentRequest deleteCommentRequest) async {
-    return await _sdkApplication
-        .getFeedApi()
-        .deleteComment(deleteCommentRequest);
+    return await _sdkApplication.deleteComment(deleteCommentRequest);
   }
 
   @override
   Future<String?> uploadFile(File file) async {
-    return await _sdkApplication.getMediaApi().uploadFile(file);
+    return await _sdkApplication.uploadFile(file);
   }
 
   @override
   Future<GetFeedOfFeedRoomResponse> getFeedOfFeedRoom(
       GetFeedOfFeedRoomRequest request) async {
-    return await _sdkApplication.getFeedApi().getFeedOfFeedRoom(request);
+    return await _sdkApplication.getFeedOfFeedRoom(request);
   }
 
   @override
   Future<GetFeedRoomResponse> getFeedRoom(GetFeedRoomRequest request) async {
-    return await _sdkApplication.getFeedApi().getFeedRoom(request);
+    return await _sdkApplication.getFeedRoom(request);
   }
 
   @override
   Future<bool> getMemberState() async {
-    return await _sdkApplication.getAccessApi().getMemberState();
+    return await _sdkApplication.getMemberState();
   }
 
   @override
@@ -131,22 +130,12 @@ class LikeMindsService implements ILikeMindsService {
   }
 
   @override
-  Future<TagResponseModel> getTags({
-    int? feedroomId,
-    int? page,
-    int? pageSize,
-    String? searchQuery,
-  }) async {
-    return await _sdkApplication.getHelperApi().getTags(
-          feedroomId: feedroomId,
-          page: page,
-          pageSize: pageSize,
-          searchQuery: searchQuery,
-        );
+  Future<TagResponseModel> getTags({required TagRequestModel request}) async {
+    return await _sdkApplication.getTags(request: request);
   }
 
   @override
   void routeToProfile(String userId) {
-    _sdkApplication.getHelperApi().routeProfilePage(userId);
+    _sdkApplication.routeToProfile(userId);
   }
 }

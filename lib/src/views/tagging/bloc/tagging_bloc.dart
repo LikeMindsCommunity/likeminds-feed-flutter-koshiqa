@@ -17,11 +17,12 @@ class TaggingBloc extends Bloc<TaggingEvent, TaggingState> {
             : emit(TaggingLoading());
         try {
           final taggingData = await locator<LikeMindsService>().getTags(
+              request: TagRequestModel(
             feedroomId: event.feedroomId,
             page: event.page,
             pageSize: FIXED_SIZE,
             searchQuery: event.search,
-          );
+          ));
           if (taggingData.members != null && taggingData.members!.isNotEmpty) {
             emit(TaggingLoaded(taggingData: taggingData));
           }
