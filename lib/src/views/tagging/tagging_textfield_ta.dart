@@ -192,8 +192,15 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
             tagComplete = true;
             tagCount = '@'.allMatches(_controller.text).length;
             // _controller.text.substring(_controller.text.lastIndexOf('@'));
-            textValue += "@${suggestion.name!}~";
-            _controller.text = textValue + " ";
+            if (textValue.length > 2 &&
+                textValue.substring(textValue.length - 1) == '~') {
+              textValue += " @${suggestion.name!}~";
+            } else {
+              textValue += "@${suggestion.name!}~";
+            }
+            _controller.text = '$textValue ';
+            _controller.selection = TextSelection.fromPosition(
+                TextPosition(offset: _controller.text.length));
             tagValue = '';
           });
         }),
