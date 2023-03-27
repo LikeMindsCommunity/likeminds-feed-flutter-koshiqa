@@ -141,28 +141,16 @@ class _NewPostScreenState extends State<NewPostScreen> {
   }
 
   Widget getPostDocument(double width) {
-    if (postMedia.length > 1) {
-      return ListView.builder(
-        itemCount: postMedia.length,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemBuilder: (context, index) => PostDocument(
-          size: getFileSizeString(bytes: postMedia[index].size!),
-          type: postMedia[index].format!,
-          docFile: postMedia[index].mediaFile,
-        ),
-      );
-    } else {
-      return SizedBox(
-        height: width,
-        width: width,
-        child: SfPdfViewer.file(
-          postMedia.first.mediaFile,
-          scrollDirection: PdfScrollDirection.horizontal,
-          canShowPaginationDialog: false,
-        ),
-      );
-    }
+    return ListView.builder(
+      itemCount: postMedia.length,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemBuilder: (context, index) => PostDocument(
+        size: getFileSizeString(bytes: postMedia[index].size!),
+        type: postMedia[index].format!,
+        docFile: postMedia[index].mediaFile,
+      ),
+    );
   }
 
   @override
@@ -331,7 +319,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                         ]),
                         kVerticalPaddingMedium,
                         Container(
-                          constraints: const BoxConstraints(minHeight: 150),
+                          constraints: const BoxConstraints(minHeight: 240),
                           child: TaggingAheadTextField(
                             feedroomId: feedRoomId,
                             isDown: true,

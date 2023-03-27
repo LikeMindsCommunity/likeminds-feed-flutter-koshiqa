@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:shimmer/shimmer.dart';
 
 class PostDocument extends StatefulWidget {
   String? url;
@@ -36,7 +35,6 @@ class _PostDocumentState extends State<PostDocument> {
   String? _fileExtension;
   String? _fileSize;
   String? url;
-  late final DownloadDocBloc _downloadDocBloc;
 
   Future downloadFile() async {
     final String url = widget.url!;
@@ -120,7 +118,7 @@ class _PostDocumentState extends State<PostDocument> {
                               children: [
                                 kHorizontalPaddingXSmall,
                                 Text(
-                                  _fileSize!,
+                                  _fileSize!.toUpperCase(),
                                   style: const TextStyle(
                                       fontSize: kFontSmall, color: kGrey3Color),
                                 ),
@@ -132,7 +130,7 @@ class _PostDocumentState extends State<PostDocument> {
                                 ),
                                 kHorizontalPaddingXSmall,
                                 Text(
-                                  _fileExtension!,
+                                  _fileExtension!.toUpperCase(),
                                   style: const TextStyle(
                                       fontSize: kFontSmall, color: kGrey3Color),
                                 ),
