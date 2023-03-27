@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -47,12 +48,29 @@ class _PostVideoState extends State<PostVideo>
         videoPlayerController: videoPlayerController,
         aspectRatio: 1.0,
         customControls: const MaterialControls(showPlayButton: true),
+        additionalOptions: (context) => <OptionItem>[],
         autoPlay: false,
         looping: false,
         placeholder: Container(
           alignment: Alignment.center,
           child: const PostShimmer(),
         ),
+        cupertinoProgressColors: ChewieProgressColors(
+          backgroundColor: kGrey2Color,
+          playedColor: kGrey3Color,
+          bufferedColor: Colors.transparent,
+          handleColor: Colors.transparent,
+        ),
+        materialProgressColors: ChewieProgressColors(
+          backgroundColor: kGrey2Color,
+          playedColor: kGrey3Color,
+          bufferedColor: Colors.transparent,
+          handleColor: Colors.transparent,
+        ),
+        showOptions: false,
+        showControls: true,
+        allowPlaybackSpeedChanging: false,
+        allowMuting: false,
         allowFullScreen: false,
         autoInitialize: true);
   }
@@ -65,6 +83,7 @@ class _PostVideoState extends State<PostVideo>
       child: FittedBox(
         fit: BoxFit.cover,
         alignment: Alignment.center,
+        clipBehavior: Clip.hardEdge,
         child: Chewie(
           controller: chewieController,
         ),
