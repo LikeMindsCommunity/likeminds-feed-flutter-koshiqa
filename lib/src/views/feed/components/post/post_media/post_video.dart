@@ -47,16 +47,14 @@ class _PostVideoState extends State<PostVideo>
         videoPlayerController: videoPlayerController,
         aspectRatio: 1.0,
         customControls: const MaterialControls(showPlayButton: true),
-        autoPlay: true,
-        looping: true,
+        autoPlay: false,
+        looping: false,
         placeholder: Container(
           alignment: Alignment.center,
           child: const PostShimmer(),
         ),
         allowFullScreen: false,
-        showControls: false,
-        showOptions: false,
-        autoInitialize: false);
+        autoInitialize: true);
   }
 
   @override
