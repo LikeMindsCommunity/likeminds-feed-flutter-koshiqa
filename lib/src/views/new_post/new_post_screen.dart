@@ -348,30 +348,32 @@ class _NewPostScreenState extends State<NewPostScreen> {
                           ),
                         ),
                         kVerticalPaddingSmall,
-                        kVerticalPaddingMedium
+                        kVerticalPaddingMedium,
+                        if (isUploading)
+                          const Padding(
+                            padding: EdgeInsets.only(top: kPaddingSmall),
+                            child: Loader(),
+                          ),
+                        if ((attachments.isNotEmpty || postMedia.isNotEmpty))
+                          postMedia.first.mediaType == MediaType.document
+                              ? getPostDocument(screenSize!.width)
+                              : Container(
+                                  padding:
+                                      const EdgeInsets.only(top: kPaddingSmall),
+                                  alignment: Alignment.bottomRight,
+                                  child: PostMedia(
+                                      height: screenSize!.width,
+                                      removeAttachment:
+                                          removeAttachmenetAtIndex,
+                                      //min(constraints.maxHeight, screenSize!.width),
+                                      mediaFiles: postMedia,
+                                      postId: ''),
+                                ),
+                        kVerticalPaddingMedium,
                       ],
                     ),
                   ),
                 ),
-                if (isUploading)
-                  const Padding(
-                    padding: EdgeInsets.only(top: kPaddingSmall),
-                    child: Loader(),
-                  ),
-                if ((attachments.isNotEmpty || postMedia.isNotEmpty))
-                  postMedia.first.mediaType == MediaType.document
-                      ? getPostDocument(screenSize!.width)
-                      : Container(
-                          padding: const EdgeInsets.only(top: kPaddingSmall),
-                          alignment: Alignment.bottomRight,
-                          child: PostMedia(
-                              height: screenSize!.width,
-                              removeAttachment: removeAttachmenetAtIndex,
-                              //min(constraints.maxHeight, screenSize!.width),
-                              mediaFiles: postMedia,
-                              postId: ''),
-                        ),
-                kVerticalPaddingMedium,
                 isDocumentPost
                     ? const SizedBox.shrink()
                     : AddAssetsButton(
