@@ -5,6 +5,7 @@ import 'package:feed_sx/src/views/likes/likes_helper.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:feed_sx/src/widgets/profile_picture.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
@@ -220,10 +221,27 @@ Widget getLikesLoadedView(
             noMoreItemsIndicatorBuilder: (context) => const SizedBox(
               height: 20,
             ),
-            noItemsFoundIndicatorBuilder: (context) => const Scaffold(
+            noItemsFoundIndicatorBuilder: (context) => Scaffold(
               backgroundColor: kBackgroundColor,
               body: Center(
-                child: SizedBox(),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: const <Widget>[
+                    Text("No likes to show",
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        )),
+                    SizedBox(height: 12),
+                    Text("Be the first one to like this post",
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w300,
+                            color: kGrey2Color)),
+                    SizedBox(height: 28),
+                  ],
+                ),
               ),
             ),
             itemBuilder: (context, item, index) => LikesTile(user: item),

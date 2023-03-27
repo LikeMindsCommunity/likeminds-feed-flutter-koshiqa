@@ -11,9 +11,6 @@ import 'package:feed_sx/src/views/comments/blocs/comment_replies/comment_replies
 import 'package:feed_sx/src/views/comments/blocs/toggle_like_comment/toggle_like_comment_bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class ReplyTile extends StatefulWidget {
@@ -38,7 +35,6 @@ class ReplyTile extends StatefulWidget {
 
 class _ReplyTileState extends State<ReplyTile> {
   late final ToggleLikeCommentBloc _toggleLikeCommentBloc;
-  late final CommentRepliesBloc _commentRepliesBloc;
   late final CommentReply reply;
   late final PostUser user;
   late final String postId;
@@ -58,7 +54,6 @@ class _ReplyTileState extends State<ReplyTile> {
     refresh = widget.refresh;
     FeedApi feedApi = locator<LikeMindsService>().getFeedApi();
     _toggleLikeCommentBloc = ToggleLikeCommentBloc(feedApi: feedApi);
-    _commentRepliesBloc = CommentRepliesBloc(feedApi: feedApi);
   }
 
   @override

@@ -24,7 +24,6 @@ import 'package:feed_sx/src/services/service_locator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:multi_image_crop/multi_image_crop.dart';
 import 'package:video_player/video_player.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 /* key is mediatype, contains all asset button data 
 related to a particular media type */
@@ -90,7 +89,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
   // this function initiliases postMedia list
   // with photos/videos picked by the user
   void setPickedMediaFiles(List<MediaModel> pickedMediaFiles) {
-    if (postMedia == null || postMedia.isEmpty) {
+    if (postMedia.isEmpty) {
       postMedia = <MediaModel>[...pickedMediaFiles];
     } else {
       postMedia.addAll(pickedMediaFiles);
@@ -141,28 +140,16 @@ class _NewPostScreenState extends State<NewPostScreen> {
   }
 
   Widget getPostDocument(double width) {
-    if (postMedia.length > 1) {
-      return ListView.builder(
-        itemCount: postMedia.length,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemBuilder: (context, index) => PostDocument(
-          size: getFileSizeString(bytes: postMedia[index].size!),
-          type: postMedia[index].format!,
-          docFile: postMedia[index].mediaFile,
-        ),
-      );
-    } else {
-      return SizedBox(
-        height: width,
-        width: width,
-        child: SfPdfViewer.file(
-          postMedia.first.mediaFile,
-          scrollDirection: PdfScrollDirection.horizontal,
-          canShowPaginationDialog: false,
-        ),
-      );
-    }
+    return ListView.builder(
+      itemCount: postMedia.length,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemBuilder: (context, index) => PostDocument(
+        size: getFileSizeString(bytes: postMedia[index].size!),
+        type: postMedia[index].format!,
+        docFile: postMedia[index].mediaFile,
+      ),
+    );
   }
 
   @override
@@ -331,7 +318,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                         ]),
                         kVerticalPaddingMedium,
                         Container(
-                          constraints: const BoxConstraints(minHeight: 150),
+                          constraints: const BoxConstraints(minHeight: 240),
                           child: TaggingAheadTextField(
                             feedroomId: feedRoomId,
                             isDown: true,
@@ -380,8 +367,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
                         uploading: onUploading,
                         onUploaded: onUploadedMedia,
                         postMedia: setPickedMediaFiles,
+                        mediaListLength: postMedia.length,
                         preUploadCheck: () {
-                          if (postMedia != null && postMedia.length >= 10) {
+                          if (postMedia.length >= 10) {
                             return false;
                           }
                           return true;
@@ -396,8 +384,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
                         uploading: onUploading,
                         onUploaded: onUploadedMedia,
                         postMedia: setPickedMediaFiles,
+                        mediaListLength: postMedia.length,
                         preUploadCheck: () {
-                          if (postMedia != null && postMedia.length >= 10) {
+                          if (postMedia.length >= 10) {
                             return false;
                           }
                           return true;
@@ -412,8 +401,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
                         uploading: onUploading,
                         onUploaded: onUploadedDocument,
                         postMedia: setPickedMediaFiles,
+                        mediaListLength: postMedia.length,
                         preUploadCheck: () {
-                          if (postMedia != null && postMedia.length >= 10) {
+                          if (postMedia.length >= 10) {
                             return false;
                           }
                           return true;
@@ -431,6 +421,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
 class AddAssetsButton extends StatelessWidget {
   final ImagePicker picker;
   final FilePicker filePicker;
+  final int mediaListLength;
   final int mediaType; // 1 for photo 2 for video
   final Function(bool uploadResponse) onUploaded;
   final Function() uploading;
@@ -442,6 +433,7 @@ class AddAssetsButton extends StatelessWidget {
     super.key,
     required this.mediaType,
     required this.filePicker,
+    required this.mediaListLength,
     required this.picker,
     required this.onUploaded,
     required this.uploading,
@@ -454,6 +446,13 @@ class AddAssetsButton extends StatelessWidget {
     final List<XFile> list = await picker.pickMultiImage();
 
     if (list.isNotEmpty) {
+      if (mediaListLength + list.length > 10) {
+        ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
+            content: 'A total of 10 attachments can be added to a post',
+            backgroundColor: kGrey1Color));
+        onUploaded(false);
+        return;
+      }
       for (XFile image in list) {
         int fileBytes = await image.length();
         double fileSize = getFileSizeInDouble(fileBytes);
@@ -486,28 +485,45 @@ class AddAssetsButton extends StatelessWidget {
 
   void pickVideos(BuildContext context) async {
     uploading();
-    final XFile? xVideo = await picker.pickVideo(source: ImageSource.gallery);
-    if (xVideo != null) {
-      File video = File(xVideo.path);
-      int fileBytes = await video.length();
-      if (getFileSizeInDouble(fileBytes) > 100) {
+
+    final pickedFiles = await filePicker.pickFiles(
+      allowMultiple: true,
+      type: FileType.custom,
+      dialogTitle: 'Select files',
+      allowedExtensions: [
+        '3gp',
+        'mp4',
+      ],
+    );
+    if (pickedFiles != null) {
+      if (mediaListLength + pickedFiles.files.length > 10) {
         ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
-            content: 'File size should be smaller than 100MB',
+            content: 'A total of 10 attachments can be added to a post',
             backgroundColor: kGrey1Color));
         onUploaded(false);
         return;
-      } else {
-        VideoPlayerController controller = VideoPlayerController.file(video);
-        await controller.initialize();
-        Duration videoDuration = controller.value.duration;
-        MediaModel videoFile = MediaModel(
-            mediaType: MediaType.video,
-            mediaFile: video,
-            duration: videoDuration.inSeconds);
-        List<MediaModel> videoFiles = [];
-        videoFiles.add(videoFile);
-        postMedia(videoFiles);
-        onUploaded(true);
+      }
+      for (var pickedFile in pickedFiles.files) {
+        if (getFileSizeInDouble(pickedFile.size) > 100) {
+          ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
+              content: 'File size should be smaller than 100MB',
+              backgroundColor: kGrey1Color));
+          onUploaded(false);
+          return;
+        } else {
+          File video = File(pickedFile.path!);
+          VideoPlayerController controller = VideoPlayerController.file(video);
+          await controller.initialize();
+          Duration videoDuration = controller.value.duration;
+          MediaModel videoFile = MediaModel(
+              mediaType: MediaType.video,
+              mediaFile: video,
+              duration: videoDuration.inSeconds);
+          List<MediaModel> videoFiles = [];
+          videoFiles.add(videoFile);
+          postMedia(videoFiles);
+          onUploaded(true);
+        }
       }
     } else {
       onUploaded(false);
@@ -526,6 +542,13 @@ class AddAssetsButton extends StatelessWidget {
     );
 
     if (pickedFiles != null) {
+      if (mediaListLength + pickedFiles.files.length > 10) {
+        ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
+            content: 'A total of 10 attachments can be added to a post',
+            backgroundColor: kGrey1Color));
+        onUploaded(false);
+        return;
+      }
       for (var pickedFile in pickedFiles.files) {
         if (getFileSizeInDouble(pickedFile.size) > 100) {
           ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
