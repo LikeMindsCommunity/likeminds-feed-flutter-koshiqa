@@ -1,17 +1,15 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
-import 'package:feed_sx/src/views/feed/blocs/download_doc/download_doc_bloc.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_image_shimmer.dart';
-import 'package:feed_sx/src/views/previews/document_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class PostDocument extends StatefulWidget {
   String? url;
@@ -35,11 +33,12 @@ class _PostDocumentState extends State<PostDocument> {
   String? _fileExtension;
   String? _fileSize;
   String? url;
+  File? file;
 
   Future downloadFile() async {
     final String url = widget.url!;
-    final File file = File(url);
-    final String name = basename(file.path);
+    file = File(url);
+    final String name = basename(file!.path);
 
     try {
       var dir = await getTemporaryDirectory();
@@ -47,7 +46,7 @@ class _PostDocumentState extends State<PostDocument> {
       print(dir);
 
       var response = await Dio().download(url, savePath);
-      var raf = file.openSync(mode: FileMode.write);
+      var raf = file!.openSync(mode: FileMode.write);
       raf.writeFromSync(response.data);
       await raf.close();
     } catch (exception) {
@@ -86,9 +85,9 @@ class _PostDocumentState extends State<PostDocument> {
             return InkWell(
               onTap: () {
                 if (widget.url != null) {
-                  locator<NavigationService>().navigateTo(DocumentPreview.route,
-                      arguments:
-                          DocumentPreviewArguments(docUrl: widget.url ?? ''));
+                  launchUrlString(widget.url!);
+                } else {
+                  OpenFilex.open(widget.docFile!.path);
                 }
               },
               child: Padding(

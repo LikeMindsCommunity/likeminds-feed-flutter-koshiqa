@@ -24,7 +24,6 @@ import 'package:feed_sx/src/services/service_locator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:multi_image_crop/multi_image_crop.dart';
 import 'package:video_player/video_player.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 /* key is mediatype, contains all asset button data 
 related to a particular media type */
