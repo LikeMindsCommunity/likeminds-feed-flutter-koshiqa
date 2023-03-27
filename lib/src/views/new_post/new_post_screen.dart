@@ -86,6 +86,17 @@ class _NewPostScreenState extends State<NewPostScreen> {
       ..add(GetTaggingListEvent(feedroomId: feedRoomId));
   }
 
+  void removeAttachmenetAtIndex(int index) {
+    if (postMedia.isNotEmpty) {
+      postMedia.removeAt(index);
+      if (postMedia.isEmpty) {
+        isDocumentPost = false;
+        isMediaPost = false;
+      }
+      setState(() {});
+    }
+  }
+
   // this function initiliases postMedia list
   // with photos/videos picked by the user
   void setPickedMediaFiles(List<MediaModel> pickedMediaFiles) {
@@ -148,6 +159,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
         size: getFileSizeString(bytes: postMedia[index].size!),
         type: postMedia[index].format!,
         docFile: postMedia[index].mediaFile,
+        removeAttachment: (index) => removeAttachmenetAtIndex(index),
+        index: index,
       ),
     );
   }
@@ -353,6 +366,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                           alignment: Alignment.bottomRight,
                           child: PostMedia(
                               height: screenSize!.width,
+                              removeAttachment: removeAttachmenetAtIndex,
                               //min(constraints.maxHeight, screenSize!.width),
                               mediaFiles: postMedia,
                               postId: ''),

@@ -20,10 +20,12 @@ class PostMedia extends StatefulWidget {
   double? height;
   List<Attachment>? attachments;
   List<MediaModel>? mediaFiles;
+  Function(int)? removeAttachment;
   PostMedia({
     super.key,
     this.height,
     this.attachments,
+    this.removeAttachment,
     required this.postId,
     this.mediaFiles,
   });
@@ -34,7 +36,8 @@ class PostMedia extends StatefulWidget {
 
 class _PostMediaState extends State<PostMedia> {
   Size? screenSize;
-  int currPosition = 0; // Current index of carousel
+  int currPosition = 0;
+  // Current index of carousel
 
   bool checkIfMultipleAttachments() {
     return ((widget.attachments != null && widget.attachments!.length > 1) ||
@@ -67,21 +70,69 @@ class _PostMediaState extends State<PostMedia> {
         padding: const EdgeInsets.only(top: kPaddingMedium),
         child: Column(
           children: [
-            Container(
+            SizedBox(
               width: widget.height ?? screenSize!.width,
               height: widget.height ?? screenSize!.width,
               child: CarouselSlider(
                 items: widget.attachments == null
                     ? widget.mediaFiles!.map((e) {
                         if (e.mediaType == MediaType.image) {
-                          return Image.file(
-                            e.mediaFile,
-                            fit: BoxFit.cover,
+                          return Stack(
+                            children: [
+                              Image.file(
+                                e.mediaFile,
+                                fit: BoxFit.cover,
+                              ),
+                              Positioned(
+                                top: 5,
+                                right: 5,
+                                child: GestureDetector(
+                                    onTap: () {
+                                      int fileIndex =
+                                          widget.mediaFiles!.indexOf(e);
+                                      if (fileIndex ==
+                                          widget.mediaFiles!.length - 1) {
+                                        currPosition -= 1;
+                                      }
+                                      widget.removeAttachment!(fileIndex);
+                                      setState(() {});
+                                    },
+                                    child: const Icon(
+                                      Icons.cancel_rounded,
+                                      color: kGrey2Color,
+                                      size: 25,
+                                    )),
+                              )
+                            ],
                           );
                         } else if (e.mediaType == MediaType.video) {
-                          return PostVideo(
-                            videoFile: e.mediaFile,
-                            width: widget.height ?? screenSize!.width,
+                          return Stack(
+                            children: [
+                              PostVideo(
+                                videoFile: e.mediaFile,
+                                width: widget.height ?? screenSize!.width,
+                              ),
+                              Positioned(
+                                top: -10,
+                                bottom: -10,
+                                child: GestureDetector(
+                                    onTap: () {
+                                      int fileIndex =
+                                          widget.mediaFiles!.indexOf(e);
+                                      if (fileIndex ==
+                                          widget.mediaFiles!.length - 1) {
+                                        currPosition -= 1;
+                                      }
+                                      widget.removeAttachment!(fileIndex);
+                                      setState(() {});
+                                    },
+                                    child: const Icon(
+                                      Icons.cancel_rounded,
+                                      color: kGrey2Color,
+                                      size: 25,
+                                    )),
+                              )
+                            ],
                           );
                         }
                         return const SizedBox.shrink();

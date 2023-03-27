@@ -1,5 +1,3 @@
-import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_document.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_helper.dart';
 import 'package:flutter/material.dart';
