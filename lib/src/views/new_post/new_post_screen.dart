@@ -333,28 +333,10 @@ class _NewPostScreenState extends State<NewPostScreen> {
                     children: [
                       Container(
                         constraints: const BoxConstraints(
-                          minHeight: 240,
-                          // maxHeight: 480,
+                          minHeight: 72,
                         ),
                         decoration: const BoxDecoration(
                           color: kWhiteColor,
-                          boxShadow: [
-                            // BoxShadow(
-                            //   color: kGrey3Color.withOpacity(0.2),
-                            //   offset: const Offset(
-                            //     1.0,
-                            //     1.0,
-                            //   ),
-                            //   blurRadius: 2.0,
-                            //   spreadRadius: 1.0,
-                            // ), //BoxShadow
-                            // BoxShadow(
-                            //   color: Colors.white,
-                            //   offset: Offset(0.0, 0.0),
-                            //   blurRadius: 0.0,
-                            //   spreadRadius: 0.0,
-                            // ), //BoxShadow
-                          ],
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(4.0),

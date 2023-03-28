@@ -116,26 +116,31 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
         debounceDuration: const Duration(milliseconds: 500),
         scrollController: _scrollController,
         textFieldConfiguration: TextFieldConfiguration(
+          keyboardType: TextInputType.multiline,
           controller: _controller,
           // focusNode: _focusNode,
           minLines: 2,
-          maxLines: 100,
+          maxLines: 200,
           decoration: widget.decoration ??
               const InputDecoration(
                 hintText: 'Write something here...',
                 border: InputBorder.none,
               ),
+
           onChanged: ((value) {
             widget.onChange!(value);
             final int newTagCount = '@'.allMatches(value).length;
+            final int completeCount = '~'.allMatches(value).length;
             if (tagCount != newTagCount && value.contains('@')) {
-              // setState(() {
               tagValue = value.substring(value.lastIndexOf('@'));
               tagComplete = false;
-              // });
-            } else {
+            } else if (newTagCount == completeCount) {
               textValue = _controller.value.text;
-              print(textValue);
+              tagComplete = true;
+            } else if (newTagCount != completeCount) {
+              textValue = _controller.value.text;
+              tagComplete = false;
+              tagCount = completeCount;
             }
           }),
         ),
