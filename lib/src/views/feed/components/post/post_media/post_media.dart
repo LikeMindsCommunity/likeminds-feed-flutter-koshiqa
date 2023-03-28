@@ -114,7 +114,7 @@ class _PostMediaState extends State<PostMedia> {
                               ),
                               Positioned(
                                 top: 5,
-                                bottom: 5,
+                                right: 5,
                                 child: GestureDetector(
                                     onTap: () {
                                       int fileIndex =

@@ -336,7 +336,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                           minHeight: 240,
                           // maxHeight: 480,
                         ),
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: kWhiteColor,
                           boxShadow: [
                             // BoxShadow(
