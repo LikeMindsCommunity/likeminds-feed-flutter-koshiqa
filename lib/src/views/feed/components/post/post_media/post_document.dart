@@ -16,11 +16,15 @@ class PostDocument extends StatefulWidget {
   final String type;
   final String size;
   File? docFile;
+  int? index;
+  Function(int)? removeAttachment;
 
   PostDocument(
       {super.key,
       this.docFile,
       this.url,
+      this.removeAttachment,
+      this.index,
       required this.size,
       required this.type});
 
@@ -141,6 +145,19 @@ class _PostDocumentState extends State<PostDocument> {
                       const SizedBox(
                         width: 30,
                       ),
+                      widget.docFile != null
+                          ? GestureDetector(
+                              onTap: () {
+                                widget.removeAttachment!(widget.index!);
+                              },
+                              child: const SizedBox(
+                                  child: Icon(
+                                Icons.cancel_rounded,
+                                color: kGrey2Color,
+                                size: 25,
+                              )),
+                            )
+                          : const SizedBox.shrink()
                     ],
                   ),
                 ),
