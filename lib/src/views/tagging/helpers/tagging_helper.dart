@@ -54,10 +54,9 @@ class TaggingHelper {
 
   static void routeToProfile(String userId) {
     print(userId);
-    if (!locator<LikeMindsService>().isProd) {
-      toast('Profile call back fired');
-    }
-
+    // if (!locator<LikeMindsService>().isProd) {
+    //   toast('Profile call back fired');
+    // }
     locator<LikeMindsService>().routeToProfile(userId);
   }
 }

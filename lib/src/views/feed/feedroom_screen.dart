@@ -23,10 +23,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
 
-//const List<int> DUMMY_FEEDROOMS = [72345, 72346, 72347];
-//const List<int> DUMMY_FEEDROOMS = [72200, 72232, 72233];
-const int DUMMY_FEEDROOM = 72200;
-
 class FeedRoomScreen extends StatefulWidget {
   final bool isCm;
   final User user;
