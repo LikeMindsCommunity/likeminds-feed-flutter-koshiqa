@@ -176,6 +176,15 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                     isDown: false,
                     getController: (controller) {
                       _commentController = controller;
+                      if (_commentController != null) {
+                        _commentController!.addListener(
+                          () {
+                            if (_commentController!.text.isEmpty) {
+                              _commentController!.clear();
+                            }
+                          },
+                        );
+                      }
                     },
                     onTagSelected: (tag) {
                       print(tag);
@@ -204,6 +213,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                   _pagingController.refresh();
                                   _page = 1;
                                   updatePostDetails(context);
+                                  closeOnScreenKeyboard();
                                 }
                               }),
                               builder: (context, state) {
@@ -236,7 +246,6 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                                     ),
                                                   ),
                                                 );
-                                                closeOnScreenKeyboard();
                                               },
                                         icon: Icon(
                                           Icons.send,
@@ -255,12 +264,10 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                 if (state is AddCommentReplySuccess) {
                                   _commentController!.clear();
                                   _pagingController.refresh();
-                                  selectedCommentId = null;
-                                  selectedUsername = null;
                                   _page = 1;
-
                                   deselectCommentToReply();
                                   updatePostDetails(context);
+                                  closeOnScreenKeyboard();
                                 }
                               }),
                               builder: (context, state) {
@@ -300,7 +307,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                                                     selectedCommentId!)));
                                                     selectedCommentId = null;
                                                     selectedUsername = null;
-                                                    closeOnScreenKeyboard();
+
                                                     // deselectCommentToReply();
                                                   },
                                         icon: Icon(
