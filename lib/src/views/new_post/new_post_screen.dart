@@ -19,9 +19,11 @@ import 'package:feed_sx/src/views/feed/blocs/feedroom/feedroom_bloc.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:feed_sx/src/services/service_locator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:multi_image_crop/multi_image_crop.dart';
+import 'package:video_editor/video_editor.dart';
 import 'package:video_player/video_player.dart';
 
 /* key is mediatype, contains all asset button data 
@@ -556,6 +558,13 @@ class AddAssetsButton extends StatelessWidget {
           return;
         } else {
           File video = File(pickedFile.path!);
+          final VideoEditorController videoEditingController =
+              VideoEditorController.file(
+            video,
+          );
+          videoEditingController.cropAspectRatio(1);
+          await videoEditingController.exportVideo(
+              onCompleted: (croppedVideo) => video = croppedVideo);
           VideoPlayerController controller = VideoPlayerController.file(video);
           await controller.initialize();
           Duration videoDuration = controller.value.duration;
