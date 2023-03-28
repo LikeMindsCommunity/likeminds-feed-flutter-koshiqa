@@ -17,7 +17,7 @@ class PostMediaFactory extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
-    if (attachments == null) {
+    if (attachments!.isEmpty) {
       return const SizedBox.shrink();
     } else if (attachments!.first.attachmentType == 3) {
       return postDocumentFactory(attachments, screenSize.width);

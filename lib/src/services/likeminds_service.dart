@@ -28,7 +28,6 @@ abstract class ILikeMindsService {
 
 class LikeMindsService implements ILikeMindsService {
   late final LMFeedClient _sdkApplication;
-  late final bool isProd;
 
   int? feedroomId;
 
@@ -39,9 +38,9 @@ class LikeMindsService implements ILikeMindsService {
 
   get getFeedroomId => feedroomId;
 
-  LikeMindsService(LMSdkCallback sdkCallback, {this.isProd = false}) {
+  LikeMindsService(LMSdkCallback sdkCallback) {
     print("UI Layer: LikeMindsService initialized");
-    final apiKey = isProd ? CredsProd.apiKey : CredsDev.apiKey;
+    final apiKey = false ? CredsProd.apiKey : CredsDev.apiKey;
     _sdkApplication = LMFeedClient.initiateLikeMinds(
       apiKey: apiKey,
       sdkCallback: sdkCallback,

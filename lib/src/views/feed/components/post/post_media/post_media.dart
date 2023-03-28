@@ -113,8 +113,8 @@ class _PostMediaState extends State<PostMedia> {
                                 width: widget.height ?? screenSize!.width,
                               ),
                               Positioned(
-                                top: -10,
-                                bottom: -10,
+                                top: 5,
+                                right: 5,
                                 child: GestureDetector(
                                     onTap: () {
                                       int fileIndex =

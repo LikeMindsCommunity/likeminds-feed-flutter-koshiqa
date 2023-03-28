@@ -134,6 +134,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  kVerticalPaddingMedium,
                   selectedCommentId != null
                       ? Container(
                           padding:
@@ -176,6 +177,15 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                     isDown: false,
                     getController: (controller) {
                       _commentController = controller;
+                      if (_commentController != null) {
+                        _commentController!.addListener(
+                          () {
+                            if (_commentController!.text.isEmpty) {
+                              _commentController!.clear();
+                            }
+                          },
+                        );
+                      }
                     },
                     onTagSelected: (tag) {
                       print(tag);
@@ -204,6 +214,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                   _pagingController.refresh();
                                   _page = 1;
                                   updatePostDetails(context);
+                                  closeOnScreenKeyboard();
                                 }
                               }),
                               builder: (context, state) {
@@ -236,7 +247,6 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                                     ),
                                                   ),
                                                 );
-                                                closeOnScreenKeyboard();
                                               },
                                         icon: Icon(
                                           Icons.send,
@@ -255,12 +265,10 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                 if (state is AddCommentReplySuccess) {
                                   _commentController!.clear();
                                   _pagingController.refresh();
-                                  selectedCommentId = null;
-                                  selectedUsername = null;
                                   _page = 1;
-
                                   deselectCommentToReply();
                                   updatePostDetails(context);
+                                  closeOnScreenKeyboard();
                                 }
                               }),
                               builder: (context, state) {
@@ -300,7 +308,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                                                     selectedCommentId!)));
                                                     selectedCommentId = null;
                                                     selectedUsername = null;
-                                                    closeOnScreenKeyboard();
+
                                                     // deselectCommentToReply();
                                                   },
                                         icon: Icon(
@@ -325,34 +333,35 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
           ),
           backgroundColor: kBackgroundColor,
           appBar: GeneralAppBar(
-              backTap: () {
-                locator<NavigationService>().goBack(result: {'isBack': false});
-              },
-              autoImplyEnd: false,
-              title: ValueListenableBuilder(
-                  valueListenable: rebuildPostWidget,
-                  builder: (context, _, __) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Post',
-                          style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
-                              color: kHeadingColor),
-                        ),
-                        Text(
-                          '${postData!.commentCount} Comments',
-                          style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: kHeadingColor),
-                        ),
-                      ],
-                    );
-                  }),
-              elevation: 5),
+            backTap: () {
+              locator<NavigationService>().goBack(result: {'isBack': false});
+            },
+            autoImplyEnd: false,
+            title: ValueListenableBuilder(
+                valueListenable: rebuildPostWidget,
+                builder: (context, _, __) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Post',
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: kHeadingColor),
+                      ),
+                      Text(
+                        '${postData!.commentCount} Comments',
+                        style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: kHeadingColor),
+                      ),
+                    ],
+                  );
+                }),
+            elevation: 2,
+          ),
           body: BlocConsumer<AllCommentsBloc, AllCommentsState>(
             listener: (context, state) {
               if (state is AllCommentsLoaded) {
@@ -388,6 +397,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                     },
                     child: CustomScrollView(
                       slivers: [
+                        SliverPadding(padding: EdgeInsets.only(top: 16)),
                         SliverToBoxAdapter(
                             child: ValueListenableBuilder(
                                 valueListenable: rebuildPostWidget,

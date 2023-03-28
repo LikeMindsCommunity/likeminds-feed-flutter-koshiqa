@@ -9,6 +9,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class PostDocument extends StatefulWidget {
@@ -39,38 +40,17 @@ class _PostDocumentState extends State<PostDocument> {
   String? url;
   File? file;
 
-  Future downloadFile() async {
-    final String url = widget.url!;
-    file = File(url);
-    final String name = basename(file!.path);
-
-    try {
-      var dir = await getTemporaryDirectory();
-      final String savePath = '${dir.path}/$name';
-      print(dir);
-
-      var response = await Dio().download(url, savePath);
-      var raf = file!.openSync(mode: FileMode.write);
-      raf.writeFromSync(response.data);
-      await raf.close();
-    } catch (exception) {
-      print(exception.toString());
-    }
-    return file;
-  }
-
   Future loadFile() async {
     File file;
     if (widget.url != null) {
-      url = widget.url!;
-      file = await downloadFile();
+      final String url = widget.url!;
+      file = File(url);
     } else {
       file = widget.docFile!;
     }
     _fileExtension = widget.type;
     _fileSize = widget.size;
     _fileName = basenameWithoutExtension(file.path);
-
     return file;
   }
 
@@ -87,9 +67,11 @@ class _PostDocumentState extends State<PostDocument> {
           if (snapshot.connectionState == ConnectionState.done &&
               snapshot.hasData) {
             return InkWell(
-              onTap: () {
+              onTap: () async {
                 if (widget.url != null) {
-                  launchUrlString(widget.url!);
+                  print(widget.url);
+                  Uri fileUrl = Uri.parse(widget.url!);
+                  launchUrl(fileUrl, mode: LaunchMode.externalApplication);
                 } else {
                   OpenFilex.open(widget.docFile!.path);
                 }

@@ -24,10 +24,12 @@ export 'src/views/following_tab/following_tab_screen.dart';
 export 'src/services/service_locator.dart';
 export 'src/utils/notification_handler.dart';
 
+const _prodFlag = false;
+
 class LMFeed extends StatefulWidget {
   final String? userId;
   final String? userName;
-  final bool isProd;
+  final int defaultFeedroom;
   static LMFeed? _instance;
 
   /// INIT - Get the LMFeed instance and pass the credentials (if any)
@@ -37,12 +39,12 @@ class LMFeed extends StatefulWidget {
   static LMFeed instance({
     String? userId,
     String? userName,
-    bool isProd = false,
+    required int defaultFeedroom,
   }) {
     return _instance ??= LMFeed._(
       userId: userId,
       userName: userName,
-      isProd: isProd,
+      defaultFeedroom: defaultFeedroom,
     );
   }
 
@@ -50,7 +52,7 @@ class LMFeed extends StatefulWidget {
     Key? key,
     this.userId,
     this.userName,
-    required this.isProd,
+    required this.defaultFeedroom,
   }) : super(key: key);
 
   @override
@@ -66,7 +68,7 @@ class _LMFeedState extends State<LMFeed> {
   @override
   void initState() {
     super.initState();
-    isProd = widget.isProd;
+    isProd = _prodFlag;
     userId = widget.userId!.isEmpty
         ? isProd
             ? CredsProd.botId
@@ -177,7 +179,7 @@ class _LMFeedState extends State<LMFeed> {
                       return FeedRoomScreen(
                         isCm: snapshot.data,
                         user: user!,
-                        feedRoomId: DUMMY_FEEDROOM,
+                        feedRoomId: widget.defaultFeedroom,
                       );
                     }
                     // return TaggingTestView();

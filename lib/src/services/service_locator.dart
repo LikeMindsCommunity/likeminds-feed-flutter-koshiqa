@@ -6,11 +6,11 @@ import 'package:likeminds_feed/likeminds_feed.dart';
 
 final GetIt locator = GetIt.I;
 
-void _setupLocator(LMSdkCallback callback, bool isProd) {
-  locator.registerSingleton(LikeMindsService(callback, isProd: isProd));
+void _setupLocator(LMSdkCallback callback) {
+  locator.registerSingleton(LikeMindsService(callback));
   locator.registerSingleton(NavigationService());
 }
 
-void setupLMFeed(LMSdkCallback callback, {bool isProd = false}) {
-  _setupLocator(callback, isProd);
+void setupLMFeed(LMSdkCallback callback) {
+  _setupLocator(callback);
 }
