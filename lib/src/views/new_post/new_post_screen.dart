@@ -558,13 +558,6 @@ class AddAssetsButton extends StatelessWidget {
           return;
         } else {
           File video = File(pickedFile.path!);
-          final VideoEditorController videoEditingController =
-              VideoEditorController.file(
-            video,
-          );
-          videoEditingController.cropAspectRatio(1);
-          await videoEditingController.exportVideo(
-              onCompleted: (croppedVideo) => video = croppedVideo);
           VideoPlayerController controller = VideoPlayerController.file(video);
           await controller.initialize();
           Duration videoDuration = controller.value.duration;

@@ -27,7 +27,6 @@ class _PostVideoState extends State<PostVideo>
   @override
   void initState() {
     super.initState();
-    initialiseControllers();
   }
 
   @override
@@ -37,58 +36,66 @@ class _PostVideoState extends State<PostVideo>
     super.dispose();
   }
 
-  Future<void> initialiseControllers() async {
+  initialiseControllers() async {
     if (widget.url != null) {
       videoPlayerController = VideoPlayerController.network(widget.url!);
     } else {
       videoPlayerController = VideoPlayerController.file(widget.videoFile!);
     }
     chewieController = ChewieController(
-        deviceOrientationsOnEnterFullScreen: [DeviceOrientation.portraitUp],
-        videoPlayerController: videoPlayerController,
-        aspectRatio: 1.0,
-        customControls: const MaterialControls(showPlayButton: true),
-        additionalOptions: (context) => <OptionItem>[],
-        autoPlay: false,
-        looping: false,
-        placeholder: Container(
-          alignment: Alignment.center,
-          child: const PostShimmer(),
-        ),
-        cupertinoProgressColors: ChewieProgressColors(
-          backgroundColor: kGrey2Color,
-          playedColor: kGrey3Color,
-          bufferedColor: Colors.transparent,
-          handleColor: Colors.transparent,
-        ),
-        materialProgressColors: ChewieProgressColors(
-          backgroundColor: kGrey2Color,
-          playedColor: kGrey3Color,
-          bufferedColor: Colors.transparent,
-          handleColor: Colors.transparent,
-        ),
-        showOptions: false,
-        showControls: true,
-        allowPlaybackSpeedChanging: false,
-        allowMuting: false,
-        allowFullScreen: false,
-        autoInitialize: true);
+      deviceOrientationsOnEnterFullScreen: [DeviceOrientation.portraitUp],
+      videoPlayerController: videoPlayerController,
+      //aspectRatio: 1.0,
+      customControls: const MaterialControls(showPlayButton: true),
+      additionalOptions: (context) => <OptionItem>[],
+      autoPlay: false,
+      looping: false,
+      placeholder: Container(
+        alignment: Alignment.center,
+        child: const PostShimmer(),
+      ),
+      cupertinoProgressColors: ChewieProgressColors(
+        backgroundColor: kGrey2Color,
+        playedColor: kGrey3Color,
+        bufferedColor: Colors.transparent,
+        handleColor: Colors.transparent,
+      ),
+      materialProgressColors: ChewieProgressColors(
+        backgroundColor: kGrey2Color,
+        playedColor: kGrey3Color,
+        bufferedColor: Colors.transparent,
+        handleColor: Colors.transparent,
+      ),
+      showOptions: false,
+      showControls: true,
+      allowPlaybackSpeedChanging: false,
+      allowMuting: false,
+      allowFullScreen: false,
+      autoInitialize: false,
+    );
+    await videoPlayerController.initialize();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: widget.width,
-      width: widget.width,
-      child: FittedBox(
-        fit: BoxFit.cover,
-        alignment: Alignment.center,
-        clipBehavior: Clip.hardEdge,
-        child: Chewie(
-          controller: chewieController,
-        ),
-      ),
-    );
+    return FutureBuilder(
+        future: initialiseControllers(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const PostShimmer();
+          }
+          return SizedBox(
+            child: ClipRRect(
+              clipBehavior: Clip.hardEdge,
+              child: FittedBox(
+                fit: BoxFit.cover,
+                child: Chewie(
+                  controller: chewieController,
+                ),
+              ),
+            ),
+          );
+        });
   }
 
   @override
