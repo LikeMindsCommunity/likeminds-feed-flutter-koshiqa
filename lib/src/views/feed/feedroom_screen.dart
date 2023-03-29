@@ -238,8 +238,13 @@ class _FeedRoomEmptyViewState extends State<FeedRoomEmptyView> {
           width: 50,
           fit: BoxFit.cover,
         );
-      } else if (imageFiles![0].mediaType == MediaType.video) {
-        return getPostShimmer(50);
+      } else if (imageFiles![0].mediaType == MediaType.document) {
+        return SvgPicture.asset(
+          kAssetDocPDFIcon,
+          height: 35,
+          width: 35,
+          fit: BoxFit.cover,
+        );
       } else {
         return SizedBox(
           height: 50,
@@ -422,8 +427,13 @@ class _FeedRoomViewState extends State<FeedRoomView> {
           width: 50,
           fit: BoxFit.cover,
         );
-      } else if (imageFiles![0].mediaType == MediaType.video) {
-        return getPostShimmer(50);
+      } else if (imageFiles![0].mediaType == MediaType.document) {
+        return SvgPicture.asset(
+          kAssetDocPDFIcon,
+          height: 35,
+          width: 35,
+          fit: BoxFit.cover,
+        );
       } else {
         return SizedBox(
           height: 50,
