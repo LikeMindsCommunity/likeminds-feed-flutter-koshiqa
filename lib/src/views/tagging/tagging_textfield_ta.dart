@@ -31,7 +31,7 @@ class TaggingAheadTextField extends StatefulWidget {
 
 class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
   final TextEditingController _controller = TextEditingController();
-  // final FocusNode _focusNode = FocusNode();
+  final FocusNode _focusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
   final SuggestionsBoxController _suggestionsBoxController =
       SuggestionsBoxController();
@@ -72,24 +72,28 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
 
   FutureOr<Iterable<UserTag>> _getSuggestions(String query) async {
     String currentText = query;
-    if (currentText.isEmpty) {
-      return const Iterable.empty();
-    } else if (!tagComplete && currentText.contains('@')) {
-      String tag = tagValue.substring(1).replaceAll(' ', '');
-      final taggingData = await locator<LikeMindsService>().getTags(
-        request: TagRequestModel(
-          feedroomId: widget.feedroomId,
-          page: 1,
-          pageSize: FIXED_SIZE,
-          searchQuery: tag,
-        ),
-      );
-      if (taggingData.members != null && taggingData.members!.isNotEmpty) {
-        userTags = taggingData.members!.map((e) => e).toList();
-        return userTags;
+    try {
+      if (currentText.isEmpty) {
+        return const Iterable.empty();
+      } else if (!tagComplete && currentText.contains('@')) {
+        String tag = tagValue.substring(1).replaceAll(' ', '');
+        final taggingData = await locator<LikeMindsService>().getTags(
+          request: TagRequestModel(
+            feedroomId: widget.feedroomId,
+            page: 1,
+            pageSize: FIXED_SIZE,
+            searchQuery: tag,
+          ),
+        );
+        if (taggingData.members != null && taggingData.members!.isNotEmpty) {
+          userTags = taggingData.members!.map((e) => e).toList();
+          return userTags;
+        }
+        return const Iterable.empty();
+      } else {
+        return const Iterable.empty();
       }
-      return const Iterable.empty();
-    } else {
+    } catch (e) {
       return const Iterable.empty();
     }
   }
@@ -131,16 +135,14 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
             widget.onChange!(value);
             final int newTagCount = '@'.allMatches(value).length;
             final int completeCount = '~'.allMatches(value).length;
-            if (tagCount != newTagCount && value.contains('@')) {
-              tagValue = value.substring(value.lastIndexOf('@'));
-              tagComplete = false;
-            } else if (newTagCount == completeCount) {
+            if (newTagCount == completeCount) {
               textValue = _controller.value.text;
               tagComplete = true;
-            } else if (newTagCount != completeCount) {
-              textValue = _controller.value.text;
+            } else if (newTagCount > completeCount) {
               tagComplete = false;
               tagCount = completeCount;
+              tagValue = value.substring(value.lastIndexOf('@'));
+              textValue = value.substring(0, value.lastIndexOf('@'));
             }
           }),
         ),
@@ -209,6 +211,7 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
             _controller.selection = TextSelection.fromPosition(
                 TextPosition(offset: _controller.text.length));
             tagValue = '';
+            textValue = _controller.value.text;
           });
         }),
       ),

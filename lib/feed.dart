@@ -24,7 +24,7 @@ export 'src/views/following_tab/following_tab_screen.dart';
 export 'src/services/service_locator.dart';
 export 'src/utils/notification_handler.dart';
 
-const _prodFlag = false;
+const _prodFlag = true;
 
 class LMFeed extends StatefulWidget {
   final String? userId;
