@@ -48,24 +48,26 @@ class _PostMediaState extends State<PostMedia> {
   Widget build(BuildContext context) {
     screenSize = MediaQuery.of(context).size;
     return GestureDetector(
-      onTap: () {
-        LMAnalytics.get().track(AnalyticsKeys.clickedOnAttachment, {
-          "post_id": widget.postId,
-          "type": "photo",
-        });
-        locator<NavigationService>().navigateTo(
-          MediaPreview.route,
-          arguments: widget.attachments == null
-              ? MediaPreviewArguments(
-                  mediaFiles: widget.mediaFiles!,
-                  postId: widget.postId,
-                )
-              : MediaPreviewArguments(
-                  attachments: widget.attachments!,
-                  postId: widget.postId,
-                ),
-        );
-      },
+      onTap: widget.mediaFiles == null
+          ? () {
+              LMAnalytics.get().track(AnalyticsKeys.clickedOnAttachment, {
+                "post_id": widget.postId,
+                "type": "photo",
+              });
+              locator<NavigationService>().navigateTo(
+                MediaPreview.route,
+                arguments: widget.attachments == null
+                    ? MediaPreviewArguments(
+                        mediaFiles: widget.mediaFiles!,
+                        postId: widget.postId,
+                      )
+                    : MediaPreviewArguments(
+                        attachments: widget.attachments!,
+                        postId: widget.postId,
+                      ),
+              );
+            }
+          : null,
       child: Container(
         padding: const EdgeInsets.only(top: kPaddingMedium),
         child: Column(
