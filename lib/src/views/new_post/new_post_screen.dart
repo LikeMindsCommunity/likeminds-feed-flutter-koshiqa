@@ -267,7 +267,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
                     TextButton(
                       onPressed: () async {
                         if (_controller != null &&
-                            _controller!.text.isNotEmpty) {
+                            (_controller!.text.isNotEmpty ||
+                                postMedia.isNotEmpty)) {
                           userTags = TaggingHelper.matchTags(
                               _controller!.text, userTags);
                           result = TaggingHelper.encodeString(
