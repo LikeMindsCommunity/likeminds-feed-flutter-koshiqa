@@ -159,6 +159,8 @@ class _PostActionsState extends State<PostActions> {
                 style: const TextStyle(fontSize: 14),
               ),
               style: ButtonStyle(
+                  splashFactory:
+                      isFeed ? InkSplash.splashFactory : NoSplash.splashFactory,
                   textStyle: MaterialStateProperty.all(
                       const TextStyle(fontSize: kButtonFontSize)),
                   foregroundColor: MaterialStateProperty.all(kGrey2Color)),
