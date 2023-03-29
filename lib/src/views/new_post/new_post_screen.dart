@@ -373,7 +373,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                                 padding: const EdgeInsets.only(
                                   top: kPaddingSmall,
                                 ),
-                                alignment: Alignment.bottomRight,
+                                alignment: Alignment.center,
                                 child: PostMedia(
                                   height: screenSize!.width,
                                   removeAttachment: removeAttachmenetAtIndex,
