@@ -101,8 +101,10 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
       ),
     );
     if (postDetails.success) {
-      postData = postDetails.post;
-      rebuildPostWidget.value = !rebuildPostWidget.value;
+      if (postData!.commentCount != postDetails.post!.commentCount) {
+        postData = postDetails.post;
+        rebuildPostWidget.value = !rebuildPostWidget.value;
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
           content: postDetails.errorMessage ?? 'An error occured',
