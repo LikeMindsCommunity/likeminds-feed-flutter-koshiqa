@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
 import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
 import 'package:feed_sx/src/views/tagging/tagging_textfield_ta.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
@@ -90,7 +91,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     });
   }
 
-  updatePostDetails() async {
+  Future updatePostDetails(BuildContext context) async {
     final GetPostResponse postDetails =
         await locator<LikeMindsService>().getPost(
       GetPostRequest(
@@ -99,8 +100,16 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
         pageSize: 10,
       ),
     );
-    postData = postDetails.post;
-    rebuildPostWidget.value = !rebuildPostWidget.value;
+    if (postDetails.success) {
+      if (postData!.commentCount != postDetails.post!.commentCount) {
+        postData = postDetails.post;
+        rebuildPostWidget.value = !rebuildPostWidget.value;
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
+          content: postDetails.errorMessage ?? 'An error occured',
+          backgroundColor: kGrey1Color));
+    }
   }
 
   @override
@@ -127,6 +136,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  kVerticalPaddingMedium,
                   selectedCommentId != null
                       ? Container(
                           padding:
@@ -169,6 +179,15 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                     isDown: false,
                     getController: (controller) {
                       _commentController = controller;
+                      if (_commentController != null) {
+                        _commentController!.addListener(
+                          () {
+                            if (_commentController!.text.isEmpty) {
+                              _commentController!.clear();
+                            }
+                          },
+                        );
+                      }
                     },
                     onTagSelected: (tag) {
                       print(tag);
@@ -196,7 +215,8 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                   _commentController!.clear();
                                   _pagingController.refresh();
                                   _page = 1;
-                                  updatePostDetails();
+                                  updatePostDetails(context);
+                                  closeOnScreenKeyboard();
                                 }
                               }),
                               builder: (context, state) {
@@ -247,12 +267,10 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                 if (state is AddCommentReplySuccess) {
                                   _commentController!.clear();
                                   _pagingController.refresh();
-                                  selectedCommentId = null;
-                                  selectedUsername = null;
                                   _page = 1;
-
                                   deselectCommentToReply();
-                                  updatePostDetails();
+                                  updatePostDetails(context);
+                                  closeOnScreenKeyboard();
                                 }
                               }),
                               builder: (context, state) {
@@ -292,6 +310,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                                                     selectedCommentId!)));
                                                     selectedCommentId = null;
                                                     selectedUsername = null;
+
                                                     // deselectCommentToReply();
                                                   },
                                         icon: Icon(
@@ -316,34 +335,35 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
           ),
           backgroundColor: kBackgroundColor,
           appBar: GeneralAppBar(
-              backTap: () {
-                locator<NavigationService>().goBack(result: {'isBack': false});
-              },
-              autoImplyEnd: false,
-              title: ValueListenableBuilder(
-                  valueListenable: rebuildPostWidget,
-                  builder: (context, _, __) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Post',
-                          style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
-                              color: kHeadingColor),
-                        ),
-                        Text(
-                          '${postData!.commentCount} Comments',
-                          style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: kHeadingColor),
-                        ),
-                      ],
-                    );
-                  }),
-              elevation: 5),
+            backTap: () {
+              locator<NavigationService>().goBack(result: {'isBack': false});
+            },
+            autoImplyEnd: false,
+            title: ValueListenableBuilder(
+                valueListenable: rebuildPostWidget,
+                builder: (context, _, __) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Post',
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: kHeadingColor),
+                      ),
+                      Text(
+                        '${postData!.commentCount} Comments',
+                        style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: kHeadingColor),
+                      ),
+                    ],
+                  );
+                }),
+            elevation: 2,
+          ),
           body: BlocConsumer<AllCommentsBloc, AllCommentsState>(
             listener: (context, state) {
               if (state is AllCommentsLoaded) {
@@ -364,21 +384,22 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                 late PostDetailResponse postDetailResponse;
                 if (state is AllCommentsLoaded) {
                   print("AllCommentsLoaded" + state.toString());
-                  updatePostDetails();
+                  updatePostDetails(context);
                   postDetailResponse = state.postDetails;
                 } else {
                   print("PaginatedAllCommentsLoading" + state.toString());
-                  updatePostDetails();
+                  updatePostDetails(context);
                   postDetailResponse =
                       (state as PaginatedAllCommentsLoading).prevPostDetails;
                 }
 
                 return RefreshIndicator(
                     onRefresh: () async {
-                      await updatePostDetails();
+                      await updatePostDetails(context);
                     },
                     child: CustomScrollView(
                       slivers: [
+                        SliverPadding(padding: EdgeInsets.only(top: 16)),
                         SliverToBoxAdapter(
                             child: ValueListenableBuilder(
                                 valueListenable: rebuildPostWidget,
@@ -454,4 +475,8 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
           )),
     );
   }
+}
+
+void closeOnScreenKeyboard() {
+  FocusManager.instance.primaryFocus?.unfocus();
 }

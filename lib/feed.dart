@@ -5,8 +5,7 @@ library feed;
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/credentials/credentials.dart';
 import 'package:feed_sx/src/views/feed/feedroom_list_screen.dart';
-import 'package:feed_sx/src/views/previews/image_preview.dart';
-import 'package:feed_sx/src/views/tagging_test.dart';
+import 'package:feed_sx/src/views/previews/media_preview.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
@@ -14,9 +13,8 @@ import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/views/feed/feedroom_screen.dart';
 import 'package:flutter/material.dart';
-import 'src/navigation/navigation_service.dart';
-import 'src/services/likeminds_service.dart';
 
+import 'src/services/likeminds_service.dart';
 export 'src/views/feed/feed_screen.dart';
 export 'src/views/likes/likes_screen.dart';
 export 'src/views/report_post/report_screen.dart';
@@ -26,10 +24,12 @@ export 'src/views/following_tab/following_tab_screen.dart';
 export 'src/services/service_locator.dart';
 export 'src/utils/notification_handler.dart';
 
+const _prodFlag = true;
+
 class LMFeed extends StatefulWidget {
   final String? userId;
   final String? userName;
-  final bool isProd;
+  final int defaultFeedroom;
   static LMFeed? _instance;
 
   /// INIT - Get the LMFeed instance and pass the credentials (if any)
@@ -39,12 +39,12 @@ class LMFeed extends StatefulWidget {
   static LMFeed instance({
     String? userId,
     String? userName,
-    bool isProd = false,
+    required int defaultFeedroom,
   }) {
     return _instance ??= LMFeed._(
       userId: userId,
       userName: userName,
-      isProd: isProd,
+      defaultFeedroom: defaultFeedroom,
     );
   }
 
@@ -52,7 +52,7 @@ class LMFeed extends StatefulWidget {
     Key? key,
     this.userId,
     this.userName,
-    required this.isProd,
+    required this.defaultFeedroom,
   }) : super(key: key);
 
   @override
@@ -68,7 +68,7 @@ class _LMFeedState extends State<LMFeed> {
   @override
   void initState() {
     super.initState();
-    isProd = widget.isProd;
+    isProd = _prodFlag;
     userId = widget.userId!.isEmpty
         ? isProd
             ? CredsProd.botId
@@ -124,8 +124,9 @@ class _LMFeedState extends State<LMFeed> {
                   return MaterialPageRoute(
                     builder: (context) {
                       return LikesScreen(
-                        response: args.response,
                         postId: args.postId,
+                        commentId: args.commentId,
+                        isCommentLikes: args.isCommentLikes,
                       );
                     },
                   );
@@ -148,18 +149,18 @@ class _LMFeedState extends State<LMFeed> {
                     },
                   );
                 }
-                if (settings.name == ImagePreview.route) {
-                  final args = settings.arguments as ImagePreviewArguments;
+                if (settings.name == MediaPreview.route) {
+                  final args = settings.arguments as MediaPreviewArguments;
                   return MaterialPageRoute(
                     builder: (context) {
-                      if (args.url == null) {
-                        return ImagePreview(
-                          images: args.images,
+                      if (args.attachments == null) {
+                        return MediaPreview(
+                          mediaFiles: args.mediaFiles,
                           postId: args.postId,
                         );
                       } else {
-                        return ImagePreview(
-                          url: args.url,
+                        return MediaPreview(
+                          attachments: args.attachments,
                           postId: args.postId,
                         );
                       }
@@ -178,7 +179,7 @@ class _LMFeedState extends State<LMFeed> {
                       return FeedRoomScreen(
                         isCm: snapshot.data,
                         user: user!,
-                        feedRoomId: DUMMY_FEEDROOM,
+                        feedRoomId: widget.defaultFeedroom,
                       );
                     }
                     // return TaggingTestView();
