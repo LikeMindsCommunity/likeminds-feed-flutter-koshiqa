@@ -125,10 +125,10 @@ packages:
     dependency: transitive
     description:
       name: chewie
-      sha256: "7737b1b8b1f9df3b3751abfb0dea5efbebb7060c28eccdc3b0fa4a0d638eaf9f"
+      sha256: e9da4898ee4859825404f507969f57113c04ca0060e152b95c9afd73934126ad
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.6"
+    version: "1.4.0"
   clock:
     dependency: transitive
     description:
@@ -280,6 +280,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.4"
+  file_picker:
+    dependency: transitive
+    description:
+      name: file_picker
+      sha256: d8e9ca7e5d1983365c277f12c21b4362df6cf659c99af146ad4d04eb33033013
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.2.6"
   firebase_core:
     dependency: "direct main"
     description:
@@ -626,10 +634,10 @@ packages:
     dependency: transitive
     description:
       name: likeminds_feed
-      sha256: "2e49b30d4f8b3bf190b3e61475091582725bc82d487bccc78371f1bfc7bc3182"
+      sha256: "8d1d2976499017c7d4989a46ccfafcdd2090ad850b103437a7db05a89b7b9166"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.0"
+    version: "0.7.0"
   lints:
     dependency: transitive
     description:
@@ -702,6 +710,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.2"
+  open_filex:
+    dependency: transitive
+    description:
+      name: open_filex
+      sha256: "854aefd72dfd74219dc8c8d1767c34ec1eae64b8399a5be317bddb1ec2108915"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.3.2"
   overlay_support:
     dependency: "direct main"
     description:
@@ -1103,10 +1119,10 @@ packages:
     dependency: transitive
     description:
       name: video_player
-      sha256: "59f7f31c919c59cbedd37c617317045f5f650dc0eeb568b0b0de9a36472bdb28"
+      sha256: "868a139229acb5018d22aded3eb9cb4767ff43a8216573c086b6c535a4957481"
       url: "https://pub.dev"
     source: hosted
-    version: "2.5.1"
+    version: "2.6.0"
   video_player_android:
     dependency: transitive
     description:

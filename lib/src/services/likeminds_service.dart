@@ -40,7 +40,7 @@ class LikeMindsService implements ILikeMindsService {
 
   LikeMindsService(LMSdkCallback sdkCallback) {
     print("UI Layer: LikeMindsService initialized");
-    final apiKey = false ? CredsProd.apiKey : CredsDev.apiKey;
+    final apiKey = true ? CredsProd.apiKey : CredsDev.apiKey;
     _sdkApplication = LMFeedClient.initiateLikeMinds(
       apiKey: apiKey,
       sdkCallback: sdkCallback,
