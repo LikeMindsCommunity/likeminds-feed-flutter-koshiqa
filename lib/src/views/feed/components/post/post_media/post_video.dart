@@ -62,6 +62,7 @@ class _PostVideoState extends State<PostVideo>
       showControlsOnInitialize: false,
     );
     await videoPlayerController.initialize();
+    videoPlayerController.play();
   }
 
   @override
@@ -74,6 +75,7 @@ class _PostVideoState extends State<PostVideo>
           }
           return Container(
             color: kWhiteColor,
+            alignment: Alignment.center,
             child: AspectRatio(
               aspectRatio:
                   chewieController.videoPlayerController.value.aspectRatio,
