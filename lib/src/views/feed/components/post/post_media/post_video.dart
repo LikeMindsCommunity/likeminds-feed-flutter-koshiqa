@@ -25,11 +25,6 @@ class _PostVideoState extends State<PostVideo>
   late ChewieController chewieController;
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void dispose() {
     videoPlayerController.dispose();
     chewieController.dispose();
@@ -38,33 +33,30 @@ class _PostVideoState extends State<PostVideo>
 
   initialiseControllers() async {
     if (widget.url != null) {
-      videoPlayerController = VideoPlayerController.network(widget.url!);
+      videoPlayerController = VideoPlayerController.network(
+        widget.url!,
+        videoPlayerOptions: VideoPlayerOptions(
+          allowBackgroundPlayback: false,
+        ),
+      );
     } else {
-      videoPlayerController = VideoPlayerController.file(widget.videoFile!);
+      videoPlayerController = VideoPlayerController.file(
+        widget.videoFile!,
+        videoPlayerOptions: VideoPlayerOptions(
+          allowBackgroundPlayback: false,
+        ),
+      );
     }
     chewieController = ChewieController(
-      deviceOrientationsOnEnterFullScreen: [DeviceOrientation.portraitUp],
       videoPlayerController: videoPlayerController,
-      //aspectRatio: 1.0,
-      customControls: const MaterialControls(showPlayButton: true),
-      additionalOptions: (context) => <OptionItem>[],
+      customControls: const MaterialControls(
+        showPlayButton: true,
+      ),
       autoPlay: false,
       looping: false,
       placeholder: Container(
         alignment: Alignment.center,
         child: const PostShimmer(),
-      ),
-      cupertinoProgressColors: ChewieProgressColors(
-        backgroundColor: kGrey2Color,
-        playedColor: kGrey3Color,
-        bufferedColor: Colors.transparent,
-        handleColor: Colors.transparent,
-      ),
-      materialProgressColors: ChewieProgressColors(
-        backgroundColor: kGrey2Color,
-        playedColor: kGrey3Color,
-        bufferedColor: Colors.transparent,
-        handleColor: Colors.transparent,
       ),
       showOptions: false,
       showControls: true,
@@ -72,6 +64,7 @@ class _PostVideoState extends State<PostVideo>
       allowMuting: false,
       allowFullScreen: false,
       autoInitialize: false,
+      showControlsOnInitialize: false,
     );
     await videoPlayerController.initialize();
   }
