@@ -133,8 +133,8 @@ class _PostVideoState extends State<PostVideo>
                           });
 
                           // Auto dismiss overlay after 1 second
-                          _timer =
-                              Timer.periodic(Duration(milliseconds: 1000), (_) {
+                          _timer = Timer.periodic(
+                              const Duration(milliseconds: 2500), (_) {
                             setChildState(() {
                               _onTouch = false;
                             });
