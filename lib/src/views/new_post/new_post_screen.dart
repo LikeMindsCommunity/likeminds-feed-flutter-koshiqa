@@ -266,7 +266,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
                     ),
                     TextButton(
                       onPressed: () async {
-                        if (_controller != null) {
+                        if (_controller != null &&
+                            (_controller!.text.isNotEmpty ||
+                                postMedia.isNotEmpty)) {
                           userTags = TaggingHelper.matchTags(
                               _controller!.text, userTags);
                           result = TaggingHelper.encodeString(
@@ -280,7 +282,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             confirmationToast(
-                                content: "The text in a post can't be empty",
+                                content:
+                                    "Can't create a post without text or attachments",
                                 backgroundColor: kGrey1Color),
                           );
                         }
