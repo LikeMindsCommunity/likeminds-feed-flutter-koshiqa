@@ -282,7 +282,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             confirmationToast(
-                                content: "The text in a post can't be empty",
+                                content:
+                                    "Can't create a post without text or attachments",
                                 backgroundColor: kGrey1Color),
                           );
                         }
