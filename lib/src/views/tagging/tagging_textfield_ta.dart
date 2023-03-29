@@ -31,7 +31,7 @@ class TaggingAheadTextField extends StatefulWidget {
 
 class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
   final TextEditingController _controller = TextEditingController();
-  // final FocusNode _focusNode = FocusNode();
+  final FocusNode _focusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
   final SuggestionsBoxController _suggestionsBoxController =
       SuggestionsBoxController();
@@ -99,118 +99,143 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
     widget.getController(_controller);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6.0),
-      child: TypeAheadField<UserTag>(
-        onTagTap: (p) {
-          // print(p);
-        },
-        suggestionsBoxController: _suggestionsBoxController,
-        suggestionsBoxDecoration: SuggestionsBoxDecoration(
-          elevation: 4,
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.22,
-          ),
-        ),
-        // keepSuggestionsOnLocading: true,
-        noItemsFoundBuilder: (context) => const SizedBox.shrink(),
-        hideOnEmpty: true,
-        debounceDuration: const Duration(milliseconds: 500),
-        scrollController: _scrollController,
-        textFieldConfiguration: TextFieldConfiguration(
-          keyboardType: TextInputType.multiline,
-          controller: _controller,
-          // focusNode: _focusNode,
-          minLines: 2,
-          maxLines: 200,
-          decoration: widget.decoration ??
-              const InputDecoration(
-                hintText: 'Write something here...',
-                border: InputBorder.none,
-              ),
+      child: RawKeyboardListener(
+        focusNode: _focusNode,
+        onKey: (rawKeyEvent) {
+          if (rawKeyEvent.data.logicalKey.keyLabel == "Backspace") {
+            String controllerText = _controller.text;
+            int length = controllerText.length;
+            int lastIndexTilde = controllerText.lastIndexOf('~');
 
-          onChanged: ((value) {
-            widget.onChange!(value);
-            final int newTagCount = '@'.allMatches(value).length;
-            final int completeCount = '~'.allMatches(value).length;
-            if (tagCount != newTagCount && value.contains('@')) {
-              tagValue = value.substring(value.lastIndexOf('@'));
-              tagComplete = false;
-            } else if (newTagCount == completeCount) {
-              textValue = _controller.value.text;
-              tagComplete = true;
-            } else if (newTagCount != completeCount) {
-              textValue = _controller.value.text;
-              tagComplete = false;
-              tagCount = completeCount;
+            if (lastIndexTilde == length - 1) {
+              int lastIndexOfTag = controllerText.lastIndexOf('@');
+              if (controllerText.substring(0, lastIndexTilde).lastIndexOf('~') >
+                  lastIndexOfTag) {
+                return;
+              }
+              if (lastIndexOfTag >= 0 &&
+                  lastIndexTilde > 0 &&
+                  lastIndexTilde > lastIndexOfTag) {
+                controllerText = controllerText.substring(0, lastIndexOfTag);
+                _controller.value = TextEditingValue(text: controllerText);
+                textValue = controllerText;
+              }
             }
+          }
+        },
+        child: TypeAheadField<UserTag>(
+          onTagTap: (p) {
+            // print(p);
+          },
+          suggestionsBoxController: _suggestionsBoxController,
+          suggestionsBoxDecoration: SuggestionsBoxDecoration(
+            elevation: 4,
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.22,
+            ),
+          ),
+          // keepSuggestionsOnLocading: true,
+          noItemsFoundBuilder: (context) => const SizedBox.shrink(),
+          hideOnEmpty: true,
+          debounceDuration: const Duration(milliseconds: 500),
+          scrollController: _scrollController,
+          textFieldConfiguration: TextFieldConfiguration(
+            keyboardType: TextInputType.multiline,
+            controller: _controller,
+            // focusNode: _focusNode,
+            minLines: 2,
+            maxLines: 200,
+            decoration: widget.decoration ??
+                const InputDecoration(
+                  hintText: 'Write something here...',
+                  border: InputBorder.none,
+                ),
+
+            onChanged: ((value) {
+              widget.onChange!(value);
+              final int newTagCount = '@'.allMatches(value).length;
+              final int completeCount = '~'.allMatches(value).length;
+              if (tagCount != newTagCount && value.contains('@')) {
+                tagValue = value.substring(value.lastIndexOf('@'));
+                tagComplete = false;
+              } else if (newTagCount == completeCount) {
+                textValue = _controller.value.text;
+                tagComplete = true;
+              } else if (newTagCount != completeCount) {
+                textValue = _controller.value.text;
+                tagComplete = false;
+                tagCount = completeCount;
+              }
+            }),
+          ),
+          direction: widget.isDown ? AxisDirection.down : AxisDirection.up,
+          suggestionsCallback: (suggestion) async {
+            var str = suggestion;
+            return await _getSuggestions(suggestion);
+          },
+          keepSuggestionsOnSuggestionSelected: true,
+          itemBuilder: ((context, opt) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                  bottom: BorderSide(
+                    color: kGrey3Color,
+                    width: 0.5,
+                  ),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    children: [
+                      ProfilePicture(
+                        user: PostUser(
+                          id: opt.id!,
+                          imageUrl: opt.imageUrl!,
+                          name: opt.name!,
+                          userUniqueId: opt.userUniqueId!,
+                          isGuest: opt.isGuest!,
+                          isDeleted: false,
+                        ),
+                        size: 36,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        opt.name!,
+                        style: const TextStyle(
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+          onSuggestionSelected: ((suggestion) {
+            print(suggestion);
+            widget.onTagSelected.call(suggestion);
+            setState(() {
+              tagComplete = true;
+              tagCount = '@'.allMatches(_controller.text).length;
+              // _controller.text.substring(_controller.text.lastIndexOf('@'));
+              if (textValue.length > 2 &&
+                  textValue.substring(textValue.length - 1) == '~') {
+                textValue += " @${suggestion.name!}~";
+              } else {
+                textValue += "@${suggestion.name!}~";
+              }
+              _controller.text = '$textValue ';
+              _controller.selection = TextSelection.fromPosition(
+                  TextPosition(offset: _controller.text.length));
+              tagValue = '';
+            });
           }),
         ),
-        direction: widget.isDown ? AxisDirection.down : AxisDirection.up,
-        suggestionsCallback: (suggestion) async {
-          var str = suggestion;
-          return await _getSuggestions(suggestion);
-        },
-        keepSuggestionsOnSuggestionSelected: true,
-        itemBuilder: ((context, opt) {
-          return Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              border: Border(
-                bottom: BorderSide(
-                  color: kGrey3Color,
-                  width: 0.5,
-                ),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  children: [
-                    ProfilePicture(
-                      user: PostUser(
-                        id: opt.id!,
-                        imageUrl: opt.imageUrl!,
-                        name: opt.name!,
-                        userUniqueId: opt.userUniqueId!,
-                        isGuest: opt.isGuest!,
-                        isDeleted: false,
-                      ),
-                      size: 36,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      opt.name!,
-                      style: const TextStyle(
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        }),
-        onSuggestionSelected: ((suggestion) {
-          print(suggestion);
-          widget.onTagSelected.call(suggestion);
-          setState(() {
-            tagComplete = true;
-            tagCount = '@'.allMatches(_controller.text).length;
-            // _controller.text.substring(_controller.text.lastIndexOf('@'));
-            if (textValue.length > 2 &&
-                textValue.substring(textValue.length - 1) == '~') {
-              textValue += " @${suggestion.name!}~";
-            } else {
-              textValue += "@${suggestion.name!}~";
-            }
-            _controller.text = '$textValue ';
-            _controller.selection = TextSelection.fromPosition(
-                TextPosition(offset: _controller.text.length));
-            tagValue = '';
-          });
-        }),
       ),
     );
   }
