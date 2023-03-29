@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_image_shimmer.dart';
 
@@ -54,10 +53,6 @@ class _PostVideoState extends State<PostVideo>
       ),
       autoPlay: false,
       looping: false,
-      placeholder: Container(
-        alignment: Alignment.center,
-        child: const PostShimmer(),
-      ),
       showOptions: false,
       showControls: true,
       allowPlaybackSpeedChanging: false,
@@ -77,9 +72,11 @@ class _PostVideoState extends State<PostVideo>
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const PostShimmer();
           }
-          return SizedBox(
-            child: ClipRRect(
-              clipBehavior: Clip.hardEdge,
+          return Container(
+            color: kWhiteColor,
+            child: AspectRatio(
+              aspectRatio:
+                  chewieController.videoPlayerController.value.aspectRatio,
               child: FittedBox(
                 fit: BoxFit.cover,
                 child: Chewie(
