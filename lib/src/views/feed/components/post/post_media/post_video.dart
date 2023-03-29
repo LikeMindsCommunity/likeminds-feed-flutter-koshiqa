@@ -52,9 +52,6 @@ class _PostVideoState extends State<PostVideo>
     }
     chewieController = ChewieController(
       videoPlayerController: videoPlayerController,
-      customControls: const MaterialControls(
-        showPlayButton: true,
-      ),
       autoPlay: false,
       looping: false,
       showOptions: false,
