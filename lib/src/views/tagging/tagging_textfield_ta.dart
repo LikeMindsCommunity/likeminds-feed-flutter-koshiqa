@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
-import 'package:feed_sx/src/views/tagging/bloc/tagging_bloc.dart';
 import 'package:feed_sx/src/widgets/profile_picture.dart';
 import 'package:flutter/material.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
@@ -32,7 +31,7 @@ class TaggingAheadTextField extends StatefulWidget {
 
 class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
   final TextEditingController _controller = TextEditingController();
-  // final FocusNode _focusNode = FocusNode();
+  final FocusNode _focusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
   final SuggestionsBoxController _suggestionsBoxController =
       SuggestionsBoxController();
@@ -44,6 +43,7 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
   bool tagComplete = false;
   String textValue = "";
   String tagValue = "";
+  static const FIXED_SIZE = 6;
 
   @override
   void initState() {
@@ -54,9 +54,11 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
           _scrollController.position.maxScrollExtent) {
         page++;
         final taggingData = await locator<LikeMindsService>().getTags(
-          feedroomId: widget.feedroomId,
-          page: page,
-          pageSize: TaggingBloc.FIXED_SIZE,
+          request: TagRequestModel(
+            feedroomId: widget.feedroomId,
+            page: page,
+            pageSize: FIXED_SIZE,
+          ),
         );
         if (taggingData.members != null && taggingData.members!.isNotEmpty) {
           userTags.addAll(taggingData.members!.map((e) => e).toList());
@@ -70,22 +72,28 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
 
   FutureOr<Iterable<UserTag>> _getSuggestions(String query) async {
     String currentText = query;
-    if (currentText.isEmpty) {
-      return const Iterable.empty();
-    } else if (!tagComplete && currentText.contains('@')) {
-      String tag = tagValue.substring(1).replaceAll(' ', '');
-      final taggingData = await locator<LikeMindsService>().getTags(
-        feedroomId: widget.feedroomId,
-        page: 1,
-        pageSize: TaggingBloc.FIXED_SIZE,
-        searchQuery: tag,
-      );
-      if (taggingData.members != null && taggingData.members!.isNotEmpty) {
-        userTags = taggingData.members!.map((e) => e).toList();
-        return userTags;
+    try {
+      if (currentText.isEmpty) {
+        return const Iterable.empty();
+      } else if (!tagComplete && currentText.contains('@')) {
+        String tag = tagValue.substring(1).replaceAll(' ', '');
+        final taggingData = await locator<LikeMindsService>().getTags(
+          request: TagRequestModel(
+            feedroomId: widget.feedroomId,
+            page: 1,
+            pageSize: FIXED_SIZE,
+            searchQuery: tag,
+          ),
+        );
+        if (taggingData.members != null && taggingData.members!.isNotEmpty) {
+          userTags = taggingData.members!.map((e) => e).toList();
+          return userTags;
+        }
+        return const Iterable.empty();
+      } else {
+        return const Iterable.empty();
       }
-      return const Iterable.empty();
-    } else {
+    } catch (e) {
       return const Iterable.empty();
     }
   }
@@ -112,26 +120,29 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
         debounceDuration: const Duration(milliseconds: 500),
         scrollController: _scrollController,
         textFieldConfiguration: TextFieldConfiguration(
+          keyboardType: TextInputType.multiline,
           controller: _controller,
           // focusNode: _focusNode,
           minLines: 2,
-          maxLines: 100,
+          maxLines: 200,
           decoration: widget.decoration ??
               const InputDecoration(
                 hintText: 'Write something here...',
                 border: InputBorder.none,
               ),
+
           onChanged: ((value) {
             widget.onChange!(value);
             final int newTagCount = '@'.allMatches(value).length;
-            if (tagCount != newTagCount && value.contains('@')) {
-              // setState(() {
-              tagValue = value.substring(value.lastIndexOf('@'));
-              tagComplete = false;
-              // });
-            } else {
+            final int completeCount = '~'.allMatches(value).length;
+            if (newTagCount == completeCount) {
               textValue = _controller.value.text;
-              print(textValue);
+              tagComplete = true;
+            } else if (newTagCount > completeCount) {
+              tagComplete = false;
+              tagCount = completeCount;
+              tagValue = value.substring(value.lastIndexOf('@'));
+              textValue = value.substring(0, value.lastIndexOf('@'));
             }
           }),
         ),
@@ -190,9 +201,17 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
             tagComplete = true;
             tagCount = '@'.allMatches(_controller.text).length;
             // _controller.text.substring(_controller.text.lastIndexOf('@'));
-            textValue += "@${suggestion.name!}~";
-            _controller.text = textValue + " ";
+            if (textValue.length > 2 &&
+                textValue.substring(textValue.length - 1) == '~') {
+              textValue += " @${suggestion.name!}~";
+            } else {
+              textValue += "@${suggestion.name!}~";
+            }
+            _controller.text = '$textValue ';
+            _controller.selection = TextSelection.fromPosition(
+                TextPosition(offset: _controller.text.length));
             tagValue = '';
+            textValue = _controller.value.text;
           });
         }),
       ),

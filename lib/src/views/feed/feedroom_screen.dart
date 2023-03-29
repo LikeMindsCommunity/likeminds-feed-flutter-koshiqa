@@ -1,27 +1,27 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'dart:io';
+
+import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
+import 'package:feed_sx/src/views/feed/components/post/post_media/post_image_shimmer.dart';
+import 'package:flutter/material.dart';
 
 import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
-import 'package:feed_sx/src/views/feed/blocs/feedroomlist/feedroom_list_bloc.dart';
 import 'package:feed_sx/src/views/feed/components/new_post_button.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:likeminds_feed/likeminds_feed.dart';
-import 'package:feed_sx/feed.dart';
+import 'package:feed_sx/src/views/feed/components/post/post_media/post_video.dart';
+import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/simple_bloc_observer.dart';
 import 'package:feed_sx/src/views/feed/blocs/feedroom/feedroom_bloc.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_widget.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
-import 'package:flutter/material.dart';
-import 'package:feed_sx/src/utils/constants/ui_constants.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:feed_sx/feed.dart';
 
-//const List<int> DUMMY_FEEDROOMS = [72345, 72346, 72347];
-//const List<int> DUMMY_FEEDROOMS = [72200, 72232, 72233];
-const int DUMMY_FEEDROOM = 72200;
+import 'package:likeminds_feed/likeminds_feed.dart';
+
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
 
 class FeedRoomScreen extends StatefulWidget {
   final bool isCm;
@@ -227,7 +227,38 @@ class _FeedRoomEmptyViewState extends State<FeedRoomEmptyView> {
   final ValueNotifier postUploading = ValueNotifier(false);
   Size? screenSize;
 
-  List<File> imageFiles = [];
+  List<MediaModel>? imageFiles = [];
+
+  Widget getLoaderThumbnail() {
+    if (imageFiles != null) {
+      if (imageFiles![0].mediaType == MediaType.image) {
+        return Image.file(
+          imageFiles![0].mediaFile,
+          height: 50,
+          width: 50,
+          fit: BoxFit.cover,
+        );
+      } else if (imageFiles![0].mediaType == MediaType.document) {
+        return SvgPicture.asset(
+          kAssetDocPDFIcon,
+          height: 35,
+          width: 35,
+          fit: BoxFit.cover,
+        );
+      } else {
+        return SizedBox(
+          height: 50,
+          width: 50,
+          child: PostVideo(
+            videoFile: imageFiles![0].mediaFile,
+            width: 50,
+          ),
+        );
+      }
+    } else {
+      return const SizedBox(height: 50, width: 50);
+    }
+  }
 
   int imageUploadProgress = 0;
 
@@ -259,13 +290,8 @@ class _FeedRoomEmptyViewState extends State<FeedRoomEmptyView> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
-                              imageFiles != null && imageFiles.isNotEmpty
-                                  ? Image.file(
-                                      imageFiles[0],
-                                      height: 50,
-                                      width: 50,
-                                      fit: BoxFit.cover,
-                                    )
+                              imageFiles != null && imageFiles!.isNotEmpty
+                                  ? getLoaderThumbnail()
                                   : const SizedBox(),
                               kHorizontalPaddingMedium,
                               Text('Posting')
@@ -274,10 +300,10 @@ class _FeedRoomEmptyViewState extends State<FeedRoomEmptyView> {
                           SizedBox(
                             height: 20,
                             width: 20,
-                            child: imageFiles != null && imageFiles.isNotEmpty
+                            child: imageFiles != null && imageFiles!.isNotEmpty
                                 ? CircularProgressIndicator(
-                                    value:
-                                        imageUploadProgress / imageFiles.length,
+                                    value: imageUploadProgress /
+                                        imageFiles!.length,
                                     backgroundColor: kGrey3Color,
                                     valueColor:
                                         AlwaysStoppedAnimation(kLinkColor),
@@ -300,48 +326,53 @@ class _FeedRoomEmptyViewState extends State<FeedRoomEmptyView> {
                   kAssetPostsIcon,
                   color: kGrey3Color,
                 ),
-                SizedBox(height: 12),
-                Text("No posts to show",
+                const SizedBox(height: 12),
+                const Text("No posts to show",
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     )),
-                SizedBox(height: 12),
-                Text("Be the first one to post here",
+                const SizedBox(height: 12),
+                const Text("Be the first one to post here",
                     style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w300,
                         color: kGrey2Color)),
-                SizedBox(height: 28),
+                const SizedBox(height: 28),
                 NewPostButton(
                   onTap: () {
-                    locator<NavigationService>()
-                        .navigateTo(
-                      NewPostScreen.route,
-                      arguments: NewPostScreenArguments(
-                        feedroomId: widget.feedRoom.id,
-                        user: widget.user,
-                      ),
-                    )
-                        .then((result) async {
-                      if (result != null && result['isBack']) {
-                        imageFiles = result['imageFiles'];
-                        postUploading.value = true;
-                        await postContent(result, widget.feedRoom.id,
-                            (int progress) {
-                          imageUploadProgress = progress;
-                          postUploading.value = false;
+                    if (!postUploading.value) {
+                      locator<NavigationService>()
+                          .navigateTo(
+                        NewPostScreen.route,
+                        arguments: NewPostScreenArguments(
+                          feedroomId: widget.feedRoom.id,
+                          user: widget.user,
+                        ),
+                      )
+                          .then((result) async {
+                        if (result != null && result['isBack']) {
+                          imageFiles =
+                              result['mediaFiles'] as List<MediaModel>?;
                           postUploading.value = true;
-                        });
-                        postUploading.value = false;
-                        widget.onRefresh();
-                        widget.onPressedBack();
-                        widget.feedBloc.add(
-                          GetFeedRoom(
-                              feedRoomId: widget.feedRoom.id, offset: 1),
-                        );
-                      }
-                    });
+                          await postContent(context, result, widget.feedRoom.id,
+                              (int progress) {
+                            imageUploadProgress = progress;
+                            postUploading.value = false;
+                            postUploading.value = true;
+                          });
+                          postUploading.value = false;
+                          widget.onRefresh();
+                          widget.onPressedBack();
+                        }
+                      });
+                    } else {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(confirmationToast(
+                        content: 'A post is already uploading.',
+                        backgroundColor: kGrey1Color,
+                      ));
+                    }
                   },
                 ),
               ],
@@ -385,7 +416,38 @@ class _FeedRoomViewState extends State<FeedRoomView> {
   ValueNotifier<bool> rebuildPostWidget = ValueNotifier(false);
   final ValueNotifier postUploading = ValueNotifier(false);
 
-  List<File> imageFiles = [];
+  List<MediaModel>? imageFiles = [];
+
+  Widget getLoaderThumbnail() {
+    if (imageFiles != null) {
+      if (imageFiles![0].mediaType == MediaType.image) {
+        return Image.file(
+          imageFiles![0].mediaFile,
+          height: 50,
+          width: 50,
+          fit: BoxFit.cover,
+        );
+      } else if (imageFiles![0].mediaType == MediaType.document) {
+        return SvgPicture.asset(
+          kAssetDocPDFIcon,
+          height: 35,
+          width: 35,
+          fit: BoxFit.cover,
+        );
+      } else {
+        return SizedBox(
+          height: 50,
+          width: 50,
+          child: PostVideo(
+            videoFile: imageFiles![0].mediaFile,
+            width: 50,
+          ),
+        );
+      }
+    } else {
+      return const SizedBox(height: 50, width: 50);
+    }
+  }
 
   int imageUploadProgress = 0;
 
@@ -412,28 +474,23 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
-                              imageFiles != null && imageFiles.isNotEmpty
-                                  ? Image.file(
-                                      imageFiles[0],
-                                      height: 50,
-                                      width: 50,
-                                      fit: BoxFit.cover,
-                                    )
+                              imageFiles != null && imageFiles!.isNotEmpty
+                                  ? getLoaderThumbnail()
                                   : const SizedBox(),
                               kHorizontalPaddingMedium,
-                              Text('Posting')
+                              const Text('Posting')
                             ],
                           ),
                           SizedBox(
                             height: 20,
                             width: 20,
-                            child: imageFiles != null && imageFiles.isNotEmpty
+                            child: imageFiles != null && imageFiles!.isNotEmpty
                                 ? CircularProgressIndicator(
-                                    value:
-                                        imageUploadProgress / imageFiles.length,
+                                    value: imageUploadProgress /
+                                        imageFiles!.length,
                                     backgroundColor: kGrey3Color,
-                                    valueColor:
-                                        AlwaysStoppedAnimation(kLinkColor),
+                                    valueColor: const AlwaysStoppedAnimation(
+                                        kLinkColor),
                                   )
                                 : CircularProgressIndicator(),
                           ),
@@ -448,10 +505,10 @@ class _FeedRoomViewState extends State<FeedRoomView> {
             child: PagedListView<int, Post>(
               pagingController: widget.feedRoomPagingController,
               builderDelegate: PagedChildBuilderDelegate<Post>(
-                  noItemsFoundIndicatorBuilder: (context) => Scaffold(
+                  noItemsFoundIndicatorBuilder: (context) => const Scaffold(
                       backgroundColor: kBackgroundColor,
                       body: Center(
-                        child: const Loader(),
+                        child: Loader(),
                       )),
                   itemBuilder: (context, item, index) {
                     return ValueListenableBuilder(
@@ -496,38 +553,61 @@ class _FeedRoomViewState extends State<FeedRoomView> {
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
       floatingActionButton: NewPostButton(
         onTap: () {
-          locator<NavigationService>()
-              .navigateTo(
-            NewPostScreen.route,
-            arguments: NewPostScreenArguments(
-              feedroomId: widget.feedRoom.id,
-              user: widget.user,
-            ),
-          )
-              .then((result) async {
-            if (result != null && result['isBack']) {
-              imageFiles = result['imageFiles'];
-              postUploading.value = true;
-              await postContent(result, widget.feedRoom.id, (int progress) {
-                imageUploadProgress = progress;
-                postUploading.value = false;
+          if (!postUploading.value) {
+            locator<NavigationService>()
+                .navigateTo(
+              NewPostScreen.route,
+              arguments: NewPostScreenArguments(
+                feedroomId: widget.feedRoom.id,
+                user: widget.user,
+              ),
+            )
+                .then((result) async {
+              if (result != null && result['isBack']) {
+                imageFiles = result['mediaFiles'] as List<MediaModel>?;
                 postUploading.value = true;
-              });
-              postUploading.value = false;
-              widget.onRefresh();
-              widget.onPressedBack();
-            }
-          });
+                await postContent(context, result, widget.feedRoom.id,
+                    (int progress) {
+                  imageUploadProgress = progress;
+                  postUploading.value = false;
+                  postUploading.value = true;
+                });
+                postUploading.value = false;
+                widget.onRefresh();
+                widget.onPressedBack();
+              }
+            });
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
+              content: 'A post is already uploading.',
+              backgroundColor: kGrey1Color,
+            ));
+          }
         },
       ),
     );
   }
 }
 
-Future postContent(Map<String, dynamic> postData, int feedRoomId,
-    Function(int) updateProgress) async {
-  List<Attachment> attachments =
-      await uploadImages(postData['imageFiles'], updateProgress);
+Future postContent(BuildContext context, Map<String, dynamic> postData,
+    int feedRoomId, Function(int) updateProgress) async {
+  List<MediaModel>? mediaFiles = postData['mediaFiles'];
+  int imageCount = 0;
+  int videoCount = 0;
+  int documentCount = 0;
+  List<Attachment>? attachments;
+  if (mediaFiles != null) {
+    attachments = await uploadImages(mediaFiles, updateProgress);
+    for (final attachment in attachments) {
+      if (attachment.attachmentType == 1) {
+        imageCount++;
+      } else if (attachment.attachmentType == 2) {
+        videoCount++;
+      } else if (attachment.attachmentType == 3) {
+        documentCount++;
+      }
+    }
+  }
   final AddPostRequest request = AddPostRequest(
     text: postData['result'] ?? '',
     attachments: attachments,
@@ -536,32 +616,60 @@ Future postContent(Map<String, dynamic> postData, int feedRoomId,
   final AddPostResponse response =
       await locator<LikeMindsService>().addPost(request);
   if (response.success) {
-    LMAnalytics.get().track(AnalyticsKeys.postCreationCompleted, {
-      "user_tagged": "no",
-      "link_attached": "no",
-      "image_attached": {
-        "yes": {"image_count": attachments.length},
+    LMAnalytics.get().track(
+      AnalyticsKeys.postCreationCompleted,
+      {
+        "user_tagged": "no",
+        "link_attached": "no",
+        "image_attached": imageCount == 0
+            ? "no"
+            : {
+                "yes": {
+                  "image_count": imageCount,
+                },
+              },
+        "video_attached": videoCount == 0
+            ? "no"
+            : {
+                "yes": {
+                  "video_count": videoCount,
+                },
+              },
+        "document_attached": documentCount == 0
+            ? "no"
+            : {
+                "yes": {
+                  "document_count": documentCount,
+                },
+              },
       },
-      "video_attached": "no",
-      "document_attached": "no",
-    });
+    );
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
+        content: response.errorMessage ?? 'An error occured',
+        backgroundColor: kGrey1Color));
   }
 }
 
 Future<List<Attachment>> uploadImages(
-    List<File> croppedFiles, Function(int) updateProgress) async {
+    List<MediaModel> mediaFiles, Function(int) updateProgress) async {
   List<Attachment> attachments = [];
   int imageUploadCount = 0;
-  for (final image in croppedFiles) {
+  for (final media in mediaFiles) {
     try {
+      File mediaFile = media.mediaFile;
       final String? response =
-          await locator<LikeMindsService>().uploadFile(image);
+          await locator<LikeMindsService>().uploadFile(media.mediaFile);
       if (response != null) {
         attachments.add(Attachment(
-          attachmentType: 1,
+          attachmentType: media.mapMediaTypeToInt(),
           attachmentMeta: AttachmentMeta(
-            url: response,
-          ),
+              url: response,
+              size: media.mediaType == MediaType.document ? media.size : null,
+              format:
+                  media.mediaType == MediaType.document ? media.format : null,
+              duration:
+                  media.mediaType == MediaType.video ? media.duration : null),
         ));
         imageUploadCount += 1;
         updateProgress(imageUploadCount);

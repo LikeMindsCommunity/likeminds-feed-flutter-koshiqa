@@ -72,9 +72,10 @@ class _PostActionsState extends State<PostActions> {
                     if (!response.success) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: const Text(
-                            "There was an error liking the post",
-                            style: TextStyle(
+                          content: Text(
+                            response.errorMessage ??
+                                "There was an error liking the post",
+                            style: const TextStyle(
                               fontSize: 18,
                             ),
                           ),
@@ -105,17 +106,9 @@ class _PostActionsState extends State<PostActions> {
                 ),
                 GestureDetector(
                   onTap: () async {
-                    final response = await locator<LikeMindsService>()
-                        .getPostLikes(
-                            GetPostLikesRequest(postId: postDetails!.id));
-                    Navigator.push(context, MaterialPageRoute(
-                      builder: (context) {
-                        return LikesScreen(
-                          response: response,
-                          postId: postDetails!.id,
-                        );
-                      },
-                    ));
+                    locator<NavigationService>().navigateTo(LikesScreen.route,
+                        arguments: LikesScreenArguments(
+                            postId: widget.postDetails.id));
                   },
                   child: ValueListenableBuilder(
                       valueListenable: rebuildLikeWidget,
@@ -166,6 +159,8 @@ class _PostActionsState extends State<PostActions> {
                 style: const TextStyle(fontSize: 14),
               ),
               style: ButtonStyle(
+                  splashFactory:
+                      isFeed ? InkSplash.splashFactory : NoSplash.splashFactory,
                   textStyle: MaterialStateProperty.all(
                       const TextStyle(fontSize: kButtonFontSize)),
                   foregroundColor: MaterialStateProperty.all(kGrey2Color)),
