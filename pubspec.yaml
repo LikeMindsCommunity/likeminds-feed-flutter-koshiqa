@@ -82,3 +82,4 @@ flutter:
     - packages/feed_sx/assets/icons/like_filled.svg
     - packages/feed_sx/assets/icons/posts.svg
     - packages/feed_sx/assets/icons/new_post.svg
+    - packages/feed_sx/assets/icons/pin.svg

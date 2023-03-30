@@ -1,4 +1,5 @@
 import 'package:feed_sx/src/widgets/profile_picture.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/utils.dart';
@@ -26,16 +27,9 @@ class PostHeader extends StatelessWidget {
     }
   }
 
-  void removePinIntegration() {
-    if (menuItems != null) {
-      menuItems.removeWhere((element) => element.title == 'Pin this Post');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     removeReportIntegration();
-    removePinIntegration();
     final bool isEdited = postDetails.createdAt != postDetails.updatedAt;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -94,6 +88,16 @@ class PostHeader extends StatelessWidget {
             ],
           ),
           const Spacer(),
+          postDetails.isPinned
+              ? SvgPicture.asset(
+                  "packages/feed_sx/assets/icons/pin.svg",
+                  color: kGrey3Color,
+                  height: 20,
+                  width: 20,
+                  fit: BoxFit.cover,
+                )
+              : const SizedBox(),
+          kHorizontalPaddingLarge,
           menuItems.isNotEmpty
               ? DropdownOptions(
                   menuItems: menuItems,

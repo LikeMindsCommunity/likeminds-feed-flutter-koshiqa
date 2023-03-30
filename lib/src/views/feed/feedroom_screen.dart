@@ -511,6 +511,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                         child: Loader(),
                       )),
                   itemBuilder: (context, item, index) {
+                    Post rebuildPostData = item;
                     return ValueListenableBuilder(
                         valueListenable: rebuildPostWidget,
                         builder: (context, _, __) {
@@ -529,6 +530,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                                   ),
                                 );
                                 item = updatedPostDetails.post!;
+                                rebuildPostData = updatedPostDetails.post!;
                                 List<Post>? feedRoomItemList =
                                     widget.feedRoomPagingController.itemList;
                                 feedRoomItemList![index] =

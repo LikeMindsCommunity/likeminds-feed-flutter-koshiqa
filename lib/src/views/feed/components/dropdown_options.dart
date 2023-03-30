@@ -80,6 +80,37 @@ class DropdownOptions extends StatelessWidget {
                               }, actionText: 'Delete'));
                     } else if (element.title.split(' ').first == "Pin") {
                       print("Pinning functionality");
+                      final res =
+                          await locator<LikeMindsService>().getMemberState();
+                      LMAnalytics.get().track(
+                        AnalyticsKeys.postPinned,
+                        {
+                          "user_state": res ? "CM" : "member",
+                          "post_id": postDetails.id,
+                          "user_id": postDetails.userId,
+                        },
+                      );
+                      final response =
+                          await locator<LikeMindsService>().pinPost(
+                        PinPostRequest(
+                          postId: postDetails.id,
+                        ),
+                      );
+                      print(response.toString());
+                      if (response.success) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            confirmationToast(
+                                content: 'Post Pinned',
+                                width: 200,
+                                backgroundColor: kGrey1Color));
+                        refresh(false);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            confirmationToast(
+                                content: response.errorMessage ??
+                                    'An error occurred',
+                                backgroundColor: kGrey1Color));
+                      }
                     }
                   },
                 ))
