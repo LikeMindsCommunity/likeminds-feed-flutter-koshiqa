@@ -25,6 +25,7 @@ abstract class ILikeMindsService {
   Future<String?> uploadFile(File file);
   Future<RegisterDeviceResponse> registerDevice(RegisterDeviceRequest request);
   Future<TagResponseModel> getTags({required TagRequestModel request});
+  Future<DecodeUrlResponse> decodeUrl(DecodeUrlRequest request);
   void routeToProfile(String userId);
 }
 
@@ -143,6 +144,11 @@ class LikeMindsService implements ILikeMindsService {
   @override
   Future<TagResponseModel> getTags({required TagRequestModel request}) async {
     return await _sdkApplication.getTags(request: request);
+  }
+
+  @override
+  Future<DecodeUrlResponse> decodeUrl(DecodeUrlRequest request) async {
+    return await _sdkApplication.decodeUrl(request);
   }
 
   @override

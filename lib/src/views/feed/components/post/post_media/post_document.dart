@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_image_shimmer.dart';
+import 'package:feed_sx/src/widgets/close_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:path/path.dart';
@@ -132,13 +133,7 @@ class _PostDocumentState extends State<PostDocument> {
                               onTap: () {
                                 widget.removeAttachment!(widget.index!);
                               },
-                              child: const SizedBox(
-                                  child: Icon(
-                                Icons.cancel_rounded,
-                                color: kGrey2Color,
-                                size: 25,
-                              )),
-                            )
+                              child: const CloseIcon())
                           : const SizedBox.shrink()
                     ],
                   ),

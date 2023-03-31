@@ -102,19 +102,23 @@ class DropdownOptions extends StatelessWidget {
                       print(response.toString());
                       if (response.success) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                            confirmationToast(
-                                content: element.title.split(' ').first == "Pin"
-                                    ? 'Post Pinned'
-                                    : 'Post Unpinned',
-                                width: 200,
-                                backgroundColor: kGrey1Color));
+                          confirmationToast(
+                            content: element.title.split(' ').first == "Pin"
+                                ? 'Post Pinned'
+                                : 'Post Unpinned',
+                            width: 200,
+                            backgroundColor: kGrey1Color,
+                          ),
+                        );
                         refresh(false);
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                            confirmationToast(
-                                content: response.errorMessage ??
-                                    'An error occurred',
-                                backgroundColor: kGrey1Color));
+                          confirmationToast(
+                            content:
+                                response.errorMessage ?? 'An error occurred',
+                            backgroundColor: kGrey1Color,
+                          ),
+                        );
                       }
                     }
                   },

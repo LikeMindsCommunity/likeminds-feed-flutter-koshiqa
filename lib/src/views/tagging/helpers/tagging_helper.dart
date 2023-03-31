@@ -2,7 +2,6 @@ import 'package:collection/collection.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/services/service_locator.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
-import 'package:overlay_support/overlay_support.dart';
 
 class TaggingHelper {
   static final RegExp tagRegExp = RegExp(r'@([a-z\sA-Z]+)~');
@@ -58,5 +57,48 @@ class TaggingHelper {
     //   toast('Profile call back fired');
     // }
     locator<LikeMindsService>().routeToProfile(userId);
+  }
+}
+
+List<String> extractLinkFromString(String text) {
+  RegExp exp = RegExp(r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+');
+  Iterable<RegExpMatch> matches = exp.allMatches(text);
+  List<String> links = [];
+  matches.forEach((match) {
+    String link = text.substring(match.start, match.end);
+    if (link.isNotEmpty) {
+      links.add(link);
+    }
+  });
+  if (links.isNotEmpty) {
+    return links;
+  } else {
+    return [];
+  }
+}
+
+Future<String> getFirstValidLinkFromString(String text) async {
+  try {
+    List<String> links = extractLinkFromString(text);
+    List<String> validLinks = [];
+    String validLink = '';
+    if (links.isNotEmpty) {
+      for (String link in links) {
+        if (Uri.parse(link).isAbsolute) {
+          validLinks.add(link);
+        } else {
+          link = "https://$link";
+          if (Uri.parse(link).isAbsolute) {
+            validLinks.add(link);
+          }
+        }
+      }
+    }
+    if (validLinks.isNotEmpty) {
+      validLink = validLinks.first;
+    }
+    return validLink;
+  } catch (e) {
+    return '';
   }
 }

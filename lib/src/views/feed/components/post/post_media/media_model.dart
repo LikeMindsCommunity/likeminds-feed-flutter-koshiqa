@@ -1,20 +1,26 @@
 import 'dart:io';
 
-enum MediaType { video, image, document }
+import 'package:likeminds_feed/likeminds_feed.dart';
+
+enum MediaType { video, image, document, link }
 
 class MediaModel {
   MediaType mediaType;
-  File mediaFile;
+  File? mediaFile;
+  String? link;
   int? duration;
   String? format;
   int? size;
+  AttachmentMetaOgTags? ogTags;
 
   MediaModel({
     required this.mediaType,
-    required this.mediaFile,
+    this.mediaFile,
+    this.link,
     this.duration,
     this.format,
     this.size,
+    this.ogTags,
   });
 
   int mapMediaTypeToInt() {
