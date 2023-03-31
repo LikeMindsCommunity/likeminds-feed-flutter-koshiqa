@@ -1,10 +1,15 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_document.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_helper.dart';
+import 'package:feed_sx/src/views/feed/components/post/post_media/post_link_view.dart';
+import 'package:feed_sx/src/widgets/close_icon.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
@@ -75,6 +80,10 @@ class _NewPostScreenState extends State<NewPostScreen> {
   String? result;
   bool isDocumentPost = false;
   bool isMediaPost = false;
+  String previewLink = '';
+  MediaModel? linkModel;
+  bool showLinkPreview = true;
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -119,6 +128,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
   void onUploadedMedia(bool uploadResponse) {
     if (uploadResponse) {
       isMediaPost = true;
+      showLinkPreview = false;
       setState(() {
         isUploading = false;
       });
@@ -135,6 +145,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
   void onUploadedDocument(bool uploadResponse) {
     if (uploadResponse) {
       isDocumentPost = true;
+      showLinkPreview = false;
       setState(() {
         isUploading = false;
       });
@@ -163,6 +174,47 @@ class _NewPostScreenState extends State<NewPostScreen> {
     );
   }
 
+  void _onTextChanged(String p0) {
+    if (_debounce?.isActive ?? false) {
+      _debounce?.cancel();
+    }
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      handleTextLinks(p0);
+    });
+  }
+
+  void handleTextLinks(String text) async {
+    String link = await getFirstValidLinkFromString(text);
+    if (link.isNotEmpty) {
+      previewLink = link;
+      DecodeUrlRequest request = DecodeUrlRequest(url: previewLink);
+      DecodeUrlResponse response =
+          await locator<LikeMindsService>().decodeUrl(request);
+      if (response.success == true) {
+        OgTags? responseTags = response.ogTags;
+        linkModel = MediaModel(
+          mediaType: MediaType.link,
+          link: previewLink,
+          ogTags: AttachmentMetaOgTags(
+            description: responseTags!.description,
+            image: responseTags.image,
+            title: responseTags.title,
+            url: responseTags.url,
+          ),
+        );
+        if (postMedia.isEmpty) {
+          setState(() {});
+        }
+      }
+    }
+  }
+
+  void checkTextLinks() {
+    if (linkModel != null && postMedia.isEmpty && showLinkPreview) {
+      postMedia.add(linkModel!);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     screenSize = MediaQuery.of(context).size;
@@ -178,8 +230,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
                         'Are you sure want to discard the current post?'),
                     actions: <Widget>[
                       TextButton(
-                        child: Text(
-                          'No'.toUpperCase(),
+                        child: const Text(
+                          'NO',
                           style: TextStyle(fontSize: 14),
                         ),
                         onPressed: () {
@@ -271,6 +323,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                         if (_controller != null &&
                             (_controller!.text.isNotEmpty ||
                                 postMedia.isNotEmpty)) {
+                          checkTextLinks();
                           userTags = TaggingHelper.matchTags(
                               _controller!.text, userTags);
                           result = TaggingHelper.encodeString(
@@ -357,7 +410,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                               _controller = p0;
                             }),
                             onChange: (p0) {
-                              print(p0);
+                              _onTextChanged(p0);
                             },
                           ),
                         ),
@@ -371,7 +424,25 @@ class _NewPostScreenState extends State<NewPostScreen> {
                           ),
                           child: Loader(),
                         ),
-                      if ((attachments.isNotEmpty || postMedia.isNotEmpty))
+                      if (postMedia.isEmpty &&
+                          linkModel != null &&
+                          showLinkPreview)
+                        Stack(children: [
+                          PostLinkView(
+                              screenSize: screenSize, linkModel: linkModel),
+                          Positioned(
+                            top: 5,
+                            right: 5,
+                            child: GestureDetector(
+                              onTap: () {
+                                showLinkPreview = false;
+                                setState(() {});
+                              },
+                              child: const CloseIcon(),
+                            ),
+                          )
+                        ]),
+                      if (attachments.isNotEmpty || postMedia.isNotEmpty)
                         postMedia.first.mediaType == MediaType.document
                             ? getPostDocument(screenSize!.width)
                             : Container(

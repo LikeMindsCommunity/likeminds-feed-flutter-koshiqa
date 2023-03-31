@@ -1,6 +1,5 @@
-import 'dart:math';
-
 import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
+import 'package:feed_sx/src/widgets/close_icon.dart';
 import 'package:flutter/material.dart';
 
 import 'package:feed_sx/feed.dart';
@@ -82,7 +81,7 @@ class _PostMediaState extends State<PostMedia> {
                           return Stack(
                             children: [
                               Image.file(
-                                e.mediaFile,
+                                e.mediaFile!,
                                 fit: BoxFit.cover,
                               ),
                               Positioned(
@@ -99,11 +98,7 @@ class _PostMediaState extends State<PostMedia> {
                                       widget.removeAttachment!(fileIndex);
                                       setState(() {});
                                     },
-                                    child: const Icon(
-                                      Icons.cancel_rounded,
-                                      color: kGrey2Color,
-                                      size: 25,
-                                    )),
+                                    child: const CloseIcon()),
                               )
                             ],
                           );
@@ -118,21 +113,18 @@ class _PostMediaState extends State<PostMedia> {
                                 top: 5,
                                 right: 5,
                                 child: GestureDetector(
-                                    onTap: () {
-                                      int fileIndex =
-                                          widget.mediaFiles!.indexOf(e);
-                                      if (fileIndex ==
-                                          widget.mediaFiles!.length - 1) {
-                                        currPosition -= 1;
-                                      }
-                                      widget.removeAttachment!(fileIndex);
-                                      setState(() {});
-                                    },
-                                    child: const Icon(
-                                      Icons.cancel_rounded,
-                                      color: kGrey2Color,
-                                      size: 25,
-                                    )),
+                                  onTap: () {
+                                    int fileIndex =
+                                        widget.mediaFiles!.indexOf(e);
+                                    if (fileIndex ==
+                                        widget.mediaFiles!.length - 1) {
+                                      currPosition -= 1;
+                                    }
+                                    widget.removeAttachment!(fileIndex);
+                                    setState(() {});
+                                  },
+                                  child: const CloseIcon(),
+                                ),
                               )
                             ],
                           );
