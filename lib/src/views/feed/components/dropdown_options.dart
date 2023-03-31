@@ -78,8 +78,44 @@ class DropdownOptions extends StatelessWidget {
                                           backgroundColor: kGrey1Color));
                                 }
                               }, actionText: 'Delete'));
-                    } else if (element.title.split(' ').first == "Pin") {
+                    } else if (element.title.split(' ').first == "Pin" ||
+                        element.title.split(' ').first == "Unpin") {
                       print("Pinning functionality");
+                      final res =
+                          await locator<LikeMindsService>().getMemberState();
+                      LMAnalytics.get().track(
+                        element.title.split(' ').first == "Pin"
+                            ? AnalyticsKeys.postPinned
+                            : AnalyticsKeys.postUnpinned,
+                        {
+                          "user_state": res ? "CM" : "member",
+                          "post_id": postDetails.id,
+                          "user_id": postDetails.userId,
+                        },
+                      );
+                      final response =
+                          await locator<LikeMindsService>().pinPost(
+                        PinPostRequest(
+                          postId: postDetails.id,
+                        ),
+                      );
+                      print(response.toString());
+                      if (response.success) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            confirmationToast(
+                                content: element.title.split(' ').first == "Pin"
+                                    ? 'Post Pinned'
+                                    : 'Post Unpinned',
+                                width: 200,
+                                backgroundColor: kGrey1Color));
+                        refresh(false);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            confirmationToast(
+                                content: response.errorMessage ??
+                                    'An error occurred',
+                                backgroundColor: kGrey1Color));
+                      }
                     }
                   },
                 ))
