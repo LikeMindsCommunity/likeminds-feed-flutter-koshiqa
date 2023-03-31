@@ -78,12 +78,15 @@ class DropdownOptions extends StatelessWidget {
                                           backgroundColor: kGrey1Color));
                                 }
                               }, actionText: 'Delete'));
-                    } else if (element.title.split(' ').first == "Pin") {
+                    } else if (element.title.split(' ').first == "Pin" ||
+                        element.title.split(' ').first == "Unpin") {
                       print("Pinning functionality");
                       final res =
                           await locator<LikeMindsService>().getMemberState();
                       LMAnalytics.get().track(
-                        AnalyticsKeys.postPinned,
+                        element.title.split(' ').first == "Pin"
+                            ? AnalyticsKeys.postPinned
+                            : AnalyticsKeys.postUnpinned,
                         {
                           "user_state": res ? "CM" : "member",
                           "post_id": postDetails.id,
@@ -100,7 +103,9 @@ class DropdownOptions extends StatelessWidget {
                       if (response.success) {
                         ScaffoldMessenger.of(context).showSnackBar(
                             confirmationToast(
-                                content: 'Post Pinned',
+                                content: element.title.split(' ').first == "Pin"
+                                    ? 'Post Pinned'
+                                    : 'Post Unpinned',
                                 width: 200,
                                 backgroundColor: kGrey1Color));
                         refresh(false);
