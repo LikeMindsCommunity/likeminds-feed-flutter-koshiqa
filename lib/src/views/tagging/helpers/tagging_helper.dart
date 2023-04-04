@@ -77,7 +77,7 @@ List<String> extractLinkFromString(String text) {
   }
 }
 
-Future<String> getFirstValidLinkFromString(String text) async {
+String getFirstValidLinkFromString(String text) {
   try {
     List<String> links = extractLinkFromString(text);
     List<String> validLinks = [];
