@@ -54,11 +54,11 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
           _scrollController.position.maxScrollExtent) {
         page++;
         final taggingData = await locator<LikeMindsService>().getTags(
-          request: TagRequestModel(
-            feedroomId: widget.feedroomId,
-            page: page,
-            pageSize: FIXED_SIZE,
-          ),
+          request: (TagRequestModelBuilder()
+                ..feedroomId(widget.feedroomId)
+                ..page(page)
+                ..pageSize(FIXED_SIZE))
+              .build(),
         );
         if (taggingData.members != null && taggingData.members!.isNotEmpty) {
           userTags.addAll(taggingData.members!.map((e) => e).toList());
@@ -78,12 +78,12 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
       } else if (!tagComplete && currentText.contains('@')) {
         String tag = tagValue.substring(1).replaceAll(' ', '');
         final taggingData = await locator<LikeMindsService>().getTags(
-          request: TagRequestModel(
-            feedroomId: widget.feedroomId,
-            page: 1,
-            pageSize: FIXED_SIZE,
-            searchQuery: tag,
-          ),
+          request: (TagRequestModelBuilder()
+                ..feedroomId(widget.feedroomId)
+                ..page(1)
+                ..pageSize(FIXED_SIZE)
+                ..searchQuery(tag))
+              .build(),
         );
         if (taggingData.members != null && taggingData.members!.isNotEmpty) {
           userTags = taggingData.members!.map((e) => e).toList();

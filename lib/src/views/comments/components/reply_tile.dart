@@ -100,10 +100,12 @@ class _ReplyTileState extends State<ReplyTile> {
                       });
 
                       _toggleLikeCommentBloc.add(ToggleLikeComment(
-                          toggleLikeCommentRequest: ToggleLikeCommentRequest(
-                        commentId: reply.id,
-                        postId: postId,
-                      )));
+                        toggleLikeCommentRequest:
+                            (ToggleLikeCommentRequestBuilder()
+                                  ..commentId(reply.id)
+                                  ..postId(postId))
+                                .build(),
+                      ));
                     },
                     child: Builder(builder: ((context) {
                       return isLiked

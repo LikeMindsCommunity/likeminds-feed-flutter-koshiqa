@@ -64,11 +64,11 @@ class DropdownOptionsReply extends StatelessWidget {
                                 final response =
                                     await locator<LikeMindsService>()
                                         .deleteComment(
-                                  DeleteCommentRequest(
-                                    postId: postId,
-                                    commentId: replyDetails.id,
-                                    reason: "Reason for deletion",
-                                  ),
+                                  (DeleteCommentRequestBuilder()
+                                        ..postId(postId)
+                                        ..commentId(replyDetails.id)
+                                        ..reason("Reason for deletion"))
+                                      .build(),
                                 );
                                 print(response.toString());
 
