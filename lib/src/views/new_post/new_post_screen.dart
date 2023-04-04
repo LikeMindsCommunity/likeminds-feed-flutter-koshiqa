@@ -399,6 +399,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
+                        // Multi Channel Post Upload Support
+                        // Uncomment below code to user
                         // widget.isCm
                         //     ? kVerticalPaddingSmall
                         //     : const SizedBox.shrink(),

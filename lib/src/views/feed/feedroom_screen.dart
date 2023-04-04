@@ -508,7 +508,14 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                               Post? item = response.post;
                               List<Post>? feedRoomItemList =
                                   widget.feedRoomPagingController.itemList;
-                              feedRoomItemList!.insert(0, item!);
+                              for (int i = 0;
+                                  i < feedRoomItemList!.length;
+                                  i++) {
+                                if (!feedRoomItemList[i].isPinned) {
+                                  feedRoomItemList.insert(i, item!);
+                                  break;
+                                }
+                              }
                               widget.feedRoomPagingController.itemList =
                                   feedRoomItemList;
                               widget.feedResponse.users.addAll(response.user!);

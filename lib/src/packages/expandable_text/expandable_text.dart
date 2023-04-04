@@ -6,6 +6,7 @@ import 'package:feed_sx/src/utils/constants/string_constants.dart';
 import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import './text_parser.dart';
@@ -403,8 +404,9 @@ class ExpandableTextState extends State<ExpandableText>
         recognizer: TapGestureRecognizer()
           ..onTap = () async {
             if (!isTag) {
-              if (await canLaunchUrlString(link ?? '')) {
-                launchUrlString(link.toString());
+              String checkLink = getFirstValidLinkFromString(link ?? '');
+              if (Uri.parse(checkLink).isAbsolute) {
+                launchUrl(Uri.parse(checkLink));
               }
             } else {
               TaggingHelper.routeToProfile(
