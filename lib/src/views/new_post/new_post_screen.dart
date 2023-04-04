@@ -399,75 +399,75 @@ class _NewPostScreenState extends State<NewPostScreen> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        widget.isCm
-                            ? kVerticalPaddingSmall
-                            : const SizedBox.shrink(),
-                        widget.isCm
-                            ? Row(
-                                children: [
-                                  const Text(
-                                    'Post in:',
-                                    style: TextStyle(
-                                      color: kGrey3Color,
-                                      fontSize: kFontSmall,
-                                    ),
-                                  ),
-                                  kHorizontalPaddingMedium,
-                                  GestureDetector(
-                                    onTap: () async {
-                                      var response =
-                                          await locator<NavigationService>()
-                                              .navigateTo(
-                                        FeedRoomSelect.route,
-                                        arguments: FeedRoomSelectArguments(
-                                            user: user,
-                                            feedRoomIds: feedRoomIds),
-                                      );
-                                      feedRoomIds = response['feedRoomIds'];
-                                      rebuildFeedRoomSelectTab.value =
-                                          !rebuildFeedRoomSelectTab.value;
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 5,
-                                        vertical: 2,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(4),
-                                        border: Border.all(
-                                          color: kPrimaryColor,
-                                          width: 1.0,
-                                        ),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          ValueListenableBuilder(
-                                              valueListenable:
-                                                  rebuildFeedRoomSelectTab,
-                                              builder: (context, _, __) {
-                                                return Text(
-                                                  feedRoomIds.isEmpty
-                                                      ? widget.feedRoomTitle
-                                                      : feedRoomIds.length == 1
-                                                          ? feedRoomIds[0].title
-                                                          : '${feedRoomIds.length} Groups',
-                                                  style: const TextStyle(
-                                                    color: kPrimaryColor,
-                                                  ),
-                                                );
-                                              }),
-                                          kHorizontalPaddingSmall,
-                                          const Icon(
-                                            CupertinoIcons.chevron_down,
-                                            color: kPrimaryColor,
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : const SizedBox.shrink()
+                        // widget.isCm
+                        //     ? kVerticalPaddingSmall
+                        //     : const SizedBox.shrink(),
+                        // widget.isCm
+                        //     ? Row(
+                        //         children: [
+                        //           const Text(
+                        //             'Post in:',
+                        //             style: TextStyle(
+                        //               color: kGrey3Color,
+                        //               fontSize: kFontSmall,
+                        //             ),
+                        //           ),
+                        //           kHorizontalPaddingMedium,
+                        //           GestureDetector(
+                        //             onTap: () async {
+                        //               var response =
+                        //                   await locator<NavigationService>()
+                        //                       .navigateTo(
+                        //                 FeedRoomSelect.route,
+                        //                 arguments: FeedRoomSelectArguments(
+                        //                     user: user,
+                        //                     feedRoomIds: feedRoomIds),
+                        //               );
+                        //               feedRoomIds = response['feedRoomIds'];
+                        //               rebuildFeedRoomSelectTab.value =
+                        //                   !rebuildFeedRoomSelectTab.value;
+                        //             },
+                        //             child: Container(
+                        //               padding: const EdgeInsets.symmetric(
+                        //                 horizontal: 5,
+                        //                 vertical: 2,
+                        //               ),
+                        //               decoration: BoxDecoration(
+                        //                 borderRadius: BorderRadius.circular(4),
+                        //                 border: Border.all(
+                        //                   color: kPrimaryColor,
+                        //                   width: 1.0,
+                        //                 ),
+                        //               ),
+                        //               child: Row(
+                        //                 children: [
+                        //                   ValueListenableBuilder(
+                        //                       valueListenable:
+                        //                           rebuildFeedRoomSelectTab,
+                        //                       builder: (context, _, __) {
+                        //                         return Text(
+                        //                           feedRoomIds.isEmpty
+                        //                               ? widget.feedRoomTitle
+                        //                               : feedRoomIds.length == 1
+                        //                                   ? feedRoomIds[0].title
+                        //                                   : '${feedRoomIds.length} Groups',
+                        //                           style: const TextStyle(
+                        //                             color: kPrimaryColor,
+                        //                           ),
+                        //                         );
+                        //                       }),
+                        //                   kHorizontalPaddingSmall,
+                        //                   const Icon(
+                        //                     CupertinoIcons.chevron_down,
+                        //                     color: kPrimaryColor,
+                        //                   )
+                        //                 ],
+                        //               ),
+                        //             ),
+                        //           ),
+                        //         ],
+                        //       )
+                        //     : const SizedBox.shrink()
                       ],
                     ),
                   ],
