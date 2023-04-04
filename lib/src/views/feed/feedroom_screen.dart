@@ -233,7 +233,7 @@ class _FeedRoomEmptyViewState extends State<FeedRoomEmptyView> {
     if (imageFiles != null) {
       if (imageFiles![0].mediaType == MediaType.image) {
         return Image.file(
-          imageFiles![0].mediaFile,
+          imageFiles![0].mediaFile!,
           height: 50,
           width: 50,
           fit: BoxFit.cover,
@@ -422,7 +422,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
     if (imageFiles != null) {
       if (imageFiles![0].mediaType == MediaType.image) {
         return Image.file(
-          imageFiles![0].mediaFile,
+          imageFiles![0].mediaFile!,
           height: 50,
           width: 50,
           fit: BoxFit.cover,
@@ -434,7 +434,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
           width: 35,
           fit: BoxFit.cover,
         );
-      } else {
+      } else if (imageFiles![0].mediaType == MediaType.video) {
         return SizedBox(
           height: 50,
           width: 50,
@@ -443,6 +443,8 @@ class _FeedRoomViewState extends State<FeedRoomView> {
             width: 50,
           ),
         );
+      } else {
+        return const SizedBox(height: 50, width: 50);
       }
     } else {
       return const SizedBox(height: 50, width: 50);
@@ -658,28 +660,44 @@ Future<List<Attachment>> uploadImages(
   List<Attachment> attachments = [];
   int imageUploadCount = 0;
   for (final media in mediaFiles) {
-    try {
-      File mediaFile = media.mediaFile;
-      final String? response =
-          await locator<LikeMindsService>().uploadFile(media.mediaFile);
-      if (response != null) {
-        attachments.add(Attachment(
-          attachmentType: media.mapMediaTypeToInt(),
+    if (media.mediaType == MediaType.link) {
+      attachments.add(
+        Attachment(
+          attachmentType: 4,
           attachmentMeta: AttachmentMeta(
-              url: response,
-              size: media.mediaType == MediaType.document ? media.size : null,
-              format:
-                  media.mediaType == MediaType.document ? media.format : null,
-              duration:
-                  media.mediaType == MediaType.video ? media.duration : null),
-        ));
-        imageUploadCount += 1;
-        updateProgress(imageUploadCount);
-      } else {
-        throw ('Error uploading file');
+              url: media.ogTags!.url,
+              ogTags: AttachmentMetaOgTags(
+                description: media.ogTags!.description,
+                image: media.ogTags!.image,
+                title: media.ogTags!.title,
+                url: media.ogTags!.url,
+              )),
+        ),
+      );
+    } else {
+      try {
+        File mediaFile = media.mediaFile!;
+        final String? response =
+            await locator<LikeMindsService>().uploadFile(mediaFile);
+        if (response != null) {
+          attachments.add(Attachment(
+            attachmentType: media.mapMediaTypeToInt(),
+            attachmentMeta: AttachmentMeta(
+                url: response,
+                size: media.mediaType == MediaType.document ? media.size : null,
+                format:
+                    media.mediaType == MediaType.document ? media.format : null,
+                duration:
+                    media.mediaType == MediaType.video ? media.duration : null),
+          ));
+          imageUploadCount += 1;
+          updateProgress(imageUploadCount);
+        } else {
+          throw ('Error uploading file');
+        }
+      } catch (e) {
+        print(e);
       }
-    } catch (e) {
-      print(e);
     }
   }
   return attachments;

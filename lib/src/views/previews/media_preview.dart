@@ -73,7 +73,7 @@ class _MediaPreviewState extends State<MediaPreview> {
                         (e) {
                           if (e.mediaType == MediaType.image) {
                             return Image.file(
-                              e.mediaFile,
+                              e.mediaFile!,
                               fit: BoxFit.cover,
                             );
                           } else if (e.mediaType == MediaType.video) {
