@@ -5,6 +5,7 @@ library feed;
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/credentials/credentials.dart';
 import 'package:feed_sx/src/views/feed/feedroom_list_screen.dart';
+import 'package:feed_sx/src/views/new_post/feedroom_select.dart';
 import 'package:feed_sx/src/views/previews/media_preview.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -154,7 +155,9 @@ class _LMFeedState extends State<LMFeed> {
                     builder: (context) {
                       return NewPostScreen(
                         feedRoomId: args.feedroomId,
+                        feedRoomTitle: args.feedRoomTitle,
                         user: args.user,
+                        isCm: args.isCm,
                       );
                     },
                   );
@@ -174,6 +177,17 @@ class _LMFeedState extends State<LMFeed> {
                           postId: args.postId,
                         );
                       }
+                    },
+                  );
+                }
+                if (settings.name == FeedRoomSelect.route) {
+                  final args = settings.arguments as FeedRoomSelectArguments;
+                  return MaterialPageRoute(
+                    builder: (context) {
+                      return FeedRoomSelect(
+                        user: args.user,
+                        feedRoomIds: args.feedRoomIds,
+                      );
                     },
                   );
                 }

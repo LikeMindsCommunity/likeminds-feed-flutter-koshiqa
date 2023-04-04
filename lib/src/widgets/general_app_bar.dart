@@ -1,7 +1,6 @@
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class GeneralAppBar extends StatelessWidget with PreferredSizeWidget {
@@ -9,12 +8,14 @@ class GeneralAppBar extends StatelessWidget with PreferredSizeWidget {
   final bool autoImplyEnd;
   final double elevation;
   final Function()? backTap;
+  final Color? backgroundColor;
   const GeneralAppBar({
     Key? key,
     this.title,
     this.autoImplyEnd = true,
     this.elevation = 0,
     this.backTap,
+    this.backgroundColor,
   }) : super(key: key);
 
   @override
@@ -25,23 +26,22 @@ class GeneralAppBar extends StatelessWidget with PreferredSizeWidget {
             () {
               Navigator.pop(context);
             },
+        color: backgroundColor == null ? null : kWhiteColor,
       ),
       actions: [
         autoImplyEnd
             ? GestureDetector(
-                child: SvgPicture.asset(kAssetCrossIcon),
+                child: SvgPicture.asset(kAssetCrossIcon,
+                    color: backgroundColor == null ? null : kWhiteColor),
                 onTap: () {
                   Navigator.pop(context);
                 })
-            : SizedBox.shrink(),
+            : const SizedBox.shrink(),
         kHorizontalPaddingLarge,
       ],
-      iconTheme: IconThemeData(color: kHeadingColor),
+      iconTheme: const IconThemeData(color: kHeadingColor),
       elevation: elevation,
-      systemOverlayStyle: const SystemUiOverlayStyle(
-          statusBarColor: Colors.white,
-          statusBarIconBrightness: Brightness.dark),
-      backgroundColor: kWhiteColor,
+      backgroundColor: backgroundColor ?? kWhiteColor,
       title: title,
     );
   }
