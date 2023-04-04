@@ -429,11 +429,11 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                             if (!isDeleted) {
                               final GetPostResponse updatedPostDetails =
                                   await locator<LikeMindsService>().getPost(
-                                GetPostRequest(
-                                  postId: item.id,
-                                  page: 1,
-                                  pageSize: 10,
-                                ),
+                                (GetPostRequestBuilder()
+                                      ..postId(item.id)
+                                      ..page(1)
+                                      ..pageSize(10))
+                                    .build(),
                               );
                               item = updatedPostDetails.post!;
                               rebuildPostData = updatedPostDetails.post!;
@@ -568,13 +568,15 @@ Future<AddPostResponse> postContent(
   // List of feedroom selected while creating the post
   List<FeedRoom> feedRoomIds = postData['feedRoomIds'];
 
-  final AddPostRequest request = AddPostRequest(
-    text: postData['result'] ?? '',
-    attachments: attachments,
-    feedroomId: feedRoomId,
-  );
+  final AddPostRequest request = (AddPostRequestBuilder()
+        ..text(postData['result'] ?? '')
+        ..attachments(attachments ?? <Attachment>[])
+        ..feedroomId(feedRoomId))
+      .build();
+
   final AddPostResponse response =
       await locator<LikeMindsService>().addPost(request);
+
   if (response.success) {
     LMAnalytics.get().track(
       AnalyticsKeys.postCreationCompleted,

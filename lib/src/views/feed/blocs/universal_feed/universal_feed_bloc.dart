@@ -35,10 +35,12 @@ class UniversalFeedBloc extends Bloc<UniversalFeedEvent, UniversalFeedState> {
     }
     emit(UniversalFeedLoading());
     UniversalFeedResponse? response =
-        await locator<LikeMindsService>().getUniversalFeed(UniversalFeedRequest(
-      page: offset,
-      pageSize: 10,
-    ));
+        await locator<LikeMindsService>().getUniversalFeed(
+      (UniversalFeedRequestBuilder()
+            ..page(offset)
+            ..pageSize(10))
+          .build(),
+    );
 
     if (response == null) {
       emit(UniversalFeedError(message: "No data found"));

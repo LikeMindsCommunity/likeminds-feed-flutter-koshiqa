@@ -21,18 +21,18 @@ class FeedRoomBloc extends Bloc<FeedRoomEvent, FeedRoomState> {
         try {
           GetFeedOfFeedRoomResponse? response =
               await locator<LikeMindsService>().getFeedOfFeedRoom(
-            GetFeedOfFeedRoomRequest(
-              feedroomId: event.feedRoomId,
-              page: event.offset,
-              pageSize: 10,
-            ),
+            (GetFeedOfFeedRoomRequestBuilder()
+                  ..feedroomId(event.feedRoomId)
+                  ..page(event.offset)
+                  ..pageSize(10))
+                .build(),
           );
           GetFeedRoomResponse? feedRoomResponse =
               await locator<LikeMindsService>().getFeedRoom(
-            GetFeedRoomRequest(
-              feedroomId: event.feedRoomId,
-              page: event.offset,
-            ),
+            (GetFeedRoomRequestBuilder()
+                  ..feedroomId(event.feedRoomId)
+                  ..page(event.offset))
+                .build(),
           );
           if (!response.success) {
             emit(FeedRoomError(message: "No data found"));

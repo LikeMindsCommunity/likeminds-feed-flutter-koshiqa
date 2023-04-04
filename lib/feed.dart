@@ -102,10 +102,10 @@ class _LMFeedState extends State<LMFeed> {
   Widget build(BuildContext context) {
     return FutureBuilder<InitiateUserResponse>(
       future: locator<LikeMindsService>().initiateUser(
-        InitiateUserRequest(
-          userId: userId,
-          userName: userName,
-        ),
+        (InitiateUserRequestBuilder()
+              ..userId(userId)
+              ..userName(userName))
+            .build(),
       ),
       initialData: null,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
