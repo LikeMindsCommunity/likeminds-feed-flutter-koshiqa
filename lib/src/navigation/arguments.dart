@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
@@ -26,7 +24,14 @@ class LikesScreenArguments {
 class NewPostScreenArguments {
   final User user;
   final int feedroomId;
-  NewPostScreenArguments({required this.user, required this.feedroomId});
+  final String feedRoomTitle;
+  bool isCm;
+  NewPostScreenArguments({
+    required this.user,
+    required this.feedroomId,
+    required this.feedRoomTitle,
+    required this.isCm,
+  });
 }
 
 class MediaPreviewArguments {
@@ -44,5 +49,14 @@ class DocumentPreviewArguments {
   final String docUrl;
   DocumentPreviewArguments({
     required this.docUrl,
+  });
+}
+
+class FeedRoomSelectArguments {
+  final User user;
+  List<FeedRoom> feedRoomIds;
+  FeedRoomSelectArguments({
+    required this.user,
+    required this.feedRoomIds,
   });
 }

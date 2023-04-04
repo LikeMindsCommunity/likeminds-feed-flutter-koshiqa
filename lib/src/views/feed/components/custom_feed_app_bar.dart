@@ -10,9 +10,6 @@ class CustomFeedAppBar extends StatelessWidget with PreferredSizeWidget {
     return AppBar(
       elevation: 0,
       leading: Image.asset('packages/feed_sx/assets/images/hamburger.png'),
-      systemOverlayStyle: const SystemUiOverlayStyle(
-          statusBarColor: Colors.white,
-          statusBarIconBrightness: Brightness.dark),
       backgroundColor: kWhiteColor,
       title: const Text(
         'SCALIX',
