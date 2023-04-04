@@ -390,11 +390,20 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                                           postUploading.value = false;
 
                                           if (response.success) {
-                                            // In FeedRoomEmptyView we need to
-                                            // refresh the screen, as the bloc needs
-                                            // to change its state
-                                            widget.onRefresh();
-                                            widget.onPressedBack();
+                                            // If the post is successfully uploaded
+                                            // Add the post in the pagingController list
+                                            // and rebuild the PagedListView Widget
+                                            Post? item = response.post;
+                                            List<Post>? feedRoomItemList =
+                                                widget.feedRoomPagingController
+                                                    .itemList;
+                                            feedRoomItemList!.insert(0, item!);
+                                            widget.feedRoomPagingController
+                                                .itemList = feedRoomItemList;
+                                            widget.feedResponse.users
+                                                .addAll(response.user!);
+                                            rebuildPostWidget.value =
+                                                !rebuildPostWidget.value;
                                           }
                                         }
                                       });
@@ -456,52 +465,69 @@ class _FeedRoomViewState extends State<FeedRoomView> {
         ],
       ),
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
-      floatingActionButton: NewPostButton(
-        onTap: () {
-          if (!postUploading.value) {
-            locator<NavigationService>()
-                .navigateTo(
-              NewPostScreen.route,
-              arguments: NewPostScreenArguments(
-                feedroomId: widget.feedRoom.id,
-                feedRoomTitle: widget.feedRoom.title,
-                user: widget.user,
-                isCm: widget.isCm,
-              ),
-            )
-                .then((result) async {
-              if (result != null && result['isBack']) {
-                imageFiles = result['mediaFiles'] as List<MediaModel>?;
-                postUploading.value = true;
-                AddPostResponse response = await postContent(
-                    context, result, widget.feedRoom.id, (int progress) {
-                  imageUploadProgress = progress;
-                  postUploading.value = false;
-                  postUploading.value = true;
-                });
-                postUploading.value = false;
-                // widget.onRefresh();
-                // widget.onPressedBack();
+      floatingActionButton: ValueListenableBuilder(
+        valueListenable: rebuildPostWidget,
+        builder: (context, _, __) {
+          return widget.feedRoomPagingController.itemList == null ||
+                  widget.feedRoomPagingController.itemList!.isEmpty
+              ? const SizedBox()
+              : NewPostButton(
+                  onTap: () {
+                    if (!postUploading.value) {
+                      locator<NavigationService>()
+                          .navigateTo(
+                        NewPostScreen.route,
+                        arguments: NewPostScreenArguments(
+                          feedroomId: widget.feedRoom.id,
+                          feedRoomTitle: widget.feedRoom.title,
+                          user: widget.user,
+                          isCm: widget.isCm,
+                        ),
+                      )
+                          .then(
+                        (result) async {
+                          if (result != null && result['isBack']) {
+                            imageFiles =
+                                result['mediaFiles'] as List<MediaModel>?;
+                            postUploading.value = true;
+                            AddPostResponse response = await postContent(
+                                context, result, widget.feedRoom.id,
+                                (int progress) {
+                              imageUploadProgress = progress;
+                              postUploading.value = false;
+                              postUploading.value = true;
+                            });
+                            postUploading.value = false;
+                            // widget.onRefresh();
+                            // widget.onPressedBack();
 
-                if (response.success) {
-                  // If the post is successfully uploaded
-                  // Add the post in the pagingController list
-                  // and rebuild the PagedListView Widget
-                  Post? item = response.post;
-                  List<Post>? feedRoomItemList =
-                      widget.feedRoomPagingController.itemList;
-                  feedRoomItemList!.insert(0, item!);
-                  widget.feedRoomPagingController.itemList = feedRoomItemList;
-                  rebuildPostWidget.value = !rebuildPostWidget.value;
-                }
-              }
-            });
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
-              content: 'A post is already uploading.',
-              backgroundColor: kGrey1Color,
-            ));
-          }
+                            if (response.success) {
+                              // If the post is successfully uploaded
+                              // Add the post in the pagingController list
+                              // and rebuild the PagedListView Widget
+                              Post? item = response.post;
+                              List<Post>? feedRoomItemList =
+                                  widget.feedRoomPagingController.itemList;
+                              feedRoomItemList!.insert(0, item!);
+                              widget.feedRoomPagingController.itemList =
+                                  feedRoomItemList;
+                              widget.feedResponse.users.addAll(response.user!);
+                              rebuildPostWidget.value =
+                                  !rebuildPostWidget.value;
+                            }
+                          }
+                        },
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        confirmationToast(
+                          content: 'A post is already uploading.',
+                          backgroundColor: kGrey1Color,
+                        ),
+                      );
+                    }
+                  },
+                );
         },
       ),
     );
