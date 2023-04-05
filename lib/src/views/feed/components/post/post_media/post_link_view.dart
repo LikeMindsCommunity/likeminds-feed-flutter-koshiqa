@@ -3,6 +3,7 @@ import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
 import 'package:flutter/material.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PostLinkView extends StatelessWidget {
   PostLinkView({
@@ -28,82 +29,90 @@ class PostLinkView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      clipBehavior: Clip.hardEdge,
-      decoration: BoxDecoration(
-        color: kWhiteColor,
-        border: Border.all(
-          color: kGrey3Color,
-          width: 0.5,
+    return GestureDetector(
+      onTap: () {
+        launchUrl(Uri.parse(linkModel == null
+            ? attachment!.attachmentMeta.ogTags!.url!
+            : linkModel!.link!));
+      },
+      child: Container(
+        clipBehavior: Clip.hardEdge,
+        decoration: BoxDecoration(
+          color: kWhiteColor,
+          border: Border.all(
+            color: kGrey3Color,
+            width: 0.5,
+          ),
+          borderRadius: BorderRadius.circular(8.0),
         ),
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      width: screenSize!.width,
-      child: Column(
-        children: <Widget>[
-          checkNullMedia()
-              ? const SizedBox.shrink()
-              : CachedNetworkImage(
-                  width: screenSize!.width,
-                  height: 150,
-                  fit: BoxFit.cover,
-                  maxHeightDiskCache: screenSize!.height.toInt(),
-                  imageUrl: linkModel == null
-                      ? attachment!.attachmentMeta.ogTags!.image!
-                      : linkModel!.ogTags!.image!,
+        width: screenSize!.width,
+        child: Column(
+          children: <Widget>[
+            checkNullMedia()
+                ? const SizedBox.shrink()
+                : CachedNetworkImage(
+                    width: screenSize!.width,
+                    height: 150,
+                    fit: BoxFit.cover,
+                    maxHeightDiskCache: screenSize!.height.toInt(),
+                    imageUrl: linkModel == null
+                        ? attachment!.attachmentMeta.ogTags!.image!
+                        : linkModel!.ogTags!.image!,
+                  ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SizedBox(
+                width: screenSize!.width,
+                child: Column(
+                  children: <Widget>[
+                    SizedBox(
+                      width: screenSize!.width,
+                      child: Text(
+                        linkModel == null
+                            ? attachment!.attachmentMeta.ogTags!.title ?? ''
+                            : linkModel!.ogTags!.title ?? '',
+                        style: const TextStyle(
+                          color: kGrey1Color,
+                          fontSize: kFontMedium,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    kVerticalPaddingSmall,
+                    SizedBox(
+                      width: screenSize!.width,
+                      child: Text(
+                        linkModel == null
+                            ? attachment!.attachmentMeta.ogTags!.description ??
+                                ''
+                            : linkModel!.ogTags!.description ?? '',
+                        maxLines: 2,
+                        style: const TextStyle(
+                          color: kGrey3Color,
+                          fontSize: kFontSmall,
+                        ),
+                      ),
+                    ),
+                    kVerticalPaddingXSmall,
+                    SizedBox(
+                      width: screenSize!.width,
+                      child: Text(
+                        linkModel == null
+                            ? attachment!.attachmentMeta.ogTags!.url ?? ''
+                            : linkModel!.link ?? '',
+                        maxLines: 1,
+                        style: const TextStyle(
+                          color: kGrey3Color,
+                          fontSize: kFontXSmall,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SizedBox(
-              width: screenSize!.width,
-              child: Column(
-                children: <Widget>[
-                  SizedBox(
-                    width: screenSize!.width,
-                    child: Text(
-                      linkModel == null
-                          ? attachment!.attachmentMeta.ogTags!.title ?? ''
-                          : linkModel!.ogTags!.title ?? '',
-                      style: const TextStyle(
-                        color: kGrey1Color,
-                        fontSize: kFontMedium,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  kVerticalPaddingSmall,
-                  SizedBox(
-                    width: screenSize!.width,
-                    child: Text(
-                      linkModel == null
-                          ? attachment!.attachmentMeta.ogTags!.description ?? ''
-                          : linkModel!.ogTags!.description ?? '',
-                      maxLines: 2,
-                      style: const TextStyle(
-                        color: kGrey3Color,
-                        fontSize: kFontSmall,
-                      ),
-                    ),
-                  ),
-                  kVerticalPaddingXSmall,
-                  SizedBox(
-                    width: screenSize!.width,
-                    child: Text(
-                      linkModel == null
-                          ? attachment!.attachmentMeta.ogTags!.url ?? ''
-                          : linkModel!.link ?? '',
-                      maxLines: 1,
-                      style: const TextStyle(
-                        color: kGrey3Color,
-                        fontSize: kFontXSmall,
-                      ),
-                    ),
-                  ),
-                ],
               ),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }

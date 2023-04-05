@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_media/post_image_shimmer.dart';
 import 'package:flutter/material.dart';
 
 import 'package:feed_sx/src/navigation/arguments.dart';
@@ -57,7 +56,9 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     Bloc.observer = SimpleBlocObserver();
     _feedBloc = FeedRoomBloc();
     title = widget.feedRoomTitle;
-    _feedBloc.add(GetFeedRoom(feedRoomId: widget.feedRoomId, offset: 1));
+    _feedBloc.add(
+      GetFeedRoom(feedRoomId: widget.feedRoomId, offset: 1),
+    );
   }
 
   @override
@@ -67,12 +68,17 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
   }
 
   _addPaginationListener() {
-    _pagingController.addPageRequestListener((pageKey) {
-      _feedBloc.add(GetFeedRoom(
-          feedRoomId: widget.feedRoomId,
-          offset: pageKey,
-          isPaginationLoading: true));
-    });
+    _pagingController.addPageRequestListener(
+      (pageKey) {
+        _feedBloc.add(
+          GetFeedRoom(
+            feedRoomId: widget.feedRoomId,
+            offset: pageKey,
+            isPaginationLoading: true,
+          ),
+        );
+      },
+    );
   }
 
   refresh() => _pagingController.refresh();
@@ -89,6 +95,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
       }
       setTitleWidget(state.feedRoom.title);
     } else if (state is FeedRoomEmpty) {
+      _pagingController.appendLastPage(state.feed.posts ?? []);
       setTitleWidget(state.feedRoom.title);
     }
   }
@@ -130,7 +137,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          _feedBloc.add(GetFeedRoom(feedRoomId: widget.feedRoomId, offset: 0));
+          _feedBloc.add(GetFeedRoom(feedRoomId: widget.feedRoomId, offset: 1));
           clearPagingController();
         },
         child: BlocConsumer(
@@ -169,21 +176,23 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
             } else if (state is FeedRoomError) {
               return FeedRoomErrorView(message: state.message);
             } else if (state is FeedRoomEmpty) {
-              return FeedRoomEmptyView(
+              return FeedRoomView(
                 isCm: isCm!,
-                feedBloc: _feedBloc,
-                onRefresh: refresh,
-                user: user,
+                feedResponse: state.feed,
+                feedRoomBloc: _feedBloc,
                 feedRoom: state.feedRoom,
+                feedRoomPagingController: _pagingController,
+                user: user,
+                onRefresh: refresh,
                 onPressedBack: clearPagingController,
               );
             }
-
-            return Scaffold(
-                backgroundColor: kBackgroundColor,
-                body: Center(
-                  child: const Loader(),
-                ));
+            return const Scaffold(
+              backgroundColor: kBackgroundColor,
+              body: Center(
+                child: const Loader(),
+              ),
+            );
           }),
         ),
       ),
@@ -199,188 +208,6 @@ class FeedRoomErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: kBackgroundColor, body: Center(child: Text(message)));
-  }
-}
-
-class FeedRoomEmptyView extends StatefulWidget {
-  FeedRoomEmptyView(
-      {Key? key,
-      required this.isCm,
-      required this.onPressedBack,
-      required this.onRefresh,
-      required this.feedBloc,
-      required this.user,
-      required this.feedRoom});
-
-  final bool isCm;
-  final User user;
-  final FeedRoom feedRoom;
-  final FeedRoomBloc feedBloc;
-  final VoidCallback onRefresh;
-  final VoidCallback onPressedBack;
-
-  @override
-  State<FeedRoomEmptyView> createState() => _FeedRoomEmptyViewState();
-}
-
-class _FeedRoomEmptyViewState extends State<FeedRoomEmptyView> {
-  final ValueNotifier postUploading = ValueNotifier(false);
-  Size? screenSize;
-
-  List<MediaModel>? imageFiles = [];
-
-  Widget getLoaderThumbnail() {
-    if (imageFiles != null) {
-      if (imageFiles![0].mediaType == MediaType.image) {
-        return Image.file(
-          imageFiles![0].mediaFile!,
-          height: 50,
-          width: 50,
-          fit: BoxFit.cover,
-        );
-      } else if (imageFiles![0].mediaType == MediaType.document) {
-        return SvgPicture.asset(
-          kAssetDocPDFIcon,
-          height: 35,
-          width: 35,
-          fit: BoxFit.cover,
-        );
-      } else {
-        return SizedBox(
-          height: 50,
-          width: 50,
-          child: PostVideo(
-            videoFile: imageFiles![0].mediaFile,
-            width: 50,
-          ),
-        );
-      }
-    } else {
-      return const SizedBox(height: 50, width: 50);
-    }
-  }
-
-  int imageUploadProgress = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    screenSize = MediaQuery.of(context).size;
-    return Scaffold(
-        body: Column(
-      children: [
-        ValueListenableBuilder(
-            valueListenable: postUploading,
-            builder: (context, _, __) {
-              if (postUploading.value) {
-                return Align(
-                  alignment: Alignment.topCenter,
-                  child: Container(
-                    height: 60,
-                    color: kWhiteColor,
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20.0,
-                      vertical: 10.0,
-                    ),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[
-                              imageFiles != null && imageFiles!.isNotEmpty
-                                  ? getLoaderThumbnail()
-                                  : const SizedBox(),
-                              kHorizontalPaddingMedium,
-                              Text('Posting')
-                            ],
-                          ),
-                          SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: imageFiles != null && imageFiles!.isNotEmpty
-                                ? CircularProgressIndicator(
-                                    value: imageUploadProgress /
-                                        imageFiles!.length,
-                                    backgroundColor: kGrey3Color,
-                                    valueColor:
-                                        AlwaysStoppedAnimation(kLinkColor),
-                                  )
-                                : CircularProgressIndicator(),
-                          ),
-                        ]),
-                  ),
-                );
-              } else {
-                return const SizedBox.shrink();
-              }
-            }),
-        Expanded(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SvgPicture.asset(
-                  kAssetPostsIcon,
-                  color: kGrey3Color,
-                ),
-                const SizedBox(height: 12),
-                const Text("No posts to show",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    )),
-                const SizedBox(height: 12),
-                const Text("Be the first one to post here",
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w300,
-                        color: kGrey2Color)),
-                const SizedBox(height: 28),
-                NewPostButton(
-                  onTap: () {
-                    if (!postUploading.value) {
-                      locator<NavigationService>()
-                          .navigateTo(
-                        NewPostScreen.route,
-                        arguments: NewPostScreenArguments(
-                          feedroomId: widget.feedRoom.id,
-                          user: widget.user,
-                        ),
-                      )
-                          .then((result) async {
-                        if (result != null && result['isBack']) {
-                          imageFiles =
-                              result['mediaFiles'] as List<MediaModel>?;
-                          postUploading.value = true;
-                          await postContent(context, result, widget.feedRoom.id,
-                              (int progress) {
-                            imageUploadProgress = progress;
-                            postUploading.value = false;
-                            postUploading.value = true;
-                          });
-                          postUploading.value = false;
-                          widget.onRefresh();
-                          widget.onPressedBack();
-                        }
-                      });
-                    } else {
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(confirmationToast(
-                        content: 'A post is already uploading.',
-                        backgroundColor: kGrey1Color,
-                      ));
-                    }
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    ));
   }
 }
 
@@ -460,141 +287,266 @@ class _FeedRoomViewState extends State<FeedRoomView> {
       body: Column(
         children: [
           ValueListenableBuilder(
-              valueListenable: postUploading,
-              builder: (context, _, __) {
-                if (postUploading.value) {
-                  return Container(
-                    height: 60,
-                    color: kWhiteColor,
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            valueListenable: postUploading,
+            builder: (context, _, __) {
+              if (postUploading.value) {
+                return Container(
+                  height: 60,
+                  color: kWhiteColor,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[
-                              imageFiles != null && imageFiles!.isNotEmpty
-                                  ? getLoaderThumbnail()
-                                  : const SizedBox(),
-                              kHorizontalPaddingMedium,
-                              const Text('Posting')
-                            ],
-                          ),
-                          SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: imageFiles != null && imageFiles!.isNotEmpty
-                                ? CircularProgressIndicator(
-                                    value: imageUploadProgress /
-                                        imageFiles!.length,
-                                    backgroundColor: kGrey3Color,
-                                    valueColor: const AlwaysStoppedAnimation(
-                                        kLinkColor),
-                                  )
-                                : CircularProgressIndicator(),
-                          ),
-                        ]),
-                  );
-                } else {
-                  return const SizedBox.shrink();
-                }
-              }),
+                          imageFiles != null && imageFiles!.isNotEmpty
+                              ? getLoaderThumbnail()
+                              : const SizedBox(),
+                          kHorizontalPaddingMedium,
+                          const Text('Posting')
+                        ],
+                      ),
+                      SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: imageFiles != null && imageFiles!.isNotEmpty
+                            ? CircularProgressIndicator(
+                                value: imageUploadProgress / imageFiles!.length,
+                                backgroundColor: kGrey3Color,
+                                valueColor:
+                                    const AlwaysStoppedAnimation(kPrimaryColor),
+                                strokeWidth: 3,
+                              )
+                            : const CircularProgressIndicator(),
+                      ),
+                    ],
+                  ),
+                );
+              } else {
+                return const SizedBox.shrink();
+              }
+            },
+          ),
           kVerticalPaddingLarge,
           Expanded(
-            child: PagedListView<int, Post>(
-              pagingController: widget.feedRoomPagingController,
-              builderDelegate: PagedChildBuilderDelegate<Post>(
-                  noItemsFoundIndicatorBuilder: (context) => const Scaffold(
-                      backgroundColor: kBackgroundColor,
-                      body: Center(
-                        child: Loader(),
-                      )),
-                  itemBuilder: (context, item, index) {
-                    Post rebuildPostData = item;
-                    return ValueListenableBuilder(
-                        valueListenable: rebuildPostWidget,
-                        builder: (context, _, __) {
-                          return PostWidget(
-                            postType: 1,
-                            postDetails: item,
-                            user: widget.feedResponse.users[item.userId]!,
-                            refresh: (bool isDeleted) async {
-                              if (!isDeleted) {
-                                final GetPostResponse updatedPostDetails =
-                                    await locator<LikeMindsService>().getPost(
-                                  GetPostRequest(
-                                    postId: item.id,
-                                    page: 1,
-                                    pageSize: 10,
-                                  ),
-                                );
-                                item = updatedPostDetails.post!;
-                                rebuildPostData = updatedPostDetails.post!;
-                                List<Post>? feedRoomItemList =
-                                    widget.feedRoomPagingController.itemList;
-                                feedRoomItemList![index] =
-                                    updatedPostDetails.post!;
-                                widget.feedRoomPagingController.itemList =
-                                    feedRoomItemList;
-                                rebuildPostWidget.value =
-                                    !rebuildPostWidget.value;
-                              } else {
-                                widget.onRefresh();
-                                widget.onPressedBack();
-                              }
-                            },
-                            //onRefresh,
-                          );
-                        });
-                  }),
+            child: ValueListenableBuilder(
+              valueListenable: rebuildPostWidget,
+              builder: (context, _, __) {
+                return PagedListView<int, Post>(
+                  pagingController: widget.feedRoomPagingController,
+                  builderDelegate: PagedChildBuilderDelegate<Post>(
+                      noItemsFoundIndicatorBuilder: (context) => Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset(
+                                  kAssetPostsIcon,
+                                  color: kGrey3Color,
+                                ),
+                                const SizedBox(height: 12),
+                                const Text("No posts to show",
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                    )),
+                                const SizedBox(height: 12),
+                                const Text("Be the first one to post here",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w300,
+                                        color: kGrey2Color)),
+                                const SizedBox(height: 28),
+                                NewPostButton(
+                                  onTap: () {
+                                    if (!postUploading.value) {
+                                      locator<NavigationService>()
+                                          .navigateTo(
+                                        NewPostScreen.route,
+                                        arguments: NewPostScreenArguments(
+                                          feedroomId: widget.feedRoom.id,
+                                          feedRoomTitle: widget.feedRoom.title,
+                                          user: widget.user,
+                                          isCm: widget.isCm,
+                                        ),
+                                      )
+                                          .then((result) async {
+                                        if (result != null &&
+                                            result['isBack']) {
+                                          imageFiles = result['mediaFiles']
+                                              as List<MediaModel>?;
+                                          postUploading.value = true;
+                                          AddPostResponse response =
+                                              await postContent(context, result,
+                                                  widget.feedRoom.id,
+                                                  (int progress) {
+                                            imageUploadProgress = progress;
+                                            postUploading.value = false;
+                                            postUploading.value = true;
+                                          });
+                                          postUploading.value = false;
+
+                                          if (response.success) {
+                                            // If the post is successfully uploaded
+                                            // Add the post in the pagingController list
+                                            // and rebuild the PagedListView Widget
+                                            Post? item = response.post;
+                                            List<Post>? feedRoomItemList =
+                                                widget.feedRoomPagingController
+                                                    .itemList;
+                                            feedRoomItemList!.insert(0, item!);
+                                            widget.feedRoomPagingController
+                                                .itemList = feedRoomItemList;
+                                            widget.feedResponse.users
+                                                .addAll(response.user!);
+                                            rebuildPostWidget.value =
+                                                !rebuildPostWidget.value;
+                                          }
+                                        }
+                                      });
+                                    } else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(confirmationToast(
+                                        content: 'A post is already uploading.',
+                                        backgroundColor: kGrey1Color,
+                                      ));
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                      itemBuilder: (context, item, index) {
+                        Post rebuildPostData = item;
+                        return PostWidget(
+                          postType: 1,
+                          postDetails: rebuildPostData,
+                          user: widget.feedResponse.users[item.userId]!,
+                          refresh: (bool isDeleted) async {
+                            if (!isDeleted) {
+                              final GetPostResponse updatedPostDetails =
+                                  await locator<LikeMindsService>().getPost(
+                                GetPostRequest(
+                                  postId: item.id,
+                                  page: 1,
+                                  pageSize: 10,
+                                ),
+                              );
+                              item = updatedPostDetails.post!;
+                              rebuildPostData = updatedPostDetails.post!;
+                              List<Post>? feedRoomItemList =
+                                  widget.feedRoomPagingController.itemList;
+                              feedRoomItemList![index] =
+                                  updatedPostDetails.post!;
+                              widget.feedRoomPagingController.itemList =
+                                  feedRoomItemList;
+                              rebuildPostWidget.value =
+                                  !rebuildPostWidget.value;
+                            } else {
+                              List<Post>? feedRoomItemList =
+                                  widget.feedRoomPagingController.itemList;
+                              feedRoomItemList!.removeAt(index);
+                              widget.feedRoomPagingController.itemList =
+                                  feedRoomItemList;
+                              rebuildPostWidget.value =
+                                  !rebuildPostWidget.value;
+                            }
+                          },
+                          //onRefresh,
+                        );
+                      }),
+                );
+              },
             ),
           )
         ],
       ),
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
-      floatingActionButton: NewPostButton(
-        onTap: () {
-          if (!postUploading.value) {
-            locator<NavigationService>()
-                .navigateTo(
-              NewPostScreen.route,
-              arguments: NewPostScreenArguments(
-                feedroomId: widget.feedRoom.id,
-                user: widget.user,
-              ),
-            )
-                .then((result) async {
-              if (result != null && result['isBack']) {
-                imageFiles = result['mediaFiles'] as List<MediaModel>?;
-                postUploading.value = true;
-                await postContent(context, result, widget.feedRoom.id,
-                    (int progress) {
-                  imageUploadProgress = progress;
-                  postUploading.value = false;
-                  postUploading.value = true;
-                });
-                postUploading.value = false;
-                widget.onRefresh();
-                widget.onPressedBack();
-              }
-            });
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
-              content: 'A post is already uploading.',
-              backgroundColor: kGrey1Color,
-            ));
-          }
+      floatingActionButton: ValueListenableBuilder(
+        valueListenable: rebuildPostWidget,
+        builder: (context, _, __) {
+          return widget.feedRoomPagingController.itemList == null ||
+                  widget.feedRoomPagingController.itemList!.isEmpty
+              ? const SizedBox()
+              : NewPostButton(
+                  onTap: () {
+                    if (!postUploading.value) {
+                      locator<NavigationService>()
+                          .navigateTo(
+                        NewPostScreen.route,
+                        arguments: NewPostScreenArguments(
+                          feedroomId: widget.feedRoom.id,
+                          feedRoomTitle: widget.feedRoom.title,
+                          user: widget.user,
+                          isCm: widget.isCm,
+                        ),
+                      )
+                          .then(
+                        (result) async {
+                          if (result != null && result['isBack']) {
+                            imageFiles =
+                                result['mediaFiles'] as List<MediaModel>?;
+                            postUploading.value = true;
+                            AddPostResponse response = await postContent(
+                                context, result, widget.feedRoom.id,
+                                (int progress) {
+                              imageUploadProgress = progress;
+                              postUploading.value = false;
+                              postUploading.value = true;
+                            });
+                            postUploading.value = false;
+                            // widget.onRefresh();
+                            // widget.onPressedBack();
+
+                            if (response.success) {
+                              // If the post is successfully uploaded
+                              // Add the post in the pagingController list
+                              // and rebuild the PagedListView Widget
+                              Post? item = response.post;
+                              List<Post>? feedRoomItemList =
+                                  widget.feedRoomPagingController.itemList;
+                              for (int i = 0;
+                                  i < feedRoomItemList!.length;
+                                  i++) {
+                                if (!feedRoomItemList[i].isPinned) {
+                                  feedRoomItemList.insert(i, item!);
+                                  break;
+                                }
+                              }
+                              widget.feedRoomPagingController.itemList =
+                                  feedRoomItemList;
+                              widget.feedResponse.users.addAll(response.user!);
+                              rebuildPostWidget.value =
+                                  !rebuildPostWidget.value;
+                            }
+                          }
+                        },
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        confirmationToast(
+                          content: 'A post is already uploading.',
+                          backgroundColor: kGrey1Color,
+                        ),
+                      );
+                    }
+                  },
+                );
         },
       ),
     );
   }
 }
 
-Future postContent(BuildContext context, Map<String, dynamic> postData,
-    int feedRoomId, Function(int) updateProgress) async {
+Future<AddPostResponse> postContent(
+  BuildContext context,
+  Map<String, dynamic> postData,
+  int feedRoomId,
+  Function(int) updateProgress,
+) async {
   List<MediaModel>? mediaFiles = postData['mediaFiles'];
   int imageCount = 0;
   int videoCount = 0;
@@ -612,6 +564,10 @@ Future postContent(BuildContext context, Map<String, dynamic> postData,
       }
     }
   }
+
+  // List of feedroom selected while creating the post
+  List<FeedRoom> feedRoomIds = postData['feedRoomIds'];
+
   final AddPostRequest request = AddPostRequest(
     text: postData['result'] ?? '',
     attachments: attachments,
@@ -653,6 +609,7 @@ Future postContent(BuildContext context, Map<String, dynamic> postData,
         content: response.errorMessage ?? 'An error occured',
         backgroundColor: kGrey1Color));
   }
+  return response;
 }
 
 Future<List<Attachment>> uploadImages(
