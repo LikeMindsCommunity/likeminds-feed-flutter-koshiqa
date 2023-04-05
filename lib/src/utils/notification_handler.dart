@@ -43,11 +43,11 @@ class LMNotificationHandler {
   /// It initializes the [memberId] which is used to route the notification
   /// If the registration is successful, it prints success message
   void registerDevice(int memberId) async {
-    RegisterDeviceRequest request = RegisterDeviceRequest(
-      token: fcmToken,
-      memberId: memberId,
-      deviceId: deviceId,
-    );
+    RegisterDeviceRequest request = (RegisterDeviceRequestBuilder()
+          ..token(fcmToken)
+          ..memberId(memberId)
+          ..deviceId(deviceId))
+        .build();
     this.memberId = memberId;
     final response = await locator<LikeMindsService>().registerDevice(request);
     if (response.success) {
@@ -119,11 +119,11 @@ class LMNotificationHandler {
       final String postId = queryParams["post_id"]!;
       final GetPostResponse postDetails =
           await locator<LikeMindsService>().getPost(
-        GetPostRequest(
-          postId: postId,
-          page: 1,
-          pageSize: 10,
-        ),
+        (GetPostRequestBuilder()
+              ..postId(postId)
+              ..page(1)
+              ..pageSize(10))
+            .build(),
       );
       locator<NavigationService>().navigateTo(
         AllCommentsScreen.route,

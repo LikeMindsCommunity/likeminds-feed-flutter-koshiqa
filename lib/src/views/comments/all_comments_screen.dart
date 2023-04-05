@@ -56,7 +56,10 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     FeedApi feedApi = locator<LikeMindsService>().getFeedApi();
     _allCommentsBloc = AllCommentsBloc(feedApi: feedApi);
     _allCommentsBloc.add(GetAllComments(
-        postDetailRequest: PostDetailRequest(postId: widget.post.id, page: 1),
+        postDetailRequest: (PostDetailRequestBuilder()
+              ..postId(widget.post.id)
+              ..page(1))
+            .build(),
         forLoadMore: false));
     _addCommentBloc = AddCommentBloc(feedApi: feedApi);
     _addCommentReplyBloc = AddCommentReplyBloc(feedApi: feedApi);
@@ -69,8 +72,10 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     _pagingController.addPageRequestListener((pageKey) {
       _allCommentsBloc.add(
         GetAllComments(
-          postDetailRequest:
-              PostDetailRequest(postId: widget.post.id, page: pageKey),
+          postDetailRequest: (PostDetailRequestBuilder()
+                ..postId(widget.post.id)
+                ..page(pageKey))
+              .build(),
           forLoadMore: true,
         ),
       );
@@ -94,11 +99,11 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
   Future updatePostDetails(BuildContext context) async {
     final GetPostResponse postDetails =
         await locator<LikeMindsService>().getPost(
-      GetPostRequest(
-        postId: postData!.id,
-        page: 1,
-        pageSize: 10,
-      ),
+      (GetPostRequestBuilder()
+            ..postId(postData!.id)
+            ..page(1)
+            ..pageSize(10))
+          .build(),
     );
     if (postDetails.success) {
       if (postData!.commentCount != postDetails.post!.commentCount) {
@@ -243,10 +248,12 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                                 _addCommentBloc.add(
                                                   AddComment(
                                                     addCommentRequest:
-                                                        AddCommentRequest(
-                                                      postId: widget.post.id,
-                                                      text: commentText,
-                                                    ),
+                                                        (AddCommentRequestBuilder()
+                                                              ..postId(widget
+                                                                  .post.id)
+                                                              ..text(
+                                                                  commentText))
+                                                            .build(),
                                                   ),
                                                 );
                                               },
@@ -299,15 +306,18 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                                             _commentController!
                                                                 .text,
                                                             userTags);
-                                                    _addCommentReplyBloc.add(AddCommentReply(
-                                                        addCommentRequest:
-                                                            AddCommentReplyRequest(
-                                                                postId: widget
-                                                                    .post.id,
-                                                                text:
-                                                                    commentText,
-                                                                commentId:
-                                                                    selectedCommentId!)));
+                                                    _addCommentReplyBloc.add(
+                                                        AddCommentReply(
+                                                            addCommentRequest:
+                                                                (AddCommentReplyRequestBuilder()
+                                                                      ..postId(widget
+                                                                          .post
+                                                                          .id)
+                                                                      ..text(
+                                                                          commentText)
+                                                                      ..commentId(
+                                                                          selectedCommentId!))
+                                                                    .build()));
                                                     selectedCommentId = null;
                                                     selectedUsername = null;
 

@@ -15,7 +15,7 @@ class FeedRoomListBloc extends Bloc<FeedRoomListEvent, FeedRoomListState> {
         try {
           GetFeedRoomResponse? response =
               await locator<LikeMindsService>().getFeedRoom(
-            GetFeedRoomRequest(page: event.offset),
+            (GetFeedRoomRequestBuilder()..page(event.offset)).build(),
           );
           final List<FeedRoom> feedList = response.chatrooms!;
 

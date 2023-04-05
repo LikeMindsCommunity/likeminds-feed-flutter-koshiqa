@@ -67,8 +67,9 @@ class _PostActionsState extends State<PostActions> {
                     isLiked = !isLiked;
                     rebuildLikeWidget.value = !rebuildLikeWidget.value;
 
-                    final response = await locator<LikeMindsService>()
-                        .likePost(LikePostRequest(postId: postDetails!.id));
+                    final response = await locator<LikeMindsService>().likePost(
+                        (LikePostRequestBuilder()..postId(postDetails!.id))
+                            .build());
                     if (!response.success) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -89,8 +90,9 @@ class _PostActionsState extends State<PostActions> {
                         postLikes++;
                       }
                       isLiked = !isLiked;
-                      // refresh();
                       rebuildLikeWidget.value = !rebuildLikeWidget.value;
+                    } else {
+                      await refresh(false);
                     }
                   },
                   icon: ValueListenableBuilder(

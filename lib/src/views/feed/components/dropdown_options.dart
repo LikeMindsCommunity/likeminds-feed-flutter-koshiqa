@@ -56,10 +56,10 @@ class DropdownOptions extends StatelessWidget {
                                 final response =
                                     await locator<LikeMindsService>()
                                         .deletePost(
-                                  DeletePostRequest(
-                                    postId: postDetails.id,
-                                    deleteReason: "deleteReason",
-                                  ),
+                                  (DeletePostRequestBuilder()
+                                        ..postId(postDetails.id)
+                                        ..deleteReason("deleteReason"))
+                                      .build(),
                                 );
                                 print(response.toString());
 
@@ -95,9 +95,8 @@ class DropdownOptions extends StatelessWidget {
                       );
                       final response =
                           await locator<LikeMindsService>().pinPost(
-                        PinPostRequest(
-                          postId: postDetails.id,
-                        ),
+                        (PinPostRequestBuilder()..postId(postDetails.id))
+                            .build(),
                       );
                       print(response.toString());
                       if (response.success) {

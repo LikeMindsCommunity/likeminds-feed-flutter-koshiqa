@@ -117,10 +117,11 @@ class _CommentTileState extends State<CommentTile>
                       });
 
                       _toggleLikeCommentBloc.add(ToggleLikeComment(
-                          toggleLikeCommentRequest: ToggleLikeCommentRequest(
-                        commentId: reply.id,
-                        postId: postId,
-                      )));
+                          toggleLikeCommentRequest:
+                              (ToggleLikeCommentRequestBuilder()
+                                    ..commentId(reply.id)
+                                    ..postId(postId))
+                                  .build()));
                     },
                     child: Builder(builder: ((context) {
                       return isLiked
@@ -196,8 +197,12 @@ class _CommentTileState extends State<CommentTile>
                           return;
                         } else {
                           _commentRepliesBloc.add(GetCommentReplies(
-                              commentDetailRequest: CommentDetailRequest(
-                                  commentId: reply.id, page: 1, postId: postId),
+                              commentDetailRequest:
+                                  (CommentDetailRequestBuilder()
+                                        ..commentId(reply.id)
+                                        ..page(1)
+                                        ..postId(postId))
+                                      .build(),
                               forLoadMore: false));
                           _replyVisible = true;
                         }
@@ -268,10 +273,12 @@ class _CommentTileState extends State<CommentTile>
                         onPressed: () {
                           page++;
                           _commentRepliesBloc.add(GetCommentReplies(
-                              commentDetailRequest: CommentDetailRequest(
-                                  commentId: reply.id,
-                                  page: page,
-                                  postId: postId),
+                              commentDetailRequest:
+                                  (CommentDetailRequestBuilder()
+                                        ..commentId(reply.id)
+                                        ..page(page)
+                                        ..postId(postId))
+                                      .build(),
                               forLoadMore: true));
                         },
                         child: const Text(

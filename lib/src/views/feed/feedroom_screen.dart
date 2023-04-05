@@ -429,17 +429,17 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                             if (!isDeleted) {
                               final GetPostResponse updatedPostDetails =
                                   await locator<LikeMindsService>().getPost(
-                                GetPostRequest(
-                                  postId: item.id,
-                                  page: 1,
-                                  pageSize: 10,
-                                ),
+                                (GetPostRequestBuilder()
+                                      ..postId(item.id)
+                                      ..page(1)
+                                      ..pageSize(10))
+                                    .build(),
                               );
                               item = updatedPostDetails.post!;
                               rebuildPostData = updatedPostDetails.post!;
                               List<Post>? feedRoomItemList =
                                   widget.feedRoomPagingController.itemList;
-                              feedRoomItemList![index] =
+                              feedRoomItemList?[index] =
                                   updatedPostDetails.post!;
                               widget.feedRoomPagingController.itemList =
                                   feedRoomItemList;
@@ -516,8 +516,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                                   break;
                                 }
                               }
-                              widget.feedRoomPagingController.itemList =
-                                  feedRoomItemList;
+                              feedRoomItemList.removeLast();
                               widget.feedResponse.users.addAll(response.user!);
                               rebuildPostWidget.value =
                                   !rebuildPostWidget.value;
@@ -568,13 +567,15 @@ Future<AddPostResponse> postContent(
   // List of feedroom selected while creating the post
   List<FeedRoom> feedRoomIds = postData['feedRoomIds'];
 
-  final AddPostRequest request = AddPostRequest(
-    text: postData['result'] ?? '',
-    attachments: attachments,
-    feedroomId: feedRoomId,
-  );
+  final AddPostRequest request = (AddPostRequestBuilder()
+        ..text(postData['result'] ?? '')
+        ..attachments(attachments ?? <Attachment>[])
+        ..feedroomId(feedRoomId))
+      .build();
+
   final AddPostResponse response =
       await locator<LikeMindsService>().addPost(request);
+
   if (response.success) {
     LMAnalytics.get().track(
       AnalyticsKeys.postCreationCompleted,

@@ -194,7 +194,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
     String link = await getFirstValidLinkFromString(text);
     if (link.isNotEmpty) {
       previewLink = link;
-      DecodeUrlRequest request = DecodeUrlRequest(url: previewLink);
+      DecodeUrlRequest request =
+          (DecodeUrlRequestBuilder()..url(previewLink)).build();
       DecodeUrlResponse response =
           await locator<LikeMindsService>().decodeUrl(request);
       if (response.success == true) {
