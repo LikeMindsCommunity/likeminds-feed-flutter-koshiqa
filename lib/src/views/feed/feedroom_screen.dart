@@ -439,7 +439,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                               rebuildPostData = updatedPostDetails.post!;
                               List<Post>? feedRoomItemList =
                                   widget.feedRoomPagingController.itemList;
-                              feedRoomItemList![index] =
+                              feedRoomItemList?[index] =
                                   updatedPostDetails.post!;
                               widget.feedRoomPagingController.itemList =
                                   feedRoomItemList;
@@ -516,8 +516,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                                   break;
                                 }
                               }
-                              widget.feedRoomPagingController.itemList =
-                                  feedRoomItemList;
+                              feedRoomItemList.removeLast();
                               widget.feedResponse.users.addAll(response.user!);
                               rebuildPostWidget.value =
                                   !rebuildPostWidget.value;

@@ -90,8 +90,9 @@ class _PostActionsState extends State<PostActions> {
                         postLikes++;
                       }
                       isLiked = !isLiked;
-                      // refresh();
                       rebuildLikeWidget.value = !rebuildLikeWidget.value;
+                    } else {
+                      await refresh(false);
                     }
                   },
                   icon: ValueListenableBuilder(

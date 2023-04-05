@@ -32,7 +32,7 @@ class _PostWidgetState extends State<PostWidget> {
   Post? postDetails;
   late final PostUser user;
   late final bool showActions;
-  late final Function(bool) refresh;
+  Function(bool)? refresh;
   late bool isFeed;
 
   @override
@@ -40,11 +40,11 @@ class _PostWidgetState extends State<PostWidget> {
     super.initState();
     user = widget.user;
     showActions = widget.showActions;
-    refresh = widget.refresh;
     isFeed = widget.isFeed;
   }
 
   setPostValues() {
+    refresh = widget.refresh;
     postDetails = widget.postDetails;
   }
 
@@ -63,7 +63,7 @@ class _PostWidgetState extends State<PostWidget> {
               user: user,
               menuItems: postDetails!.menuItems,
               postDetails: postDetails!,
-              refresh: refresh,
+              refresh: refresh!,
             ),
             PostDescription(
               text: postDetails!.text,
@@ -75,7 +75,7 @@ class _PostWidgetState extends State<PostWidget> {
             showActions
                 ? PostActions(
                     postDetails: postDetails!,
-                    refresh: refresh,
+                    refresh: refresh!,
                     isFeed: isFeed,
                   )
                 : const SizedBox.shrink()
