@@ -19,7 +19,6 @@ Future<void> _handleNotification(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  setupLMFeed(LikeMindsCallback());
   setupNotifications();
   runApp(const MyApp());
 }

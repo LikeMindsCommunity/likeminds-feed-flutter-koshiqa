@@ -1,3 +1,4 @@
+import 'package:feed_example/likeminds_callback.dart';
 import 'package:flutter/material.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:overlay_support/overlay_support.dart';
@@ -98,7 +99,9 @@ class _CredScreenState extends State<CredScreen> {
                   builder: (context) => LMFeed.instance(
                     userId: _userIdController.text,
                     userName: _usernameController.text,
-                    defaultFeedroom: 72200,
+                    defaultFeedroom: 1262837,
+                    callback: LikeMindsCallback(),
+                    apiKey: "",
                   ),
                 );
                 Navigator.pushReplacement(context, route);
