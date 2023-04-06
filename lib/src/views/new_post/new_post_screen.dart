@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_document.dart';
@@ -23,6 +24,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:feed_sx/src/services/service_locator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:multi_image_crop/multi_image_crop.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:video_player/video_player.dart';
 
 /* key is mediatype, contains all asset button data 
@@ -489,6 +491,70 @@ class AddAssetsButton extends StatelessWidget {
     required this.preUploadCheck,
   });
 
+  Future<bool> handlePermissions(BuildContext context) async {
+    if (Platform.isAndroid) {
+      PermissionStatus permissionStatus;
+
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      if (androidInfo.version.sdkInt >= 33) {
+        if (mediaType == 1) {
+          permissionStatus = await Permission.photos.status;
+          if (permissionStatus == PermissionStatus.granted) {
+            return true;
+          } else if (permissionStatus == PermissionStatus.denied) {
+            permissionStatus = await Permission.photos.request();
+            if (permissionStatus == PermissionStatus.permanentlyDenied) {
+              ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
+                  content: 'Permissions denied, change app settings',
+                  backgroundColor: kGrey1Color));
+              return false;
+            } else if (permissionStatus == PermissionStatus.granted) {
+              return true;
+            } else {
+              return false;
+            }
+          }
+        } else {
+          permissionStatus = await Permission.videos.status;
+          if (permissionStatus == PermissionStatus.granted) {
+            return true;
+          } else if (permissionStatus == PermissionStatus.denied) {
+            permissionStatus = await Permission.videos.request();
+            if (permissionStatus == PermissionStatus.permanentlyDenied) {
+              ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
+                  content: 'Permissions denied, change app settings',
+                  backgroundColor: kGrey1Color));
+              return false;
+            } else if (permissionStatus == PermissionStatus.granted) {
+              return true;
+            } else {
+              return false;
+            }
+          }
+        }
+      } else {
+        permissionStatus = await Permission.storage.status;
+        if (permissionStatus == PermissionStatus.granted) {
+          return true;
+        } else {
+          permissionStatus = await Permission.storage.request();
+          if (permissionStatus == PermissionStatus.granted) {
+            return true;
+          } else if (permissionStatus == PermissionStatus.denied) {
+            return false;
+          } else if (permissionStatus == PermissionStatus.permanentlyDenied) {
+            ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
+                content: 'Permissions denied, change app settings',
+                backgroundColor: kGrey1Color));
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
+
   void pickImages(BuildContext context) async {
     uploading();
     final List<XFile> list = await picker.pickMultiImage();
@@ -625,14 +691,17 @@ class AddAssetsButton extends StatelessWidget {
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         if (preUploadCheck()) {
-          if (mediaType == 1) {
-            pickImages(context);
-          } else if (mediaType == 2) {
-            pickVideos(context);
-          } else if (mediaType == 3) {
-            pickFiles(context);
+          bool permissionStatus = await handlePermissions(context);
+          if (permissionStatus) {
+            if (mediaType == 1) {
+              pickImages(context);
+            } else if (mediaType == 2) {
+              pickVideos(context);
+            } else if (mediaType == 3) {
+              pickFiles(context);
+            }
           }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -652,7 +721,7 @@ class AddAssetsButton extends StatelessWidget {
           );
         }
       },
-      child: Container(
+      child: SizedBox(
         height: 48,
         width: screenSize.width,
         // decoration: BoxDecoration(
