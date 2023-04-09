@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
@@ -54,6 +55,8 @@ class NewPostScreen extends StatefulWidget {
   final String feedRoomTitle;
   final User user;
   final bool isCm;
+  final String? populatePostText;
+  final List<MediaModel>? populatePostMedia;
 
   const NewPostScreen({
     super.key,
@@ -61,6 +64,8 @@ class NewPostScreen extends StatefulWidget {
     required this.feedRoomTitle,
     required this.user,
     required this.isCm,
+    this.populatePostText,
+    this.populatePostMedia,
   });
 
   @override
@@ -74,28 +79,42 @@ class _NewPostScreenState extends State<NewPostScreen> {
   Size? screenSize;
   bool isUploading = false;
   late final User user;
-  late final FeedRoomBloc feedBloc;
   late final int feedRoomId;
-  List<Attachment> attachments = [];
   List<MediaModel> postMedia = [];
-  List<FeedRoom> feedRoomIds = [];
+  List<FeedRoom> feedRoomIds = []; // list of feedroom for post
   ValueNotifier<bool> rebuildFeedRoomSelectTab = ValueNotifier(false);
 
   List<UserTag> userTags = [];
   String? result;
-  bool isDocumentPost = false;
+  bool isDocumentPost = false; // flag for document or media post
   bool isMediaPost = false;
   String previewLink = '';
   MediaModel? linkModel;
-  bool showLinkPreview = true;
+  bool showLinkPreview =
+      true; // if set to false link preview should not be displayed
   Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
     user = widget.user;
-    attachments.clear();
+    _controller = TextEditingController();
     feedRoomId = widget.feedRoomId;
+    if (widget.populatePostMedia != null &&
+        widget.populatePostMedia!.isNotEmpty) {
+      postMedia.addAll(widget.populatePostMedia!.map((e) => e));
+      if (postMedia[0].mediaType == MediaType.document) {
+        isDocumentPost = true;
+        isMediaPost = false;
+      } else {
+        isDocumentPost = false;
+        isMediaPost = true;
+      }
+    }
+    if (widget.populatePostText != null &&
+        widget.populatePostText!.isNotEmpty) {
+      _controller?.value = TextEditingValue(text: widget.populatePostText!);
+    }
   }
 
   void removeAttachmenetAtIndex(int index) {
@@ -490,13 +509,11 @@ class _NewPostScreenState extends State<NewPostScreen> {
                           child: TaggingAheadTextField(
                             feedroomId: feedRoomId,
                             isDown: true,
+                            controller: _controller,
                             onTagSelected: (tag) {
                               print(tag);
                               userTags.add(tag);
                             },
-                            getController: ((p0) {
-                              _controller = p0;
-                            }),
                             onChange: (p0) {
                               _onTextChanged(p0);
                             },
@@ -530,7 +547,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                             ),
                           )
                         ]),
-                      if (attachments.isNotEmpty || postMedia.isNotEmpty)
+                      if (postMedia.isNotEmpty)
                         postMedia.first.mediaType == MediaType.document
                             ? getPostDocument(screenSize!.width)
                             : Container(

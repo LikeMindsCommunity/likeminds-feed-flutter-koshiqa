@@ -158,6 +158,8 @@ class _LMFeedState extends State<LMFeed> {
                         feedRoomTitle: args.feedRoomTitle,
                         user: args.user,
                         isCm: args.isCm,
+                        populatePostMedia: args.populatePostMedia,
+                        populatePostText: args.populatePostText,
                       );
                     },
                   );

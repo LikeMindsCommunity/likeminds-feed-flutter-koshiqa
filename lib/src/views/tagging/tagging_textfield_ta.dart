@@ -10,7 +10,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 class TaggingAheadTextField extends StatefulWidget {
   final bool isDown;
   final Function(UserTag) onTagSelected;
-  final Function(TextEditingController) getController;
+  final TextEditingController? controller;
   final InputDecoration? decoration;
   final Function(String)? onChange;
   final int feedroomId;
@@ -20,7 +20,7 @@ class TaggingAheadTextField extends StatefulWidget {
     required this.isDown,
     required this.feedroomId,
     required this.onTagSelected,
-    required this.getController,
+    required this.controller,
     this.decoration,
     this.onChange,
   });
@@ -30,7 +30,7 @@ class TaggingAheadTextField extends StatefulWidget {
 }
 
 class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
-  final TextEditingController _controller = TextEditingController();
+  late final TextEditingController _controller;
   final FocusNode _focusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
   final SuggestionsBoxController _suggestionsBoxController =
@@ -48,6 +48,7 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
   @override
   void initState() {
     super.initState();
+    _controller = widget.controller!;
     _scrollController.addListener(() async {
       // page++;
       if (_scrollController.position.pixels ==
@@ -100,7 +101,6 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
 
   @override
   Widget build(BuildContext context) {
-    widget.getController(_controller);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6.0),
       child: TypeAheadField<UserTag>(

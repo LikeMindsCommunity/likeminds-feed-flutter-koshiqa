@@ -53,6 +53,16 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
   @override
   void initState() {
     super.initState();
+    _commentController = TextEditingController();
+    if (_commentController != null) {
+      _commentController!.addListener(
+        () {
+          if (_commentController!.text.isEmpty) {
+            _commentController!.clear();
+          }
+        },
+      );
+    }
     FeedApi feedApi = locator<LikeMindsService>().getFeedApi();
     _allCommentsBloc = AllCommentsBloc(feedApi: feedApi);
     _allCommentsBloc.add(GetAllComments(
@@ -182,18 +192,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                   TaggingAheadTextField(
                     feedroomId: widget.feedRoomId,
                     isDown: false,
-                    getController: (controller) {
-                      _commentController = controller;
-                      if (_commentController != null) {
-                        _commentController!.addListener(
-                          () {
-                            if (_commentController!.text.isEmpty) {
-                              _commentController!.clear();
-                            }
-                          },
-                        );
-                      }
-                    },
+                    controller: _commentController,
                     onTagSelected: (tag) {
                       print(tag);
                       userTags.add(tag);
