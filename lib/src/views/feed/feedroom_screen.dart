@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:feed_sx/src/utils/media_upload.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
 import 'package:flutter/material.dart';
 
@@ -635,8 +636,7 @@ Future<List<Attachment>> uploadImages(
     } else {
       try {
         File mediaFile = media.mediaFile!;
-        final String? response =
-            await locator<LikeMindsService>().uploadFile(mediaFile);
+        final String? response = await MediaUpload().uploadFile(mediaFile);
         if (response != null) {
           attachments.add(Attachment(
             attachmentType: media.mapMediaTypeToInt(),
