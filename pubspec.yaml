@@ -52,6 +52,8 @@ dependencies:
   #   path: ../LikeMinds-Flutter-SDK
   permission_handler: ^10.2.0
   device_info_plus: ^8.0.0
+  simple_s3: ^0.3.2
+
 
 
 

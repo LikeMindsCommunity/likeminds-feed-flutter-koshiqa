@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:feed_sx/src/services/media_service.dart';
 import 'package:feed_sx/src/utils/credentials/credentials.dart';
 import 'package:flutter/foundation.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
@@ -24,7 +25,7 @@ abstract class ILikeMindsService {
   Future<DeletePostResponse> deletePost(DeletePostRequest request);
   Future<LikePostResponse> likePost(LikePostRequest request);
   Future<DeleteCommentResponse> deleteComment(DeleteCommentRequest request);
-  Future<String?> uploadFile(File file);
+  Future<String?> uploadFile(File file, String userUniqueId);
   Future<RegisterDeviceResponse> registerDevice(RegisterDeviceRequest request);
   Future<TagResponseModel> getTags({required TagRequestModel request});
   Future<DecodeUrlResponse> decodeUrl(DecodeUrlRequest request);
@@ -33,6 +34,7 @@ abstract class ILikeMindsService {
 
 class LikeMindsService implements ILikeMindsService {
   late final LMFeedClient _sdkApplication;
+  late final MediaService _mediaService;
 
   int? feedroomId;
 
@@ -45,6 +47,7 @@ class LikeMindsService implements ILikeMindsService {
 
   LikeMindsService(LMSdkCallback sdkCallback, String apiKey) {
     print("UI Layer: LikeMindsService initialized");
+    _mediaService = MediaService(_prodFlag);
     final String key = apiKey.isEmpty
         ? _prodFlag
             ? CredsProd.apiKey
@@ -121,8 +124,8 @@ class LikeMindsService implements ILikeMindsService {
   }
 
   @override
-  Future<String?> uploadFile(File file) async {
-    return await _sdkApplication.uploadFile(file);
+  Future<String?> uploadFile(File file, String userUniqueId) async {
+    return await _mediaService.uploadFile(file, userUniqueId);
   }
 
   @override

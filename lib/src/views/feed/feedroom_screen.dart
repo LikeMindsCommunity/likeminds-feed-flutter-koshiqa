@@ -380,7 +380,10 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                                               as List<MediaModel>?;
                                           postUploading.value = true;
                                           AddPostResponse response =
-                                              await postContent(context, result,
+                                              await postContent(
+                                                  context,
+                                                  widget.user,
+                                                  result,
                                                   widget.feedRoom.id,
                                                   (int progress) {
                                             imageUploadProgress = progress;
@@ -491,8 +494,10 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                                 result['mediaFiles'] as List<MediaModel>?;
                             postUploading.value = true;
                             AddPostResponse response = await postContent(
-                                context, result, widget.feedRoom.id,
-                                (int progress) {
+                                context,
+                                widget.user,
+                                result,
+                                widget.feedRoom.id, (int progress) {
                               imageUploadProgress = progress;
                               postUploading.value = false;
                               postUploading.value = true;
@@ -542,6 +547,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
 
 Future<AddPostResponse> postContent(
   BuildContext context,
+  User user,
   Map<String, dynamic> postData,
   int feedRoomId,
   Function(int) updateProgress,
@@ -552,7 +558,7 @@ Future<AddPostResponse> postContent(
   int documentCount = 0;
   List<Attachment>? attachments;
   if (mediaFiles != null) {
-    attachments = await uploadImages(mediaFiles, updateProgress);
+    attachments = await uploadImages(user, mediaFiles, updateProgress);
     for (final attachment in attachments) {
       if (attachment.attachmentType == 1) {
         imageCount++;
@@ -613,8 +619,8 @@ Future<AddPostResponse> postContent(
   return response;
 }
 
-Future<List<Attachment>> uploadImages(
-    List<MediaModel> mediaFiles, Function(int) updateProgress) async {
+Future<List<Attachment>> uploadImages(User user, List<MediaModel> mediaFiles,
+    Function(int) updateProgress) async {
   List<Attachment> attachments = [];
   int imageUploadCount = 0;
   for (final media in mediaFiles) {
@@ -635,8 +641,8 @@ Future<List<Attachment>> uploadImages(
     } else {
       try {
         File mediaFile = media.mediaFile!;
-        final String? response =
-            await locator<LikeMindsService>().uploadFile(mediaFile);
+        final String? response = await locator<LikeMindsService>()
+            .uploadFile(mediaFile, user.userUniqueId);
         if (response != null) {
           attachments.add(Attachment(
             attachmentType: media.mapMediaTypeToInt(),
@@ -655,6 +661,7 @@ Future<List<Attachment>> uploadImages(
         }
       } catch (e) {
         print(e);
+        throw 'Error uploading file';
       }
     }
   }
