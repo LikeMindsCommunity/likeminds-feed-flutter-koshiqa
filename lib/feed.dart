@@ -4,11 +4,13 @@ library feed;
 
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/credentials/credentials.dart';
+import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
 import 'package:feed_sx/src/views/feed/feedroom_list_screen.dart';
 import 'package:feed_sx/src/views/new_post/feedroom_select.dart';
 import 'package:feed_sx/src/views/previews/media_preview.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/navigation/arguments.dart';
@@ -114,114 +116,118 @@ class _LMFeedState extends State<LMFeed> {
           if (response.success) {
             user = response.initiateUser?.user;
             LMNotificationHandler.instance.registerDevice(user!.id);
-            return MaterialApp(
-              debugShowCheckedModeBanner: !isProd,
-              title: 'LikeMinds Feed',
-              navigatorKey: locator<NavigationService>().navigatorKey,
-              onGenerateRoute: (settings) {
-                if (settings.name == AllCommentsScreen.route) {
-                  final args = settings.arguments as AllCommentsScreenArguments;
-                  return MaterialPageRoute(
-                    builder: (context) {
-                      return AllCommentsScreen(
-                        post: args.post,
-                        feedRoomId: args.feedroomId,
-                      );
-                    },
-                  );
-                }
-                if (settings.name == LikesScreen.route) {
-                  final args = settings.arguments as LikesScreenArguments;
-                  return MaterialPageRoute(
-                    builder: (context) {
-                      return LikesScreen(
-                        postId: args.postId,
-                        commentId: args.commentId,
-                        isCommentLikes: args.isCommentLikes,
-                      );
-                    },
-                  );
-                }
-                if (settings.name == ReportPostScreen.route) {
-                  return MaterialPageRoute(
-                    builder: (context) {
-                      return const ReportPostScreen();
-                    },
-                  );
-                }
-                if (settings.name == NewPostScreen.route) {
-                  final args = settings.arguments as NewPostScreenArguments;
-                  return MaterialPageRoute(
-                    builder: (context) {
-                      return NewPostScreen(
-                        feedRoomId: args.feedroomId,
-                        feedRoomTitle: args.feedRoomTitle,
-                        user: args.user,
-                        isCm: args.isCm,
-                        populatePostMedia: args.populatePostMedia,
-                        populatePostText: args.populatePostText,
-                      );
-                    },
-                  );
-                }
-                if (settings.name == MediaPreview.route) {
-                  final args = settings.arguments as MediaPreviewArguments;
-                  return MaterialPageRoute(
-                    builder: (context) {
-                      if (args.attachments == null) {
-                        return MediaPreview(
-                          mediaFiles: args.mediaFiles,
-                          postId: args.postId,
+            return BlocProvider(
+              create: (context) => NewPostBloc(),
+              child: MaterialApp(
+                debugShowCheckedModeBanner: !isProd,
+                title: 'LikeMinds Feed',
+                navigatorKey: locator<NavigationService>().navigatorKey,
+                onGenerateRoute: (settings) {
+                  if (settings.name == AllCommentsScreen.route) {
+                    final args =
+                        settings.arguments as AllCommentsScreenArguments;
+                    return MaterialPageRoute(
+                      builder: (context) {
+                        return AllCommentsScreen(
+                          post: args.post,
+                          feedRoomId: args.feedroomId,
                         );
-                      } else {
-                        return MediaPreview(
-                          attachments: args.attachments,
+                      },
+                    );
+                  }
+                  if (settings.name == LikesScreen.route) {
+                    final args = settings.arguments as LikesScreenArguments;
+                    return MaterialPageRoute(
+                      builder: (context) {
+                        return LikesScreen(
                           postId: args.postId,
+                          commentId: args.commentId,
+                          isCommentLikes: args.isCommentLikes,
+                        );
+                      },
+                    );
+                  }
+                  if (settings.name == ReportPostScreen.route) {
+                    return MaterialPageRoute(
+                      builder: (context) {
+                        return const ReportPostScreen();
+                      },
+                    );
+                  }
+                  if (settings.name == NewPostScreen.route) {
+                    final args = settings.arguments as NewPostScreenArguments;
+                    return MaterialPageRoute(
+                      builder: (context) {
+                        return NewPostScreen(
+                          feedRoomId: args.feedroomId,
+                          feedRoomTitle: args.feedRoomTitle,
+                          user: args.user,
+                          isCm: args.isCm,
+                          populatePostMedia: args.populatePostMedia,
+                          populatePostText: args.populatePostText,
+                        );
+                      },
+                    );
+                  }
+                  if (settings.name == MediaPreview.route) {
+                    final args = settings.arguments as MediaPreviewArguments;
+                    return MaterialPageRoute(
+                      builder: (context) {
+                        if (args.attachments == null) {
+                          return MediaPreview(
+                            mediaFiles: args.mediaFiles,
+                            postId: args.postId,
+                          );
+                        } else {
+                          return MediaPreview(
+                            attachments: args.attachments,
+                            postId: args.postId,
+                          );
+                        }
+                      },
+                    );
+                  }
+                  if (settings.name == FeedRoomSelect.route) {
+                    final args = settings.arguments as FeedRoomSelectArguments;
+                    return MaterialPageRoute(
+                      builder: (context) {
+                        return FeedRoomSelect(
+                          user: args.user,
+                          feedRoomIds: args.feedRoomIds,
+                        );
+                      },
+                    );
+                  }
+                },
+                home: FutureBuilder(
+                  future: locator<LikeMindsService>().getMemberState(),
+                  initialData: null,
+                  builder: (BuildContext context, AsyncSnapshot snapshot) {
+                    if (snapshot.hasData) {
+                      if (snapshot.data) {
+                        return FeedRoomListScreen(user: user!);
+                      } else {
+                        return FeedRoomScreen(
+                          isCm: snapshot.data,
+                          user: user!,
+                          feedRoomId: widget.defaultFeedroom,
                         );
                       }
-                    },
-                  );
-                }
-                if (settings.name == FeedRoomSelect.route) {
-                  final args = settings.arguments as FeedRoomSelectArguments;
-                  return MaterialPageRoute(
-                    builder: (context) {
-                      return FeedRoomSelect(
-                        user: args.user,
-                        feedRoomIds: args.feedRoomIds,
-                      );
-                    },
-                  );
-                }
-              },
-              home: FutureBuilder(
-                future: locator<LikeMindsService>().getMemberState(),
-                initialData: null,
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (snapshot.hasData) {
-                    if (snapshot.data) {
-                      return FeedRoomListScreen(user: user!);
-                    } else {
-                      return FeedRoomScreen(
-                        isCm: snapshot.data,
-                        user: user!,
-                        feedRoomId: widget.defaultFeedroom,
-                      );
+                      // return TaggingTestView();
                     }
-                    // return TaggingTestView();
-                  }
 
-                  return Container(
-                    height: MediaQuery.of(context).size.height,
-                    width: MediaQuery.of(context).size.width,
-                    color: kBackgroundColor,
-                    child: const Center(
-                      child: Loader(
-                        isPrimary: true,
+                    return Container(
+                      height: MediaQuery.of(context).size.height,
+                      width: MediaQuery.of(context).size.width,
+                      color: kBackgroundColor,
+                      child: const Center(
+                        child: Loader(
+                          isPrimary: true,
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             );
           } else {}

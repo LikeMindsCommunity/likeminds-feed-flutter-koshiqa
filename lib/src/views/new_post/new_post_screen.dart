@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
+import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_document.dart';
@@ -21,6 +22,7 @@ import 'package:feed_sx/src/widgets/profile_picture.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/views/feed/blocs/feedroom/feedroom_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:likeminds_feed/likeminds_feed.dart';
 
@@ -74,6 +76,7 @@ class NewPostScreen extends StatefulWidget {
 
 class _NewPostScreenState extends State<NewPostScreen> {
   TextEditingController? _controller;
+  NewPostBloc? newPostBloc;
   final ImagePicker _picker = ImagePicker();
   final FilePicker _filePicker = FilePicker.platform;
   Size? screenSize;
@@ -243,6 +246,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
   @override
   Widget build(BuildContext context) {
     screenSize = MediaQuery.of(context).size;
+    newPostBloc = BlocProvider.of<NewPostBloc>(context);
     return WillPopScope(
       onWillPop: () {
         if (postMedia.isNotEmpty ||
@@ -357,12 +361,14 @@ class _NewPostScreenState extends State<NewPostScreen> {
                               _controller!.text, userTags);
                           result = TaggingHelper.encodeString(
                               _controller!.text, userTags);
+                          newPostBloc?.add(CreateNewPost(
+                            postText: result ?? '',
+                            feedRoomId: feedRoomId,
+                            postMedia: postMedia,
+                            user: widget.user,
+                          ));
                           locator<NavigationService>().goBack(result: {
-                            "feedroomId": feedRoomId,
                             "isBack": true,
-                            "mediaFiles": postMedia,
-                            "result": result,
-                            "feedRoomIds": feedRoomIds,
                           });
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(

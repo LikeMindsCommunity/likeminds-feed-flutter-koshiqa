@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
 import 'package:flutter/material.dart';
 
@@ -243,32 +244,21 @@ class _FeedRoomViewState extends State<FeedRoomView> {
   ValueNotifier<bool> rebuildPostWidget = ValueNotifier(false);
   final ValueNotifier postUploading = ValueNotifier(false);
 
-  List<MediaModel>? imageFiles = [];
-
-  Widget getLoaderThumbnail() {
-    if (imageFiles != null) {
-      if (imageFiles![0].mediaType == MediaType.image) {
+  Widget getLoaderThumbnail(MediaModel? media) {
+    if (media != null) {
+      if (media.mediaType == MediaType.image) {
         return Image.file(
-          imageFiles![0].mediaFile!,
+          media.mediaFile!,
           height: 50,
           width: 50,
           fit: BoxFit.cover,
         );
-      } else if (imageFiles![0].mediaType == MediaType.document) {
+      } else if (media.mediaType == MediaType.document) {
         return SvgPicture.asset(
           kAssetDocPDFIcon,
           height: 35,
           width: 35,
           fit: BoxFit.cover,
-        );
-      } else if (imageFiles![0].mediaType == MediaType.video) {
-        return SizedBox(
-          height: 50,
-          width: 50,
-          child: PostVideo(
-            videoFile: imageFiles![0].mediaFile,
-            width: 50,
-          ),
         );
       } else {
         return const SizedBox(height: 50, width: 50);
@@ -278,18 +268,53 @@ class _FeedRoomViewState extends State<FeedRoomView> {
     }
   }
 
-  int imageUploadProgress = 0;
-
   @override
   Widget build(BuildContext context) {
+    NewPostBloc newPostBloc = BlocProvider.of<NewPostBloc>(context);
     return Scaffold(
       backgroundColor: kBackgroundColor,
       body: Column(
         children: [
-          ValueListenableBuilder(
-            valueListenable: postUploading,
-            builder: (context, _, __) {
-              if (postUploading.value) {
+          BlocConsumer<NewPostBloc, NewPostState>(
+            bloc: newPostBloc,
+            listener: (prev, curr) {
+              if (curr is NewPostUploading) {
+                // if current state is uploading
+                // change postUploading flag to true
+                // to block new post creation
+                postUploading.value = true;
+              }
+              if (prev is NewPostUploading) {
+                // if state has changed from uploading
+                // change postUploading flag to false
+                // to allow new post creation
+                postUploading.value = false;
+              }
+              if (curr is NewPostUploaded) {
+                Post? item = curr.postData;
+                List<Post>? feedRoomItemList =
+                    widget.feedRoomPagingController.itemList;
+                for (int i = 0; i < feedRoomItemList!.length; i++) {
+                  if (!feedRoomItemList[i].isPinned) {
+                    feedRoomItemList.insert(i, item);
+                    break;
+                  }
+                }
+                feedRoomItemList.removeLast();
+                widget.feedResponse.users.addAll(curr.userData);
+                rebuildPostWidget.value = !rebuildPostWidget.value;
+              }
+              if (curr is NewPostError) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  confirmationToast(
+                    content: curr.message,
+                    backgroundColor: kGrey1Color,
+                  ),
+                );
+              }
+            },
+            builder: (context, state) {
+              if (state is NewPostUploading) {
                 return Container(
                   height: 60,
                   color: kWhiteColor,
@@ -303,26 +328,21 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
-                          imageFiles != null && imageFiles!.isNotEmpty
-                              ? getLoaderThumbnail()
-                              : const SizedBox(),
+                          getLoaderThumbnail(state.thumbnailMedia),
                           kHorizontalPaddingMedium,
                           const Text('Posting')
                         ],
                       ),
                       SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: imageFiles != null && imageFiles!.isNotEmpty
-                            ? CircularProgressIndicator(
-                                value: imageUploadProgress / imageFiles!.length,
-                                backgroundColor: kGrey3Color,
-                                valueColor:
-                                    const AlwaysStoppedAnimation(kPrimaryColor),
-                                strokeWidth: 3,
-                              )
-                            : const CircularProgressIndicator(),
-                      ),
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            value: state.progress,
+                            backgroundColor: kGrey3Color,
+                            valueColor:
+                                const AlwaysStoppedAnimation(kPrimaryColor),
+                            strokeWidth: 3,
+                          )),
                     ],
                   ),
                 );
@@ -363,8 +383,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                                 NewPostButton(
                                   onTap: () {
                                     if (!postUploading.value) {
-                                      locator<NavigationService>()
-                                          .navigateTo(
+                                      locator<NavigationService>().navigateTo(
                                         NewPostScreen.route,
                                         arguments: NewPostScreenArguments(
                                           feedroomId: widget.feedRoom.id,
@@ -372,44 +391,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                                           user: widget.user,
                                           isCm: widget.isCm,
                                         ),
-                                      )
-                                          .then((result) async {
-                                        if (result != null &&
-                                            result['isBack']) {
-                                          imageFiles = result['mediaFiles']
-                                              as List<MediaModel>?;
-                                          postUploading.value = true;
-                                          AddPostResponse response =
-                                              await postContent(
-                                                  context,
-                                                  widget.user,
-                                                  result,
-                                                  widget.feedRoom.id,
-                                                  (int progress) {
-                                            imageUploadProgress = progress;
-                                            postUploading.value = false;
-                                            postUploading.value = true;
-                                          });
-                                          postUploading.value = false;
-
-                                          if (response.success) {
-                                            // If the post is successfully uploaded
-                                            // Add the post in the pagingController list
-                                            // and rebuild the PagedListView Widget
-                                            Post? item = response.post;
-                                            List<Post>? feedRoomItemList =
-                                                widget.feedRoomPagingController
-                                                    .itemList;
-                                            feedRoomItemList!.insert(0, item!);
-                                            widget.feedRoomPagingController
-                                                .itemList = feedRoomItemList;
-                                            widget.feedResponse.users
-                                                .addAll(response.user!);
-                                            rebuildPostWidget.value =
-                                                !rebuildPostWidget.value;
-                                          }
-                                        }
-                                      });
+                                      );
                                     } else {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(confirmationToast(
@@ -477,8 +459,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
               : NewPostButton(
                   onTap: () {
                     if (!postUploading.value) {
-                      locator<NavigationService>()
-                          .navigateTo(
+                      locator<NavigationService>().navigateTo(
                         NewPostScreen.route,
                         arguments: NewPostScreenArguments(
                           feedroomId: widget.feedRoom.id,
@@ -486,48 +467,6 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                           user: widget.user,
                           isCm: widget.isCm,
                         ),
-                      )
-                          .then(
-                        (result) async {
-                          if (result != null && result['isBack']) {
-                            imageFiles =
-                                result['mediaFiles'] as List<MediaModel>?;
-                            postUploading.value = true;
-                            AddPostResponse response = await postContent(
-                                context,
-                                widget.user,
-                                result,
-                                widget.feedRoom.id, (int progress) {
-                              imageUploadProgress = progress;
-                              postUploading.value = false;
-                              postUploading.value = true;
-                            });
-                            postUploading.value = false;
-                            // widget.onRefresh();
-                            // widget.onPressedBack();
-
-                            if (response.success) {
-                              // If the post is successfully uploaded
-                              // Add the post in the pagingController list
-                              // and rebuild the PagedListView Widget
-                              Post? item = response.post;
-                              List<Post>? feedRoomItemList =
-                                  widget.feedRoomPagingController.itemList;
-                              for (int i = 0;
-                                  i < feedRoomItemList!.length;
-                                  i++) {
-                                if (!feedRoomItemList[i].isPinned) {
-                                  feedRoomItemList.insert(i, item!);
-                                  break;
-                                }
-                              }
-                              feedRoomItemList.removeLast();
-                              widget.feedResponse.users.addAll(response.user!);
-                              rebuildPostWidget.value =
-                                  !rebuildPostWidget.value;
-                            }
-                          }
-                        },
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
