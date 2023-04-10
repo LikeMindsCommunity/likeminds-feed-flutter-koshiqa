@@ -31,6 +31,20 @@ class CredScreen extends StatefulWidget {
 class _CredScreenState extends State<CredScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _userIdController = TextEditingController();
+  late final LMFeed lmFeed;
+
+  @override
+  @override
+  void initState() {
+    super.initState();
+    lmFeed = LMFeed.instance(
+      userId: _userIdController.text,
+      userName: _usernameController.text,
+      defaultFeedroom: 1262837,
+      callback: LikeMindsCallback(),
+      apiKey: "",
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,13 +110,7 @@ class _CredScreenState extends State<CredScreen> {
               onTap: () {
                 MaterialPageRoute route = MaterialPageRoute(
                   // INIT - Get the LMFeed instance and pass the credentials (if any)
-                  builder: (context) => LMFeed.instance(
-                    userId: _userIdController.text,
-                    userName: _usernameController.text,
-                    defaultFeedroom: 1262837,
-                    callback: LikeMindsCallback(),
-                    apiKey: "",
-                  ),
+                  builder: (context) => lmFeed,
                 );
                 Navigator.pushReplacement(context, route);
               },
