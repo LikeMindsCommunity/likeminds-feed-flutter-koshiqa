@@ -636,7 +636,8 @@ Future<List<Attachment>> uploadImages(
     } else {
       try {
         File mediaFile = media.mediaFile!;
-        final String? response = await MediaUpload().uploadFile(mediaFile);
+        final String? response =
+            await locator<LikeMindsService>().uploadFile(mediaFile);
         if (response != null) {
           attachments.add(Attachment(
             attachmentType: media.mapMediaTypeToInt(),

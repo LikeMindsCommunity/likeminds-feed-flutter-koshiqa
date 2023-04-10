@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:feed_sx/src/utils/credentials/credentials.dart';
+import 'package:feed_sx/src/utils/media_upload.dart';
 import 'package:flutter/foundation.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
@@ -122,7 +123,7 @@ class LikeMindsService implements ILikeMindsService {
 
   @override
   Future<String?> uploadFile(File file) async {
-    return await _sdkApplication.uploadFile(file);
+    return await MediaUpload().uploadFile(file);
   }
 
   @override
