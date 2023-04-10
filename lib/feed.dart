@@ -8,7 +8,6 @@ import 'package:feed_sx/src/utils/credentials/credentials.dart';
 import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
 import 'package:feed_sx/src/views/feed/feedroom_list_screen.dart';
 import 'package:feed_sx/src/views/new_post/feedroom_select.dart';
-import 'package:feed_sx/src/views/previews/media_preview.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -177,24 +176,7 @@ class _LMFeedState extends State<LMFeed> {
                       },
                     );
                   }
-                  if (settings.name == MediaPreview.route) {
-                    final args = settings.arguments as MediaPreviewArguments;
-                    return MaterialPageRoute(
-                      builder: (context) {
-                        if (args.attachments == null) {
-                          return MediaPreview(
-                            mediaFiles: args.mediaFiles,
-                            postId: args.postId,
-                          );
-                        } else {
-                          return MediaPreview(
-                            attachments: args.attachments,
-                            postId: args.postId,
-                          );
-                        }
-                      },
-                    );
-                  }
+
                   if (settings.name == FeedRoomSelect.route) {
                     final args = settings.arguments as FeedRoomSelectArguments;
                     return MaterialPageRoute(
