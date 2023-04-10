@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:equatable/equatable.dart';
@@ -15,7 +16,6 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
     on<NewPostEvents>((event, emit) async {
       if (event is CreateNewPost) {
         try {
-          emit(const NewPostUploading(progress: 0));
           List<MediaModel>? postMedia = event.postMedia;
           int imageCount = 0;
           int videoCount = 0;
@@ -23,9 +23,13 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
           List<Attachment> attachments = [];
           int index = 0;
 
+          StreamController<double> progress =
+              StreamController<double>.broadcast();
+          progress.add(0);
           emit(
-            const NewPostUploading(
-              progress: 0,
+            NewPostUploading(
+              progress: progress.stream,
+              thumbnailMedia: postMedia != null ? postMedia[0] : null,
             ),
           );
           // Upload post media to s3 and add links as Attachments
@@ -47,7 +51,6 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
                 );
               } else {
                 File mediaFile = media.mediaFile!;
-
                 index += 1;
                 final String? response = await locator<LikeMindsService>()
                     .uploadFile(mediaFile, event.user!.userUniqueId);
@@ -66,12 +69,7 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
                             ? media.duration
                             : null),
                   ));
-                  emit(
-                    NewPostUploading(
-                      progress: index / postMedia.length,
-                      thumbnailMedia: media,
-                    ),
-                  );
+                  progress.add(index / postMedia.length);
                 } else {
                   throw ('Error uploading file');
                 }

@@ -333,16 +333,24 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                           const Text('Posting')
                         ],
                       ),
-                      SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            value: state.progress,
-                            backgroundColor: kGrey3Color,
-                            valueColor:
-                                const AlwaysStoppedAnimation(kPrimaryColor),
-                            strokeWidth: 3,
-                          )),
+                      StreamBuilder(
+                          initialData: 0,
+                          stream: state.progress,
+                          builder: (context, snapshot) {
+                            return SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  value: (snapshot.data == null ||
+                                          snapshot.data == 0.0
+                                      ? null
+                                      : snapshot.data!.toDouble()),
+                                  backgroundColor: kGrey3Color,
+                                  valueColor: const AlwaysStoppedAnimation(
+                                      kPrimaryColor),
+                                  strokeWidth: 3,
+                                ));
+                          }),
                     ],
                   ),
                 );
@@ -482,127 +490,4 @@ class _FeedRoomViewState extends State<FeedRoomView> {
       ),
     );
   }
-}
-
-Future<AddPostResponse> postContent(
-  BuildContext context,
-  User user,
-  Map<String, dynamic> postData,
-  int feedRoomId,
-  Function(int) updateProgress,
-) async {
-  List<MediaModel>? mediaFiles = postData['mediaFiles'];
-  int imageCount = 0;
-  int videoCount = 0;
-  int documentCount = 0;
-  List<Attachment>? attachments;
-  if (mediaFiles != null) {
-    attachments = await uploadImages(user, mediaFiles, updateProgress);
-    for (final attachment in attachments) {
-      if (attachment.attachmentType == 1) {
-        imageCount++;
-      } else if (attachment.attachmentType == 2) {
-        videoCount++;
-      } else if (attachment.attachmentType == 3) {
-        documentCount++;
-      }
-    }
-  }
-
-  // List of feedroom selected while creating the post
-  List<FeedRoom> feedRoomIds = postData['feedRoomIds'];
-
-  final AddPostRequest request = (AddPostRequestBuilder()
-        ..text(postData['result'] ?? '')
-        ..attachments(attachments ?? <Attachment>[])
-        ..feedroomId(feedRoomId))
-      .build();
-
-  final AddPostResponse response =
-      await locator<LikeMindsService>().addPost(request);
-
-  if (response.success) {
-    LMAnalytics.get().track(
-      AnalyticsKeys.postCreationCompleted,
-      {
-        "user_tagged": "no",
-        "link_attached": "no",
-        "image_attached": imageCount == 0
-            ? "no"
-            : {
-                "yes": {
-                  "image_count": imageCount,
-                },
-              },
-        "video_attached": videoCount == 0
-            ? "no"
-            : {
-                "yes": {
-                  "video_count": videoCount,
-                },
-              },
-        "document_attached": documentCount == 0
-            ? "no"
-            : {
-                "yes": {
-                  "document_count": documentCount,
-                },
-              },
-      },
-    );
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
-        content: response.errorMessage ?? 'An error occured',
-        backgroundColor: kGrey1Color));
-  }
-  return response;
-}
-
-Future<List<Attachment>> uploadImages(User user, List<MediaModel> mediaFiles,
-    Function(int) updateProgress) async {
-  List<Attachment> attachments = [];
-  int imageUploadCount = 0;
-  for (final media in mediaFiles) {
-    if (media.mediaType == MediaType.link) {
-      attachments.add(
-        Attachment(
-          attachmentType: 4,
-          attachmentMeta: AttachmentMeta(
-              url: media.ogTags!.url,
-              ogTags: AttachmentMetaOgTags(
-                description: media.ogTags!.description,
-                image: media.ogTags!.image,
-                title: media.ogTags!.title,
-                url: media.ogTags!.url,
-              )),
-        ),
-      );
-    } else {
-      try {
-        File mediaFile = media.mediaFile!;
-        final String? response = await locator<LikeMindsService>()
-            .uploadFile(mediaFile, user.userUniqueId);
-        if (response != null) {
-          attachments.add(Attachment(
-            attachmentType: media.mapMediaTypeToInt(),
-            attachmentMeta: AttachmentMeta(
-                url: response,
-                size: media.mediaType == MediaType.document ? media.size : null,
-                format:
-                    media.mediaType == MediaType.document ? media.format : null,
-                duration:
-                    media.mediaType == MediaType.video ? media.duration : null),
-          ));
-          imageUploadCount += 1;
-          updateProgress(imageUploadCount);
-        } else {
-          throw ('Error uploading file');
-        }
-      } catch (e) {
-        print(e);
-        throw 'Error uploading file';
-      }
-    }
-  }
-  return attachments;
 }

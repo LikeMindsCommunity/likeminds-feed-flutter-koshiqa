@@ -10,7 +10,7 @@ abstract class NewPostState extends Equatable {
 class NewPostInitiate extends NewPostState {}
 
 class NewPostUploading extends NewPostState {
-  final double progress;
+  final Stream<double> progress;
   final MediaModel? thumbnailMedia;
 
   const NewPostUploading({required this.progress, this.thumbnailMedia});
