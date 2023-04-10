@@ -739,42 +739,46 @@ class AddAssetsButton extends StatelessWidget {
 
   void pickImages(BuildContext context) async {
     uploading();
-    final List<XFile> list = await picker.pickMultiImage();
+    try {
+      final List<XFile> list = await picker.pickMultiImage();
 
-    if (list.isNotEmpty) {
-      if (mediaListLength + list.length > 10) {
-        ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
-            content: 'A total of 10 attachments can be added to a post',
-            backgroundColor: kGrey1Color));
-        onUploaded(false);
-        return;
-      }
-      for (XFile image in list) {
-        int fileBytes = await image.length();
-        double fileSize = getFileSizeInDouble(fileBytes);
-        if (fileSize > 100) {
+      if (list.isNotEmpty) {
+        if (mediaListLength + list.length > 10) {
           ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
-              content: 'File size should be smaller than 100MB',
+              content: 'A total of 10 attachments can be added to a post',
               backgroundColor: kGrey1Color));
           onUploaded(false);
           return;
         }
+        for (XFile image in list) {
+          int fileBytes = await image.length();
+          double fileSize = getFileSizeInDouble(fileBytes);
+          if (fileSize > 100) {
+            ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
+                content: 'File size should be smaller than 100MB',
+                backgroundColor: kGrey1Color));
+            onUploaded(false);
+            return;
+          }
+        }
+        MultiImageCrop.startCropping(
+          context: context,
+          activeColor: kWhiteColor,
+          aspectRatio: 1,
+          files: list.map((e) => File(e.path)).toList(),
+          callBack: (List<File> images) {
+            List<MediaModel> mediaFiles = images
+                .map((e) => MediaModel(
+                    mediaFile: File(e.path), mediaType: MediaType.image))
+                .toList();
+            postMedia(mediaFiles);
+            onUploaded(true);
+          },
+        );
+      } else {
+        onUploaded(false);
       }
-      MultiImageCrop.startCropping(
-        context: context,
-        activeColor: kWhiteColor,
-        files: list.map((e) => File(e.path)).toList(),
-        aspectRatio: 1.0,
-        callBack: (List<File> images) {
-          List<MediaModel> mediaFiles = images
-              .map((e) => MediaModel(
-                  mediaFile: File(e.path), mediaType: MediaType.image))
-              .toList();
-          postMedia(mediaFiles);
-          onUploaded(true);
-        },
-      );
-    } else {
+    } catch (e) {
       onUploaded(false);
     }
   }

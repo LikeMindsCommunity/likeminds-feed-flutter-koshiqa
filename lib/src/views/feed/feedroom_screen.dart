@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +6,6 @@ import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/views/feed/components/new_post_button.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_media/post_video.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/simple_bloc_observer.dart';
 import 'package:feed_sx/src/views/feed/blocs/feedroom/feedroom_bloc.dart';
