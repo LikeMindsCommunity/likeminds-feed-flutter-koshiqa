@@ -18,10 +18,6 @@ abstract class CredsDev {
   static final String apiKey = _CredsDev.apiKey;
   @EnviedField(varName: 'BOT_ID', obfuscate: true)
   static final String botId = _CredsDev.botId;
-  @EnviedField(varName: 'KOSHIQA_BETA_API_KEY', obfuscate: true)
-  static final String koshiqaBetaApiKey = _CredsDev.koshiqaBetaApiKey;
-  @EnviedField(varName: 'KOSHIQA_BETA_BOT_ID', obfuscate: true)
-  static final String koshiqaBetaBotId = _CredsDev.koshiqaBetaBotId;
 }
 
 ///These are PROD community credentials

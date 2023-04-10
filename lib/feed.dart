@@ -31,6 +31,9 @@ class LMFeed extends StatefulWidget {
   final String? userId;
   final String? userName;
   final int defaultFeedroom;
+  final String apiKey;
+  final LMSdkCallback callback;
+
   static LMFeed? _instance;
 
   /// INIT - Get the LMFeed instance and pass the credentials (if any)
@@ -41,11 +44,16 @@ class LMFeed extends StatefulWidget {
     String? userId,
     String? userName,
     required int defaultFeedroom,
+    required LMSdkCallback callback,
+    required String apiKey,
   }) {
+    setupLMFeed(callback, apiKey);
     return _instance ??= LMFeed._(
       userId: userId,
       userName: userName,
       defaultFeedroom: defaultFeedroom,
+      callback: callback,
+      apiKey: apiKey,
     );
   }
 
@@ -54,6 +62,8 @@ class LMFeed extends StatefulWidget {
     this.userId,
     this.userName,
     required this.defaultFeedroom,
+    required this.callback,
+    required this.apiKey,
   }) : super(key: key);
 
   @override

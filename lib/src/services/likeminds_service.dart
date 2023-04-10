@@ -4,6 +4,8 @@ import 'package:feed_sx/src/utils/credentials/credentials.dart';
 import 'package:flutter/foundation.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
+const bool _prodFlag = true;
+
 abstract class ILikeMindsService {
   FeedApi getFeedApi();
   Future<InitiateUserResponse> initiateUser(InitiateUserRequest request);
@@ -41,11 +43,15 @@ class LikeMindsService implements ILikeMindsService {
 
   get getFeedroomId => feedroomId;
 
-  LikeMindsService(LMSdkCallback sdkCallback) {
+  LikeMindsService(LMSdkCallback sdkCallback, String apiKey) {
     print("UI Layer: LikeMindsService initialized");
-    final apiKey = true ? CredsProd.apiKey : CredsDev.apiKey;
+    final String key = apiKey.isEmpty
+        ? _prodFlag
+            ? CredsProd.apiKey
+            : CredsDev.apiKey
+        : apiKey;
     _sdkApplication = LMFeedClient.initiateLikeMinds(
-      apiKey: apiKey,
+      apiKey: key,
       sdkCallback: sdkCallback,
     );
     LMAnalytics.get().initialize();
