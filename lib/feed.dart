@@ -2,6 +2,7 @@
 
 library feed;
 
+import 'package:feed_sx/src/utils/branding/lm_branding.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/credentials/credentials.dart';
 import 'package:feed_sx/src/views/feed/feedroom_list_screen.dart';
@@ -48,6 +49,13 @@ class LMFeed extends StatefulWidget {
     required String apiKey,
   }) {
     setupLMFeed(callback, apiKey);
+    LMBranding lmBranding = LMBranding.instance;
+    // lmBranding.setBranding((SetBrandingRequestBuilder()
+    //       ..headerColor('')
+    //       ..buttonsColor('')
+    //       ..textLinkColor('')
+    //       ..fonts(LMFontsBuilder().build()))
+    //     .build());
     return _instance ??= LMFeed._(
       userId: userId,
       userName: userName,
