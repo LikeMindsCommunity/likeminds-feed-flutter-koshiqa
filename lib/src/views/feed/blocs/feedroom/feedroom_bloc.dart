@@ -35,7 +35,8 @@ class FeedRoomBloc extends Bloc<FeedRoomEvent, FeedRoomState> {
                 .build(),
           );
           if (!response.success) {
-            emit(FeedRoomError(message: "No data found"));
+            emit(FeedRoomError(
+                message: "An error has occured, please try again"));
           } else {
             response.users.addAll(users);
             if ((response.posts == null || response.posts!.isEmpty) &&

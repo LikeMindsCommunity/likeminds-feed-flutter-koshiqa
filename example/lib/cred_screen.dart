@@ -1,7 +1,11 @@
 import 'package:feed_example/likeminds_callback.dart';
+import 'package:feed_example/network_handling.dart';
 import 'package:flutter/material.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:overlay_support/overlay_support.dart';
+
+final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -12,6 +16,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Integration App for UI + SDK package',
         debugShowCheckedModeBanner: false,
+        scaffoldMessengerKey: rootScaffoldMessengerKey,
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
@@ -44,6 +49,8 @@ class _CredScreenState extends State<CredScreen> {
       callback: LikeMindsCallback(),
       apiKey: "",
     );
+    NetworkConnectivity networkConnectivity = NetworkConnectivity.instance;
+    networkConnectivity.initialise();
   }
 
   @override
