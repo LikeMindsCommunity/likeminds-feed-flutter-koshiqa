@@ -71,19 +71,11 @@ class _PostActionsState extends State<PostActions> {
                         (LikePostRequestBuilder()..postId(postDetails!.id))
                             .build());
                     if (!response.success) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            response.errorMessage ??
-                                "There was an error liking the post",
-                            style: const TextStyle(
-                              fontSize: 18,
-                            ),
-                          ),
-                          backgroundColor: Colors.grey.shade500,
-                        ),
+                      toast(
+                        response.errorMessage ??
+                            "There was an error liking the post",
+                        duration: Toast.LENGTH_LONG,
                       );
-
                       if (isLiked) {
                         postLikes--;
                       } else {

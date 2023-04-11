@@ -1,4 +1,3 @@
-import 'package:feed_sx/src/views/comments/components/dropdown_options_comment.dart';
 import 'package:feed_sx/src/views/comments/components/dropdown_options_reply.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
@@ -7,7 +6,6 @@ import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/utils.dart';
-import 'package:feed_sx/src/views/comments/blocs/comment_replies/comment_replies_bloc.dart';
 import 'package:feed_sx/src/views/comments/blocs/toggle_like_comment/toggle_like_comment_bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +15,7 @@ class ReplyTile extends StatefulWidget {
   final String postId;
   final String commentId;
   final CommentReply reply;
-  final PostUser user;
+  final User user;
   final Function() refresh;
 
   const ReplyTile({
@@ -36,10 +34,11 @@ class ReplyTile extends StatefulWidget {
 class _ReplyTileState extends State<ReplyTile> {
   late final ToggleLikeCommentBloc _toggleLikeCommentBloc;
   late final CommentReply reply;
-  late final PostUser user;
+  late final User user;
   late final String postId;
   late final String commentId;
   late final Function() refresh;
+  int? likeCount;
 
   bool isLiked = false;
   @override
@@ -52,6 +51,7 @@ class _ReplyTileState extends State<ReplyTile> {
     isLiked = reply.isLiked;
     commentId = widget.commentId;
     refresh = widget.refresh;
+    likeCount = widget.reply.likesCount;
     FeedApi feedApi = locator<LikeMindsService>().getFeedApi();
     _toggleLikeCommentBloc = ToggleLikeCommentBloc(feedApi: feedApi);
   }
@@ -96,6 +96,11 @@ class _ReplyTileState extends State<ReplyTile> {
                   GestureDetector(
                     onTap: () {
                       setState(() {
+                        if (isLiked) {
+                          likeCount = likeCount! - 1;
+                        } else {
+                          likeCount = likeCount! + 1;
+                        }
                         isLiked = !isLiked;
                       });
 
@@ -122,10 +127,12 @@ class _ReplyTileState extends State<ReplyTile> {
                     })),
                   ),
                   kHorizontalPaddingSmall,
-                  const Text(
-                    'Like',
-                    style:
-                        TextStyle(fontSize: kFontSmallMed, color: kGrey3Color),
+                  Text(
+                    likeCount! > 0
+                        ? "$likeCount ${likeCount! > 1 ? 'Likes' : 'Like'}"
+                        : '',
+                    style: const TextStyle(
+                        fontSize: kFontSmallMed, color: kGrey3Color),
                   ),
                 ],
               ),

@@ -18,7 +18,7 @@ class NewPostUploading extends NewPostState {
 
 class NewPostUploaded extends NewPostState {
   final Post postData;
-  final Map<String, PostUser> userData;
+  final Map<String, User> userData;
 
   const NewPostUploaded({required this.postData, required this.userData});
 }

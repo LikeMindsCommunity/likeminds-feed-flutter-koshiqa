@@ -27,7 +27,7 @@ class CommentRepliesBloc
       required bool forLoadMore,
       required Emitter<CommentRepliesState> emit}) async {
     // if (!hasReachedMax(state, forLoadMore)) {
-    Map<String, PostUser> users = {};
+    Map<String, User> users = {};
     List<CommentReply> comments = [];
     if (state is CommentRepliesLoaded && forLoadMore) {
       comments =

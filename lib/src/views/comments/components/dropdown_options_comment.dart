@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:likeminds_feed/likeminds_feed.dart' as sdk;
+import 'package:overlay_support/overlay_support.dart';
 
 class DropdownOptionsComments extends StatelessWidget {
   final String postId;
@@ -70,17 +71,16 @@ class DropdownOptionsComments extends StatelessWidget {
                                 print(response.toString());
 
                                 if (response.success) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      confirmationToast(
-                                          content: 'Comment Deleted',
-                                          width: 200,
-                                          backgroundColor: kGrey1Color));
+                                  toast(
+                                    'Comment Deleted',
+                                    duration: Toast.LENGTH_LONG,
+                                  );
                                   refresh();
                                 } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      confirmationToast(
-                                          content: response.errorMessage ?? '',
-                                          backgroundColor: kGrey1Color));
+                                  toast(
+                                    response.errorMessage ?? '',
+                                    duration: Toast.LENGTH_LONG,
+                                  );
                                 }
                               }, actionText: 'Delete'));
                     } else if (element.title.split(' ').first == "Pin") {

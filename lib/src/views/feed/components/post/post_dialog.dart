@@ -75,22 +75,3 @@ Dialog confirmationDialog(
     ),
   );
 }
-
-SnackBar confirmationToast(
-    {required String content, required Color backgroundColor, double? width}) {
-  return SnackBar(
-    backgroundColor: backgroundColor,
-    width: width,
-    margin: width == null ? const EdgeInsets.symmetric(horizontal: 15.0) : null,
-    elevation: 5,
-    behavior: SnackBarBehavior.floating,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
-    content: Align(
-      alignment: Alignment.center,
-      child: Text(
-        content,
-        textAlign: TextAlign.center,
-      ),
-    ),
-  );
-}

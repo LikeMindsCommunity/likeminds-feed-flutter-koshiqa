@@ -20,7 +20,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 class CommentTile extends StatefulWidget {
   final String postId;
   final Reply reply;
-  final PostUser user;
+  final User user;
   final Function() refresh;
   final Function(String commentId, String username) onReply;
   const CommentTile({
@@ -41,7 +41,7 @@ class _CommentTileState extends State<CommentTile>
   late final ToggleLikeCommentBloc _toggleLikeCommentBloc;
   late final CommentRepliesBloc _commentRepliesBloc;
   late final Reply reply;
-  late final PostUser user;
+  late final User user;
   late final String postId;
   late final Function() refresh;
   int? likeCount;
@@ -82,7 +82,7 @@ class _CommentTileState extends State<CommentTile>
               Text(
                 user.name,
                 style: const TextStyle(
-                  fontSize: 14.5,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -96,9 +96,15 @@ class _CommentTileState extends State<CommentTile>
             ],
           ),
           kVerticalPaddingMedium,
-          ExpandableText(
-            reply.text,
-            expandText: 'show more',
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 36,
+              vertical: 2,
+            ),
+            child: ExpandableText(
+              reply.text,
+              expandText: 'show more',
+            ),
           ),
           kVerticalPaddingLarge,
           Row(
@@ -128,12 +134,12 @@ class _CommentTileState extends State<CommentTile>
                           ? SvgPicture.asset(
                               kAssetLikeFilledIcon,
                               // color: kPrimaryColor,
-                              height: 17,
+                              height: 18,
                             )
                           : SvgPicture.asset(
                               kAssetLikeIcon,
                               color: kGrey3Color,
-                              height: 13,
+                              height: 14,
                             );
                     })),
                   ),
@@ -150,7 +156,7 @@ class _CommentTileState extends State<CommentTile>
                     child: Text(
                       likeCount! > 0
                           ? "$likeCount ${likeCount! > 1 ? kStringLikes : kStringLike}"
-                          : kStringLike,
+                          : '',
                       style: const TextStyle(
                         fontSize: kFontSmallMed,
                         color: kGrey3Color,
@@ -242,7 +248,7 @@ class _CommentTileState extends State<CommentTile>
                   state is PaginatedCommentRepliesLoading) {
                 // replies.addAll(state.commentDetails.postReplies.replies);
                 List<CommentReply> replies = [];
-                Map<String, PostUser> users = {};
+                Map<String, User> users = {};
                 if (state is CommentRepliesLoaded) {
                   replies = state.commentDetails.postReplies.replies;
                   users = state.commentDetails.users;

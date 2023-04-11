@@ -5,6 +5,7 @@ import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 class DropdownOptions extends StatelessWidget {
   final Post postDetails;
@@ -64,18 +65,17 @@ class DropdownOptions extends StatelessWidget {
                                 print(response.toString());
 
                                 if (response.success) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      confirmationToast(
-                                          content: 'Post Deleted',
-                                          width: 200,
-                                          backgroundColor: kGrey1Color));
+                                  toast(
+                                    'Post Deleted',
+                                    duration: Toast.LENGTH_LONG,
+                                  );
                                   refresh(true);
                                 } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      confirmationToast(
-                                          content: response.errorMessage ??
-                                              'An error occurred',
-                                          backgroundColor: kGrey1Color));
+                                  toast(
+                                    response.errorMessage ??
+                                        'An error occurred',
+                                    duration: Toast.LENGTH_LONG,
+                                  );
                                 }
                               }, actionText: 'Delete'));
                     } else if (element.title.split(' ').first == "Pin" ||
@@ -100,23 +100,17 @@ class DropdownOptions extends StatelessWidget {
                       );
                       print(response.toString());
                       if (response.success) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          confirmationToast(
-                            content: element.title.split(' ').first == "Pin"
-                                ? 'Post Pinned'
-                                : 'Post Unpinned',
-                            width: 200,
-                            backgroundColor: kGrey1Color,
-                          ),
+                        toast(
+                          element.title.split(' ').first == "Pin"
+                              ? 'Post Pinned'
+                              : 'Post Unpinned',
+                          duration: Toast.LENGTH_LONG,
                         );
                         refresh(false);
                       } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          confirmationToast(
-                            content:
-                                response.errorMessage ?? 'An error occurred',
-                            backgroundColor: kGrey1Color,
-                          ),
+                        toast(
+                          response.errorMessage ?? 'An error occurred',
+                          duration: Toast.LENGTH_LONG,
                         );
                       }
                     }
