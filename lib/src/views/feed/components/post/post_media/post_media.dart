@@ -126,6 +126,7 @@ class _PostMediaState extends State<PostMedia> {
                                     size: 24,
                                     color: kGrey3Color,
                                   ),
+                                  SizedBox(height: 24),
                                   Text(
                                     "An error occurred fetching media",
                                     style: TextStyle(

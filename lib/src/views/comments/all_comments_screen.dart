@@ -453,23 +453,25 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                 noMoreItemsIndicatorBuilder: (context) =>
                                     SizedBox(height: 75),
                                 noItemsFoundIndicatorBuilder: (context) =>
-                                    Column(children: const <Widget>[
-                                      SizedBox(height: 40),
-                                      Text(
-                                        'No comment found',
-                                        style: TextStyle(
-                                          fontSize: kFontMedium,
+                                    Column(
+                                      children: const <Widget>[
+                                        SizedBox(height: 42),
+                                        Text(
+                                          'No comment found',
+                                          style: TextStyle(
+                                            fontSize: kFontMedium,
+                                          ),
                                         ),
-                                      ),
-                                      SizedBox(height: 10),
-                                      Text(
-                                        'Be the first one to comment',
-                                        style: TextStyle(
-                                          fontSize: kFontSmall,
+                                        SizedBox(height: 12),
+                                        Text(
+                                          'Be the first one to comment',
+                                          style: TextStyle(
+                                            fontSize: kFontSmall,
+                                          ),
                                         ),
-                                      ),
-                                      SizedBox(height: 75),
-                                    ]),
+                                        SizedBox(height: 180),
+                                      ],
+                                    ),
                                 itemBuilder: (context, item, index) {
                                   return CommentTile(
                                     key: ValueKey(item.id),
