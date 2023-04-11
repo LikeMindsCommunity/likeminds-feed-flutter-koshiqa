@@ -16,6 +16,7 @@ import 'package:feed_sx/src/widgets/general_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 class AllCommentsScreen extends StatefulWidget {
   final Post post;
@@ -121,9 +122,10 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
         rebuildPostWidget.value = !rebuildPostWidget.value;
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
-          content: postDetails.errorMessage ?? 'An error occured',
-          backgroundColor: kGrey1Color));
+      toast(
+        postDetails.errorMessage ?? 'An error occured',
+        duration: Toast.LENGTH_LONG,
+      );
     }
   }
 
@@ -453,13 +455,20 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                 noItemsFoundIndicatorBuilder: (context) =>
                                     Column(children: const <Widget>[
                                       SizedBox(height: 40),
-                                      Text('No comment found',
-                                          style:
-                                              TextStyle(fontSize: kFontMedium)),
+                                      Text(
+                                        'No comment found',
+                                        style: TextStyle(
+                                          fontSize: kFontMedium,
+                                        ),
+                                      ),
                                       SizedBox(height: 10),
-                                      Text('Be the first one to comment',
-                                          style:
-                                              TextStyle(fontSize: kFontSmall))
+                                      Text(
+                                        'Be the first one to comment',
+                                        style: TextStyle(
+                                          fontSize: kFontSmall,
+                                        ),
+                                      ),
+                                      SizedBox(height: 75),
                                     ]),
                                 itemBuilder: (context, item, index) {
                                   return CommentTile(

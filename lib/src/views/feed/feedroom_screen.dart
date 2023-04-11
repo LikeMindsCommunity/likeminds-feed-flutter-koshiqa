@@ -19,6 +19,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 class FeedRoomScreen extends StatefulWidget {
   final bool isCm;
@@ -302,11 +303,9 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                 rebuildPostWidget.value = !rebuildPostWidget.value;
               }
               if (curr is NewPostError) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  confirmationToast(
-                    content: curr.message,
-                    backgroundColor: kGrey1Color,
-                  ),
+                toast(
+                  curr.message,
+                  duration: Toast.LENGTH_LONG,
                 );
               }
             },
@@ -398,11 +397,10 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                                         ),
                                       );
                                     } else {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(confirmationToast(
-                                        content: 'A post is already uploading.',
-                                        backgroundColor: kGrey1Color,
-                                      ));
+                                      toast(
+                                        'A post is already uploading.',
+                                        duration: Toast.LENGTH_LONG,
+                                      );
                                     }
                                   },
                                 ),
@@ -474,11 +472,9 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                         ),
                       );
                     } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        confirmationToast(
-                          content: 'A post is already uploading.',
-                          backgroundColor: kGrey1Color,
-                        ),
+                      toast(
+                        'A post is already uploading.',
+                        duration: Toast.LENGTH_LONG,
                       );
                     }
                   },

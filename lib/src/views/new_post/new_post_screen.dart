@@ -31,6 +31,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:feed_sx/src/services/service_locator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:multi_image_crop/multi_image_crop.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:video_player/video_player.dart';
 
@@ -371,11 +372,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
                             "isBack": true,
                           });
                         } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            confirmationToast(
-                                content:
-                                    "Can't create a post without text or attachments",
-                                backgroundColor: kGrey1Color),
+                          toast(
+                            "Can't create a post without text or attachments",
+                            duration: Toast.LENGTH_LONG,
                           );
                         }
                       },
@@ -687,9 +686,10 @@ class AddAssetsButton extends StatelessWidget {
           } else if (permissionStatus == PermissionStatus.denied) {
             permissionStatus = await Permission.photos.request();
             if (permissionStatus == PermissionStatus.permanentlyDenied) {
-              ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
-                  content: 'Permissions denied, change app settings',
-                  backgroundColor: kGrey1Color));
+              toast(
+                'Permissions denied, change app settings',
+                duration: Toast.LENGTH_LONG,
+              );
               return false;
             } else if (permissionStatus == PermissionStatus.granted) {
               return true;
@@ -704,9 +704,10 @@ class AddAssetsButton extends StatelessWidget {
           } else if (permissionStatus == PermissionStatus.denied) {
             permissionStatus = await Permission.videos.request();
             if (permissionStatus == PermissionStatus.permanentlyDenied) {
-              ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
-                  content: 'Permissions denied, change app settings',
-                  backgroundColor: kGrey1Color));
+              toast(
+                'Permissions denied, change app settings',
+                duration: Toast.LENGTH_LONG,
+              );
               return false;
             } else if (permissionStatus == PermissionStatus.granted) {
               return true;
@@ -726,9 +727,10 @@ class AddAssetsButton extends StatelessWidget {
           } else if (permissionStatus == PermissionStatus.denied) {
             return false;
           } else if (permissionStatus == PermissionStatus.permanentlyDenied) {
-            ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
-                content: 'Permissions denied, change app settings',
-                backgroundColor: kGrey1Color));
+            toast(
+              'Permissions denied, change app settings',
+              duration: Toast.LENGTH_LONG,
+            );
             return false;
           }
         }
@@ -744,9 +746,10 @@ class AddAssetsButton extends StatelessWidget {
 
       if (list.isNotEmpty) {
         if (mediaListLength + list.length > 10) {
-          ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
-              content: 'A total of 10 attachments can be added to a post',
-              backgroundColor: kGrey1Color));
+          toast(
+            'A total of 10 attachments can be added to a post',
+            duration: Toast.LENGTH_LONG,
+          );
           onUploaded(false);
           return;
         }
@@ -754,9 +757,10 @@ class AddAssetsButton extends StatelessWidget {
           int fileBytes = await image.length();
           double fileSize = getFileSizeInDouble(fileBytes);
           if (fileSize > 100) {
-            ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
-                content: 'File size should be smaller than 100MB',
-                backgroundColor: kGrey1Color));
+            toast(
+              'File size should be smaller than 100MB',
+              duration: Toast.LENGTH_LONG,
+            );
             onUploaded(false);
             return;
           }
@@ -783,7 +787,7 @@ class AddAssetsButton extends StatelessWidget {
     }
   }
 
-  void pickVideos(BuildContext context) async {
+  void pickVideos() async {
     uploading();
 
     final pickedFiles = await filePicker.pickFiles(
@@ -797,17 +801,19 @@ class AddAssetsButton extends StatelessWidget {
     );
     if (pickedFiles != null) {
       if (mediaListLength + pickedFiles.files.length > 10) {
-        ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
-            content: 'A total of 10 attachments can be added to a post',
-            backgroundColor: kGrey1Color));
+        toast(
+          'A total of 10 attachments can be added to a post',
+          duration: Toast.LENGTH_LONG,
+        );
         onUploaded(false);
         return;
       }
       for (var pickedFile in pickedFiles.files) {
         if (getFileSizeInDouble(pickedFile.size) > 100) {
-          ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
-              content: 'File size should be smaller than 100MB',
-              backgroundColor: kGrey1Color));
+          toast(
+            'File size should be smaller than 100MB',
+            duration: Toast.LENGTH_LONG,
+          );
           onUploaded(false);
           return;
         } else {
@@ -830,7 +836,7 @@ class AddAssetsButton extends StatelessWidget {
     }
   }
 
-  void pickFiles(BuildContext context) async {
+  void pickFiles() async {
     uploading();
     final pickedFiles = await filePicker.pickFiles(
       allowMultiple: true,
@@ -843,17 +849,19 @@ class AddAssetsButton extends StatelessWidget {
 
     if (pickedFiles != null) {
       if (mediaListLength + pickedFiles.files.length > 10) {
-        ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
-            content: 'A total of 10 attachments can be added to a post',
-            backgroundColor: kGrey1Color));
+        toast(
+          'A total of 10 attachments can be added to a post',
+          duration: Toast.LENGTH_LONG,
+        );
         onUploaded(false);
         return;
       }
       for (var pickedFile in pickedFiles.files) {
         if (getFileSizeInDouble(pickedFile.size) > 100) {
-          ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
-              content: 'File size should be smaller than 100MB',
-              backgroundColor: kGrey1Color));
+          toast(
+            'File size should be smaller than 100MB',
+            duration: Toast.LENGTH_LONG,
+          );
           onUploaded(false);
           return;
         }
@@ -884,39 +892,21 @@ class AddAssetsButton extends StatelessWidget {
             if (mediaType == 1) {
               pickImages(context);
             } else if (mediaType == 2) {
-              pickVideos(context);
+              pickVideos();
             } else if (mediaType == 3) {
-              pickFiles(context);
+              pickFiles();
             }
           }
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              width: screenSize.width * 0.7,
-              backgroundColor: kGrey1Color,
-              elevation: 5,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-              content: const Text(
-                "A total of 10 attachments can be added to a post",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: kFontSmallMed),
-              ),
-            ),
+          toast(
+            "A total of 10 attachments can be added to a post",
+            duration: Toast.LENGTH_LONG,
           );
         }
       },
       child: SizedBox(
         height: 48,
         width: screenSize.width,
-        // decoration: BoxDecoration(
-        //   color: kWhiteColor,
-        //   border: Border.all(
-        //     color: kGreyColor,
-        //     width: 1,
-        //   ),
-        // ),
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: 16.0,

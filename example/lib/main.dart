@@ -94,7 +94,10 @@ Future<String?> setupMessaging() async {
     debugPrint("Token - $token");
     return token.toString();
   } else {
-    toast('User declined or has not accepted notification permissions');
+    toast(
+      'User declined or has not accepted notification permissions',
+      duration: Toast.LENGTH_LONG,
+    );
     return null;
   }
 }
