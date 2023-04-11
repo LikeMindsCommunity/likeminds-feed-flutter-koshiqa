@@ -399,7 +399,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                 child: Row(
                   children: [
                     ProfilePicture(
-                        user: PostUser(
+                        user: User(
                       id: user.id,
                       imageUrl: user.imageUrl,
                       name: user.name,

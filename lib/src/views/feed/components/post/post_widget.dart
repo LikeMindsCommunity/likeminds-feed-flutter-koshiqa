@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 
 class PostWidget extends StatefulWidget {
   final Post postDetails;
-  final PostUser user;
+  final User user;
   final int postType;
   final bool showActions;
   final Function(bool) refresh;
@@ -30,7 +30,7 @@ class PostWidget extends StatefulWidget {
 
 class _PostWidgetState extends State<PostWidget> {
   Post? postDetails;
-  late final PostUser user;
+  late final User user;
   late final bool showActions;
   Function(bool)? refresh;
   late bool isFeed;

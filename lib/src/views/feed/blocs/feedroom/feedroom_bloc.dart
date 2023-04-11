@@ -10,7 +10,7 @@ part 'feedroom_state.dart';
 class FeedRoomBloc extends Bloc<FeedRoomEvent, FeedRoomState> {
   FeedRoomBloc() : super(FeedRoomInitial()) {
     on<FeedRoomEvent>((event, emit) async {
-      Map<String, PostUser> users = {};
+      Map<String, User> users = {};
       if (state is FeedRoomLoaded) {
         users = (state as FeedRoomLoaded).feed.users;
       }

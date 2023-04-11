@@ -7,7 +7,7 @@ import 'package:feed_sx/src/views/feed/components/dropdown_options.dart';
 import 'package:flutter/material.dart';
 
 class PostHeader extends StatelessWidget {
-  final PostUser user;
+  final User user;
   final Post postDetails;
   final List<PopupMenuItemModel> menuItems;
   final Function(bool) refresh;
@@ -43,7 +43,12 @@ class PostHeader extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    user.name.isNotEmpty ? user.name : "Deleted user",
+                    user.isDeleted == null || !user.isDeleted!
+                        ? user.name
+                        : "Deleted user",
+                    maxLines: 1,
+                    softWrap: true,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: kFontMedium,
                       color: kGrey1Color,
@@ -53,7 +58,33 @@ class PostHeader extends StatelessWidget {
                           : FontStyle.italic,
                     ),
                   ),
-                  kHorizontalPaddingLarge,
+                  kHorizontalPaddingMedium,
+                  (user.customTitle == null || user.customTitle!.isEmpty) ||
+                          (user.isDeleted != null && user.isDeleted!)
+                      ? const SizedBox()
+                      : Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(3.0),
+                            color: kPrimaryColor,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: Text(
+                              user.customTitle!.isNotEmpty
+                                  ? user.customTitle!
+                                  : "",
+                              style: TextStyle(
+                                fontSize: kFontSmall,
+                                color: kWhiteColor,
+                                fontWeight: FontWeight.w600,
+                                fontStyle: user.name.isNotEmpty
+                                    ? FontStyle.normal
+                                    : FontStyle.italic,
+                              ),
+                            ),
+                          ),
+                        ),
+                  // kHorizontalPaddingLarge,x/
                 ],
               ),
               kVerticalPaddingSmall,
