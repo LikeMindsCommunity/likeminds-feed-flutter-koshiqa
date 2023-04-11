@@ -114,6 +114,28 @@ class _PostMediaState extends State<PostMedia> {
                           fadeInDuration: const Duration(
                             milliseconds: 200,
                           ),
+                          errorWidget: (context, url, error) {
+                            return Container(
+                              color: kBackgroundColor,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Icon(
+                                    Icons.error_outline,
+                                    size: 24,
+                                    color: kGrey3Color,
+                                  ),
+                                  Text(
+                                    "An error occurred fetching media",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            );
+                          },
                           progressIndicatorBuilder: (context, url, progress) =>
                               const PostShimmer(),
                         );
