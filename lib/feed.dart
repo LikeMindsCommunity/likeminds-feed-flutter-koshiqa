@@ -171,7 +171,6 @@ class _LMFeedState extends State<LMFeed> {
                         return NewPostScreen(
                           feedRoomId: args.feedroomId,
                           feedRoomTitle: args.feedRoomTitle,
-                          user: args.user,
                           isCm: args.isCm,
                           populatePostMedia: args.populatePostMedia,
                           populatePostText: args.populatePostText,

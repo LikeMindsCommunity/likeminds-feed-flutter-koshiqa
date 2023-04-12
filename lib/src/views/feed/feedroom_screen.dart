@@ -18,7 +18,6 @@ import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
 import 'package:overlay_support/overlay_support.dart';
 
 class FeedRoomScreen extends StatefulWidget {
@@ -300,9 +299,11 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                 }
                 feedRoomItemList.removeLast();
                 widget.feedResponse.users.addAll(curr.userData);
+                postUploading.value = false;
                 rebuildPostWidget.value = !rebuildPostWidget.value;
               }
               if (curr is NewPostError) {
+                postUploading.value = false;
                 toast(
                   curr.message,
                   duration: Toast.LENGTH_LONG,
@@ -392,7 +393,6 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                                         arguments: NewPostScreenArguments(
                                           feedroomId: widget.feedRoom.id,
                                           feedRoomTitle: widget.feedRoom.title,
-                                          user: widget.user,
                                           isCm: widget.isCm,
                                         ),
                                       );
@@ -467,7 +467,6 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                         arguments: NewPostScreenArguments(
                           feedroomId: widget.feedRoom.id,
                           feedRoomTitle: widget.feedRoom.title,
-                          user: widget.user,
                           isCm: widget.isCm,
                         ),
                       );
