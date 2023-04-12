@@ -62,6 +62,8 @@ class LikeMindsService implements ILikeMindsService {
 
   @override
   Future<InitiateUserResponse> initiateUser(InitiateUserRequest request) async {
+    UserLocalPreference userLocalPreference = UserLocalPreference.instance;
+    await userLocalPreference.initialize();
     return await _sdkApplication.initiateUser(request);
   }
 
