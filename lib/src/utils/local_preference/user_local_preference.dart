@@ -17,12 +17,10 @@ class UserLocalPreference {
   }
 
   void storeUserData(User user) {
-    print(DateTime.now().millisecondsSinceEpoch);
     UserEntity userEntity = user.toEntity();
     Map<String, dynamic> userData = userEntity.toJson();
     String userString = jsonEncode(userData);
     _sharedPreferences!.setString('user', userString);
-    print(DateTime.now().millisecondsSinceEpoch);
   }
 
   User fetchUserData() {

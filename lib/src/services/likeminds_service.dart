@@ -1,7 +1,9 @@
 import 'dart:io';
 
+import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/media_service.dart';
 import 'package:feed_sx/src/utils/credentials/credentials.dart';
+import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:flutter/foundation.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
@@ -29,6 +31,7 @@ abstract class ILikeMindsService {
   Future<RegisterDeviceResponse> registerDevice(RegisterDeviceRequest request);
   Future<TagResponseModel> getTags({required TagRequestModel request});
   Future<DecodeUrlResponse> decodeUrl(DecodeUrlRequest request);
+  Future<GetDeleteReasonResponse> getReportTags(GetDeleteReasonRequest request);
   void routeToProfile(String userId);
 }
 
@@ -160,6 +163,12 @@ class LikeMindsService implements ILikeMindsService {
   @override
   Future<DecodeUrlResponse> decodeUrl(DecodeUrlRequest request) async {
     return await _sdkApplication.decodeUrl(request);
+  }
+
+  @override
+  Future<GetDeleteReasonResponse> getReportTags(
+      GetDeleteReasonRequest request) async {
+    return await _sdkApplication.getReportTags(request);
   }
 
   @override

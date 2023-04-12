@@ -12,7 +12,7 @@ class DropdownOptions extends StatelessWidget {
   final List<PopupMenuItemModel> menuItems;
   final Function(bool) refresh;
 
-  DropdownOptions({
+  const DropdownOptions({
     super.key,
     required this.menuItems,
     required this.postDetails,
@@ -21,7 +21,7 @@ class DropdownOptions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Builder(builder: (ctx) {
+    return Builder(builder: (context) {
       return PopupMenuButton<int>(
         itemBuilder: (context) => menuItems
             .mapIndexed((index, element) => PopupMenuItem(
@@ -36,12 +36,13 @@ class DropdownOptions extends StatelessWidget {
                     if (element.title.split(' ').first == "Delete") {
                       showDialog(
                           context: context,
-                          builder: (childContext) => confirmationDialog(
+                          builder: (childContext) => deleteConfirmationDialog(
                                   childContext,
                                   title: 'Delete Post',
+                                  userId: postDetails.userId,
                                   content:
                                       'Are you sure you want to delete this post. This action can not be reversed.',
-                                  action: () async {
+                                  action: (String reason) async {
                                 Navigator.of(childContext).pop();
                                 final res = await locator<LikeMindsService>()
                                     .getMemberState();
@@ -59,7 +60,11 @@ class DropdownOptions extends StatelessWidget {
                                         .deletePost(
                                   (DeletePostRequestBuilder()
                                         ..postId(postDetails.id)
-                                        ..deleteReason("deleteReason"))
+                                        ..deleteReason(
+                                          reason.isEmpty
+                                              ? "Reason for deletion"
+                                              : reason,
+                                        ))
                                       .build(),
                                 );
                                 print(response.toString());
