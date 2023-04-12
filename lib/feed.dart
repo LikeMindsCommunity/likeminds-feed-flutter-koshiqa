@@ -26,6 +26,7 @@ export 'src/views/new_post/new_post_screen.dart';
 export 'src/views/following_tab/following_tab_screen.dart';
 export 'src/services/service_locator.dart';
 export 'src/utils/notification_handler.dart';
+export 'src/utils/analytics/analytics.dart';
 
 const _prodFlag = true;
 
@@ -221,6 +222,20 @@ class _LMFeedState extends State<LMFeed> {
               ),
             );
           } else {}
+        } else if (snapshot.hasError) {
+          print("Error - ${snapshot.error}");
+          return Container(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            color: kBackgroundColor,
+            child: const Center(
+              child: Text("An error has occured",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                  )),
+            ),
+          );
         }
         return Container(
           height: MediaQuery.of(context).size.height,

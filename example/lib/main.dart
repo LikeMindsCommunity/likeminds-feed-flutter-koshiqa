@@ -1,6 +1,5 @@
 import 'package:feed_sx/feed.dart';
 import 'package:feed_example/cred_screen.dart';
-import 'package:feed_example/likeminds_callback.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
