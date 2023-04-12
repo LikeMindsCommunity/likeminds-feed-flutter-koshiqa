@@ -22,14 +22,12 @@ class LikesScreenArguments {
 }
 
 class NewPostScreenArguments {
-  final User user;
   final int feedroomId;
   final String feedRoomTitle;
   String? populatePostText;
   List<MediaModel>? populatePostMedia;
   bool isCm;
   NewPostScreenArguments({
-    required this.user,
     required this.feedroomId,
     required this.feedRoomTitle,
     required this.isCm,
