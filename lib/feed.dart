@@ -5,6 +5,7 @@ library feed;
 import 'package:feed_sx/src/utils/branding/lm_branding.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/credentials/credentials.dart';
+import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
 import 'package:feed_sx/src/views/feed/feedroom_list_screen.dart';
 import 'package:feed_sx/src/views/new_post/feedroom_select.dart';
@@ -123,6 +124,7 @@ class _LMFeedState extends State<LMFeed> {
           InitiateUserResponse response = snapshot.data;
           if (response.success) {
             user = response.initiateUser?.user;
+            UserLocalPreference.instance.storeUserData(user!);
             LMNotificationHandler.instance.registerDevice(user!.id);
             return BlocProvider(
               create: (context) => NewPostBloc(),
@@ -196,8 +198,10 @@ class _LMFeedState extends State<LMFeed> {
                   builder: (BuildContext context, AsyncSnapshot snapshot) {
                     if (snapshot.hasData) {
                       if (snapshot.data) {
+                        UserLocalPreference.instance.storeMemberState(true);
                         return FeedRoomListScreen(user: user!);
                       } else {
+                        UserLocalPreference.instance.storeMemberState(false);
                         return FeedRoomScreen(
                           isCm: snapshot.data,
                           user: user!,
