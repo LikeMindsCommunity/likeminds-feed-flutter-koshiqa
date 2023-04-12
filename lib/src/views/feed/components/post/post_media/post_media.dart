@@ -83,7 +83,6 @@ class _PostMediaState extends State<PostMedia> {
                           children: [
                             PostVideo(
                               videoFile: e.mediaFile,
-                              width: widget.height ?? screenSize!.width,
                             ),
                             Positioned(
                               top: 5,
@@ -143,7 +142,6 @@ class _PostMediaState extends State<PostMedia> {
                       } else if ((e.attachmentType == 2)) {
                         return PostVideo(
                           url: e.attachmentMeta.url,
-                          width: widget.height ?? screenSize!.width,
                         );
                       } else {
                         return const SizedBox.shrink();
