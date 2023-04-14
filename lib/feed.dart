@@ -28,6 +28,7 @@ export 'src/views/new_post/new_post_screen.dart';
 export 'src/services/service_locator.dart';
 export 'src/utils/notification_handler.dart';
 export 'src/utils/analytics/analytics.dart';
+export 'src/utils/share/share_post.dart';
 
 /// Flutter environment manager v0.0.1
 const _prodFlag = !bool.fromEnvironment('DEBUG');
@@ -35,9 +36,11 @@ const _prodFlag = !bool.fromEnvironment('DEBUG');
 class LMFeed extends StatefulWidget {
   final String? userId;
   final String? userName;
+  final String domain;
   final int defaultFeedroom;
   final String apiKey;
-  final LMSDKCallback callback;
+  final LMSdkCallback callback;
+  final Function() deepLinkCallBack;
 
   static LMFeed? _instance;
 
@@ -48,8 +51,10 @@ class LMFeed extends StatefulWidget {
   static LMFeed instance({
     String? userId,
     String? userName,
+    required String domain,
     required int defaultFeedroom,
-    required LMSDKCallback callback,
+    required LMSdkCallback callback,
+    required Function() deepLinkCallBack,
     required String apiKey,
   }) {
     setupLMFeed(callback, apiKey);
@@ -57,7 +62,9 @@ class LMFeed extends StatefulWidget {
       userId: userId,
       userName: userName,
       defaultFeedroom: defaultFeedroom,
+      domain: domain,
       callback: callback,
+      deepLinkCallBack: deepLinkCallBack,
       apiKey: apiKey,
     );
   }
@@ -66,9 +73,11 @@ class LMFeed extends StatefulWidget {
     Key? key,
     this.userId,
     this.userName,
+    required this.domain,
     required this.defaultFeedroom,
     required this.callback,
     required this.apiKey,
+    required this.deepLinkCallBack,
   }) : super(key: key);
 
   @override
@@ -80,11 +89,13 @@ class _LMFeedState extends State<LMFeed> {
   late final String userId;
   late final String userName;
   late final bool isProd;
+  late final String domain;
 
   @override
   void initState() {
     super.initState();
     isProd = _prodFlag;
+    domain = widget.domain;
     userId = widget.userId!.isEmpty
         ? isProd
             ? CredsProd.botId
@@ -118,7 +129,9 @@ class _LMFeedState extends State<LMFeed> {
           InitiateUserResponse response = snapshot.data;
           if (response.success) {
             user = response.initiateUser?.user;
+            LMFeed._instance!.deepLinkCallBack();
             UserLocalPreference.instance.storeUserData(user!);
+            UserLocalPreference.instance.storeAppDomain(domain);
             LMNotificationHandler.instance.registerDevice(user!.id);
             return BlocProvider(
               create: (context) => NewPostBloc(),

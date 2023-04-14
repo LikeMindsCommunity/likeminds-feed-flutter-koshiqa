@@ -156,7 +156,7 @@ class _PostActionsState extends State<PostActions> {
               label: Text(
                 comments > 0
                     ? "$comments ${comments > 1 ? " Comments" : " Comment"}"
-                    : "Comment",
+                    : "Add Comment",
                 style: const TextStyle(fontSize: 14),
               ),
               style: ButtonStyle(
