@@ -1,4 +1,4 @@
-import 'package:feed_sx/src/views/feed/feedroom_screen.dart';
+import 'package:feed_sx/src/utils/share/share_post.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
@@ -149,7 +149,7 @@ class _PostActionsState extends State<PostActions> {
               label: Text(
                 comments > 0
                     ? "$comments ${comments > 1 ? " Comments" : " Comment"}"
-                    : "Comment",
+                    : "Add Comment",
                 style: const TextStyle(fontSize: 14),
               ),
               style: ButtonStyle(
@@ -162,19 +162,22 @@ class _PostActionsState extends State<PostActions> {
           ],
         ),
         // TODO: Add bookmark and share icons
-        // const Spacer(),
-        // Row(
-        //   children: [
-        //     IconButton(
-        //       onPressed: () {},
-        //       icon: SvgPicture.asset(kAssetBookmarkIcon),
-        //     ),
-        //     IconButton(
-        //       onPressed: () {},
-        //       icon: SvgPicture.asset(kAssetShareIcon),
-        //     ),
-        //   ],
-        // ),
+        const Spacer(),
+        Row(
+          children: [
+            // IconButton(
+            //   onPressed: () {},
+            //   icon: SvgPicture.asset(kAssetBookmarkIcon),
+            // ),
+            IconButton(
+              onPressed: () {
+                SharePost().sharePost(postDetails!.id);
+              },
+              icon: SvgPicture.asset(kAssetShareIcon),
+            ),
+          ],
+        ),
+        kHorizontalPaddingSmall,
       ],
     );
   }
