@@ -26,14 +26,19 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
           StreamController<double> progress =
               StreamController<double>.broadcast();
           progress.add(0);
-          emit(
-            NewPostUploading(
-              progress: progress.stream,
-              thumbnailMedia: postMedia != null ? postMedia[0] : null,
-            ),
-          );
+
           // Upload post media to s3 and add links as Attachments
-          if (postMedia != null) {
+          if (postMedia != null && postMedia.isNotEmpty) {
+            emit(
+              NewPostUploading(
+                progress: progress.stream,
+                thumbnailMedia: postMedia == null || postMedia.isEmpty
+                    ? null
+                    : postMedia[0].mediaType == MediaType.link
+                        ? null
+                        : postMedia[0],
+              ),
+            );
             for (final media in postMedia) {
               if (media.mediaType == MediaType.link) {
                 attachments.add(
@@ -85,6 +90,12 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
                 documentCount++;
               }
             }
+          } else {
+            emit(
+              NewPostUploading(
+                progress: progress.stream,
+              ),
+            );
           }
           final AddPostRequest request = (AddPostRequestBuilder()
                 ..text(event.postText)
@@ -127,8 +138,7 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
             emit(NewPostUploaded(
                 postData: response.post!, userData: response.user!));
           } else {
-            emit(NewPostError(
-                message: response.errorMessage ?? 'An error occurred'));
+            emit(NewPostError(message: response.errorMessage!));
           }
         } catch (err) {
           emit(const NewPostError(message: 'An error occurred'));

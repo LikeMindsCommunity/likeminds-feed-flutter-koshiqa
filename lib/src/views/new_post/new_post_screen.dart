@@ -2,10 +2,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
+import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_document.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_helper.dart';
@@ -21,7 +20,6 @@ import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:feed_sx/src/widgets/profile_picture.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
-import 'package:feed_sx/src/views/feed/blocs/feedroom/feedroom_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:likeminds_feed/likeminds_feed.dart';
@@ -56,7 +54,6 @@ class NewPostScreen extends StatefulWidget {
   static const String route = "/new_post_screen";
   final int feedRoomId;
   final String feedRoomTitle;
-  final User user;
   final bool isCm;
   final String? populatePostText;
   final List<MediaModel>? populatePostMedia;
@@ -65,7 +62,6 @@ class NewPostScreen extends StatefulWidget {
     super.key,
     required this.feedRoomId,
     required this.feedRoomTitle,
-    required this.user,
     required this.isCm,
     this.populatePostText,
     this.populatePostMedia,
@@ -101,7 +97,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
   @override
   void initState() {
     super.initState();
-    user = widget.user;
+    user = UserLocalPreference.instance.fetchUserData();
     _controller = TextEditingController();
     feedRoomId = widget.feedRoomId;
     if (widget.populatePostMedia != null &&
@@ -366,7 +362,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                             postText: result ?? '',
                             feedRoomId: feedRoomId,
                             postMedia: postMedia,
-                            user: widget.user,
+                            user: user,
                           ));
                           locator<NavigationService>().goBack(result: {
                             "isBack": true,

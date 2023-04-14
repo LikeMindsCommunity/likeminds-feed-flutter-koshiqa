@@ -12,8 +12,7 @@ import 'package:chewie/chewie.dart';
 class PostVideo extends StatefulWidget {
   final String? url;
   final File? videoFile;
-  final double width;
-  const PostVideo({super.key, this.url, required this.width, this.videoFile});
+  const PostVideo({super.key, this.url, this.videoFile});
 
   @override
   State<PostVideo> createState() => _PostVideoState();
@@ -29,6 +28,7 @@ class _PostVideoState extends State<PostVideo>
 
   @override
   void dispose() {
+    _timer?.cancel();
     videoPlayerController.dispose();
     chewieController.dispose();
     super.dispose();
@@ -67,6 +67,7 @@ class _PostVideoState extends State<PostVideo>
 
   @override
   Widget build(BuildContext context) {
+    Size screenSize = MediaQuery.of(context).size;
     return FutureBuilder(
         future: initialiseControllers(),
         builder: (context, snapshot) {
@@ -82,8 +83,8 @@ class _PostVideoState extends State<PostVideo>
                     });
                   },
                   child: Container(
-                    width: widget.width,
-                    height: widget.width,
+                    width: screenSize.width,
+                    height: screenSize.width,
                     color: kWhiteColor,
                     alignment: Alignment.center,
                     child: AspectRatio(
