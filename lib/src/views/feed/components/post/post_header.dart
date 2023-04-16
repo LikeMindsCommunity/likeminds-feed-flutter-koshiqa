@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 
 class PostHeader extends StatelessWidget {
   final User user;
+  final int feedRoomId;
   final Post postDetails;
   final List<PopupMenuItemModel> menuItems;
   final Function(bool) refresh;
@@ -17,6 +18,7 @@ class PostHeader extends StatelessWidget {
       required this.user,
       required this.menuItems,
       required this.postDetails,
+      required this.feedRoomId,
       required this.refresh});
 
   void removeReportIntegration() {
@@ -31,7 +33,7 @@ class PostHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     removeReportIntegration();
-    final bool isEdited = postDetails.createdAt != postDetails.updatedAt;
+    final bool isEdited = postDetails.isEdited;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: SizedBox(
@@ -147,6 +149,7 @@ class PostHeader extends StatelessWidget {
                         menuItems: menuItems,
                         postDetails: postDetails,
                         refresh: refresh,
+                        feedRoomId: feedRoomId,
                       )
                     : const SizedBox()
               ],

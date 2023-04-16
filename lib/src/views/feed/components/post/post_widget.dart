@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 
 class PostWidget extends StatefulWidget {
   final Post postDetails;
+  final int feedRoomId;
   final User user;
   final int postType;
   final bool showActions;
@@ -19,6 +20,7 @@ class PostWidget extends StatefulWidget {
     required this.postType,
     this.showActions = true,
     required this.postDetails,
+    required this.feedRoomId,
     required this.user,
     required this.refresh,
     this.isFeed = true,
@@ -64,6 +66,7 @@ class _PostWidgetState extends State<PostWidget> {
               menuItems: postDetails!.menuItems,
               postDetails: postDetails!,
               refresh: refresh!,
+              feedRoomId: widget.feedRoomId,
             ),
             PostDescription(
               text: postDetails!.text,

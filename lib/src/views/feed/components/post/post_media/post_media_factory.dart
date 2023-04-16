@@ -21,7 +21,8 @@ class PostMediaFactory extends StatelessWidget {
     if (attachments!.isEmpty) {
       return const SizedBox.shrink();
     } else if (attachments!.first.attachmentType == 3) {
-      return postDocumentFactory(attachments, screenSize.width);
+      return PostDocumentFactory(
+          attachments: attachments, width: screenSize.width);
     } else if (attachments!.first.attachmentType == 4) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
