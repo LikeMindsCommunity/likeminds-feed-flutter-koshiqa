@@ -275,13 +275,13 @@ class _FeedRoomViewState extends State<FeedRoomView> {
           BlocConsumer<NewPostBloc, NewPostState>(
             bloc: newPostBloc,
             listener: (prev, curr) {
-              if (curr is NewPostUploading) {
+              if (curr is NewPostUploading || curr is EditPostUploading) {
                 // if current state is uploading
                 // change postUploading flag to true
                 // to block new post creation
                 postUploading.value = true;
               }
-              if (prev is NewPostUploading) {
+              if (prev is NewPostUploading || prev is EditPostUploading) {
                 // if state has changed from uploading
                 // change postUploading flag to false
                 // to allow new post creation
@@ -302,6 +302,19 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                 postUploading.value = false;
                 rebuildPostWidget.value = !rebuildPostWidget.value;
               }
+              if (curr is EditPostUploaded) {
+                Post? item = curr.postData;
+                List<Post>? feedRoomItemList =
+                    widget.feedRoomPagingController.itemList;
+                int index = feedRoomItemList
+                        ?.indexWhere((element) => element.id == item.id) ??
+                    -1;
+                if (index != -1) {
+                  feedRoomItemList?[index] = item;
+                }
+                postUploading.value = false;
+                rebuildPostWidget.value = !rebuildPostWidget.value;
+              }
               if (curr is NewPostError) {
                 postUploading.value = false;
                 toast(
@@ -311,6 +324,37 @@ class _FeedRoomViewState extends State<FeedRoomView> {
               }
             },
             builder: (context, state) {
+              if (state is EditPostUploading) {
+                return Container(
+                  height: 60,
+                  color: kWhiteColor,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: const <Widget>[
+                          SizedBox(
+                            width: 50,
+                            height: 50,
+                          ),
+                          kHorizontalPaddingMedium,
+                          Text('Saving')
+                        ],
+                      ),
+                      const CircularProgressIndicator(
+                        backgroundColor: kGrey3Color,
+                        valueColor: AlwaysStoppedAnimation(kPrimaryColor),
+                        strokeWidth: 3,
+                      ),
+                    ],
+                  ),
+                );
+              }
               if (state is NewPostUploading) {
                 return Container(
                   height: 60,
@@ -412,6 +456,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                         return PostWidget(
                           postType: 1,
                           postDetails: rebuildPostData,
+                          feedRoomId: widget.feedRoom.id,
                           user: widget.feedResponse.users[item.userId]!,
                           refresh: (bool isDeleted) async {
                             if (!isDeleted) {

@@ -16,11 +16,20 @@ class NewPostUploading extends NewPostState {
   const NewPostUploading({required this.progress, this.thumbnailMedia});
 }
 
+class EditPostUploading extends NewPostState {}
+
 class NewPostUploaded extends NewPostState {
   final Post postData;
   final Map<String, User> userData;
 
   const NewPostUploaded({required this.postData, required this.userData});
+}
+
+class EditPostUploaded extends NewPostState {
+  final Post postData;
+  final Map<String, User> userData;
+
+  const EditPostUploaded({required this.postData, required this.userData});
 }
 
 class NewPostError extends NewPostState {
