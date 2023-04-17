@@ -1,3 +1,5 @@
+import 'package:feed_sx/feed.dart';
+import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_actions.dart';
@@ -53,36 +55,45 @@ class _PostWidgetState extends State<PostWidget> {
   @override
   Widget build(BuildContext context) {
     setPostValues();
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Container(
-        color: kWhiteColor,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            PostHeader(
-              user: user,
-              menuItems: postDetails!.menuItems,
-              postDetails: postDetails!,
-              refresh: refresh!,
-              feedRoomId: widget.feedRoomId,
-            ),
-            PostDescription(
-              text: postDetails!.text,
-            ),
-            PostMediaFactory(
-              attachments: postDetails!.attachments,
-              postId: postDetails!.id,
-            ),
-            showActions
-                ? PostActions(
-                    postDetails: postDetails!,
-                    refresh: refresh!,
-                    isFeed: isFeed,
-                  )
-                : const SizedBox.shrink()
-          ],
+    return GestureDetector(
+      onTap: () => locator<NavigationService>().navigateTo(
+        AllCommentsScreen.route,
+        arguments: AllCommentsScreenArguments(
+          post: postDetails!,
+          feedroomId: widget.feedRoomId,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Container(
+          color: kWhiteColor,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              PostHeader(
+                user: user,
+                menuItems: postDetails!.menuItems,
+                postDetails: postDetails!,
+                refresh: refresh!,
+                feedRoomId: widget.feedRoomId,
+              ),
+              PostDescription(
+                text: postDetails!.text,
+              ),
+              PostMediaFactory(
+                attachments: postDetails!.attachments,
+                postId: postDetails!.id,
+              ),
+              showActions
+                  ? PostActions(
+                      postDetails: postDetails!,
+                      refresh: refresh!,
+                      isFeed: isFeed,
+                    )
+                  : const SizedBox.shrink()
+            ],
+          ),
         ),
       ),
     );
