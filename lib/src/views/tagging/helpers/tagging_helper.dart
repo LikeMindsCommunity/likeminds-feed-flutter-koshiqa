@@ -66,8 +66,7 @@ class TaggingHelper {
     for (final match in matches) {
       final String tag = match.group(1)!;
       final String id = match.group(2)!;
-      text = text.replaceAll(
-          '<<$tag|route://member/$id>>', withTilde ? '@$tag~' : '@$tag');
+      text = text.replaceAll('<<$tag|route://member/$id>>', '@$tag~');
     }
     return text;
   }
