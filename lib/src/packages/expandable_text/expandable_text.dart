@@ -421,7 +421,7 @@ class ExpandableTextState extends State<ExpandableText>
   }
 
   String getSubstring(String input) {
-    if (input.length <= 500) {
+    if (input.length <= 305) {
       return input;
     }
 
@@ -436,7 +436,7 @@ class ExpandableTextState extends State<ExpandableText>
     // Find the last match that occurs before the 500th character
     var lastMatch;
     for (var match in matches) {
-      if (match.end <= 500) {
+      if (match.start > 250 && match.end <= 305) {
         lastMatch = match;
       } else {
         break;
@@ -449,6 +449,6 @@ class ExpandableTextState extends State<ExpandableText>
     }
 
     // If no match was found, break the string at the 500th character
-    return input.substring(0, 500);
+    return input.substring(0, 305);
   }
 }
