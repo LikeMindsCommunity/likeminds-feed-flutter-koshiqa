@@ -106,13 +106,15 @@ class DropdownOptions extends StatelessWidget {
           }
           if (value == "Edit") {
             print('Editing functionality');
-            locator<NavigationService>().navigateTo(
+            await locator<NavigationService>().navigateTo(
               EditPostScreen.route,
               arguments: EditPostScreenArguments(
                 feedRoomId: feedRoomId,
                 postId: postDetails.id,
               ),
             );
+            await Future.delayed(const Duration(seconds: 1));
+            refresh(false);
           }
         },
         itemBuilder: (context) => menuItems
