@@ -75,6 +75,7 @@ class _FeedScreenState extends State<FeedScreen> {
               builderDelegate: PagedChildBuilderDelegate<Post>(
                 itemBuilder: (context, item, index) => PostWidget(
                   postType: 1,
+                  feedRoomId: DUMMY_FEEDROOMS.first,
                   postDetails: item,
                   user: feedResponse.users[item.userId]!,
                   refresh: refresh(),

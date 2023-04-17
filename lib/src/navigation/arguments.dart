@@ -36,6 +36,16 @@ class NewPostScreenArguments {
   });
 }
 
+class EditPostScreenArguments {
+  String postId;
+  int feedRoomId;
+
+  EditPostScreenArguments({
+    required this.postId,
+    required this.feedRoomId,
+  });
+}
+
 class MediaPreviewArguments {
   final String postId;
   final List<Attachment>? attachments;

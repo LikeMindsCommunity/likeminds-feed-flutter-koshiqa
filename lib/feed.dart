@@ -7,6 +7,7 @@ import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/credentials/credentials.dart';
 import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
+import 'package:feed_sx/src/views/feed/edit_post/edit_post_screen.dart';
 import 'package:feed_sx/src/views/feed/feedroom_list_screen.dart';
 import 'package:feed_sx/src/views/new_post/feedroom_select.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
@@ -187,6 +188,18 @@ class _LMFeedState extends State<LMFeed> {
                           isCm: args.isCm,
                           populatePostMedia: args.populatePostMedia,
                           populatePostText: args.populatePostText,
+                        );
+                      },
+                    );
+                  }
+
+                  if (settings.name == EditPostScreen.route) {
+                    final args = settings.arguments as EditPostScreenArguments;
+                    return MaterialPageRoute(
+                      builder: (context) {
+                        return EditPostScreen(
+                          postId: args.postId,
+                          feedRoomId: args.feedRoomId,
                         );
                       },
                     );

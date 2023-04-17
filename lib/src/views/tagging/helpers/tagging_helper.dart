@@ -58,6 +58,32 @@ class TaggingHelper {
     // }
     locator<LikeMindsService>().routeToProfile(userId);
   }
+
+  static String convertRouteToTag(String text, {bool withTilde = true}) {
+    final Iterable<RegExpMatch> matches =
+        RegExp(r'<<([a-z\sA-Z]+)\|route://member/([a-zA-Z-0-9]+)>>')
+            .allMatches(text);
+    for (final match in matches) {
+      final String tag = match.group(1)!;
+      final String id = match.group(2)!;
+      text = text.replaceAll(
+          '<<$tag|route://member/$id>>', withTilde ? '@$tag~' : '@$tag');
+    }
+    return text;
+  }
+
+  static List<UserTag> addUserTagsIfMatched(String input) {
+    final Iterable<RegExpMatch> matches =
+        RegExp(r'<<([a-z\sA-Z]+)\|route://member/([a-zA-Z-0-9]+)>>')
+            .allMatches(input);
+    List<UserTag> userTags = [];
+    for (final match in matches) {
+      final String tag = match.group(1)!;
+      final String id = match.group(2)!;
+      userTags.add(UserTag(userUniqueId: id, name: tag));
+    }
+    return userTags;
+  }
 }
 
 List<String> extractLinkFromString(String text) {
