@@ -31,7 +31,7 @@ class TaggingHelper {
       final String tag = match.group(1)!;
       final String id = match.group(2)!;
       string = string.replaceAll('<<$tag|route://member/$id>>', '@$tag~');
-      result.addAll({tag: id});
+      result.addAll({'@$tag': id});
     }
     return result;
   }
