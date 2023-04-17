@@ -416,13 +416,16 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                 builder: (context, _, __) {
                                   return PostWidget(
                                     postDetails: postData!,
+                                    feedRoomId: widget.feedRoomId,
                                     user: postDetailResponse.users[
                                         postDetailResponse.postReplies.userId]!,
                                     postType: 0,
                                     isFeed: false,
                                     refresh: (bool isDeleted) {
-                                      locator<NavigationService>().goBack(
-                                          result: {'isBack': isDeleted});
+                                      if (isDeleted) {
+                                        locator<NavigationService>().goBack(
+                                            result: {'isBack': isDeleted});
+                                      }
                                     },
                                   );
                                 })),

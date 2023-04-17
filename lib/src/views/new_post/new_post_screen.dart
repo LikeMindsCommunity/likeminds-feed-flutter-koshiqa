@@ -362,7 +362,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
                             postText: result ?? '',
                             feedRoomId: feedRoomId,
                             postMedia: postMedia,
-                            user: user,
                           ));
                           locator<NavigationService>().goBack(result: {
                             "isBack": true,

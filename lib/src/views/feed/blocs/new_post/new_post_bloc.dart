@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:equatable/equatable.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
+import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
@@ -17,6 +18,7 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
       if (event is CreateNewPost) {
         try {
           List<MediaModel>? postMedia = event.postMedia;
+          User user = UserLocalPreference.instance.fetchUserData();
           int imageCount = 0;
           int videoCount = 0;
           int documentCount = 0;
@@ -58,7 +60,7 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
                 File mediaFile = media.mediaFile!;
                 index += 1;
                 final String? response = await locator<LikeMindsService>()
-                    .uploadFile(mediaFile, event.user!.userUniqueId);
+                    .uploadFile(mediaFile, user.userUniqueId);
                 if (response != null) {
                   attachments.add(Attachment(
                     attachmentType: media.mapMediaTypeToInt(),
@@ -143,6 +145,41 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
         } catch (err) {
           emit(const NewPostError(message: 'An error occurred'));
           print(err.toString());
+        }
+      }
+      if (event is EditPost) {
+        try {
+          emit(EditPostUploading());
+          List<Attachment>? attachments = event.attachments;
+          String postText = event.postText;
+
+          var response = await locator<LikeMindsService>()
+              .editPost((EditPostRequestBuilder()
+                    ..attachments(attachments ?? [])
+                    ..postId(event.postId)
+                    ..postText(postText))
+                  .build());
+
+          if (response.success) {
+            emit(
+              EditPostUploaded(
+                postData: response.post!,
+                userData: response.user!,
+              ),
+            );
+          } else {
+            emit(
+              NewPostError(
+                message: response.errorMessage!,
+              ),
+            );
+          }
+        } catch (err) {
+          emit(
+            const NewPostError(
+              message: 'An error occured while saving the post',
+            ),
+          );
         }
       }
     });

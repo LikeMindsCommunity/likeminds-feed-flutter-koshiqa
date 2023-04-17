@@ -251,14 +251,9 @@ class ExpandableTextState extends State<ExpandableText>
               : TextSpan(
                   children: _expanded
                       ? extractLinksAndTags(widget.text)
-                      : widget.text.contains('<<')
-                          ? extractLinksAndTags(
-                              TaggingHelper.decodeString(widget.text)
-                                  .keys
-                                  .first
-                                  .substring(0, max(endOffset, 0)))
-                          : extractLinksAndTags(
-                              widget.text.substring(0, max(endOffset, 0))),
+                      : extractLinksAndTags(
+                          TaggingHelper.convertRouteToTag(widget.text)
+                              .substring(0, max(endOffset, 0))),
                 );
 
           textSpan = TextSpan(
@@ -398,7 +393,11 @@ class ExpandableTextState extends State<ExpandableText>
       bool isTag = link != null && link[0] == '<';
       // Add a TextSpan for the URL
       textSpans.add(TextSpan(
-        text: isTag ? TaggingHelper.decodeString(link).keys.first : link,
+        text: isTag
+            ? TaggingHelper.decodeString(link).keys.first
+            : (link!.startsWith('@') && link.endsWith('~')
+                ? link.substring(1).split('~')[0]
+                : link),
         style: widget.linkStyle ?? const TextStyle(color: Colors.blue),
         recognizer: TapGestureRecognizer()
           ..onTap = () async {
