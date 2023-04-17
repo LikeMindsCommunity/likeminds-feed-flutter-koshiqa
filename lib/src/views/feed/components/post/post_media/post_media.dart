@@ -33,11 +33,113 @@ class PostMedia extends StatefulWidget {
 class _PostMediaState extends State<PostMedia> {
   Size? screenSize;
   int currPosition = 0;
+  CarouselController controller = CarouselController();
+  ValueNotifier<bool> rebuildCurr = ValueNotifier<bool>(false);
+  List<Widget> mediaWidgets = [];
   // Current index of carousel
 
   bool checkIfMultipleAttachments() {
     return ((widget.attachments != null && widget.attachments!.length > 1) ||
         (widget.mediaFiles != null && widget.mediaFiles!.length > 1));
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    mediaWidgets = widget.attachments == null
+        ? widget.mediaFiles!.map((e) {
+            if (e.mediaType == MediaType.image) {
+              return Stack(
+                children: [
+                  Image.file(
+                    e.mediaFile!,
+                    fit: BoxFit.contain,
+                  ),
+                  Positioned(
+                    top: 5,
+                    right: 5,
+                    child: GestureDetector(
+                        onTap: () {
+                          int fileIndex = widget.mediaFiles!.indexOf(e);
+                          if (fileIndex == widget.mediaFiles!.length - 1) {
+                            currPosition -= 1;
+                          }
+                          widget.removeAttachment!(fileIndex);
+                          setState(() {});
+                        },
+                        child: const CloseIcon()),
+                  )
+                ],
+              );
+            } else if (e.mediaType == MediaType.video) {
+              return Stack(
+                children: [
+                  PostVideo(
+                    videoFile: e.mediaFile,
+                  ),
+                  Positioned(
+                    top: 5,
+                    right: 5,
+                    child: GestureDetector(
+                      onTap: () {
+                        int fileIndex = widget.mediaFiles!.indexOf(e);
+                        if (fileIndex == widget.mediaFiles!.length - 1) {
+                          currPosition -= 1;
+                        }
+                        widget.removeAttachment!(fileIndex);
+                        setState(() {});
+                      },
+                      child: const CloseIcon(),
+                    ),
+                  )
+                ],
+              );
+            }
+            return const SizedBox.shrink();
+          }).toList()
+        : widget.attachments!.map((e) {
+            if (e.attachmentType == 1) {
+              return CachedNetworkImage(
+                imageUrl: e.attachmentMeta.url!,
+                fit: BoxFit.contain,
+                fadeInDuration: const Duration(
+                  milliseconds: 200,
+                ),
+                errorWidget: (context, url, error) {
+                  return Container(
+                    color: kBackgroundColor,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(
+                          Icons.error_outline,
+                          size: 24,
+                          color: kGrey3Color,
+                        ),
+                        SizedBox(height: 24),
+                        Text(
+                          "An error occurred fetching media",
+                          style: TextStyle(
+                            fontSize: 14,
+                          ),
+                        )
+                      ],
+                    ),
+                  );
+                },
+                progressIndicatorBuilder: (context, url, progress) =>
+                    const PostShimmer(),
+              );
+            } else if ((e.attachmentType == 2)) {
+              return PostVideo(
+                url: e.attachmentMeta.url,
+              );
+            } else {
+              return const SizedBox.shrink();
+            }
+          }).toList();
   }
 
   @override
@@ -50,103 +152,9 @@ class _PostMediaState extends State<PostMedia> {
           SizedBox(
             width: widget.height ?? screenSize!.width,
             height: widget.height ?? screenSize!.width,
-            child: CarouselSlider(
-              items: widget.attachments == null
-                  ? widget.mediaFiles!.map((e) {
-                      if (e.mediaType == MediaType.image) {
-                        return Stack(
-                          children: [
-                            Image.file(
-                              e.mediaFile!,
-                              fit: BoxFit.contain,
-                            ),
-                            Positioned(
-                              top: 5,
-                              right: 5,
-                              child: GestureDetector(
-                                  onTap: () {
-                                    int fileIndex =
-                                        widget.mediaFiles!.indexOf(e);
-                                    if (fileIndex ==
-                                        widget.mediaFiles!.length - 1) {
-                                      currPosition -= 1;
-                                    }
-                                    widget.removeAttachment!(fileIndex);
-                                    setState(() {});
-                                  },
-                                  child: const CloseIcon()),
-                            )
-                          ],
-                        );
-                      } else if (e.mediaType == MediaType.video) {
-                        return Stack(
-                          children: [
-                            PostVideo(
-                              videoFile: e.mediaFile,
-                            ),
-                            Positioned(
-                              top: 5,
-                              right: 5,
-                              child: GestureDetector(
-                                onTap: () {
-                                  int fileIndex = widget.mediaFiles!.indexOf(e);
-                                  if (fileIndex ==
-                                      widget.mediaFiles!.length - 1) {
-                                    currPosition -= 1;
-                                  }
-                                  widget.removeAttachment!(fileIndex);
-                                  setState(() {});
-                                },
-                                child: const CloseIcon(),
-                              ),
-                            )
-                          ],
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    }).toList()
-                  : widget.attachments!.map((e) {
-                      if (e.attachmentType == 1) {
-                        return CachedNetworkImage(
-                          imageUrl: e.attachmentMeta.url!,
-                          fit: BoxFit.contain,
-                          fadeInDuration: const Duration(
-                            milliseconds: 200,
-                          ),
-                          errorWidget: (context, url, error) {
-                            return Container(
-                              color: kBackgroundColor,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  Icon(
-                                    Icons.error_outline,
-                                    size: 24,
-                                    color: kGrey3Color,
-                                  ),
-                                  SizedBox(height: 24),
-                                  Text(
-                                    "An error occurred fetching media",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                    ),
-                                  )
-                                ],
-                              ),
-                            );
-                          },
-                          progressIndicatorBuilder: (context, url, progress) =>
-                              const PostShimmer(),
-                        );
-                      } else if ((e.attachmentType == 2)) {
-                        return PostVideo(
-                          url: e.attachmentMeta.url,
-                        );
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    }).toList(),
+            child: CarouselSlider.builder(
+              itemCount: mediaWidgets.length,
+              itemBuilder: (context, index, index2) => mediaWidgets[index],
               options: CarouselOptions(
                   aspectRatio: 1.0,
                   initialPage: 0,
@@ -156,51 +164,62 @@ class _PostMediaState extends State<PostMedia> {
                   enlargeFactor: 0.0,
                   viewportFraction: 1.0,
                   onPageChanged: (index, reason) {
-                    setState(() {
-                      currPosition = index;
-                    });
+                    currPosition = index;
+                    rebuildCurr.value = !rebuildCurr.value;
                   }),
             ),
           ),
-          checkIfMultipleAttachments()
-              ? kVerticalPaddingMedium
-              : const SizedBox(),
-          checkIfMultipleAttachments()
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: widget.attachments != null
-                      ? widget.attachments!.map((url) {
-                          int index = widget.attachments!.indexOf(url);
-                          return Container(
-                            width: 8.0,
-                            height: 8.0,
-                            margin: const EdgeInsets.symmetric(
-                                vertical: 7.0, horizontal: 2.0),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: currPosition == index
-                                  ? const Color.fromRGBO(0, 0, 0, 0.9)
-                                  : const Color.fromRGBO(0, 0, 0, 0.4),
-                            ),
-                          );
-                        }).toList()
-                      : widget.mediaFiles!.map((data) {
-                          int index = widget.mediaFiles!.indexOf(data);
-                          return Container(
-                            width: 8.0,
-                            height: 8.0,
-                            margin: const EdgeInsets.symmetric(
-                                vertical: 7.0, horizontal: 2.0),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: currPosition == index
-                                  ? const Color.fromRGBO(0, 0, 0, 0.9)
-                                  : const Color.fromRGBO(0, 0, 0, 0.4),
-                            ),
-                          );
-                        }).toList(),
-                )
-              : const SizedBox(),
+          ValueListenableBuilder(
+              valueListenable: rebuildCurr,
+              builder: (context, _, __) {
+                return Column(
+                  children: [
+                    checkIfMultipleAttachments()
+                        ? kVerticalPaddingMedium
+                        : const SizedBox(),
+                    checkIfMultipleAttachments()
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: widget.attachments != null
+                                ? widget.attachments!.map((url) {
+                                    int index =
+                                        widget.attachments!.indexOf(url);
+                                    return Container(
+                                      width: 8.0,
+                                      height: 8.0,
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 7.0, horizontal: 2.0),
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: currPosition == index
+                                            ? const Color.fromRGBO(0, 0, 0, 0.9)
+                                            : const Color.fromRGBO(
+                                                0, 0, 0, 0.4),
+                                      ),
+                                    );
+                                  }).toList()
+                                : widget.mediaFiles!.map((data) {
+                                    int index =
+                                        widget.mediaFiles!.indexOf(data);
+                                    return Container(
+                                      width: 8.0,
+                                      height: 8.0,
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 7.0, horizontal: 2.0),
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: currPosition == index
+                                            ? const Color.fromRGBO(0, 0, 0, 0.9)
+                                            : const Color.fromRGBO(
+                                                0, 0, 0, 0.4),
+                                      ),
+                                    );
+                                  }).toList(),
+                          )
+                        : const SizedBox(),
+                  ],
+                );
+              }),
         ],
       ),
     );
