@@ -109,6 +109,7 @@ class _PostVideoState extends State<PostVideo> {
                     }
                     if (visiblePercentage > 50) {
                       videoPlayerController.play();
+                      rebuildOverlay.value = !rebuildOverlay.value;
                     }
                   },
                   child: Container(
