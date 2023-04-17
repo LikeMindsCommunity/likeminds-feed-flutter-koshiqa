@@ -160,6 +160,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
     } else {
       if (postMedia.isEmpty) {
         isMediaPost = false;
+        showLinkPreview = true;
       }
       setState(() {
         isUploading = false;
@@ -177,6 +178,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
     } else {
       if (postMedia.isEmpty) {
         isDocumentPost = false;
+        showLinkPreview = true;
       }
       setState(() {
         isUploading = false;
@@ -238,11 +240,17 @@ class _NewPostScreenState extends State<NewPostScreen> {
           setState(() {});
         }
       }
+    } else if (link.isEmpty) {
+      linkModel = null;
+      setState(() {});
     }
   }
 
   void checkTextLinks() {
-    if (linkModel != null && postMedia.isEmpty && showLinkPreview) {
+    String link = getFirstValidLinkFromString(_controller!.text);
+    if (link.isEmpty) {
+      linkModel = null;
+    } else if (linkModel != null && postMedia.isEmpty && showLinkPreview) {
       postMedia.add(linkModel!);
     }
   }
