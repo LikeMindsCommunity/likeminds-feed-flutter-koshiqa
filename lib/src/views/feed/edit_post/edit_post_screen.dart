@@ -100,6 +100,10 @@ class _EditPostScreenState extends State<EditPostScreen> {
         );
       }
       rebuildAttachments.value = !rebuildAttachments.value;
+    } else if (link.isEmpty) {
+      linkModel = null;
+      attachments?.removeWhere((element) => element.attachmentType == 4);
+      rebuildAttachments.value = !rebuildAttachments.value;
     }
   }
 
@@ -117,7 +121,11 @@ class _EditPostScreenState extends State<EditPostScreen> {
   }
 
   void checkTextLinks() {
-    if (linkModel != null &&
+    String link = getFirstValidLinkFromString(textEditingController!.text);
+    if (link.isEmpty) {
+      linkModel = null;
+      attachments?.removeWhere((element) => element.attachmentType == 4);
+    } else if (linkModel != null &&
         showLinkPreview &&
         !isDocumentPost &&
         !isMediaPost) {
@@ -135,28 +143,36 @@ class _EditPostScreenState extends State<EditPostScreen> {
           ),
         ),
       ];
+    } else if (!showLinkPreview) {
+      attachments?.removeWhere((element) => element.attachmentType == 4);
     }
   }
 
   void setPostData(Post post) {
-    postDetails = post;
-    convertedPostText = TaggingHelper.convertRouteToTag(post.text);
-    textEditingController!.value = TextEditingValue(text: convertedPostText);
-    textEditingController!.selection = TextSelection.fromPosition(
-        TextPosition(offset: textEditingController!.text.length));
-    userTags = TaggingHelper.addUserTagsIfMatched(post.text);
-    attachments = post.attachments ?? [];
-    if (attachments != null && attachments!.isNotEmpty) {
-      if (attachments![0].attachmentType == 1 ||
-          attachments![0].attachmentType == 2) {
-        isMediaPost = true;
-        showLinkPreview = false;
-      } else if (attachments![0].attachmentType == 3) {
-        isDocumentPost = true;
-        showLinkPreview = false;
+    if (postDetails == null) {
+      postDetails = post;
+      convertedPostText = TaggingHelper.convertRouteToTag(post.text);
+      textEditingController!.value = TextEditingValue(text: convertedPostText);
+      textEditingController!.selection = TextSelection.fromPosition(
+          TextPosition(offset: textEditingController!.text.length));
+      userTags = TaggingHelper.addUserTagsIfMatched(post.text);
+      attachments = post.attachments ?? [];
+      if (attachments != null && attachments!.isNotEmpty) {
+        if (attachments![0].attachmentType == 1 ||
+            attachments![0].attachmentType == 2) {
+          isMediaPost = true;
+          showLinkPreview = false;
+        } else if (attachments![0].attachmentType == 3) {
+          isDocumentPost = true;
+          showLinkPreview = false;
+        } else if (attachments![0].attachmentType == 4) {
+          linkModel = MediaModel(
+              mediaType: MediaType.link,
+              link: attachments![0].attachmentMeta.url,
+              ogTags: attachments![0].attachmentMeta.ogTags);
+        }
       }
     }
-    handleTextLinks(convertedPostText);
   }
 
   @override
@@ -206,6 +222,9 @@ class _EditPostScreenState extends State<EditPostScreen> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: Loader());
                 } else if (snapshot.connectionState == ConnectionState.done) {
+                  if (!snapshot.hasData) {
+                    return postErrorScreen('An error occurred');
+                  }
                   GetPostResponse response = snapshot.data!;
                   if (response.success) {
                     setPostData(response.post!);
