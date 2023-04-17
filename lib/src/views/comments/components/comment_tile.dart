@@ -238,10 +238,15 @@ class _CommentTileState extends State<CommentTile>
             bloc: _commentRepliesBloc,
             builder: ((context, state) {
               if (state is CommentRepliesLoading) {
-                return const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(),
+                return const Padding(
+                  padding: EdgeInsets.only(top: 8.0),
+                  child: Center(
+                    child: SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
                 );
               }
               if (state is CommentRepliesLoaded ||
