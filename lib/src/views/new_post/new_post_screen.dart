@@ -123,6 +123,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
       if (postMedia.isEmpty) {
         isDocumentPost = false;
         isMediaPost = false;
+        showLinkPreview = true;
       }
       setState(() {});
     }
