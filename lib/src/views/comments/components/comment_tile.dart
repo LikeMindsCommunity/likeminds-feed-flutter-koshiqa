@@ -199,6 +199,7 @@ class _CommentTileState extends State<CommentTile>
                         if (_replyVisible) {
                           setState(() {
                             _replyVisible = false;
+                            page = 1;
                           });
                           return;
                         } else {
@@ -277,25 +278,41 @@ class _CommentTileState extends State<CommentTile>
                   repliesW = [];
                 }
 
-                if (replies.length % 10 == 0) {
+                if (replies.length % 10 == 0 && _replyVisible) {
                   repliesW = [
                     ...repliesW,
-                    TextButton(
-                        onPressed: () {
-                          page++;
-                          _commentRepliesBloc.add(GetCommentReplies(
-                              commentDetailRequest:
-                                  (CommentDetailRequestBuilder()
-                                        ..commentId(reply.id)
-                                        ..page(page)
-                                        ..postId(postId))
-                                      .build(),
-                              forLoadMore: true));
-                        },
-                        child: const Text(
-                          'View more replies',
-                          style: TextStyle(color: kBlueGreyColor, fontSize: 14),
-                        ))
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            page++;
+                            _commentRepliesBloc.add(GetCommentReplies(
+                                commentDetailRequest:
+                                    (CommentDetailRequestBuilder()
+                                          ..commentId(reply.id)
+                                          ..page(page)
+                                          ..postId(postId))
+                                        .build(),
+                                forLoadMore: true));
+                          },
+                          child: const Text(
+                            'View more replies',
+                            style: TextStyle(
+                              color: kBlueGreyColor,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          ' ${replies.length} of ${widget.reply.repliesCount}',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: kGrey3Color,
+                          ),
+                        )
+                      ],
+                    )
                   ];
                   // replies.add();
                 }
