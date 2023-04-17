@@ -56,13 +56,17 @@ class _PostWidgetState extends State<PostWidget> {
   Widget build(BuildContext context) {
     setPostValues();
     return GestureDetector(
-      onTap: () => locator<NavigationService>().navigateTo(
-        AllCommentsScreen.route,
-        arguments: AllCommentsScreenArguments(
-          post: postDetails!,
-          feedroomId: widget.feedRoomId,
-        ),
-      ),
+      onTap: () {
+        if (isFeed) {
+          locator<NavigationService>().navigateTo(
+            AllCommentsScreen.route,
+            arguments: AllCommentsScreenArguments(
+              post: postDetails!,
+              feedroomId: widget.feedRoomId,
+            ),
+          );
+        }
+      },
       child: Padding(
         padding: const EdgeInsets.only(bottom: 12),
         child: Container(
