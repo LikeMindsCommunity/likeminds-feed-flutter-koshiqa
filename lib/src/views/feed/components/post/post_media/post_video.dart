@@ -9,6 +9,8 @@ import 'package:feed_sx/src/views/feed/components/post/post_media/post_image_shi
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 
+import 'package:visibility_detector/visibility_detector.dart';
+
 class PostVideo extends StatefulWidget {
   final String? url;
   final File? videoFile;
@@ -23,15 +25,22 @@ class _PostVideoState extends State<PostVideo>
   late final VideoPlayerController videoPlayerController;
   late ChewieController chewieController;
   bool _onTouch = true;
+  late Future setupController;
+  bool initialiseOverlay = false;
 
   Timer? _timer;
 
   @override
   void dispose() {
     _timer?.cancel();
-    videoPlayerController.dispose();
     chewieController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    setupController = initialiseControllers();
   }
 
   initialiseControllers() async {
@@ -69,12 +78,21 @@ class _PostVideoState extends State<PostVideo>
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     return FutureBuilder(
-        future: initialiseControllers(),
+        future: setupController,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const PostShimmer();
           } else if (snapshot.connectionState == ConnectionState.done) {
             return StatefulBuilder(builder: (context, setChildState) {
+              if (!initialiseOverlay) {
+                _timer =
+                    Timer.periodic(const Duration(milliseconds: 2500), (_) {
+                  setChildState(() {
+                    initialiseOverlay = true;
+                    _onTouch = false;
+                  });
+                });
+              }
               return Stack(children: [
                 GestureDetector(
                   onTap: () {
@@ -82,18 +100,31 @@ class _PostVideoState extends State<PostVideo>
                       _onTouch = !_onTouch;
                     });
                   },
-                  child: Container(
-                    width: screenSize.width,
-                    height: screenSize.width,
-                    color: kWhiteColor,
-                    alignment: Alignment.center,
-                    child: AspectRatio(
-                      aspectRatio: chewieController
-                          .videoPlayerController.value.aspectRatio,
-                      child: FittedBox(
-                        fit: BoxFit.cover,
-                        child: Chewie(
-                          controller: chewieController,
+                  child: VisibilityDetector(
+                    key: Key('post_video_${widget.url ?? widget.videoFile}'),
+                    onVisibilityChanged: (visibilityInfo) {
+                      var visiblePercentage =
+                          visibilityInfo.visibleFraction * 100;
+                      if (visiblePercentage <= 50) {
+                        videoPlayerController.pause();
+                      }
+                      if (visiblePercentage > 50) {
+                        videoPlayerController.play();
+                      }
+                    },
+                    child: Container(
+                      width: screenSize.width,
+                      height: screenSize.width,
+                      color: kWhiteColor,
+                      alignment: Alignment.center,
+                      child: AspectRatio(
+                        aspectRatio: chewieController
+                            .videoPlayerController.value.aspectRatio,
+                        child: FittedBox(
+                          fit: BoxFit.cover,
+                          child: Chewie(
+                            controller: chewieController,
+                          ),
                         ),
                       ),
                     ),

@@ -56,6 +56,7 @@ dependencies:
   shared_preferences: ^2.1.0
   uni_links: ^0.5.1
   share_plus: ^6.3.2
+  visibility_detector: ^0.4.0+2
 
 dev_dependencies:
   flutter_test:
