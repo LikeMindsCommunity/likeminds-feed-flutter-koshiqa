@@ -237,7 +237,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
             children: [
               BackButton(
                 onPressed: () {
-                  if (textEditingController!.text != postDetails?.text) {
+                  if (textEditingController!.text != convertedPostText) {
                     showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
