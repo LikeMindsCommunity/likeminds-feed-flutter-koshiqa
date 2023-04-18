@@ -63,12 +63,28 @@ class TaggingHelper {
     final Iterable<RegExpMatch> matches =
         RegExp(r'<<([a-z\sA-Z]+)\|route://member/([a-zA-Z-0-9]+)>>')
             .allMatches(text);
+
     for (final match in matches) {
       final String tag = match.group(1)!;
       final String id = match.group(2)!;
       text = text.replaceAll('<<$tag|route://member/$id>>', '@$tag~');
     }
     return text;
+  }
+
+  static Map<String, dynamic> convertRouteToTagAndUserMap(String text,
+      {bool withTilde = true}) {
+    final Iterable<RegExpMatch> matches =
+        RegExp(r'<<([a-z\sA-Z]+)\|route://member/([a-zA-Z-0-9]+)>>')
+            .allMatches(text);
+    List<UserTag> userTags = [];
+    for (final match in matches) {
+      final String tag = match.group(1)!;
+      final String id = match.group(2)!;
+      text = text.replaceAll('<<$tag|route://member/$id>>', '@$tag~');
+      userTags.add(UserTag(userUniqueId: id, name: tag));
+    }
+    return {'text': text, 'userTags': userTags};
   }
 
   static List<UserTag> addUserTagsIfMatched(String input) {
