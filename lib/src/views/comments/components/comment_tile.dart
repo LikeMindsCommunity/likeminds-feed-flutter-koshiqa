@@ -278,7 +278,9 @@ class _CommentTileState extends State<CommentTile>
                   repliesW = [];
                 }
 
-                if (replies.length % 10 == 0 && _replyVisible) {
+                if (replies.length % 10 == 0 &&
+                    _replyVisible &&
+                    replies.length != reply.repliesCount) {
                   repliesW = [
                     ...repliesW,
                     Row(
