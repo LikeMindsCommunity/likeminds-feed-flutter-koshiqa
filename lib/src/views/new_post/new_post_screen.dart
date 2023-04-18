@@ -20,6 +20,7 @@ import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:feed_sx/src/widgets/profile_picture.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:likeminds_feed/likeminds_feed.dart';
@@ -257,6 +258,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
     screenSize = MediaQuery.of(context).size;
     newPostBloc = BlocProvider.of<NewPostBloc>(context);
     return WillPopScope(
@@ -305,353 +307,356 @@ class _NewPostScreenState extends State<NewPostScreen> {
         }
         return Future(() => false);
       },
-      child: Scaffold(
-        backgroundColor: kWhiteColor,
-        body: SafeArea(
-          child: Column(
-            children: [
-              SizedBox(
-                height: 48,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    BackButton(
-                      onPressed: () {
-                        if (postMedia.isNotEmpty ||
-                            (_controller != null &&
-                                _controller!.text.isNotEmpty)) {
-                          showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                    title: const Text('Discard Post'),
-                                    content: const Text(
-                                        'Are you sure want to discard the current post?'),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        child: const Text('No'),
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                      ),
-                                      TextButton(
-                                        child: const Text('Yes'),
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                          locator<NavigationService>().goBack(
-                                            result: {
-                                              "feedroomId": feedRoomId,
-                                              "isBack": false,
-                                              "feedRoomIds": feedRoomIds,
-                                            },
-                                          );
-                                        },
-                                      ),
-                                    ],
-                                  ));
-                        } else {
-                          locator<NavigationService>().goBack(
-                            result: {
-                              "feedroomId": feedRoomId,
-                              "isBack": false,
-                              "feedRoomIds": feedRoomIds,
-                            },
-                          );
-                        }
-                      },
-                    ),
-                    const Text(
-                      'Create a Post',
-                      style: TextStyle(fontSize: 18, color: kGrey1Color),
-                    ),
-                    TextButton(
-                      onPressed: () async {
-                        if (_controller != null &&
-                            (_controller!.text.isNotEmpty ||
-                                postMedia.isNotEmpty)) {
-                          checkTextLinks();
-                          userTags = TaggingHelper.matchTags(
-                              _controller!.text, userTags);
-                          result = TaggingHelper.encodeString(
-                              _controller!.text, userTags);
-                          newPostBloc?.add(CreateNewPost(
-                            postText: result ?? '',
-                            feedRoomId: feedRoomId,
-                            postMedia: postMedia,
-                          ));
-                          locator<NavigationService>().goBack(result: {
-                            "isBack": true,
-                          });
-                        } else {
-                          toast(
-                            "Can't create a post without text or attachments",
-                            duration: Toast.LENGTH_LONG,
-                          );
-                        }
-                      },
-                      child: const Text(
-                        'Post',
-                        style: TextStyle(
-                          color: kPrimaryColor,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              kVerticalPaddingLarge,
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 4.0,
-                ),
-                child: Row(
-                  children: [
-                    ProfilePicture(
-                        user: User(
-                      id: user.id,
-                      imageUrl: user.imageUrl,
-                      name: user.name,
-                      userUniqueId: user.userUniqueId,
-                      isGuest: user.isGuest,
-                      isDeleted: false,
-                    )),
-                    kHorizontalPaddingLarge,
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          user.name,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: kGrey1Color,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        // Multi Channel Post Upload Support
-                        // Uncomment below code to user
-                        // widget.isCm
-                        //     ? kVerticalPaddingSmall
-                        //     : const SizedBox.shrink(),
-                        // widget.isCm
-                        //     ? Row(
-                        //         children: [
-                        //           const Text(
-                        //             'Post in:',
-                        //             style: TextStyle(
-                        //               color: kGrey3Color,
-                        //               fontSize: kFontSmall,
-                        //             ),
-                        //           ),
-                        //           kHorizontalPaddingMedium,
-                        //           GestureDetector(
-                        //             onTap: () async {
-                        //               var response =
-                        //                   await locator<NavigationService>()
-                        //                       .navigateTo(
-                        //                 FeedRoomSelect.route,
-                        //                 arguments: FeedRoomSelectArguments(
-                        //                     user: user,
-                        //                     feedRoomIds: feedRoomIds),
-                        //               );
-                        //               feedRoomIds = response['feedRoomIds'];
-                        //               rebuildFeedRoomSelectTab.value =
-                        //                   !rebuildFeedRoomSelectTab.value;
-                        //             },
-                        //             child: Container(
-                        //               padding: const EdgeInsets.symmetric(
-                        //                 horizontal: 5,
-                        //                 vertical: 2,
-                        //               ),
-                        //               decoration: BoxDecoration(
-                        //                 borderRadius: BorderRadius.circular(4),
-                        //                 border: Border.all(
-                        //                   color: kPrimaryColor,
-                        //                   width: 1.0,
-                        //                 ),
-                        //               ),
-                        //               child: Row(
-                        //                 children: [
-                        //                   ValueListenableBuilder(
-                        //                       valueListenable:
-                        //                           rebuildFeedRoomSelectTab,
-                        //                       builder: (context, _, __) {
-                        //                         return Text(
-                        //                           feedRoomIds.isEmpty
-                        //                               ? widget.feedRoomTitle
-                        //                               : feedRoomIds.length == 1
-                        //                                   ? feedRoomIds[0].title
-                        //                                   : '${feedRoomIds.length} Groups',
-                        //                           style: const TextStyle(
-                        //                             color: kPrimaryColor,
-                        //                           ),
-                        //                         );
-                        //                       }),
-                        //                   kHorizontalPaddingSmall,
-                        //                   const Icon(
-                        //                     CupertinoIcons.chevron_down,
-                        //                     color: kPrimaryColor,
-                        //                   )
-                        //                 ],
-                        //               ),
-                        //             ),
-                        //           ),
-                        //         ],
-                        //       )
-                        //     : const SizedBox.shrink()
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              kVerticalPaddingLarge,
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.dark,
+        child: Scaffold(
+          backgroundColor: kWhiteColor,
+          body: SafeArea(
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 48,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(
-                        constraints: const BoxConstraints(
-                          minHeight: 72,
-                        ),
-                        decoration: const BoxDecoration(
-                          color: kWhiteColor,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(4.0),
-                          child: TaggingAheadTextField(
-                            feedroomId: feedRoomId,
-                            isDown: true,
-                            controller: _controller,
-                            onTagSelected: (tag) {
-                              print(tag);
-                              userTags.add(tag);
-                            },
-                            onChange: (p0) {
-                              _onTextChanged(p0);
-                            },
+                      BackButton(
+                        onPressed: () {
+                          if (postMedia.isNotEmpty ||
+                              (_controller != null &&
+                                  _controller!.text.isNotEmpty)) {
+                            showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                      title: const Text('Discard Post'),
+                                      content: const Text(
+                                          'Are you sure want to discard the current post?'),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          child: const Text('No'),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                        TextButton(
+                                          child: const Text('Yes'),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                            locator<NavigationService>().goBack(
+                                              result: {
+                                                "feedroomId": feedRoomId,
+                                                "isBack": false,
+                                                "feedRoomIds": feedRoomIds,
+                                              },
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ));
+                          } else {
+                            locator<NavigationService>().goBack(
+                              result: {
+                                "feedroomId": feedRoomId,
+                                "isBack": false,
+                                "feedRoomIds": feedRoomIds,
+                              },
+                            );
+                          }
+                        },
+                      ),
+                      const Text(
+                        'Create a Post',
+                        style: TextStyle(fontSize: 18, color: kGrey1Color),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          if (_controller != null &&
+                              (_controller!.text.isNotEmpty ||
+                                  postMedia.isNotEmpty)) {
+                            checkTextLinks();
+                            userTags = TaggingHelper.matchTags(
+                                _controller!.text, userTags);
+                            result = TaggingHelper.encodeString(
+                                _controller!.text, userTags);
+                            newPostBloc?.add(CreateNewPost(
+                              postText: result ?? '',
+                              feedRoomId: feedRoomId,
+                              postMedia: postMedia,
+                            ));
+                            locator<NavigationService>().goBack(result: {
+                              "isBack": true,
+                            });
+                          } else {
+                            toast(
+                              "Can't create a post without text or attachments",
+                              duration: Toast.LENGTH_LONG,
+                            );
+                          }
+                        },
+                        child: const Text(
+                          'Post',
+                          style: TextStyle(
+                            color: kPrimaryColor,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
-                      kVerticalPaddingXLarge,
-                      if (isUploading)
-                        const Padding(
-                          padding: EdgeInsets.only(
-                            top: kPaddingMedium,
-                            bottom: kPaddingLarge,
-                          ),
-                          child: Loader(),
-                        ),
-                      if (postMedia.isEmpty &&
-                          linkModel != null &&
-                          showLinkPreview)
-                        Stack(children: [
-                          PostLinkView(
-                              screenSize: screenSize, linkModel: linkModel),
-                          Positioned(
-                            top: 5,
-                            right: 5,
-                            child: GestureDetector(
-                              onTap: () {
-                                showLinkPreview = false;
-                                setState(() {});
-                              },
-                              child: const CloseIcon(),
-                            ),
-                          )
-                        ]),
-                      if (postMedia.isNotEmpty)
-                        postMedia.first.mediaType == MediaType.document
-                            ? getPostDocument(screenSize!.width)
-                            : Container(
-                                padding: const EdgeInsets.only(
-                                  top: kPaddingSmall,
-                                ),
-                                alignment: Alignment.center,
-                                child: PostMedia(
-                                  height: screenSize!.width,
-                                  removeAttachment: removeAttachmenetAtIndex,
-                                  //min(constraints.maxHeight, screenSize!.width),
-                                  mediaFiles: postMedia,
-                                  postId: '',
-                                ),
-                              ),
-                      kVerticalPaddingMedium,
                     ],
                   ),
                 ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: kWhiteColor,
-                  boxShadow: [
-                    BoxShadow(
-                      color: kGrey3Color.withOpacity(0.2),
-                      offset: const Offset(0.0, -1.0),
-                      blurRadius: 2.0,
-                      spreadRadius: 1.0,
-                    ), //BoxShadow
-                  ],
+                kVerticalPaddingLarge,
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 4.0,
+                  ),
+                  child: Row(
+                    children: [
+                      ProfilePicture(
+                          user: User(
+                        id: user.id,
+                        imageUrl: user.imageUrl,
+                        name: user.name,
+                        userUniqueId: user.userUniqueId,
+                        isGuest: user.isGuest,
+                        isDeleted: false,
+                      )),
+                      kHorizontalPaddingLarge,
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            user.name,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: kGrey1Color,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          // Multi Channel Post Upload Support
+                          // Uncomment below code to user
+                          // widget.isCm
+                          //     ? kVerticalPaddingSmall
+                          //     : const SizedBox.shrink(),
+                          // widget.isCm
+                          //     ? Row(
+                          //         children: [
+                          //           const Text(
+                          //             'Post in:',
+                          //             style: TextStyle(
+                          //               color: kGrey3Color,
+                          //               fontSize: kFontSmall,
+                          //             ),
+                          //           ),
+                          //           kHorizontalPaddingMedium,
+                          //           GestureDetector(
+                          //             onTap: () async {
+                          //               var response =
+                          //                   await locator<NavigationService>()
+                          //                       .navigateTo(
+                          //                 FeedRoomSelect.route,
+                          //                 arguments: FeedRoomSelectArguments(
+                          //                     user: user,
+                          //                     feedRoomIds: feedRoomIds),
+                          //               );
+                          //               feedRoomIds = response['feedRoomIds'];
+                          //               rebuildFeedRoomSelectTab.value =
+                          //                   !rebuildFeedRoomSelectTab.value;
+                          //             },
+                          //             child: Container(
+                          //               padding: const EdgeInsets.symmetric(
+                          //                 horizontal: 5,
+                          //                 vertical: 2,
+                          //               ),
+                          //               decoration: BoxDecoration(
+                          //                 borderRadius: BorderRadius.circular(4),
+                          //                 border: Border.all(
+                          //                   color: kPrimaryColor,
+                          //                   width: 1.0,
+                          //                 ),
+                          //               ),
+                          //               child: Row(
+                          //                 children: [
+                          //                   ValueListenableBuilder(
+                          //                       valueListenable:
+                          //                           rebuildFeedRoomSelectTab,
+                          //                       builder: (context, _, __) {
+                          //                         return Text(
+                          //                           feedRoomIds.isEmpty
+                          //                               ? widget.feedRoomTitle
+                          //                               : feedRoomIds.length == 1
+                          //                                   ? feedRoomIds[0].title
+                          //                                   : '${feedRoomIds.length} Groups',
+                          //                           style: const TextStyle(
+                          //                             color: kPrimaryColor,
+                          //                           ),
+                          //                         );
+                          //                       }),
+                          //                   kHorizontalPaddingSmall,
+                          //                   const Icon(
+                          //                     CupertinoIcons.chevron_down,
+                          //                     color: kPrimaryColor,
+                          //                   )
+                          //                 ],
+                          //               ),
+                          //             ),
+                          //           ),
+                          //         ],
+                          //       )
+                          //     : const SizedBox.shrink()
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-                child: Column(
-                  children: [
-                    isDocumentPost
-                        ? const SizedBox.shrink()
-                        : AddAssetsButton(
-                            mediaType: 1, // 1 for photos
-                            picker: _picker,
-                            filePicker: _filePicker,
-                            uploading: onUploading,
-                            onUploaded: onUploadedMedia,
-                            postMedia: setPickedMediaFiles,
-                            mediaListLength: postMedia.length,
-                            preUploadCheck: () {
-                              if (postMedia.length >= 10) {
-                                return false;
-                              }
-                              return true;
-                            },
+                kVerticalPaddingLarge,
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      children: [
+                        Container(
+                          constraints: const BoxConstraints(
+                            minHeight: 72,
                           ),
-                    isDocumentPost
-                        ? const SizedBox.shrink()
-                        : AddAssetsButton(
-                            mediaType: 2, // 2 for videos
-                            picker: _picker,
-                            filePicker: _filePicker,
-                            uploading: onUploading,
-                            onUploaded: onUploadedMedia,
-                            postMedia: setPickedMediaFiles,
-                            mediaListLength: postMedia.length,
-                            preUploadCheck: () {
-                              if (postMedia.length >= 10) {
-                                return false;
-                              }
-                              return true;
-                            },
+                          decoration: const BoxDecoration(
+                            color: kWhiteColor,
                           ),
-                    isMediaPost
-                        ? const SizedBox.shrink()
-                        : AddAssetsButton(
-                            mediaType: 3, // 2 for videos
-                            picker: _picker,
-                            filePicker: _filePicker,
-                            uploading: onUploading,
-                            onUploaded: onUploadedDocument,
-                            postMedia: setPickedMediaFiles,
-                            mediaListLength: postMedia.length,
-                            preUploadCheck: () {
-                              if (postMedia.length >= 10) {
-                                return false;
-                              }
-                              return true;
-                            },
+                          child: Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: TaggingAheadTextField(
+                              feedroomId: feedRoomId,
+                              isDown: true,
+                              controller: _controller,
+                              onTagSelected: (tag) {
+                                print(tag);
+                                userTags.add(tag);
+                              },
+                              onChange: (p0) {
+                                _onTextChanged(p0);
+                              },
+                            ),
                           ),
-                  ],
+                        ),
+                        kVerticalPaddingXLarge,
+                        if (isUploading)
+                          const Padding(
+                            padding: EdgeInsets.only(
+                              top: kPaddingMedium,
+                              bottom: kPaddingLarge,
+                            ),
+                            child: Loader(),
+                          ),
+                        if (postMedia.isEmpty &&
+                            linkModel != null &&
+                            showLinkPreview)
+                          Stack(children: [
+                            PostLinkView(
+                                screenSize: screenSize, linkModel: linkModel),
+                            Positioned(
+                              top: 5,
+                              right: 5,
+                              child: GestureDetector(
+                                onTap: () {
+                                  showLinkPreview = false;
+                                  setState(() {});
+                                },
+                                child: const CloseIcon(),
+                              ),
+                            )
+                          ]),
+                        if (postMedia.isNotEmpty)
+                          postMedia.first.mediaType == MediaType.document
+                              ? getPostDocument(screenSize!.width)
+                              : Container(
+                                  padding: const EdgeInsets.only(
+                                    top: kPaddingSmall,
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: PostMedia(
+                                    height: screenSize!.width,
+                                    removeAttachment: removeAttachmenetAtIndex,
+                                    //min(constraints.maxHeight, screenSize!.width),
+                                    mediaFiles: postMedia,
+                                    postId: '',
+                                  ),
+                                ),
+                        kVerticalPaddingMedium,
+                      ],
+                    ),
+                  ),
                 ),
-              )
-            ],
+                Container(
+                  decoration: BoxDecoration(
+                    color: kWhiteColor,
+                    boxShadow: [
+                      BoxShadow(
+                        color: kGrey3Color.withOpacity(0.2),
+                        offset: const Offset(0.0, -1.0),
+                        blurRadius: 2.0,
+                        spreadRadius: 1.0,
+                      ), //BoxShadow
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      isDocumentPost
+                          ? const SizedBox.shrink()
+                          : AddAssetsButton(
+                              mediaType: 1, // 1 for photos
+                              picker: _picker,
+                              filePicker: _filePicker,
+                              uploading: onUploading,
+                              onUploaded: onUploadedMedia,
+                              postMedia: setPickedMediaFiles,
+                              mediaListLength: postMedia.length,
+                              preUploadCheck: () {
+                                if (postMedia.length >= 10) {
+                                  return false;
+                                }
+                                return true;
+                              },
+                            ),
+                      isDocumentPost
+                          ? const SizedBox.shrink()
+                          : AddAssetsButton(
+                              mediaType: 2, // 2 for videos
+                              picker: _picker,
+                              filePicker: _filePicker,
+                              uploading: onUploading,
+                              onUploaded: onUploadedMedia,
+                              postMedia: setPickedMediaFiles,
+                              mediaListLength: postMedia.length,
+                              preUploadCheck: () {
+                                if (postMedia.length >= 10) {
+                                  return false;
+                                }
+                                return true;
+                              },
+                            ),
+                      isMediaPost
+                          ? const SizedBox.shrink()
+                          : AddAssetsButton(
+                              mediaType: 3, // 2 for videos
+                              picker: _picker,
+                              filePicker: _filePicker,
+                              uploading: onUploading,
+                              onUploaded: onUploadedDocument,
+                              postMedia: setPickedMediaFiles,
+                              mediaListLength: postMedia.length,
+                              preUploadCheck: () {
+                                if (postMedia.length >= 10) {
+                                  return false;
+                                }
+                                return true;
+                              },
+                            ),
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),

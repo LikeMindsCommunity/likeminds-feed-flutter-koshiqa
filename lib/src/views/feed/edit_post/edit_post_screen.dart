@@ -16,6 +16,7 @@ import 'package:feed_sx/src/widgets/close_icon.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:feed_sx/src/widgets/profile_picture.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:overlay_support/overlay_support.dart';
@@ -177,6 +178,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
     screenSize = MediaQuery.of(context).size;
     newPostBloc = BlocProvider.of<NewPostBloc>(context);
     return WillPopScope(
@@ -212,29 +214,33 @@ class _EditPostScreenState extends State<EditPostScreen> {
         }
         return Future(() => false);
       },
-      child: SafeArea(
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.dark,
         child: Scaffold(
-          resizeToAvoidBottomInset: false,
           backgroundColor: kWhiteColor,
-          body: FutureBuilder(
-              future: postFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: Loader());
-                } else if (snapshot.connectionState == ConnectionState.done) {
-                  if (!snapshot.hasData) {
-                    return postErrorScreen('An error occurred');
-                  }
-                  GetPostResponse response = snapshot.data!;
-                  if (response.success) {
-                    setPostData(response.post!);
-                    return postEditWidget();
-                  } else {
-                    return postErrorScreen(response.errorMessage!);
-                  }
-                }
-                return const SizedBox();
-              }),
+          body: SafeArea(
+            child: Scaffold(
+              resizeToAvoidBottomInset: false,
+              backgroundColor: kWhiteColor,
+              body: FutureBuilder(
+                  future: postFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: Loader());
+                    } else if (snapshot.connectionState ==
+                        ConnectionState.done) {
+                      GetPostResponse response = snapshot.data!;
+                      if (response.success) {
+                        setPostData(response.post!);
+                        return postEditWidget();
+                      } else {
+                        return postErrorScreen(response.errorMessage!);
+                      }
+                    }
+                    return const SizedBox();
+                  }),
+            ),
+          ),
         ),
       ),
     );
