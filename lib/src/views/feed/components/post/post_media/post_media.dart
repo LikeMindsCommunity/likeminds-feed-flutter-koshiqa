@@ -43,10 +43,7 @@ class _PostMediaState extends State<PostMedia> {
         (widget.mediaFiles != null && widget.mediaFiles!.length > 1));
   }
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
+  void mapMedia() {
     mediaWidgets = widget.attachments == null
         ? widget.mediaFiles!.map((e) {
             if (e.mediaType == MediaType.image) {
@@ -143,7 +140,106 @@ class _PostMediaState extends State<PostMedia> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    mediaWidgets = widget.attachments == null
+        ? widget.mediaFiles!.map((e) {
+            if (e.mediaType == MediaType.image) {
+              return Stack(
+                children: [
+                  Image.file(
+                    e.mediaFile!,
+                    fit: BoxFit.contain,
+                  ),
+                  Positioned(
+                    top: 5,
+                    right: 5,
+                    child: GestureDetector(
+                        onTap: () {
+                          int fileIndex = widget.mediaFiles!.indexOf(e);
+                          if (fileIndex == widget.mediaFiles!.length - 1) {
+                            currPosition -= 1;
+                          }
+                          widget.removeAttachment!(fileIndex);
+                          setState(() {});
+                        },
+                        child: const CloseIcon()),
+                  )
+                ],
+              );
+            } else if (e.mediaType == MediaType.video) {
+              return Stack(
+                children: [
+                  PostVideo(
+                    videoFile: e.mediaFile,
+                  ),
+                  Positioned(
+                    top: 5,
+                    right: 5,
+                    child: GestureDetector(
+                      onTap: () {
+                        int fileIndex = widget.mediaFiles!.indexOf(e);
+                        if (fileIndex == widget.mediaFiles!.length - 1) {
+                          currPosition -= 1;
+                        }
+                        widget.removeAttachment!(fileIndex);
+                        setState(() {});
+                      },
+                      child: const CloseIcon(),
+                    ),
+                  )
+                ],
+              );
+            }
+            return const SizedBox.shrink();
+          }).toList()
+        : widget.attachments!.map((e) {
+            if (e.attachmentType == 1) {
+              return CachedNetworkImage(
+                imageUrl: e.attachmentMeta.url!,
+                fit: BoxFit.contain,
+                fadeInDuration: const Duration(
+                  milliseconds: 200,
+                ),
+                errorWidget: (context, url, error) {
+                  return Container(
+                    color: kBackgroundColor,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(
+                          Icons.error_outline,
+                          size: 24,
+                          color: kGrey3Color,
+                        ),
+                        SizedBox(height: 24),
+                        Text(
+                          "An error occurred fetching media",
+                          style: TextStyle(
+                            fontSize: 14,
+                          ),
+                        )
+                      ],
+                    ),
+                  );
+                },
+                progressIndicatorBuilder: (context, url, progress) =>
+                    const PostShimmer(),
+              );
+            } else if ((e.attachmentType == 2)) {
+              return PostVideo(
+                url: e.attachmentMeta.url,
+              );
+            } else {
+              return const SizedBox.shrink();
+            }
+          }).toList();
     screenSize = MediaQuery.of(context).size;
     return Container(
       padding: const EdgeInsets.only(top: kPaddingMedium),
