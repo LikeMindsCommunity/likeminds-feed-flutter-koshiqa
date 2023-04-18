@@ -243,17 +243,14 @@ class ExpandableTextState extends State<ExpandableText>
                   children: _buildTextSpans(
                       _expanded
                           ? _textSegments
-                          : parseText(
-                              widget.text.substring(0, max(endOffset, 0))),
+                          : parseText(getSubstring(widget.text)),
                       effectiveTextStyle!,
                       recognizer),
                 )
               : TextSpan(
                   children: _expanded
                       ? extractLinksAndTags(widget.text)
-                      : extractLinksAndTags(
-                          TaggingHelper.convertRouteToTag(widget.text)
-                              .substring(0, max(endOffset, 0))),
+                      : extractLinksAndTags(getSubstring(widget.text)),
                 );
 
           textSpan = TextSpan(
@@ -393,11 +390,7 @@ class ExpandableTextState extends State<ExpandableText>
       bool isTag = link != null && link[0] == '<';
       // Add a TextSpan for the URL
       textSpans.add(TextSpan(
-        text: isTag
-            ? TaggingHelper.decodeString(link).keys.first
-            : (link!.startsWith('@') && link.endsWith('~')
-                ? link.substring(1).split('~')[0]
-                : link),
+        text: isTag ? TaggingHelper.decodeString(link).keys.first : link,
         style: widget.linkStyle ?? const TextStyle(color: Colors.blue),
         recognizer: TapGestureRecognizer()
           ..onTap = () async {
@@ -425,5 +418,37 @@ class ExpandableTextState extends State<ExpandableText>
       ));
     }
     return textSpans;
+  }
+
+  String getSubstring(String input) {
+    if (input.length <= 305) {
+      return input;
+    }
+
+    // Regular expression pattern to match URLs, tags, and routes
+    const pattern =
+        r'((?:http|https|ftp|www)\:\/\/)?[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(?::[a-zA-Z0-9]*)?\/?[^\s\n]+|@([a-z\sA-Z0-9_]+)~|<<([a-z\sA-Z]+)\|route://member/([a-zA-Z-0-9]+)>>';
+
+    // Use a regular expression to find all occurrences of the pattern in the input string
+    final regex = RegExp(pattern);
+    final matches = regex.allMatches(input);
+
+    // Find the last match that occurs before the 500th character
+    var lastMatch;
+    for (var match in matches) {
+      if (match.start > 250 && match.end <= 305) {
+        lastMatch = match;
+      } else {
+        break;
+      }
+    }
+
+    // If a match was found, break the string after the match
+    if (lastMatch != null) {
+      return input.substring(0, lastMatch.end);
+    }
+
+    // If no match was found, break the string at the 500th character
+    return input.substring(0, 305);
   }
 }

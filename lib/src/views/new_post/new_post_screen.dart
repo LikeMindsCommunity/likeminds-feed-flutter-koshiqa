@@ -123,6 +123,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
       if (postMedia.isEmpty) {
         isDocumentPost = false;
         isMediaPost = false;
+        showLinkPreview = true;
       }
       setState(() {});
     }
@@ -159,6 +160,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
     } else {
       if (postMedia.isEmpty) {
         isMediaPost = false;
+        showLinkPreview = true;
       }
       setState(() {
         isUploading = false;
@@ -176,6 +178,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
     } else {
       if (postMedia.isEmpty) {
         isDocumentPost = false;
+        showLinkPreview = true;
       }
       setState(() {
         isUploading = false;
@@ -227,15 +230,27 @@ class _NewPostScreenState extends State<NewPostScreen> {
             url: responseTags.url,
           ),
         );
+        LMAnalytics.get().logEvent(
+          AnalyticsKeys.linkAttachedInPost,
+          {
+            'link': previewLink,
+          },
+        );
         if (postMedia.isEmpty) {
           setState(() {});
         }
       }
+    } else if (link.isEmpty) {
+      linkModel = null;
+      setState(() {});
     }
   }
 
   void checkTextLinks() {
-    if (linkModel != null && postMedia.isEmpty && showLinkPreview) {
+    String link = getFirstValidLinkFromString(_controller!.text);
+    if (link.isEmpty) {
+      linkModel = null;
+    } else if (linkModel != null && postMedia.isEmpty && showLinkPreview) {
       postMedia.add(linkModel!);
     }
   }
@@ -778,101 +793,129 @@ class AddAssetsButton extends StatelessWidget {
         onUploaded(false);
       }
     } catch (e) {
+      toast(
+        'An error occurred',
+        duration: Toast.LENGTH_LONG,
+      );
       onUploaded(false);
+      print(e.toString());
     }
   }
 
   void pickVideos() async {
     uploading();
-
-    final pickedFiles = await filePicker.pickFiles(
-      allowMultiple: true,
-      type: FileType.custom,
-      dialogTitle: 'Select files',
-      allowedExtensions: [
-        '3gp',
-        'mp4',
-      ],
-    );
-    if (pickedFiles != null) {
-      if (mediaListLength + pickedFiles.files.length > 10) {
-        toast(
-          'A total of 10 attachments can be added to a post',
-          duration: Toast.LENGTH_LONG,
-        );
-        onUploaded(false);
-        return;
-      }
-      for (var pickedFile in pickedFiles.files) {
-        if (getFileSizeInDouble(pickedFile.size) > 100) {
+    try {
+      final pickedFiles = await filePicker.pickFiles(
+        allowMultiple: true,
+        type: FileType.custom,
+        dialogTitle: 'Select files',
+        allowedExtensions: [
+          '3gp',
+          'mp4',
+        ],
+      );
+      if (pickedFiles != null) {
+        if (mediaListLength + pickedFiles.files.length > 10) {
           toast(
-            'File size should be smaller than 100MB',
+            'A total of 10 attachments can be added to a post',
             duration: Toast.LENGTH_LONG,
           );
           onUploaded(false);
           return;
-        } else {
-          File video = File(pickedFile.path!);
-          VideoPlayerController controller = VideoPlayerController.file(video);
-          await controller.initialize();
-          Duration videoDuration = controller.value.duration;
-          MediaModel videoFile = MediaModel(
-              mediaType: MediaType.video,
-              mediaFile: video,
-              duration: videoDuration.inSeconds);
-          List<MediaModel> videoFiles = [];
-          videoFiles.add(videoFile);
-          postMedia(videoFiles);
-          onUploaded(true);
         }
+        List<MediaModel> videoFiles = [];
+        for (var pickedFile in pickedFiles.files) {
+          if (getFileSizeInDouble(pickedFile.size) > 100) {
+            toast(
+              'File size should be smaller than 100MB',
+              duration: Toast.LENGTH_LONG,
+            );
+            onUploaded(false);
+            return;
+          } else {
+            File video = File(pickedFile.path!);
+            VideoPlayerController controller =
+                VideoPlayerController.file(video);
+            await controller.initialize();
+            Duration videoDuration = controller.value.duration;
+            MediaModel videoFile = MediaModel(
+                mediaType: MediaType.video,
+                mediaFile: video,
+                duration: videoDuration.inSeconds);
+
+            videoFiles.add(videoFile);
+          }
+        }
+        postMedia(videoFiles);
+        onUploaded(true);
+        return;
+      } else {
+        onUploaded(false);
+        return;
       }
-    } else {
+    } catch (e) {
       onUploaded(false);
+      toast(
+        'An error occurred',
+        duration: Toast.LENGTH_LONG,
+      );
+      print(e.toString());
+      return;
     }
   }
 
   void pickFiles() async {
     uploading();
-    final pickedFiles = await filePicker.pickFiles(
-      allowMultiple: true,
-      type: FileType.custom,
-      dialogTitle: 'Select files',
-      allowedExtensions: [
-        'pdf',
-      ],
-    );
+    try {
+      final pickedFiles = await filePicker.pickFiles(
+        allowMultiple: true,
+        type: FileType.custom,
+        dialogTitle: 'Select files',
+        allowedExtensions: [
+          'pdf',
+        ],
+      );
 
-    if (pickedFiles != null) {
-      if (mediaListLength + pickedFiles.files.length > 10) {
-        toast(
-          'A total of 10 attachments can be added to a post',
-          duration: Toast.LENGTH_LONG,
-        );
-        onUploaded(false);
-        return;
-      }
-      for (var pickedFile in pickedFiles.files) {
-        if (getFileSizeInDouble(pickedFile.size) > 100) {
+      if (pickedFiles != null) {
+        if (mediaListLength + pickedFiles.files.length > 10) {
           toast(
-            'File size should be smaller than 100MB',
+            'A total of 10 attachments can be added to a post',
             duration: Toast.LENGTH_LONG,
           );
           onUploaded(false);
           return;
         }
+        for (var pickedFile in pickedFiles.files) {
+          if (getFileSizeInDouble(pickedFile.size) > 100) {
+            toast(
+              'File size should be smaller than 100MB',
+              duration: Toast.LENGTH_LONG,
+            );
+            onUploaded(false);
+            return;
+          }
+        }
+        List<MediaModel> attachedFiles = [];
+        attachedFiles = pickedFiles.files
+            .map((e) => MediaModel(
+                mediaType: MediaType.document,
+                mediaFile: File(e.path!),
+                format: e.extension,
+                size: e.size))
+            .toList();
+        postMedia(attachedFiles);
+        onUploaded(true);
+      } else {
+        onUploaded(false);
       }
-      List<MediaModel> attachedFiles = [];
-      attachedFiles = pickedFiles.files
-          .map((e) => MediaModel(
-              mediaType: MediaType.document,
-              mediaFile: File(e.path!),
-              format: e.extension,
-              size: e.size))
-          .toList();
-      postMedia(attachedFiles);
-      onUploaded(true);
-    } else {
+    } catch (e) {
       onUploaded(false);
+      toast(
+        'An error occurred',
+        duration: Toast.LENGTH_LONG,
+      );
+      print(e.toString());
+      return;
     }
   }
 
@@ -881,6 +924,16 @@ class AddAssetsButton extends StatelessWidget {
     Size screenSize = MediaQuery.of(context).size;
     return GestureDetector(
       onTap: () async {
+        LMAnalytics.get().logEvent(
+          AnalyticsKeys.clickedOnAttachment,
+          {
+            'type': mediaType == 1
+                ? 'photo'
+                : mediaType == 2
+                    ? 'video'
+                    : 'file',
+          },
+        );
         if (preUploadCheck()) {
           bool permissionStatus = await handlePermissions(context);
           if (permissionStatus) {

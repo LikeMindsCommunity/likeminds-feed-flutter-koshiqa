@@ -21,8 +21,17 @@ class DropdownOptionsComments extends StatelessWidget {
     required this.postId,
   });
 
+  void removeEditIntegration() {
+    if (menuItems != null) {
+      menuItems.removeWhere((element) {
+        return element.title == 'Edit';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    removeEditIntegration();
     return Builder(builder: (context) {
       return PopupMenuButton<int>(
         itemBuilder: (context) => menuItems

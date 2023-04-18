@@ -138,6 +138,7 @@ class _LikesScreenState extends State<LikesScreen> {
         return Future(() => false);
       },
       child: Scaffold(
+        backgroundColor: kWhiteColor,
         body: BlocConsumer(
             bloc: _likesBloc,
             buildWhen: (previous, current) {
@@ -220,7 +221,7 @@ Widget getLikesLoadedView(
               height: 20,
             ),
             noItemsFoundIndicatorBuilder: (context) => Scaffold(
-              backgroundColor: kBackgroundColor,
+              backgroundColor: kWhiteColor,
               body: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
