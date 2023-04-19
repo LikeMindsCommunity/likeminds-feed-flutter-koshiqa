@@ -1,0 +1,55 @@
+name: Flutter Release
+
+# 1
+on:
+  # 2
+  push:
+  pull_request:
+  workflow_dispatch:
+
+# 4
+jobs:
+  # 5
+  build:
+    # 6
+    runs-on: ubuntu-latest
+
+    # 7
+    steps:
+      # 8
+      - uses: actions/checkout@v3
+      # 9
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: "12.x"
+          cache: 'gradle'
+      # 10
+      - uses: subosito/flutter-action@v2
+        with:
+          # 11
+          flutter-version: "3.0.0"
+          channel: 'stable'
+          cache: true
+
+      - name: Navigate to Sample App Directory
+        run: cd example/
+      # 12
+      - name: Get dependencies
+        run: flutter pub get
+
+#      - name: Run Flutter tests
+#        run: flutter test
+
+      # Runs a set of commands using the runners shell
+      # 13
+      - name: Start Android release build
+        run: flutter build apk
+        uses: actions/upload-artifact@v1
+        with:
+          name: release-apk
+          path: build/app/outputs/apk/release/app-release.apk
+
+      #14
+      - name: Start iOS release build
+        run: flutter build ios
