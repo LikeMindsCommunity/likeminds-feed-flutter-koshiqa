@@ -1,6 +1,5 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
 import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
 import 'package:feed_sx/src/views/tagging/tagging_textfield_ta.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
@@ -16,6 +15,7 @@ import 'package:feed_sx/src/widgets/general_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 class AllCommentsScreen extends StatefulWidget {
   final Post post;
@@ -40,6 +40,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
   TextEditingController? _commentController;
   ValueNotifier<bool> rebuildButton = ValueNotifier(false);
   ValueNotifier<bool> rebuildPostWidget = ValueNotifier(false);
+  ValueNotifier<bool> rebuildReplyWidget = ValueNotifier(false);
   final PagingController<int, Reply> _pagingController =
       PagingController(firstPageKey: 1);
   Post? postData;
@@ -53,10 +54,23 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
   @override
   void initState() {
     super.initState();
+    _commentController = TextEditingController();
+    if (_commentController != null) {
+      _commentController!.addListener(
+        () {
+          if (_commentController!.text.isEmpty) {
+            _commentController!.clear();
+          }
+        },
+      );
+    }
     FeedApi feedApi = locator<LikeMindsService>().getFeedApi();
     _allCommentsBloc = AllCommentsBloc(feedApi: feedApi);
     _allCommentsBloc.add(GetAllComments(
-        postDetailRequest: PostDetailRequest(postId: widget.post.id, page: 1),
+        postDetailRequest: (PostDetailRequestBuilder()
+              ..postId(widget.post.id)
+              ..page(1))
+            .build(),
         forLoadMore: false));
     _addCommentBloc = AddCommentBloc(feedApi: feedApi);
     _addCommentReplyBloc = AddCommentReplyBloc(feedApi: feedApi);
@@ -69,8 +83,10 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     _pagingController.addPageRequestListener((pageKey) {
       _allCommentsBloc.add(
         GetAllComments(
-          postDetailRequest:
-              PostDetailRequest(postId: widget.post.id, page: pageKey),
+          postDetailRequest: (PostDetailRequestBuilder()
+                ..postId(widget.post.id)
+                ..page(pageKey))
+              .build(),
           forLoadMore: true,
         ),
       );
@@ -78,37 +94,34 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
   }
 
   selectCommentToReply(String commentId, String username) {
-    setState(() {
-      selectedCommentId = commentId;
-      selectedUsername = username;
-    });
+    selectedCommentId = commentId;
+    selectedUsername = username;
+    rebuildReplyWidget.value = !rebuildReplyWidget.value;
   }
 
   deselectCommentToReply() {
-    setState(() {
-      selectedCommentId = null;
-      selectedUsername = null;
-    });
+    selectedCommentId = null;
+    selectedUsername = null;
+    rebuildReplyWidget.value = !rebuildReplyWidget.value;
   }
 
   Future updatePostDetails(BuildContext context) async {
     final GetPostResponse postDetails =
         await locator<LikeMindsService>().getPost(
-      GetPostRequest(
-        postId: postData!.id,
-        page: 1,
-        pageSize: 10,
-      ),
+      (GetPostRequestBuilder()
+            ..postId(postData!.id)
+            ..page(1)
+            ..pageSize(10))
+          .build(),
     );
     if (postDetails.success) {
-      if (postData!.commentCount != postDetails.post!.commentCount) {
-        postData = postDetails.post;
-        rebuildPostWidget.value = !rebuildPostWidget.value;
-      }
+      postData = postDetails.post;
+      rebuildPostWidget.value = !rebuildPostWidget.value;
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(confirmationToast(
-          content: postDetails.errorMessage ?? 'An error occured',
-          backgroundColor: kGrey1Color));
+      toast(
+        postDetails.errorMessage ?? 'An error occured',
+        duration: Toast.LENGTH_LONG,
+      );
     }
   }
 
@@ -137,58 +150,51 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   kVerticalPaddingMedium,
-                  selectedCommentId != null
-                      ? Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          child: Row(
-                            children: [
-                              Text(
-                                "Replying to",
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: kHeadingColor),
-                              ),
-                              SizedBox(
-                                width: 8,
-                              ),
-                              Text(
-                                selectedUsername!,
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: kPrimaryColor),
-                              ),
-                              Spacer(),
-                              IconButton(
-                                onPressed: () {
-                                  deselectCommentToReply();
-                                },
-                                icon: Icon(
-                                  Icons.close,
-                                  color: kGreyColor,
+                  ValueListenableBuilder(
+                      valueListenable: rebuildReplyWidget,
+                      builder: (context, _, __) {
+                        return selectedCommentId != null
+                            ? Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 8),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      "Replying to",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: kHeadingColor),
+                                    ),
+                                    SizedBox(
+                                      width: 8,
+                                    ),
+                                    Text(
+                                      selectedUsername!,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: kPrimaryColor),
+                                    ),
+                                    Spacer(),
+                                    IconButton(
+                                      onPressed: () {
+                                        deselectCommentToReply();
+                                      },
+                                      icon: Icon(
+                                        Icons.close,
+                                        color: kGreyColor,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : SizedBox(),
+                              )
+                            : const SizedBox();
+                      }),
                   TaggingAheadTextField(
                     feedroomId: widget.feedRoomId,
                     isDown: false,
-                    getController: (controller) {
-                      _commentController = controller;
-                      if (_commentController != null) {
-                        _commentController!.addListener(
-                          () {
-                            if (_commentController!.text.isEmpty) {
-                              _commentController!.clear();
-                            }
-                          },
-                        );
-                      }
-                    },
+                    controller: _commentController,
                     onTagSelected: (tag) {
                       print(tag);
                       userTags.add(tag);
@@ -243,10 +249,12 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                                 _addCommentBloc.add(
                                                   AddComment(
                                                     addCommentRequest:
-                                                        AddCommentRequest(
-                                                      postId: widget.post.id,
-                                                      text: commentText,
-                                                    ),
+                                                        (AddCommentRequestBuilder()
+                                                              ..postId(widget
+                                                                  .post.id)
+                                                              ..text(
+                                                                  commentText))
+                                                            .build(),
                                                   ),
                                                 );
                                               },
@@ -299,15 +307,18 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                                             _commentController!
                                                                 .text,
                                                             userTags);
-                                                    _addCommentReplyBloc.add(AddCommentReply(
-                                                        addCommentRequest:
-                                                            AddCommentReplyRequest(
-                                                                postId: widget
-                                                                    .post.id,
-                                                                text:
-                                                                    commentText,
-                                                                commentId:
-                                                                    selectedCommentId!)));
+                                                    _addCommentReplyBloc.add(
+                                                        AddCommentReply(
+                                                            addCommentRequest:
+                                                                (AddCommentReplyRequestBuilder()
+                                                                      ..postId(widget
+                                                                          .post
+                                                                          .id)
+                                                                      ..text(
+                                                                          commentText)
+                                                                      ..commentId(
+                                                                          selectedCommentId!))
+                                                                    .build()));
                                                     selectedCommentId = null;
                                                     selectedUsername = null;
 
@@ -406,13 +417,18 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                 builder: (context, _, __) {
                                   return PostWidget(
                                     postDetails: postData!,
+                                    feedRoomId: widget.feedRoomId,
                                     user: postDetailResponse.users[
                                         postDetailResponse.postReplies.userId]!,
                                     postType: 0,
                                     isFeed: false,
-                                    refresh: (bool isDeleted) {
-                                      locator<NavigationService>().goBack(
-                                          result: {'isBack': isDeleted});
+                                    refresh: (bool isDeleted) async {
+                                      if (isDeleted) {
+                                        locator<NavigationService>().goBack(
+                                            result: {'isBack': isDeleted});
+                                      } else {
+                                        await updatePostDetails(context);
+                                      }
                                     },
                                   );
                                 })),
@@ -442,16 +458,25 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                 noMoreItemsIndicatorBuilder: (context) =>
                                     SizedBox(height: 75),
                                 noItemsFoundIndicatorBuilder: (context) =>
-                                    Column(children: const <Widget>[
-                                      SizedBox(height: 40),
-                                      Text('No comment found',
-                                          style:
-                                              TextStyle(fontSize: kFontMedium)),
-                                      SizedBox(height: 10),
-                                      Text('Be the first one to comment',
-                                          style:
-                                              TextStyle(fontSize: kFontSmall))
-                                    ]),
+                                    Column(
+                                      children: const <Widget>[
+                                        SizedBox(height: 42),
+                                        Text(
+                                          'No comment found',
+                                          style: TextStyle(
+                                            fontSize: kFontMedium,
+                                          ),
+                                        ),
+                                        SizedBox(height: 12),
+                                        Text(
+                                          'Be the first one to comment',
+                                          style: TextStyle(
+                                            fontSize: kFontSmall,
+                                          ),
+                                        ),
+                                        SizedBox(height: 180),
+                                      ],
+                                    ),
                                 itemBuilder: (context, item, index) {
                                   return CommentTile(
                                     key: ValueKey(item.id),

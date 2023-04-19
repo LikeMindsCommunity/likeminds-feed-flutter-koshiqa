@@ -1,3 +1,5 @@
+import 'package:feed_sx/feed.dart';
+import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_actions.dart';
@@ -8,7 +10,8 @@ import 'package:flutter/material.dart';
 
 class PostWidget extends StatefulWidget {
   final Post postDetails;
-  final PostUser user;
+  final int feedRoomId;
+  final User user;
   final int postType;
   final bool showActions;
   final Function(bool) refresh;
@@ -19,6 +22,7 @@ class PostWidget extends StatefulWidget {
     required this.postType,
     this.showActions = true,
     required this.postDetails,
+    required this.feedRoomId,
     required this.user,
     required this.refresh,
     this.isFeed = true,
@@ -30,9 +34,9 @@ class PostWidget extends StatefulWidget {
 
 class _PostWidgetState extends State<PostWidget> {
   Post? postDetails;
-  late final PostUser user;
+  late final User user;
   late final bool showActions;
-  late final Function(bool) refresh;
+  Function(bool)? refresh;
   late bool isFeed;
 
   @override
@@ -40,46 +44,60 @@ class _PostWidgetState extends State<PostWidget> {
     super.initState();
     user = widget.user;
     showActions = widget.showActions;
-    refresh = widget.refresh;
     isFeed = widget.isFeed;
   }
 
   setPostValues() {
+    refresh = widget.refresh;
     postDetails = widget.postDetails;
   }
 
   @override
   Widget build(BuildContext context) {
     setPostValues();
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Container(
-        color: kWhiteColor,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            PostHeader(
-              user: user,
-              menuItems: postDetails!.menuItems,
-              postDetails: postDetails!,
-              refresh: refresh,
+    return GestureDetector(
+      onTap: () {
+        if (isFeed) {
+          locator<NavigationService>().navigateTo(
+            AllCommentsScreen.route,
+            arguments: AllCommentsScreenArguments(
+              post: postDetails!,
+              feedroomId: widget.feedRoomId,
             ),
-            PostDescription(
-              text: postDetails!.text,
-            ),
-            PostMediaFactory(
-              attachments: postDetails!.attachments,
-              postId: postDetails!.id,
-            ),
-            showActions
-                ? PostActions(
-                    postDetails: postDetails!,
-                    refresh: refresh,
-                    isFeed: isFeed,
-                  )
-                : const SizedBox.shrink()
-          ],
+          );
+        }
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Container(
+          color: kWhiteColor,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              PostHeader(
+                user: user,
+                menuItems: postDetails!.menuItems,
+                postDetails: postDetails!,
+                refresh: refresh!,
+                feedRoomId: widget.feedRoomId,
+              ),
+              PostDescription(
+                text: postDetails!.text,
+              ),
+              PostMediaFactory(
+                attachments: postDetails!.attachments,
+                postId: postDetails!.id,
+              ),
+              showActions
+                  ? PostActions(
+                      postDetails: postDetails!,
+                      refresh: refresh!,
+                      isFeed: isFeed,
+                    )
+                  : const SizedBox.shrink()
+            ],
+          ),
         ),
       ),
     );

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:feed_sx/src/utils/analytics/analytics.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 part 'add_comment_event.dart';
@@ -28,7 +29,7 @@ class AddCommentBloc extends Bloc<AddCommentEvent, AddCommentState> {
     if (response == null) {
       emit(AddCommentError(message: "No data found"));
     } else {
-      LMAnalytics.get().logEvent(
+      LMAnalytics.get().track(
         AnalyticsKeys.commentPosted,
         {
           "post_id": addCommentRequest.postId,

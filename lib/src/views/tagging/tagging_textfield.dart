@@ -83,7 +83,7 @@ class _TaggingTextFieldState extends State<TaggingTextField> {
                             child: Row(
                               children: [
                                 ProfilePicture(
-                                    user: PostUser(
+                                    user: User(
                                   id: opt.id!,
                                   imageUrl: opt.imageUrl!,
                                   name: opt.name!,

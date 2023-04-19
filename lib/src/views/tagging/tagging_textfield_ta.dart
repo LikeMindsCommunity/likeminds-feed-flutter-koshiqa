@@ -10,7 +10,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 class TaggingAheadTextField extends StatefulWidget {
   final bool isDown;
   final Function(UserTag) onTagSelected;
-  final Function(TextEditingController) getController;
+  final TextEditingController? controller;
   final InputDecoration? decoration;
   final Function(String)? onChange;
   final int feedroomId;
@@ -20,7 +20,7 @@ class TaggingAheadTextField extends StatefulWidget {
     required this.isDown,
     required this.feedroomId,
     required this.onTagSelected,
-    required this.getController,
+    required this.controller,
     this.decoration,
     this.onChange,
   });
@@ -30,7 +30,7 @@ class TaggingAheadTextField extends StatefulWidget {
 }
 
 class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
-  final TextEditingController _controller = TextEditingController();
+  late final TextEditingController _controller;
   final FocusNode _focusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
   final SuggestionsBoxController _suggestionsBoxController =
@@ -48,17 +48,18 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
   @override
   void initState() {
     super.initState();
+    _controller = widget.controller!;
     _scrollController.addListener(() async {
       // page++;
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
         page++;
         final taggingData = await locator<LikeMindsService>().getTags(
-          request: TagRequestModel(
-            feedroomId: widget.feedroomId,
-            page: page,
-            pageSize: FIXED_SIZE,
-          ),
+          request: (TagRequestModelBuilder()
+                ..feedroomId(widget.feedroomId)
+                ..page(page)
+                ..pageSize(FIXED_SIZE))
+              .build(),
         );
         if (taggingData.members != null && taggingData.members!.isNotEmpty) {
           userTags.addAll(taggingData.members!.map((e) => e).toList());
@@ -78,12 +79,12 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
       } else if (!tagComplete && currentText.contains('@')) {
         String tag = tagValue.substring(1).replaceAll(' ', '');
         final taggingData = await locator<LikeMindsService>().getTags(
-          request: TagRequestModel(
-            feedroomId: widget.feedroomId,
-            page: 1,
-            pageSize: FIXED_SIZE,
-            searchQuery: tag,
-          ),
+          request: (TagRequestModelBuilder()
+                ..feedroomId(widget.feedroomId)
+                ..page(1)
+                ..pageSize(FIXED_SIZE)
+                ..searchQuery(tag))
+              .build(),
         );
         if (taggingData.members != null && taggingData.members!.isNotEmpty) {
           userTags = taggingData.members!.map((e) => e).toList();
@@ -100,7 +101,6 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
 
   @override
   Widget build(BuildContext context) {
-    widget.getController(_controller);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6.0),
       child: TypeAheadField<UserTag>(
@@ -171,7 +171,7 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
                 child: Row(
                   children: [
                     ProfilePicture(
-                      user: PostUser(
+                      user: User(
                         id: opt.id!,
                         imageUrl: opt.imageUrl!,
                         name: opt.name!,

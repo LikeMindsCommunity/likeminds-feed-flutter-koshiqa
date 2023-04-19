@@ -13,18 +13,26 @@ class FeedRoomListBloc extends Bloc<FeedRoomListEvent, FeedRoomListState> {
       if (event is GetFeedRoomList) {
         emit(FeedRoomListLoading());
         try {
-          GetFeedRoomResponse? response = await locator<LikeMindsService>()
-              .getFeedRoom(GetFeedRoomRequest(page: event.offset));
+          GetFeedRoomResponse? response =
+              await locator<LikeMindsService>().getFeedRoom(
+            (GetFeedRoomRequestBuilder()..page(event.offset)).build(),
+          );
           final List<FeedRoom> feedList = response.chatrooms!;
 
           if (response.success) {
-            emit(FeedRoomListLoaded(feedList: feedList, size: feedList.length));
+            emit(
+              FeedRoomListLoaded(feedList: feedList, size: feedList.length),
+            );
           } else {
-            emit(const FeedRoomListError(
-                message: "An error occurred, Please try again"));
+            emit(
+              const FeedRoomListError(
+                  message: "An error occurred, Please try again"),
+            );
           }
         } catch (e) {
-          emit(FeedRoomListError(message: "${e.toString()} No data found"));
+          emit(
+            FeedRoomListError(message: "${e.toString()} No data found"),
+          );
         }
       }
     });

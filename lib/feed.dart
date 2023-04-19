@@ -2,12 +2,17 @@
 
 library feed;
 
+import 'package:feed_sx/src/utils/branding/lm_branding.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/credentials/credentials.dart';
+import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
+import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
+import 'package:feed_sx/src/views/feed/edit_post/edit_post_screen.dart';
 import 'package:feed_sx/src/views/feed/feedroom_list_screen.dart';
-import 'package:feed_sx/src/views/previews/media_preview.dart';
+import 'package:feed_sx/src/views/new_post/feedroom_select.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/navigation/arguments.dart';
@@ -23,6 +28,7 @@ export 'src/views/new_post/new_post_screen.dart';
 export 'src/views/following_tab/following_tab_screen.dart';
 export 'src/services/service_locator.dart';
 export 'src/utils/notification_handler.dart';
+export 'src/utils/analytics/analytics.dart';
 
 const _prodFlag = true;
 
@@ -47,6 +53,13 @@ class LMFeed extends StatefulWidget {
     required String apiKey,
   }) {
     setupLMFeed(callback, apiKey);
+    LMBranding lmBranding = LMBranding.instance;
+    // lmBranding.setBranding((SetBrandingRequestBuilder()
+    //       ..headerColor('')
+    //       ..buttonsColor('')
+    //       ..textLinkColor('')
+    //       ..fonts(LMFontsBuilder().build()))
+    //     .build());
     return _instance ??= LMFeed._(
       userId: userId,
       userName: userName,
@@ -101,10 +114,10 @@ class _LMFeedState extends State<LMFeed> {
   Widget build(BuildContext context) {
     return FutureBuilder<InitiateUserResponse>(
       future: locator<LikeMindsService>().initiateUser(
-        InitiateUserRequest(
-          userId: userId,
-          userName: userName,
-        ),
+        (InitiateUserRequestBuilder()
+              ..userId(userId)
+              ..userName(userName))
+            .build(),
       ),
       initialData: null,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -112,103 +125,133 @@ class _LMFeedState extends State<LMFeed> {
           InitiateUserResponse response = snapshot.data;
           if (response.success) {
             user = response.initiateUser?.user;
+            UserLocalPreference.instance.storeUserData(user!);
             LMNotificationHandler.instance.registerDevice(user!.id);
-            return MaterialApp(
-              debugShowCheckedModeBanner: !isProd,
-              title: 'LikeMinds Feed',
-              navigatorKey: locator<NavigationService>().navigatorKey,
-              onGenerateRoute: (settings) {
-                if (settings.name == AllCommentsScreen.route) {
-                  final args = settings.arguments as AllCommentsScreenArguments;
-                  return MaterialPageRoute(
-                    builder: (context) {
-                      return AllCommentsScreen(
-                        post: args.post,
-                        feedRoomId: args.feedroomId,
-                      );
-                    },
-                  );
-                }
-                if (settings.name == LikesScreen.route) {
-                  final args = settings.arguments as LikesScreenArguments;
-                  return MaterialPageRoute(
-                    builder: (context) {
-                      return LikesScreen(
-                        postId: args.postId,
-                        commentId: args.commentId,
-                        isCommentLikes: args.isCommentLikes,
-                      );
-                    },
-                  );
-                }
-                if (settings.name == ReportPostScreen.route) {
-                  return MaterialPageRoute(
-                    builder: (context) {
-                      return const ReportPostScreen();
-                    },
-                  );
-                }
-                if (settings.name == NewPostScreen.route) {
-                  final args = settings.arguments as NewPostScreenArguments;
-                  return MaterialPageRoute(
-                    builder: (context) {
-                      return NewPostScreen(
-                        feedRoomId: args.feedroomId,
-                        user: args.user,
-                      );
-                    },
-                  );
-                }
-                if (settings.name == MediaPreview.route) {
-                  final args = settings.arguments as MediaPreviewArguments;
-                  return MaterialPageRoute(
-                    builder: (context) {
-                      if (args.attachments == null) {
-                        return MediaPreview(
-                          mediaFiles: args.mediaFiles,
-                          postId: args.postId,
+            return BlocProvider(
+              create: (context) => NewPostBloc(),
+              child: MaterialApp(
+                debugShowCheckedModeBanner: !isProd,
+                title: 'LikeMinds Feed',
+                navigatorKey: locator<NavigationService>().navigatorKey,
+                onGenerateRoute: (settings) {
+                  if (settings.name == AllCommentsScreen.route) {
+                    final args =
+                        settings.arguments as AllCommentsScreenArguments;
+                    return MaterialPageRoute(
+                      builder: (context) {
+                        return AllCommentsScreen(
+                          post: args.post,
+                          feedRoomId: args.feedroomId,
                         );
-                      } else {
-                        return MediaPreview(
-                          attachments: args.attachments,
+                      },
+                    );
+                  }
+                  if (settings.name == LikesScreen.route) {
+                    final args = settings.arguments as LikesScreenArguments;
+                    return MaterialPageRoute(
+                      builder: (context) {
+                        return LikesScreen(
                           postId: args.postId,
+                          commentId: args.commentId,
+                          isCommentLikes: args.isCommentLikes,
                         );
-                      }
-                    },
-                  );
-                }
-              },
-              home: FutureBuilder(
-                future: locator<LikeMindsService>().getMemberState(),
-                initialData: null,
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (snapshot.hasData) {
-                    if (snapshot.data) {
-                      return FeedRoomListScreen(user: user!);
-                    } else {
-                      return FeedRoomScreen(
-                        isCm: snapshot.data,
-                        user: user!,
-                        feedRoomId: widget.defaultFeedroom,
-                      );
-                    }
-                    // return TaggingTestView();
+                      },
+                    );
+                  }
+                  if (settings.name == ReportPostScreen.route) {
+                    return MaterialPageRoute(
+                      builder: (context) {
+                        return const ReportPostScreen();
+                      },
+                    );
+                  }
+                  if (settings.name == NewPostScreen.route) {
+                    final args = settings.arguments as NewPostScreenArguments;
+                    return MaterialPageRoute(
+                      builder: (context) {
+                        return NewPostScreen(
+                          feedRoomId: args.feedroomId,
+                          feedRoomTitle: args.feedRoomTitle,
+                          isCm: args.isCm,
+                          populatePostMedia: args.populatePostMedia,
+                          populatePostText: args.populatePostText,
+                        );
+                      },
+                    );
                   }
 
-                  return Container(
-                    height: MediaQuery.of(context).size.height,
-                    width: MediaQuery.of(context).size.width,
-                    color: kBackgroundColor,
-                    child: const Center(
-                      child: Loader(
-                        isPrimary: true,
-                      ),
-                    ),
-                  );
+                  if (settings.name == EditPostScreen.route) {
+                    final args = settings.arguments as EditPostScreenArguments;
+                    return MaterialPageRoute(
+                      builder: (context) {
+                        return EditPostScreen(
+                          postId: args.postId,
+                          feedRoomId: args.feedRoomId,
+                        );
+                      },
+                    );
+                  }
+
+                  if (settings.name == FeedRoomSelect.route) {
+                    final args = settings.arguments as FeedRoomSelectArguments;
+                    return MaterialPageRoute(
+                      builder: (context) {
+                        return FeedRoomSelect(
+                          user: args.user,
+                          feedRoomIds: args.feedRoomIds,
+                        );
+                      },
+                    );
+                  }
                 },
+                home: FutureBuilder(
+                  future: locator<LikeMindsService>().getMemberState(),
+                  initialData: null,
+                  builder: (BuildContext context, AsyncSnapshot snapshot) {
+                    if (snapshot.hasData) {
+                      if (snapshot.data) {
+                        UserLocalPreference.instance.storeMemberState(true);
+                        return FeedRoomListScreen(user: user!);
+                      } else {
+                        UserLocalPreference.instance.storeMemberState(false);
+                        return FeedRoomScreen(
+                          isCm: snapshot.data,
+                          user: user!,
+                          feedRoomId: widget.defaultFeedroom,
+                        );
+                      }
+                      // return TaggingTestView();
+                    }
+
+                    return Container(
+                      height: MediaQuery.of(context).size.height,
+                      width: MediaQuery.of(context).size.width,
+                      color: kBackgroundColor,
+                      child: const Center(
+                        child: Loader(
+                          isPrimary: true,
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
             );
           } else {}
+        } else if (snapshot.hasError) {
+          print("Error - ${snapshot.error}");
+          return Container(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            color: kBackgroundColor,
+            child: const Center(
+              child: Text("An error has occured",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                  )),
+            ),
+          );
         }
         return Container(
           height: MediaQuery.of(context).size.height,

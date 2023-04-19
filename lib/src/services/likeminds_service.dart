@@ -1,6 +1,9 @@
 import 'dart:io';
 
+import 'package:feed_sx/feed.dart';
+import 'package:feed_sx/src/services/media_service.dart';
 import 'package:feed_sx/src/utils/credentials/credentials.dart';
+import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:flutter/foundation.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
@@ -17,19 +20,24 @@ abstract class ILikeMindsService {
   Future<AddPostResponse> addPost(AddPostRequest request);
   Future<GetPostResponse> getPost(GetPostRequest request);
   Future<GetPostLikesResponse> getPostLikes(GetPostLikesRequest request);
+  Future<PinPostResponse> pinPost(PinPostRequest request);
+  Future<EditPostResponse> editPost(EditPostRequest request);
   Future<GetCommentLikesResponse> getCommentLikes(
       GetCommentLikesRequest request);
   Future<DeletePostResponse> deletePost(DeletePostRequest request);
   Future<LikePostResponse> likePost(LikePostRequest request);
   Future<DeleteCommentResponse> deleteComment(DeleteCommentRequest request);
-  Future<String?> uploadFile(File file);
+  Future<String?> uploadFile(File file, String userUniqueId);
   Future<RegisterDeviceResponse> registerDevice(RegisterDeviceRequest request);
   Future<TagResponseModel> getTags({required TagRequestModel request});
+  Future<DecodeUrlResponse> decodeUrl(DecodeUrlRequest request);
+  Future<GetDeleteReasonResponse> getReportTags(GetDeleteReasonRequest request);
   void routeToProfile(String userId);
 }
 
 class LikeMindsService implements ILikeMindsService {
   late final LMFeedClient _sdkApplication;
+  late final MediaService _mediaService;
 
   int? feedroomId;
 
@@ -42,6 +50,7 @@ class LikeMindsService implements ILikeMindsService {
 
   LikeMindsService(LMSdkCallback sdkCallback, String apiKey) {
     print("UI Layer: LikeMindsService initialized");
+    _mediaService = MediaService(_prodFlag);
     final String key = apiKey.isEmpty
         ? _prodFlag
             ? CredsProd.apiKey
@@ -56,6 +65,8 @@ class LikeMindsService implements ILikeMindsService {
 
   @override
   Future<InitiateUserResponse> initiateUser(InitiateUserRequest request) async {
+    UserLocalPreference userLocalPreference = UserLocalPreference.instance;
+    await userLocalPreference.initialize();
     return await _sdkApplication.initiateUser(request);
   }
 
@@ -102,14 +113,24 @@ class LikeMindsService implements ILikeMindsService {
   }
 
   @override
+  Future<PinPostResponse> pinPost(PinPostRequest pinPostRequest) async {
+    return await _sdkApplication.pinPost(pinPostRequest);
+  }
+
+  @override
+  Future<EditPostResponse> editPost(EditPostRequest editPostRequest) async {
+    return await _sdkApplication.editPost(editPostRequest);
+  }
+
+  @override
   Future<DeleteCommentResponse> deleteComment(
       DeleteCommentRequest deleteCommentRequest) async {
     return await _sdkApplication.deleteComment(deleteCommentRequest);
   }
 
   @override
-  Future<String?> uploadFile(File file) async {
-    return await _sdkApplication.uploadFile(file);
+  Future<String?> uploadFile(File file, String userUniqueId) async {
+    return await _mediaService.uploadFile(file, userUniqueId);
   }
 
   @override
@@ -137,6 +158,17 @@ class LikeMindsService implements ILikeMindsService {
   @override
   Future<TagResponseModel> getTags({required TagRequestModel request}) async {
     return await _sdkApplication.getTags(request: request);
+  }
+
+  @override
+  Future<DecodeUrlResponse> decodeUrl(DecodeUrlRequest request) async {
+    return await _sdkApplication.decodeUrl(request);
+  }
+
+  @override
+  Future<GetDeleteReasonResponse> getReportTags(
+      GetDeleteReasonRequest request) async {
+    return await _sdkApplication.getReportTags(request);
   }
 
   @override
