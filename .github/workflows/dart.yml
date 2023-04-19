@@ -57,4 +57,4 @@ jobs:
       - name: Start iOS release build
         run: |
           cd example/
-          flutter build ios
+          flutter build ipa
