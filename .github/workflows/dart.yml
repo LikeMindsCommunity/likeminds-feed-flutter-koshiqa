@@ -28,16 +28,16 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           # 11
-          flutter-version: "3.0.0"
+          flutter-version: "3.7.3"
           channel: 'stable'
           cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
 
       - name: Navigate to Sample App Directory
         run: cd example/
       # 12
-      - name: Get dependencies
-        run: flutter pub get
-
 #      - name: Run Flutter tests
 #        run: flutter test
 
