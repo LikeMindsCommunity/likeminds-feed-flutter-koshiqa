@@ -1,3 +1,4 @@
+import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/views/comments/components/dropdown_options_reply.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
@@ -127,12 +128,22 @@ class _ReplyTileState extends State<ReplyTile> {
                     })),
                   ),
                   kHorizontalPaddingSmall,
-                  Text(
-                    likeCount! > 0
-                        ? "$likeCount ${likeCount! > 1 ? 'Likes' : 'Like'}"
-                        : '',
-                    style: const TextStyle(
-                        fontSize: kFontSmallMed, color: kGrey3Color),
+                  GestureDetector(
+                    onTap: () {
+                      locator<NavigationService>().navigateTo(LikesScreen.route,
+                          arguments: LikesScreenArguments(
+                            postId: postId,
+                            commentId: reply.id,
+                            isCommentLikes: true,
+                          ));
+                    },
+                    child: Text(
+                      likeCount! > 0
+                          ? "$likeCount ${likeCount! > 1 ? 'Likes' : 'Like'}"
+                          : '',
+                      style: const TextStyle(
+                          fontSize: kFontSmallMed, color: kGrey3Color),
+                    ),
                   ),
                 ],
               ),

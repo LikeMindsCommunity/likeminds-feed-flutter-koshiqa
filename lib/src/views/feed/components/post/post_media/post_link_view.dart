@@ -6,7 +6,7 @@ import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PostLinkView extends StatelessWidget {
-  PostLinkView({
+  const PostLinkView({
     super.key,
     required this.screenSize,
     this.attachment,
@@ -98,8 +98,9 @@ class PostLinkView extends StatelessWidget {
                       width: screenSize!.width,
                       child: Text(
                         linkModel == null
-                            ? attachment!.attachmentMeta.ogTags!.url ?? ''
-                            : linkModel!.link ?? '',
+                            ? attachment!.attachmentMeta.ogTags!.url!
+                                .toLowerCase()
+                            : linkModel!.link!.toLowerCase(),
                         maxLines: 1,
                         style: const TextStyle(
                           color: kGrey3Color,

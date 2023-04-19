@@ -16,6 +16,7 @@ import 'package:feed_sx/src/widgets/close_icon.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:feed_sx/src/widgets/profile_picture.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:overlay_support/overlay_support.dart';
@@ -100,6 +101,10 @@ class _EditPostScreenState extends State<EditPostScreen> {
         );
       }
       rebuildAttachments.value = !rebuildAttachments.value;
+    } else if (link.isEmpty) {
+      linkModel = null;
+      attachments?.removeWhere((element) => element.attachmentType == 4);
+      rebuildAttachments.value = !rebuildAttachments.value;
     }
   }
 
@@ -117,7 +122,11 @@ class _EditPostScreenState extends State<EditPostScreen> {
   }
 
   void checkTextLinks() {
-    if (linkModel != null &&
+    String link = getFirstValidLinkFromString(textEditingController!.text);
+    if (link.isEmpty) {
+      linkModel = null;
+      attachments?.removeWhere((element) => element.attachmentType == 4);
+    } else if (linkModel != null &&
         showLinkPreview &&
         !isDocumentPost &&
         !isMediaPost) {
@@ -135,32 +144,41 @@ class _EditPostScreenState extends State<EditPostScreen> {
           ),
         ),
       ];
+    } else if (!showLinkPreview) {
+      attachments?.removeWhere((element) => element.attachmentType == 4);
     }
   }
 
   void setPostData(Post post) {
-    postDetails = post;
-    convertedPostText = TaggingHelper.convertRouteToTag(post.text);
-    textEditingController!.value = TextEditingValue(text: convertedPostText);
-    textEditingController!.selection = TextSelection.fromPosition(
-        TextPosition(offset: textEditingController!.text.length));
-    userTags = TaggingHelper.addUserTagsIfMatched(post.text);
-    attachments = post.attachments ?? [];
-    if (attachments != null && attachments!.isNotEmpty) {
-      if (attachments![0].attachmentType == 1 ||
-          attachments![0].attachmentType == 2) {
-        isMediaPost = true;
-        showLinkPreview = false;
-      } else if (attachments![0].attachmentType == 3) {
-        isDocumentPost = true;
-        showLinkPreview = false;
+    if (postDetails == null) {
+      postDetails = post;
+      convertedPostText = TaggingHelper.convertRouteToTag(post.text);
+      textEditingController!.value = TextEditingValue(text: convertedPostText);
+      textEditingController!.selection = TextSelection.fromPosition(
+          TextPosition(offset: textEditingController!.text.length));
+      userTags = TaggingHelper.addUserTagsIfMatched(post.text);
+      attachments = post.attachments ?? [];
+      if (attachments != null && attachments!.isNotEmpty) {
+        if (attachments![0].attachmentType == 1 ||
+            attachments![0].attachmentType == 2) {
+          isMediaPost = true;
+          showLinkPreview = false;
+        } else if (attachments![0].attachmentType == 3) {
+          isDocumentPost = true;
+          showLinkPreview = false;
+        } else if (attachments![0].attachmentType == 4) {
+          linkModel = MediaModel(
+              mediaType: MediaType.link,
+              link: attachments![0].attachmentMeta.url,
+              ogTags: attachments![0].attachmentMeta.ogTags);
+        }
       }
     }
-    handleTextLinks(convertedPostText);
   }
 
   @override
   Widget build(BuildContext context) {
+    // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
     screenSize = MediaQuery.of(context).size;
     newPostBloc = BlocProvider.of<NewPostBloc>(context);
     return WillPopScope(
@@ -196,26 +214,33 @@ class _EditPostScreenState extends State<EditPostScreen> {
         }
         return Future(() => false);
       },
-      child: SafeArea(
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.dark,
         child: Scaffold(
-          resizeToAvoidBottomInset: false,
           backgroundColor: kWhiteColor,
-          body: FutureBuilder(
-              future: postFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: Loader());
-                } else if (snapshot.connectionState == ConnectionState.done) {
-                  GetPostResponse response = snapshot.data!;
-                  if (response.success) {
-                    setPostData(response.post!);
-                    return postEditWidget();
-                  } else {
-                    return postErrorScreen(response.errorMessage!);
-                  }
-                }
-                return const SizedBox();
-              }),
+          body: SafeArea(
+            child: Scaffold(
+              resizeToAvoidBottomInset: false,
+              backgroundColor: kWhiteColor,
+              body: FutureBuilder(
+                  future: postFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: Loader());
+                    } else if (snapshot.connectionState ==
+                        ConnectionState.done) {
+                      GetPostResponse response = snapshot.data!;
+                      if (response.success) {
+                        setPostData(response.post!);
+                        return postEditWidget();
+                      } else {
+                        return postErrorScreen(response.errorMessage!);
+                      }
+                    }
+                    return const SizedBox();
+                  }),
+            ),
+          ),
         ),
       ),
     );

@@ -258,10 +258,10 @@ class _FeedRoomViewState extends State<FeedRoomView> {
           fit: BoxFit.cover,
         );
       } else {
-        return const SizedBox(height: 50, width: 50);
+        return const SizedBox.shrink();
       }
     } else {
-      return const SizedBox(height: 50, width: 50);
+      return const SizedBox.shrink();
     }
   }
 

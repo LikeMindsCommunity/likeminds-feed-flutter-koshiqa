@@ -40,6 +40,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
   TextEditingController? _commentController;
   ValueNotifier<bool> rebuildButton = ValueNotifier(false);
   ValueNotifier<bool> rebuildPostWidget = ValueNotifier(false);
+  ValueNotifier<bool> rebuildReplyWidget = ValueNotifier(false);
   final PagingController<int, Reply> _pagingController =
       PagingController(firstPageKey: 1);
   Post? postData;
@@ -93,17 +94,15 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
   }
 
   selectCommentToReply(String commentId, String username) {
-    setState(() {
-      selectedCommentId = commentId;
-      selectedUsername = username;
-    });
+    selectedCommentId = commentId;
+    selectedUsername = username;
+    rebuildReplyWidget.value = !rebuildReplyWidget.value;
   }
 
   deselectCommentToReply() {
-    setState(() {
-      selectedCommentId = null;
-      selectedUsername = null;
-    });
+    selectedCommentId = null;
+    selectedUsername = null;
+    rebuildReplyWidget.value = !rebuildReplyWidget.value;
   }
 
   Future updatePostDetails(BuildContext context) async {
@@ -116,10 +115,8 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
           .build(),
     );
     if (postDetails.success) {
-      if (postData!.commentCount != postDetails.post!.commentCount) {
-        postData = postDetails.post;
-        rebuildPostWidget.value = !rebuildPostWidget.value;
-      }
+      postData = postDetails.post;
+      rebuildPostWidget.value = !rebuildPostWidget.value;
     } else {
       toast(
         postDetails.errorMessage ?? 'An error occured',
@@ -153,43 +150,47 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   kVerticalPaddingMedium,
-                  selectedCommentId != null
-                      ? Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          child: Row(
-                            children: [
-                              Text(
-                                "Replying to",
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: kHeadingColor),
-                              ),
-                              SizedBox(
-                                width: 8,
-                              ),
-                              Text(
-                                selectedUsername!,
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: kPrimaryColor),
-                              ),
-                              Spacer(),
-                              IconButton(
-                                onPressed: () {
-                                  deselectCommentToReply();
-                                },
-                                icon: Icon(
-                                  Icons.close,
-                                  color: kGreyColor,
+                  ValueListenableBuilder(
+                      valueListenable: rebuildReplyWidget,
+                      builder: (context, _, __) {
+                        return selectedCommentId != null
+                            ? Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 8),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      "Replying to",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: kHeadingColor),
+                                    ),
+                                    SizedBox(
+                                      width: 8,
+                                    ),
+                                    Text(
+                                      selectedUsername!,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: kPrimaryColor),
+                                    ),
+                                    Spacer(),
+                                    IconButton(
+                                      onPressed: () {
+                                        deselectCommentToReply();
+                                      },
+                                      icon: Icon(
+                                        Icons.close,
+                                        color: kGreyColor,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : SizedBox(),
+                              )
+                            : const SizedBox();
+                      }),
                   TaggingAheadTextField(
                     feedroomId: widget.feedRoomId,
                     isDown: false,
@@ -421,10 +422,12 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                         postDetailResponse.postReplies.userId]!,
                                     postType: 0,
                                     isFeed: false,
-                                    refresh: (bool isDeleted) {
+                                    refresh: (bool isDeleted) async {
                                       if (isDeleted) {
                                         locator<NavigationService>().goBack(
                                             result: {'isBack': isDeleted});
+                                      } else {
+                                        await updatePostDetails(context);
                                       }
                                     },
                                   );

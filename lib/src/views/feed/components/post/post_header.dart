@@ -131,7 +131,7 @@ class PostHeader extends StatelessWidget {
                 ],
               ),
             ),
-            kHorizontalPaddingMedium,
+            kHorizontalPaddingLarge,
             Row(
               children: [
                 postDetails.isPinned
