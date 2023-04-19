@@ -4,11 +4,8 @@ import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
-import 'package:feed_sx/src/views/report_post/report_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:likeminds_feed/likeminds_feed.dart' as sdk;
+import 'package:overlay_support/overlay_support.dart';
 
 class DropdownOptionsReply extends StatelessWidget {
   final String postId;
@@ -17,7 +14,7 @@ class DropdownOptionsReply extends StatelessWidget {
   final List<PopupMenuItemModel> menuItems;
   final Function() refresh;
 
-  DropdownOptionsReply({
+  const DropdownOptionsReply({
     super.key,
     required this.menuItems,
     required this.replyDetails,
@@ -26,9 +23,18 @@ class DropdownOptionsReply extends StatelessWidget {
     required this.commentId,
   });
 
+  void removeEditIntegration() {
+    if (menuItems != null) {
+      menuItems.removeWhere((element) {
+        return element.title == 'Edit';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Builder(builder: (ctx) {
+    removeEditIntegration();
+    return Builder(builder: (context) {
       return PopupMenuButton<int>(
         itemBuilder: (context) => menuItems
             .mapIndexed((index, element) => PopupMenuItem(
@@ -43,12 +49,13 @@ class DropdownOptionsReply extends StatelessWidget {
                     if (element.title.split(' ').first == "Delete") {
                       showDialog(
                           context: context,
-                          builder: (childContext) => confirmationDialog(
+                          builder: (childContext) => deleteConfirmationDialog(
                                   childContext,
                                   title: 'Delete Comment',
+                                  userId: replyDetails.userId,
                                   content:
                                       'Are you sure you want to delete this comment. This action can not be reversed.',
-                                  action: () async {
+                                  action: (String reason) async {
                                 Navigator.of(childContext).pop();
                                 final res = await locator<LikeMindsService>()
                                     .getMemberState();
@@ -64,26 +71,27 @@ class DropdownOptionsReply extends StatelessWidget {
                                 final response =
                                     await locator<LikeMindsService>()
                                         .deleteComment(
-                                  DeleteCommentRequest(
-                                    postId: postId,
-                                    commentId: replyDetails.id,
-                                    reason: "Reason for deletion",
-                                  ),
+                                  (DeleteCommentRequestBuilder()
+                                        ..postId(postId)
+                                        ..commentId(replyDetails.id)
+                                        ..reason(reason.isEmpty
+                                            ? "Reason for deletion"
+                                            : reason))
+                                      .build(),
                                 );
                                 print(response.toString());
 
                                 if (response.success) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      confirmationToast(
-                                          content: 'Comment Deleted',
-                                          width: 200,
-                                          backgroundColor: kGrey1Color));
+                                  toast(
+                                    'Comment Deleted',
+                                    duration: Toast.LENGTH_LONG,
+                                  );
                                   refresh();
                                 } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      confirmationToast(
-                                          content: response.errorMessage ?? '',
-                                          backgroundColor: kGrey1Color));
+                                  toast(
+                                    response.errorMessage ?? '',
+                                    duration: Toast.LENGTH_LONG,
+                                  );
                                 }
                               }, actionText: 'Delete'));
                     } else if (element.title.split(' ').first == "Pin") {

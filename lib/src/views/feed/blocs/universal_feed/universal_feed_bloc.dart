@@ -27,7 +27,7 @@ class UniversalFeedBloc extends Bloc<UniversalFeedEvent, UniversalFeedState> {
       required bool forLoadMore,
       required Emitter<UniversalFeedState> emit}) async {
     // if (!hasReachedMax(state, forLoadMore)) {
-    Map<String, PostUser> users = {};
+    Map<String, User> users = {};
     if (state is UniversalFeedLoaded) {
       users = (state as UniversalFeedLoaded).feed.users;
       emit(PaginatedUniversalFeedLoading(
@@ -35,10 +35,12 @@ class UniversalFeedBloc extends Bloc<UniversalFeedEvent, UniversalFeedState> {
     }
     emit(UniversalFeedLoading());
     UniversalFeedResponse? response =
-        await locator<LikeMindsService>().getUniversalFeed(UniversalFeedRequest(
-      page: offset,
-      pageSize: 10,
-    ));
+        await locator<LikeMindsService>().getUniversalFeed(
+      (UniversalFeedRequestBuilder()
+            ..page(offset)
+            ..pageSize(10))
+          .build(),
+    );
 
     if (response == null) {
       emit(UniversalFeedError(message: "No data found"));

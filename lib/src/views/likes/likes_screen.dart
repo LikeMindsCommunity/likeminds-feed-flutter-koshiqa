@@ -2,10 +2,8 @@ import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/utils/simple_bloc_observer.dart';
 import 'package:feed_sx/src/views/likes/bloc/likes_bloc.dart';
 import 'package:feed_sx/src/views/likes/likes_helper.dart';
-import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:feed_sx/src/widgets/profile_picture.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
@@ -29,7 +27,7 @@ class LikesScreen extends StatefulWidget {
 
 class _LikesScreenState extends State<LikesScreen> {
   LikesBloc? _likesBloc;
-  final PagingController<int, PostUser> _pagingController =
+  final PagingController<int, User> _pagingController =
       PagingController(firstPageKey: 1);
 
   _addPaginationListener() {
@@ -140,6 +138,7 @@ class _LikesScreenState extends State<LikesScreen> {
         return Future(() => false);
       },
       child: Scaffold(
+        backgroundColor: kWhiteColor,
         body: BlocConsumer(
             bloc: _likesBloc,
             buildWhen: (previous, current) {
@@ -201,7 +200,7 @@ Widget getAppBar(String text) {
 }
 
 Widget getLikesLoadedView(
-  PagingController<int, PostUser> pagingController, {
+  PagingController<int, User> pagingController, {
   LikesLoaded? state,
   CommentLikesLoaded? commentState,
   bool isCommentLikes = false,
@@ -217,12 +216,12 @@ Widget getLikesLoadedView(
         child: PagedListView(
           padding: EdgeInsets.zero,
           pagingController: pagingController,
-          builderDelegate: PagedChildBuilderDelegate<PostUser>(
+          builderDelegate: PagedChildBuilderDelegate<User>(
             noMoreItemsIndicatorBuilder: (context) => const SizedBox(
               height: 20,
             ),
             noItemsFoundIndicatorBuilder: (context) => Scaffold(
-              backgroundColor: kBackgroundColor,
+              backgroundColor: kWhiteColor,
               body: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -266,13 +265,13 @@ Widget getLikesLoadingView() {
 }
 
 class LikesTile extends StatelessWidget {
-  final PostUser? user;
+  final User? user;
   const LikesTile({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
     if (user != null) {
-      return user!.isDeleted
+      return user!.isDeleted != null && user!.isDeleted!
           ? const DeletedLikesTile()
           : Padding(
               padding: const EdgeInsets.only(

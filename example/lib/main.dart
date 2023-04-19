@@ -1,6 +1,5 @@
 import 'package:feed_sx/feed.dart';
 import 'package:feed_example/cred_screen.dart';
-import 'package:feed_example/likeminds_callback.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
@@ -19,7 +18,6 @@ Future<void> _handleNotification(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  setupLMFeed(LikeMindsCallback());
   setupNotifications();
   runApp(const MyApp());
 }
@@ -95,7 +93,10 @@ Future<String?> setupMessaging() async {
     debugPrint("Token - $token");
     return token.toString();
   } else {
-    toast('User declined or has not accepted notification permissions');
+    toast(
+      'User declined or has not accepted notification permissions',
+      duration: Toast.LENGTH_LONG,
+    );
     return null;
   }
 }

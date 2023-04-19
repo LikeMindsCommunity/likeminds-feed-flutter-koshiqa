@@ -1,19 +1,22 @@
 library expandable_text;
 
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:feed_sx/src/utils/constants/string_constants.dart';
+import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher_string.dart';
+import 'package:likeminds_feed/likeminds_feed.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import './text_parser.dart';
 
 typedef StringCallback = void Function(String value);
 
 class ExpandableText extends StatefulWidget {
-  const ExpandableText(
+  ExpandableText(
     this.text, {
     Key? key,
     required this.expandText,
@@ -47,7 +50,7 @@ class ExpandableText extends StatefulWidget {
   })  : assert(maxLines > 0),
         super(key: key);
 
-  final String text;
+  String text;
   final String expandText;
   final String? collapseText;
   final bool expanded;
@@ -83,6 +86,7 @@ class ExpandableText extends StatefulWidget {
 
 class ExpandableTextState extends State<ExpandableText>
     with TickerProviderStateMixin {
+  late String _passedText;
   bool _expanded = false;
   RegExp regExp = RegExp(kRegexLinksAndTags);
   late TapGestureRecognizer _linkTapGestureRecognizer;
@@ -94,7 +98,7 @@ class ExpandableTextState extends State<ExpandableText>
   @override
   void initState() {
     super.initState();
-
+    _passedText = widget.text;
     _expanded = widget.expanded;
     _linkTapGestureRecognizer = TapGestureRecognizer()..onTap = _linkTapped;
     _prefixTapGestureRecognizer = TapGestureRecognizer()..onTap = _prefixTapped;
@@ -213,7 +217,7 @@ class ExpandableTextState extends State<ExpandableText>
           textAlign: textAlign,
           textDirection: textDirection,
           textScaleFactor: textScaleFactor,
-          maxLines: widget.maxLines,
+          maxLines: 3,
           locale: locale,
         );
         textPainter.layout(minWidth: constraints.minWidth, maxWidth: maxWidth);
@@ -237,28 +241,34 @@ class ExpandableTextState extends State<ExpandableText>
               (_expanded ? widget.collapseOnTextTap : widget.expandOnTextTap)
                   ? _linkTapGestureRecognizer
                   : null;
+          String resultText;
+          if (!_expanded) {
+            var response =
+                TaggingHelper.convertRouteToTagAndUserMap(widget.text);
+            List<UserTag> userTags = response['userTags'];
+            resultText = response['text'];
+            final lineCount = textPainter.computeLineMetrics().length;
+            final nCount = '\n'.allMatches(resultText).length + 1;
+            if (resultText.length > 300 && nCount <= 4) {
+              resultText = resultText.substring(0, max(endOffset, 0));
+            } else {
+              resultText = resultText.substring(0, max(endOffset, 0));
+            }
+
+            resultText = TaggingHelper.encodeString(resultText, userTags);
+          } else {
+            resultText = widget.text;
+          }
 
           final text = _textSegments.isNotEmpty
               ? TextSpan(
                   children: _buildTextSpans(
-                      _expanded
-                          ? _textSegments
-                          : parseText(
-                              widget.text.substring(0, max(endOffset, 0))),
+                      _expanded ? _textSegments : parseText(resultText),
                       effectiveTextStyle!,
                       recognizer),
                 )
               : TextSpan(
-                  children: _expanded
-                      ? extractLinksAndTags(widget.text)
-                      : widget.text.contains('<<')
-                          ? extractLinksAndTags(
-                              TaggingHelper.decodeString(widget.text)
-                                  .keys
-                                  .first
-                                  .substring(0, max(endOffset, 0)))
-                          : extractLinksAndTags(
-                              widget.text.substring(0, max(endOffset, 0))),
+                  children: extractLinksAndTags(resultText),
                 );
 
           textSpan = TextSpan(
@@ -284,11 +294,11 @@ class ExpandableTextState extends State<ExpandableText>
 
         if (widget.animation) {
           return AnimatedSize(
-            child: richText,
-            duration: widget.animationDuration ?? Duration(milliseconds: 200),
-            curve: widget.animationCurve ?? Curves.fastLinearToSlowEaseIn,
-            alignment: Alignment.topLeft,
-          );
+              duration:
+                  widget.animationDuration ?? const Duration(milliseconds: 200),
+              curve: widget.animationCurve ?? Curves.fastLinearToSlowEaseIn,
+              alignment: Alignment.topLeft,
+              child: richText);
         }
 
         return richText;
@@ -403,8 +413,9 @@ class ExpandableTextState extends State<ExpandableText>
         recognizer: TapGestureRecognizer()
           ..onTap = () async {
             if (!isTag) {
-              if (await canLaunchUrlString(link ?? '')) {
-                launchUrlString(link.toString());
+              String checkLink = getFirstValidLinkFromString(link ?? '');
+              if (Uri.parse(checkLink).isAbsolute) {
+                launchUrl(Uri.parse(checkLink));
               }
             } else {
               TaggingHelper.routeToProfile(
@@ -424,6 +435,7 @@ class ExpandableTextState extends State<ExpandableText>
         style: widget.style,
       ));
     }
+
     return textSpans;
   }
 }

@@ -7,7 +7,7 @@ class ProfilePicture extends StatelessWidget {
   const ProfilePicture({Key? key, required this.user, this.size = 48})
       : super(key: key);
 
-  final PostUser user;
+  final User user;
 
   @override
   Widget build(BuildContext context) {

@@ -1,4 +1,5 @@
 import 'package:feed_sx/src/widgets/profile_picture.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/utils.dart';
@@ -6,7 +7,8 @@ import 'package:feed_sx/src/views/feed/components/dropdown_options.dart';
 import 'package:flutter/material.dart';
 
 class PostHeader extends StatelessWidget {
-  final PostUser user;
+  final User user;
+  final int feedRoomId;
   final Post postDetails;
   final List<PopupMenuItemModel> menuItems;
   final Function(bool) refresh;
@@ -16,6 +18,7 @@ class PostHeader extends StatelessWidget {
       required this.user,
       required this.menuItems,
       required this.postDetails,
+      required this.feedRoomId,
       required this.refresh});
 
   void removeReportIntegration() {
@@ -26,82 +29,133 @@ class PostHeader extends StatelessWidget {
     }
   }
 
-  void removePinIntegration() {
-    if (menuItems != null) {
-      menuItems.removeWhere((element) => element.title == 'Pin this Post');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    Size screenSize = MediaQuery.of(context).size;
     removeReportIntegration();
-    removePinIntegration();
-    final bool isEdited = postDetails.createdAt != postDetails.updatedAt;
+    final bool isEdited = postDetails.isEdited;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        children: [
-          ProfilePicture(user: user),
-          kHorizontalPaddingLarge,
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+      child: SizedBox(
+        width: screenSize.width - 32,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ProfilePicture(user: user),
+            kHorizontalPaddingLarge,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Text(
-                    user.name.isNotEmpty ? user.name : "Deleted user",
-                    style: TextStyle(
-                      fontSize: kFontMedium,
-                      color: kGrey1Color,
-                      fontWeight: FontWeight.w500,
-                      fontStyle: user.name.isNotEmpty
-                          ? FontStyle.normal
-                          : FontStyle.italic,
-                    ),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          user.isDeleted == null || !user.isDeleted!
+                              ? user.name
+                              : "Deleted user",
+                          maxLines: 1,
+                          softWrap: true,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: kFontMedium,
+                            color: kGrey1Color,
+                            fontWeight: FontWeight.w500,
+                            fontStyle: user.name.isNotEmpty
+                                ? FontStyle.normal
+                                : FontStyle.italic,
+                          ),
+                        ),
+                      ),
+                      kHorizontalPaddingMedium,
+                      (user.customTitle == null || user.customTitle!.isEmpty) ||
+                              (user.isDeleted != null && user.isDeleted!)
+                          ? const SizedBox()
+                          : Row(mainAxisSize: MainAxisSize.min, children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(3.0),
+                                  color: kPrimaryColor,
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(4.0),
+                                  child: Text(
+                                    user.customTitle!.isNotEmpty
+                                        ? user.customTitle!
+                                        : "",
+                                    maxLines: 1,
+                                    style: TextStyle(
+                                      fontSize: kFontSmall,
+                                      color: kWhiteColor,
+                                      fontWeight: FontWeight.w600,
+                                      fontStyle: user.name.isNotEmpty
+                                          ? FontStyle.normal
+                                          : FontStyle.italic,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ]),
+                    ],
                   ),
-                  kHorizontalPaddingLarge,
+                  kVerticalPaddingSmall,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        postDetails.createdAt.timeAgo(),
+                        style: const TextStyle(
+                          fontSize: kFontSmall,
+                          color: kGrey3Color,
+                        ),
+                      ),
+                      kHorizontalPaddingXSmall,
+                      Text(
+                        isEdited ? '·' : '',
+                        style: const TextStyle(
+                          fontSize: kFontSmall,
+                          color: kGrey3Color,
+                        ),
+                      ),
+                      kHorizontalPaddingXSmall,
+                      Text(
+                        isEdited ? 'Edited' : '',
+                        style: const TextStyle(
+                          fontSize: kFontSmall,
+                          color: kGrey3Color,
+                        ),
+                      ),
+                    ],
+                  )
                 ],
               ),
-              kVerticalPaddingSmall,
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    postDetails.createdAt.timeAgo(),
-                    style: const TextStyle(
-                      fontSize: kFontSmall,
-                      color: kGrey3Color,
-                    ),
-                  ),
-                  kHorizontalPaddingXSmall,
-                  Text(
-                    isEdited ? '·' : '',
-                    style: const TextStyle(
-                      fontSize: kFontSmall,
-                      color: kGrey3Color,
-                    ),
-                  ),
-                  kHorizontalPaddingXSmall,
-                  Text(
-                    isEdited ? 'Edited' : '',
-                    style: const TextStyle(
-                      fontSize: kFontSmall,
-                      color: kGrey3Color,
-                    ),
-                  ),
-                ],
-              )
-            ],
-          ),
-          const Spacer(),
-          menuItems.isNotEmpty
-              ? DropdownOptions(
-                  menuItems: menuItems,
-                  postDetails: postDetails,
-                  refresh: refresh,
-                )
-              : const SizedBox()
-        ],
+            ),
+            kHorizontalPaddingLarge,
+            Row(
+              children: [
+                postDetails.isPinned
+                    ? SvgPicture.asset(
+                        "packages/feed_sx/assets/icons/pin.svg",
+                        color: kGrey3Color,
+                        height: 20,
+                        width: 20,
+                        fit: BoxFit.cover,
+                      )
+                    : const SizedBox(),
+                kHorizontalPaddingLarge,
+                menuItems.isNotEmpty
+                    ? DropdownOptions(
+                        menuItems: menuItems,
+                        postDetails: postDetails,
+                        refresh: refresh,
+                        feedRoomId: feedRoomId,
+                      )
+                    : const SizedBox()
+              ],
+            )
+          ],
+        ),
       ),
     );
   }

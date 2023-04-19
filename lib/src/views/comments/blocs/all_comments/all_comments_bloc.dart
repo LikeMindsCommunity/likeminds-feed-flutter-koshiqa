@@ -26,7 +26,7 @@ class AllCommentsBloc extends Bloc<AllCommentsEvent, AllCommentsState> {
       required bool forLoadMore,
       required Emitter<AllCommentsState> emit}) async {
     // if (!hasReachedMax(state, forLoadMore)) {
-    Map<String, PostUser>? users = {};
+    Map<String, User>? users = {};
     if (state is AllCommentsLoaded) {
       users = (state as AllCommentsLoaded).postDetails.users;
       emit(PaginatedAllCommentsLoading(

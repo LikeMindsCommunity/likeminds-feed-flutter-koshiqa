@@ -1,4 +1,5 @@
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_document_factory.dart';
+import 'package:feed_sx/src/views/feed/components/post/post_media/post_link_view.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_media.dart';
@@ -20,7 +21,14 @@ class PostMediaFactory extends StatelessWidget {
     if (attachments!.isEmpty) {
       return const SizedBox.shrink();
     } else if (attachments!.first.attachmentType == 3) {
-      return postDocumentFactory(attachments, screenSize.width);
+      return PostDocumentFactory(
+          attachments: attachments, width: screenSize.width);
+    } else if (attachments!.first.attachmentType == 4) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child:
+            PostLinkView(screenSize: screenSize, attachment: attachments![0]),
+      );
     } else {
       return PostMedia(
         attachments: attachments,

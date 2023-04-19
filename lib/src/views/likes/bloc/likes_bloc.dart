@@ -19,10 +19,11 @@ class LikesBloc extends Bloc<LikesEvent, LikesState> {
         try {
           GetPostLikesResponse? response =
               await locator<LikeMindsService>().getPostLikes(
-            GetPostLikesRequest(
-                postId: event.postId,
-                page: event.offset,
-                pageSize: event.pageSize),
+            (GetPostLikesRequestBuilder()
+                  ..postId(event.postId)
+                  ..page(event.offset)
+                  ..pageSize(event.pageSize))
+                .build(),
           );
 
           if (response.success) {
@@ -49,12 +50,12 @@ class LikesBloc extends Bloc<LikesEvent, LikesState> {
         try {
           GetCommentLikesResponse response =
               await locator<LikeMindsService>().getCommentLikes(
-            GetCommentLikesRequest(
-              postId: event.postId,
-              commentId: event.commentId,
-              pageSize: event.pageSize,
-              page: event.offset,
-            ),
+            (GetCommentLikesRequestBuilder()
+                  ..postId(event.postId)
+                  ..commentId(event.commentId)
+                  ..pageSize(event.pageSize)
+                  ..page(event.offset))
+                .build(),
           );
           if (response.success) {
             emit(

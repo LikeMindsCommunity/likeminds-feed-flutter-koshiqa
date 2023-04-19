@@ -1,4 +1,3 @@
-import 'package:feed_sx/src/views/feed/feedroom_screen.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
@@ -67,30 +66,24 @@ class _PostActionsState extends State<PostActions> {
                     isLiked = !isLiked;
                     rebuildLikeWidget.value = !rebuildLikeWidget.value;
 
-                    final response = await locator<LikeMindsService>()
-                        .likePost(LikePostRequest(postId: postDetails!.id));
+                    final response = await locator<LikeMindsService>().likePost(
+                        (LikePostRequestBuilder()..postId(postDetails!.id))
+                            .build());
                     if (!response.success) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            response.errorMessage ??
-                                "There was an error liking the post",
-                            style: const TextStyle(
-                              fontSize: 18,
-                            ),
-                          ),
-                          backgroundColor: Colors.grey.shade500,
-                        ),
+                      toast(
+                        response.errorMessage ??
+                            "There was an error liking the post",
+                        duration: Toast.LENGTH_LONG,
                       );
-
                       if (isLiked) {
                         postLikes--;
                       } else {
                         postLikes++;
                       }
                       isLiked = !isLiked;
-                      // refresh();
                       rebuildLikeWidget.value = !rebuildLikeWidget.value;
+                    } else {
+                      await refresh(false);
                     }
                   },
                   icon: ValueListenableBuilder(

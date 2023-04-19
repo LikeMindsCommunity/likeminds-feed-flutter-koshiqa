@@ -20,7 +20,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 class CommentTile extends StatefulWidget {
   final String postId;
   final Reply reply;
-  final PostUser user;
+  final User user;
   final Function() refresh;
   final Function(String commentId, String username) onReply;
   const CommentTile({
@@ -41,7 +41,7 @@ class _CommentTileState extends State<CommentTile>
   late final ToggleLikeCommentBloc _toggleLikeCommentBloc;
   late final CommentRepliesBloc _commentRepliesBloc;
   late final Reply reply;
-  late final PostUser user;
+  late final User user;
   late final String postId;
   late final Function() refresh;
   int? likeCount;
@@ -82,7 +82,7 @@ class _CommentTileState extends State<CommentTile>
               Text(
                 user.name,
                 style: const TextStyle(
-                  fontSize: 14.5,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -96,9 +96,15 @@ class _CommentTileState extends State<CommentTile>
             ],
           ),
           kVerticalPaddingMedium,
-          ExpandableText(
-            reply.text,
-            expandText: 'show more',
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 36,
+              vertical: 2,
+            ),
+            child: ExpandableText(
+              reply.text,
+              expandText: 'show more',
+            ),
           ),
           kVerticalPaddingLarge,
           Row(
@@ -117,22 +123,23 @@ class _CommentTileState extends State<CommentTile>
                       });
 
                       _toggleLikeCommentBloc.add(ToggleLikeComment(
-                          toggleLikeCommentRequest: ToggleLikeCommentRequest(
-                        commentId: reply.id,
-                        postId: postId,
-                      )));
+                          toggleLikeCommentRequest:
+                              (ToggleLikeCommentRequestBuilder()
+                                    ..commentId(reply.id)
+                                    ..postId(postId))
+                                  .build()));
                     },
                     child: Builder(builder: ((context) {
                       return isLiked
                           ? SvgPicture.asset(
                               kAssetLikeFilledIcon,
                               // color: kPrimaryColor,
-                              height: 17,
+                              height: 18,
                             )
                           : SvgPicture.asset(
                               kAssetLikeIcon,
                               color: kGrey3Color,
-                              height: 13,
+                              height: 14,
                             );
                     })),
                   ),
@@ -149,7 +156,7 @@ class _CommentTileState extends State<CommentTile>
                     child: Text(
                       likeCount! > 0
                           ? "$likeCount ${likeCount! > 1 ? kStringLikes : kStringLike}"
-                          : kStringLike,
+                          : '',
                       style: const TextStyle(
                         fontSize: kFontSmallMed,
                         color: kGrey3Color,
@@ -192,12 +199,17 @@ class _CommentTileState extends State<CommentTile>
                         if (_replyVisible) {
                           setState(() {
                             _replyVisible = false;
+                            page = 1;
                           });
                           return;
                         } else {
                           _commentRepliesBloc.add(GetCommentReplies(
-                              commentDetailRequest: CommentDetailRequest(
-                                  commentId: reply.id, page: 1, postId: postId),
+                              commentDetailRequest:
+                                  (CommentDetailRequestBuilder()
+                                        ..commentId(reply.id)
+                                        ..page(1)
+                                        ..postId(postId))
+                                      .build(),
                               forLoadMore: false));
                           _replyVisible = true;
                         }
@@ -227,17 +239,22 @@ class _CommentTileState extends State<CommentTile>
             bloc: _commentRepliesBloc,
             builder: ((context, state) {
               if (state is CommentRepliesLoading) {
-                return const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(),
+                return const Padding(
+                  padding: EdgeInsets.only(top: 8.0),
+                  child: Center(
+                    child: SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
                 );
               }
               if (state is CommentRepliesLoaded ||
                   state is PaginatedCommentRepliesLoading) {
                 // replies.addAll(state.commentDetails.postReplies.replies);
                 List<CommentReply> replies = [];
-                Map<String, PostUser> users = {};
+                Map<String, User> users = {};
                 if (state is CommentRepliesLoaded) {
                   replies = state.commentDetails.postReplies.replies;
                   users = state.commentDetails.users;
@@ -261,23 +278,43 @@ class _CommentTileState extends State<CommentTile>
                   repliesW = [];
                 }
 
-                if (replies.length % 10 == 0) {
+                if (replies.length % 10 == 0 &&
+                    _replyVisible &&
+                    replies.length != reply.repliesCount) {
                   repliesW = [
                     ...repliesW,
-                    TextButton(
-                        onPressed: () {
-                          page++;
-                          _commentRepliesBloc.add(GetCommentReplies(
-                              commentDetailRequest: CommentDetailRequest(
-                                  commentId: reply.id,
-                                  page: page,
-                                  postId: postId),
-                              forLoadMore: true));
-                        },
-                        child: const Text(
-                          'View more replies',
-                          style: TextStyle(color: kBlueGreyColor, fontSize: 14),
-                        ))
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            page++;
+                            _commentRepliesBloc.add(GetCommentReplies(
+                                commentDetailRequest:
+                                    (CommentDetailRequestBuilder()
+                                          ..commentId(reply.id)
+                                          ..page(page)
+                                          ..postId(postId))
+                                        .build(),
+                                forLoadMore: true));
+                          },
+                          child: const Text(
+                            'View more replies',
+                            style: TextStyle(
+                              color: kBlueGreyColor,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          ' ${replies.length} of ${widget.reply.repliesCount}',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: kGrey3Color,
+                          ),
+                        )
+                      ],
+                    )
                   ];
                   // replies.add();
                 }

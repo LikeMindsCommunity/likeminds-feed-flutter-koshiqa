@@ -1,6 +1,11 @@
+import 'package:feed_example/likeminds_callback.dart';
+import 'package:feed_example/network_handling.dart';
 import 'package:flutter/material.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:overlay_support/overlay_support.dart';
+
+final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -11,6 +16,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Integration App for UI + SDK package',
         debugShowCheckedModeBanner: false,
+        scaffoldMessengerKey: rootScaffoldMessengerKey,
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
@@ -30,6 +36,22 @@ class CredScreen extends StatefulWidget {
 class _CredScreenState extends State<CredScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _userIdController = TextEditingController();
+  late final LMFeed lmFeed;
+
+  @override
+  @override
+  void initState() {
+    super.initState();
+    lmFeed = LMFeed.instance(
+      userId: _userIdController.text,
+      userName: _usernameController.text,
+      defaultFeedroom: 1262837,
+      callback: LikeMindsCallback(),
+      apiKey: "",
+    );
+    NetworkConnectivity networkConnectivity = NetworkConnectivity.instance;
+    networkConnectivity.initialise();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,11 +117,7 @@ class _CredScreenState extends State<CredScreen> {
               onTap: () {
                 MaterialPageRoute route = MaterialPageRoute(
                   // INIT - Get the LMFeed instance and pass the credentials (if any)
-                  builder: (context) => LMFeed.instance(
-                    userId: _userIdController.text,
-                    userName: _usernameController.text,
-                    defaultFeedroom: 72200,
-                  ),
+                  builder: (context) => lmFeed,
                 );
                 Navigator.pushReplacement(context, route);
               },
