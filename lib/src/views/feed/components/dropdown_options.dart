@@ -26,61 +26,61 @@ class DropdownOptions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Builder(builder: (context) {
-      return PopupMenuButton<String>(
+      return PopupMenuButton<int>(
         onSelected: (value) async {
-          if (value == "Delete") {
+          if (value == 1) {
             showDialog(
-                context: context,
-                builder: (childContext) => deleteConfirmationDialog(
-                        childContext,
-                        title: 'Delete Post',
-                        userId: postDetails.userId,
-                        content:
-                            'Are you sure you want to delete this post. This action can not be reversed.',
-                        action: (String reason) async {
-                      Navigator.of(childContext).pop();
-                      final res =
-                          await locator<LikeMindsService>().getMemberState();
-                      //Implement delete post analytics tracking
-                      LMAnalytics.get().track(
-                        AnalyticsKeys.postDeleted,
-                        {
-                          "user_state": res ? "CM" : "member",
-                          "post_id": postDetails.id,
-                          "user_id": postDetails.userId,
-                        },
-                      );
-                      final response =
-                          await locator<LikeMindsService>().deletePost(
-                        (DeletePostRequestBuilder()
-                              ..postId(postDetails.id)
-                              ..deleteReason(
-                                reason.isEmpty ? "Reason for deletion" : reason,
-                              ))
-                            .build(),
-                      );
-                      print(response.toString());
+              context: context,
+              builder: (childContext) => deleteConfirmationDialog(
+                childContext,
+                title: 'Delete Post',
+                userId: postDetails.userId,
+                content:
+                    'Are you sure you want to delete this post. This action can not be reversed.',
+                action: (String reason) async {
+                  Navigator.of(childContext).pop();
+                  final res =
+                      await locator<LikeMindsService>().getMemberState();
+                  //Implement delete post analytics tracking
+                  LMAnalytics.get().track(
+                    AnalyticsKeys.postDeleted,
+                    {
+                      "user_state": res ? "CM" : "member",
+                      "post_id": postDetails.id,
+                      "user_id": postDetails.userId,
+                    },
+                  );
+                  final response = await locator<LikeMindsService>().deletePost(
+                    (DeletePostRequestBuilder()
+                          ..postId(postDetails.id)
+                          ..deleteReason(
+                            reason.isEmpty ? "Reason for deletion" : reason,
+                          ))
+                        .build(),
+                  );
+                  print(response.toString());
 
-                      if (response.success) {
-                        toast(
-                          'Post Deleted',
-                          duration: Toast.LENGTH_LONG,
-                        );
-                        refresh(true);
-                      } else {
-                        toast(
-                          response.errorMessage ?? 'An error occurred',
-                          duration: Toast.LENGTH_LONG,
-                        );
-                      }
-                    }, actionText: 'Delete'));
-          } else if (value == "Pin" || value == "Unpin") {
+                  if (response.success) {
+                    toast(
+                      'Post Deleted',
+                      duration: Toast.LENGTH_LONG,
+                    );
+                    refresh(true);
+                  } else {
+                    toast(
+                      response.errorMessage ?? 'An error occurred',
+                      duration: Toast.LENGTH_LONG,
+                    );
+                  }
+                },
+                actionText: 'Delete',
+              ),
+            );
+          } else if (value == 2) {
             print("Pinning functionality");
             final res = await locator<LikeMindsService>().getMemberState();
             LMAnalytics.get().track(
-              value == "Pin"
-                  ? AnalyticsKeys.postPinned
-                  : AnalyticsKeys.postUnpinned,
+              AnalyticsKeys.postPinned,
               {
                 "user_state": res ? "CM" : "member",
                 "post_id": postDetails.id,
@@ -93,7 +93,7 @@ class DropdownOptions extends StatelessWidget {
             print(response.toString());
             if (response.success) {
               toast(
-                value == "Pin" ? 'Post Pinned' : 'Post Unpinned',
+                'Post Pinned',
                 duration: Toast.LENGTH_LONG,
               );
               refresh(false);
@@ -103,8 +103,34 @@ class DropdownOptions extends StatelessWidget {
                 duration: Toast.LENGTH_LONG,
               );
             }
-          }
-          if (value == "Edit") {
+          } else if (value == 3) {
+            print("Unpinning functionality");
+            final res = await locator<LikeMindsService>().getMemberState();
+            LMAnalytics.get().track(
+              AnalyticsKeys.postUnpinned,
+              {
+                "user_state": res ? "CM" : "member",
+                "post_id": postDetails.id,
+                "user_id": postDetails.userId,
+              },
+            );
+            final response = await locator<LikeMindsService>().pinPost(
+              (PinPostRequestBuilder()..postId(postDetails.id)).build(),
+            );
+            print(response.toString());
+            if (response.success) {
+              toast(
+                'Post Unpinned',
+                duration: Toast.LENGTH_LONG,
+              );
+              refresh(false);
+            } else {
+              toast(
+                response.errorMessage ?? 'An error occurred',
+                duration: Toast.LENGTH_LONG,
+              );
+            }
+          } else if (value == 5) {
             print('Editing functionality');
             await locator<NavigationService>().navigateTo(
               EditPostScreen.route,
@@ -113,7 +139,11 @@ class DropdownOptions extends StatelessWidget {
                 postId: postDetails.id,
               ),
             );
-            await Future.delayed(const Duration(seconds: 1));
+            await Future.delayed(
+              const Duration(
+                seconds: 1,
+              ),
+            );
             refresh(false);
           }
         },
@@ -125,7 +155,7 @@ class DropdownOptions extends StatelessWidget {
                   vertical: 8,
                 ),
                 height: 42,
-                value: element.title.split(' ').first,
+                value: element.id,
                 child: Text(element.title),
               ),
             )
