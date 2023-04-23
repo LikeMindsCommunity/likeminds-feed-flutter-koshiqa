@@ -37,7 +37,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
   late final AllCommentsBloc _allCommentsBloc;
   late final AddCommentBloc _addCommentBloc;
   late final AddCommentReplyBloc _addCommentReplyBloc;
-
+  final FocusNode focusNode = FocusNode();
   TextEditingController? _commentController;
   ValueNotifier<bool> rebuildButton = ValueNotifier(false);
   ValueNotifier<bool> rebuildPostWidget = ValueNotifier(false);
@@ -78,6 +78,9 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     _addCommentBloc = AddCommentBloc();
     _addCommentReplyBloc = AddCommentReplyBloc();
     _addPaginationListener();
+    if(widget.fromComment && focusNode.canRequestFocus){
+      focusNode.requestFocus();
+    }
   }
 
   int _page = 1;
@@ -118,6 +121,9 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     selectedUsername = username;
     isReplying = true;
     isEditing = false;
+    if(focusNode.canRequestFocus){
+      focusNode.requestFocus();
+    }
     rebuildReplyWidget.value = !rebuildReplyWidget.value;
   }
 
@@ -146,6 +152,11 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
         duration: Toast.LENGTH_LONG,
       );
     }
+  }
+
+  void increaseCommentCount() {
+    postData!.commentCount = postData!.commentCount + 1;
+    rebuildPostWidget.value = !rebuildPostWidget.value;
   }
 
   @override
@@ -216,7 +227,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                       }),
                   TaggingAheadTextField(
                     feedroomId: widget.feedRoomId,
-                    focusNode: FocusNode(),
+                    focusNode: focusNode,
                     isDown: false,
                     controller: _commentController,
                     onTagSelected: (tag) {
@@ -243,9 +254,8 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                               listener: ((context, state) {
                                 if (state is AddCommentSuccess) {
                                   _commentController!.clear();
-
-                                  updatePostDetails(context);
-                                  closeOnScreenKeyboard();
+                                  //updatePostDetails(context);
+                                  increaseCommentCount();
                                 }
                               }),
                               builder: (context, state) {
@@ -280,6 +290,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                                             .build(),
                                                   ),
                                                 );
+                                                closeOnScreenKeyboard();
                                               },
                                         icon: Icon(
                                           Icons.send,
@@ -300,8 +311,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                   _pagingController.refresh();
                                   _page = 1;
                                   deselectCommentToReply();
-                                  updatePostDetails(context);
-                                  closeOnScreenKeyboard();
+                                  //updatePostDetails(context);
                                 }
                               }),
                               builder: (context, state) {
@@ -343,7 +353,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                                                 .build()));
                                                 selectedCommentId = null;
                                                 selectedUsername = null;
-
+                                                closeOnScreenKeyboard();
                                                 // deselectCommentToReply();
                                               },
                                         icon: Icon(
@@ -418,15 +428,12 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                 late PostDetailResponse postDetailResponse;
                 if (state is AllCommentsLoaded) {
                   print("AllCommentsLoaded" + state.toString());
-                  updatePostDetails(context);
                   postDetailResponse = state.postDetails;
                 } else {
                   print("PaginatedAllCommentsLoading" + state.toString());
-                  updatePostDetails(context);
                   postDetailResponse =
                       (state as PaginatedAllCommentsLoading).prevPostDetails;
                 }
-
                 return RefreshIndicator(
                   onRefresh: () async {
                     await updatePostDetails(context);
@@ -530,8 +537,10 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
           )),
     );
   }
-}
 
-void closeOnScreenKeyboard() {
-  FocusManager.instance.primaryFocus?.unfocus();
+  void closeOnScreenKeyboard() {
+    if (focusNode.hasFocus) {
+      focusNode.unfocus();
+    }
+  }
 }

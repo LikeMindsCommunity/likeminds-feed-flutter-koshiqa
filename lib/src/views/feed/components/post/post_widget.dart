@@ -12,14 +12,12 @@ class PostWidget extends StatefulWidget {
   final Post postDetails;
   final int feedRoomId;
   final User user;
-  final int postType;
   final bool showActions;
   final Function(bool) refresh;
   final bool isFeed;
 
   const PostWidget({
     super.key,
-    required this.postType,
     this.showActions = true,
     required this.postDetails,
     required this.feedRoomId,
