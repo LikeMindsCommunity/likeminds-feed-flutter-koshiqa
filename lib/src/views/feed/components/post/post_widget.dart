@@ -61,8 +61,9 @@ class _PostWidgetState extends State<PostWidget> {
           locator<NavigationService>().navigateTo(
             AllCommentsScreen.route,
             arguments: AllCommentsScreenArguments(
-              post: postDetails!,
-              feedroomId: widget.feedRoomId,
+              postId: postDetails!.id,
+              feedRoomId: widget.feedRoomId,
+              fromComment: false,
             ),
           );
         }
