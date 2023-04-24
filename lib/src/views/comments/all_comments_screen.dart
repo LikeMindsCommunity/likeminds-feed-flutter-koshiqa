@@ -78,7 +78,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     _addCommentBloc = AddCommentBloc();
     _addCommentReplyBloc = AddCommentReplyBloc();
     _addPaginationListener();
-    if(widget.fromComment && focusNode.canRequestFocus){
+    if (widget.fromComment && focusNode.canRequestFocus) {
       focusNode.requestFocus();
     }
   }
@@ -118,10 +118,11 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
 
   selectCommentToReply(String commentId, String username) {
     selectedCommentId = commentId;
+    print(commentId);
     selectedUsername = username;
     isReplying = true;
     isEditing = false;
-    if(focusNode.canRequestFocus){
+    if (focusNode.canRequestFocus) {
       focusNode.requestFocus();
     }
     rebuildReplyWidget.value = !rebuildReplyWidget.value;
@@ -157,6 +158,31 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
   void increaseCommentCount() {
     postData!.commentCount = postData!.commentCount + 1;
     rebuildPostWidget.value = !rebuildPostWidget.value;
+  }
+
+  addCommentToList(AddCommentSuccess addCommentSuccess) {
+    List<Reply>? commentItemList = _pagingController.itemList;
+    commentItemList ??= [];
+    if (commentItemList.length >= 10) {
+      commentItemList.removeAt(9);
+    }
+    commentItemList.insert(0, addCommentSuccess.addCommentResponse.reply!);
+    rebuildPostWidget.value = !rebuildPostWidget.value;
+  }
+
+  addReplyToList(AddCommentReplySuccess addCommentReplySuccess) {
+    List<Reply>? commentItemList = _pagingController.itemList;
+    if (addCommentReplySuccess.addCommentResponse.reply!.parentComment !=
+        null) {
+      int index = commentItemList!.indexWhere((element) =>
+          element.id ==
+          addCommentReplySuccess.addCommentResponse.reply!.parentComment!.id);
+      if (index != -1) {
+        commentItemList[index].repliesCount =
+            commentItemList[index].repliesCount + 1;
+        rebuildPostWidget.value = !rebuildPostWidget.value;
+      }
+    }
   }
 
   @override
@@ -253,8 +279,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                               bloc: _addCommentBloc,
                               listener: ((context, state) {
                                 if (state is AddCommentSuccess) {
-                                  _commentController!.clear();
-                                  //updatePostDetails(context);
+                                  addCommentToList(state);
                                   increaseCommentCount();
                                 }
                               }),
@@ -291,6 +316,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                                   ),
                                                 );
                                                 closeOnScreenKeyboard();
+                                                _commentController?.clear();
                                               },
                                         icon: Icon(
                                           Icons.send,
@@ -308,10 +334,10 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                               listener: ((context, state) {
                                 if (state is AddCommentReplySuccess) {
                                   _commentController!.clear();
-                                  _pagingController.refresh();
-                                  _page = 1;
+                                  addReplyToList(state);
                                   deselectCommentToReply();
-                                  //updatePostDetails(context);
+                                } else if (state is AddCommentReplyError) {
+                                  deselectCommentToReply();
                                 }
                               }),
                               builder: (context, state) {
@@ -351,10 +377,8 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                                                   ..commentId(
                                                                       selectedCommentId!))
                                                                 .build()));
-                                                selectedCommentId = null;
-                                                selectedUsername = null;
+                                                _commentController?.clear();
                                                 closeOnScreenKeyboard();
-                                                // deselectCommentToReply();
                                               },
                                         icon: Icon(
                                           Icons.send,
@@ -437,97 +461,95 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                 return RefreshIndicator(
                   onRefresh: () async {
                     await updatePostDetails(context);
+                    _pagingController.refresh();
+                    _page = 1;
                   },
-                  child: CustomScrollView(
-                    slivers: [
-                      const SliverPadding(padding: EdgeInsets.only(top: 16)),
-                      SliverToBoxAdapter(
-                        child: ValueListenableBuilder(
-                          valueListenable: rebuildPostWidget,
-                          builder: (context, _, __) {
-                            if (postData == null) {
-                              return const PostShimmer();
-                            }
-                            return PostWidget(
-                              postDetails: postData!,
-                              feedRoomId: widget.feedRoomId,
-                              user: postDetailResponse.users[
-                                  postDetailResponse.postReplies.userId]!,
-                              isFeed: false,
-                              refresh: (bool isDeleted) async {
-                                if (isDeleted) {
-                                  locator<NavigationService>()
-                                      .goBack(result: {'isBack': isDeleted});
-                                } else {
-                                  await updatePostDetails(context);
-                                }
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                      const SliverPadding(padding: EdgeInsets.only(bottom: 12)),
-                      SliverToBoxAdapter(
-                        child: ValueListenableBuilder(
-                          valueListenable: rebuildPostWidget,
-                          builder: (context, _, __) {
-                            return postData == null
-                                ? const SizedBox.shrink()
-                                : postData!.commentCount >= 1
-                                    ? Container(
-                                        color: kWhiteColor,
-                                        padding: const EdgeInsets.only(
-                                            left: 15, top: 15),
-                                        child: Text(
-                                          '${postData!.commentCount} ${postData!.commentCount > 1 ? 'Comments' : 'Comment'}',
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.w600),
-                                        ),
-                                      )
-                                    : const SizedBox.shrink();
-                          },
-                        ),
-                      ),
-                      PagedSliverList(
-                        pagingController: _pagingController,
-                        builderDelegate: PagedChildBuilderDelegate<Reply>(
-                          noMoreItemsIndicatorBuilder: (context) =>
-                              const SizedBox(height: 75),
-                          noItemsFoundIndicatorBuilder: (context) => Column(
-                            children: const <Widget>[
-                              SizedBox(height: 42),
-                              Text(
-                                'No comment found',
-                                style: TextStyle(
-                                  fontSize: kFontMedium,
+                  child: ValueListenableBuilder(
+                      valueListenable: rebuildPostWidget,
+                      builder: (context, _, __) {
+                        return CustomScrollView(
+                          slivers: [
+                            const SliverPadding(
+                                padding: EdgeInsets.only(top: 16)),
+                            SliverToBoxAdapter(
+                                child: postData == null
+                                    ? const PostShimmer()
+                                    : PostWidget(
+                                        postDetails: postData!,
+                                        feedRoomId: widget.feedRoomId,
+                                        user: postDetailResponse.users[
+                                            postDetailResponse
+                                                .postReplies.userId]!,
+                                        isFeed: false,
+                                        refresh: (bool isDeleted) async {
+                                          if (isDeleted) {
+                                            locator<NavigationService>().goBack(
+                                                result: {'isBack': isDeleted});
+                                          } else {
+                                            await updatePostDetails(context);
+                                          }
+                                        },
+                                      )),
+                            const SliverPadding(
+                                padding: EdgeInsets.only(bottom: 12)),
+                            SliverToBoxAdapter(
+                                child: postData == null
+                                    ? const SizedBox.shrink()
+                                    : postData!.commentCount >= 1
+                                        ? Container(
+                                            color: kWhiteColor,
+                                            padding: const EdgeInsets.only(
+                                                left: 15, top: 15),
+                                            child: Text(
+                                              '${postData!.commentCount} ${postData!.commentCount > 1 ? 'Comments' : 'Comment'}',
+                                              style: const TextStyle(
+                                                  fontWeight: FontWeight.w600),
+                                            ),
+                                          )
+                                        : const SizedBox.shrink()),
+                            PagedSliverList(
+                              pagingController: _pagingController,
+                              builderDelegate: PagedChildBuilderDelegate<Reply>(
+                                noMoreItemsIndicatorBuilder: (context) =>
+                                    const SizedBox(height: 75),
+                                noItemsFoundIndicatorBuilder: (context) =>
+                                    Column(
+                                  children: const <Widget>[
+                                    SizedBox(height: 42),
+                                    Text(
+                                      'No comment found',
+                                      style: TextStyle(
+                                        fontSize: kFontMedium,
+                                      ),
+                                    ),
+                                    SizedBox(height: 12),
+                                    Text(
+                                      'Be the first one to comment',
+                                      style: TextStyle(
+                                        fontSize: kFontSmall,
+                                      ),
+                                    ),
+                                    SizedBox(height: 180),
+                                  ],
                                 ),
+                                itemBuilder: (context, item, index) {
+                                  return CommentTile(
+                                    key: ValueKey(item.id),
+                                    reply: item,
+                                    user:
+                                        postDetailResponse.users[item.userId]!,
+                                    postId: postDetailResponse.postReplies.id,
+                                    onReply: selectCommentToReply,
+                                    refresh: () {
+                                      _pagingController.refresh();
+                                    },
+                                  );
+                                },
                               ),
-                              SizedBox(height: 12),
-                              Text(
-                                'Be the first one to comment',
-                                style: TextStyle(
-                                  fontSize: kFontSmall,
-                                ),
-                              ),
-                              SizedBox(height: 180),
-                            ],
-                          ),
-                          itemBuilder: (context, item, index) {
-                            return CommentTile(
-                              key: ValueKey(item.id),
-                              reply: item,
-                              user: postDetailResponse.users[item.userId]!,
-                              postId: postDetailResponse.postReplies.id,
-                              onReply: selectCommentToReply,
-                              refresh: () {
-                                _pagingController.refresh();
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
+                            ),
+                          ],
+                        );
+                      }),
                 );
               }
               return const Center(child: CircularProgressIndicator());

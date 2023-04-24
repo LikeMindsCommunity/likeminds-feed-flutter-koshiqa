@@ -27,6 +27,10 @@ class FeedRoomBloc extends Bloc<FeedRoomEvent, FeedRoomState> {
                   ..pageSize(10))
                 .build(),
           );
+          if(!response.success){
+            emit(FeedRoomError(
+                message: response.errorMessage ?? 'An error occurred'));
+          }
           GetFeedRoomResponse? feedRoomResponse =
               await locator<LikeMindsService>().getFeedRoom(
             (GetFeedRoomRequestBuilder()
@@ -34,10 +38,10 @@ class FeedRoomBloc extends Bloc<FeedRoomEvent, FeedRoomState> {
                   ..page(event.offset))
                 .build(),
           );
-          if (!response.success) {
+          if(!feedRoomResponse.success){
             emit(FeedRoomError(
-                message: "An error has occured, please try again"));
-          } else {
+                message: feedRoomResponse.errorMessage ?? 'An error occurred'));
+          }
             response.users.addAll(users);
             if ((response.posts == null || response.posts!.isEmpty) &&
                 event.offset <= 1) {
@@ -49,7 +53,6 @@ class FeedRoomBloc extends Bloc<FeedRoomEvent, FeedRoomState> {
               emit(FeedRoomLoaded(
                   feed: response, feedRoom: feedRoomResponse.chatroom!));
             }
-          }
         } catch (e) {
           emit(FeedRoomError(message: e.toString()));
         }
