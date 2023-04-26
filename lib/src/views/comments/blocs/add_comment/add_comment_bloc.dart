@@ -4,7 +4,6 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
-import 'package:feed_sx/src/utils/analytics/analytics.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 part 'add_comment_event.dart';
@@ -20,13 +19,34 @@ class AddCommentBloc extends Bloc<AddCommentEvent, AddCommentState> {
         );
       },
     );
+    on<EditCommentCancel>(
+      (event, emit) {
+        emit(EditCommentCanceled());
+      },
+    );
+    on<EditingComment>((event, emit) {
+      emit(EditingStarted(commentId: event.commentId, text: event.text));
+    });
+    on<EditComment>((event, emit) async {
+      emit(EditCommentLoading());
+      EditCommentResponse? response = await locator<LikeMindsService>()
+          .getFeedApi()
+          .editComment(event.editCommentRequest);
+      if (response == null) {
+        emit(EditCommentError(message: "No data found"));
+      } else {
+        emit(EditCommentSuccess(editCommentResponse: response));
+      }
+    });
   }
 
   FutureOr<void> _mapAddCommentToState(
       {required AddCommentRequest addCommentRequest,
       required Emitter<AddCommentState> emit}) async {
     emit(AddCommentLoading());
-    AddCommentResponse? response = await locator<LikeMindsService>().getFeedApi().addComment(addCommentRequest);
+    AddCommentResponse? response = await locator<LikeMindsService>()
+        .getFeedApi()
+        .addComment(addCommentRequest);
     if (response == null) {
       emit(AddCommentError(message: "No data found"));
     } else {

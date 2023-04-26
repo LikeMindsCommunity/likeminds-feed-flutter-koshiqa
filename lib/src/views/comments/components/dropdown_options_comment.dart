@@ -1,5 +1,7 @@
 import 'package:collection/collection.dart';
+import 'package:feed_sx/src/views/comments/blocs/add_comment/add_comment_bloc.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
@@ -21,11 +23,9 @@ class DropdownOptionsComments extends StatelessWidget {
     required this.postId,
   });
 
-  void removeEditIntegration() {
+  void removeReportIntegration() {
     menuItems.removeWhere((element) {
       if (element.id == 7) {
-        return true;
-      } else if (element.id == 8) {
         return true;
       } else {
         return false;
@@ -35,7 +35,8 @@ class DropdownOptionsComments extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    removeEditIntegration();
+    AddCommentBloc addCommentBloc = BlocProvider.of<AddCommentBloc>(context);
+    removeReportIntegration();
     return Builder(builder: (context) {
       return PopupMenuButton<int>(
         onSelected: (value) async {
@@ -87,6 +88,13 @@ class DropdownOptionsComments extends StatelessWidget {
             print("Report functionality");
           } else if (value == 8) {
             print('Editing functionality');
+            addCommentBloc.add(EditCommentCancel());
+            addCommentBloc.add(
+              EditingComment(
+                commentId: replyDetails.id,
+                text: replyDetails.text,
+              ),
+            );
           }
         },
         itemBuilder: (context) => menuItems
