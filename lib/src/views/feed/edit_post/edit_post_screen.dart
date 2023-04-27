@@ -381,6 +381,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
                     padding: const EdgeInsets.all(4.0),
                     child: TaggingAheadTextField(
                       feedroomId: widget.feedRoomId,
+                      focusNode: FocusNode(),
                       isDown: true,
                       controller: textEditingController,
                       onTagSelected: (tag) {

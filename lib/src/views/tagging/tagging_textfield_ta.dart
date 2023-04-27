@@ -9,6 +9,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 class TaggingAheadTextField extends StatefulWidget {
   final bool isDown;
+  final FocusNode focusNode;
   final Function(UserTag) onTagSelected;
   final TextEditingController? controller;
   final InputDecoration? decoration;
@@ -21,6 +22,7 @@ class TaggingAheadTextField extends StatefulWidget {
     required this.feedroomId,
     required this.onTagSelected,
     required this.controller,
+    required this.focusNode,
     this.decoration,
     this.onChange,
   });
@@ -31,7 +33,7 @@ class TaggingAheadTextField extends StatefulWidget {
 
 class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
   late final TextEditingController _controller;
-  final FocusNode _focusNode = FocusNode();
+  FocusNode? _focusNode;
   final ScrollController _scrollController = ScrollController();
   final SuggestionsBoxController _suggestionsBoxController =
       SuggestionsBoxController();
@@ -48,6 +50,7 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
   @override
   void initState() {
     super.initState();
+    _focusNode = widget.focusNode;
     _controller = widget.controller!;
     _scrollController.addListener(() async {
       // page++;
@@ -122,7 +125,7 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
         textFieldConfiguration: TextFieldConfiguration(
           keyboardType: TextInputType.multiline,
           controller: _controller,
-          // focusNode: _focusNode,
+          focusNode: _focusNode,
           minLines: 2,
           maxLines: 200,
           decoration: widget.decoration ??

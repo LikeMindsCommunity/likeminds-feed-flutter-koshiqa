@@ -134,14 +134,16 @@ class _LMFeedState extends State<LMFeed> {
                 title: 'LikeMinds Feed',
                 navigatorKey: locator<NavigationService>().navigatorKey,
                 onGenerateRoute: (settings) {
+
                   if (settings.name == AllCommentsScreen.route) {
                     final args =
                         settings.arguments as AllCommentsScreenArguments;
                     return MaterialPageRoute(
                       builder: (context) {
                         return AllCommentsScreen(
-                          post: args.post,
-                          feedRoomId: args.feedroomId,
+                          postId: args.postId,
+                          feedRoomId: args.feedRoomId,
+                          fromComment: args.fromComment,
                         );
                       },
                     );

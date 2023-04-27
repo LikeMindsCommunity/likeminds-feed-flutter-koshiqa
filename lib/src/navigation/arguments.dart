@@ -2,13 +2,16 @@ import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.da
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 class AllCommentsScreenArguments {
-  final Post post;
-  final int feedroomId;
-  AllCommentsScreenArguments({
-    required this.post,
-    required this.feedroomId,
+  final String postId;
+  final int feedRoomId;
+  final bool fromComment;
+  const AllCommentsScreenArguments({
+    required this.postId,
+    required this.feedRoomId,
+    this.fromComment = false,
   });
 }
+
 
 class LikesScreenArguments {
   final String postId;

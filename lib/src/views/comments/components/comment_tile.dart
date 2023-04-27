@@ -23,6 +23,7 @@ class CommentTile extends StatefulWidget {
   final User user;
   final Function() refresh;
   final Function(String commentId, String username) onReply;
+
   const CommentTile({
     super.key,
     required this.reply,
@@ -40,10 +41,10 @@ class _CommentTileState extends State<CommentTile>
     with AutomaticKeepAliveClientMixin {
   late final ToggleLikeCommentBloc _toggleLikeCommentBloc;
   late final CommentRepliesBloc _commentRepliesBloc;
-  late final Reply reply;
+  Reply? reply;
   late final User user;
   late final String postId;
-  late final Function() refresh;
+  Function()? refresh;
   int? likeCount;
   bool isLiked = false, _replyVisible = false;
 
@@ -51,15 +52,18 @@ class _CommentTileState extends State<CommentTile>
   void initState() {
     // TODO: implement initState
     super.initState();
-    reply = widget.reply;
     user = widget.user;
     postId = widget.postId;
-    isLiked = reply.isLiked;
-    likeCount = reply.likesCount;
-    refresh = widget.refresh;
     FeedApi feedApi = locator<LikeMindsService>().getFeedApi();
     _toggleLikeCommentBloc = ToggleLikeCommentBloc(feedApi: feedApi);
     _commentRepliesBloc = CommentRepliesBloc(feedApi: feedApi);
+  }
+
+  void initialiseReply() {
+    reply = widget.reply;
+    isLiked = reply!.isLiked;
+    likeCount = reply!.likesCount;
+    refresh = widget.refresh;
   }
 
   int page = 1;
@@ -69,6 +73,7 @@ class _CommentTileState extends State<CommentTile>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    initialiseReply();
     return Container(
       decoration: const BoxDecoration(color: kWhiteColor),
       padding: const EdgeInsets.all(kPaddingLarge),
@@ -88,10 +93,10 @@ class _CommentTileState extends State<CommentTile>
               ),
               const Spacer(),
               DropdownOptionsComments(
-                menuItems: reply.menuItems,
-                replyDetails: reply,
+                menuItems: reply!.menuItems,
+                replyDetails: reply!,
                 postId: postId,
-                refresh: refresh,
+                refresh: refresh!,
               ),
             ],
           ),
@@ -102,7 +107,7 @@ class _CommentTileState extends State<CommentTile>
               vertical: 2,
             ),
             child: ExpandableText(
-              reply.text,
+              reply!.text,
               expandText: 'show more',
             ),
           ),
@@ -125,7 +130,7 @@ class _CommentTileState extends State<CommentTile>
                       _toggleLikeCommentBloc.add(ToggleLikeComment(
                           toggleLikeCommentRequest:
                               (ToggleLikeCommentRequestBuilder()
-                                    ..commentId(reply.id)
+                                    ..commentId(reply!.id)
                                     ..postId(postId))
                                   .build()));
                     },
@@ -149,7 +154,7 @@ class _CommentTileState extends State<CommentTile>
                       locator<NavigationService>().navigateTo(LikesScreen.route,
                           arguments: LikesScreenArguments(
                             postId: postId,
-                            commentId: reply.id,
+                            commentId: reply!.id,
                             isCommentLikes: true,
                           ));
                     },
@@ -175,7 +180,7 @@ class _CommentTileState extends State<CommentTile>
               ),
               kHorizontalPaddingMedium,
               GestureDetector(
-                onTap: () => widget.onReply(reply.id, user.name),
+                onTap: () => widget.onReply(reply!.id, user.name),
                 child: const Text(
                   'Reply',
                   style: TextStyle(
@@ -206,7 +211,7 @@ class _CommentTileState extends State<CommentTile>
                           _commentRepliesBloc.add(GetCommentReplies(
                               commentDetailRequest:
                                   (CommentDetailRequestBuilder()
-                                        ..commentId(reply.id)
+                                        ..commentId(reply!.id)
                                         ..page(1)
                                         ..postId(postId))
                                       .build(),
@@ -227,7 +232,7 @@ class _CommentTileState extends State<CommentTile>
                   : Container(),
               const Spacer(),
               Text(
-                reply.createdAt.timeAgo(),
+                reply!.createdAt.timeAgo(),
                 style: const TextStyle(
                   fontSize: kFontSmallMed,
                   color: kGrey3Color,
@@ -270,8 +275,8 @@ class _CommentTileState extends State<CommentTile>
                       reply: element,
                       user: users[element.userId]!,
                       postId: postId,
-                      refresh: refresh,
-                      commentId: reply.id,
+                      refresh: refresh!,
+                      commentId: reply!.id,
                     );
                   }).toList();
                 } else {
@@ -280,7 +285,7 @@ class _CommentTileState extends State<CommentTile>
 
                 if (replies.length % 10 == 0 &&
                     _replyVisible &&
-                    replies.length != reply.repliesCount) {
+                    replies.length != reply!.repliesCount) {
                   repliesW = [
                     ...repliesW,
                     Row(
@@ -292,7 +297,7 @@ class _CommentTileState extends State<CommentTile>
                             _commentRepliesBloc.add(GetCommentReplies(
                                 commentDetailRequest:
                                     (CommentDetailRequestBuilder()
-                                          ..commentId(reply.id)
+                                          ..commentId(reply!.id)
                                           ..page(page)
                                           ..postId(postId))
                                         .build(),

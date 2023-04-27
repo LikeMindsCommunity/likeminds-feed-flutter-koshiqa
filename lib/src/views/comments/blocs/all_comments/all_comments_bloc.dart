@@ -2,14 +2,15 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:feed_sx/feed.dart';
+import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 part 'all_comments_event.dart';
 part 'all_comments_state.dart';
 
 class AllCommentsBloc extends Bloc<AllCommentsEvent, AllCommentsState> {
-  final FeedApi feedApi;
-  AllCommentsBloc({required this.feedApi}) : super(AllCommentsInitial()) {
+  AllCommentsBloc() : super(AllCommentsInitial()) {
     on<AllCommentsEvent>((event, emit) async {
       if (event is GetAllComments) {
         await _mapGetAllCommentsToState(
@@ -35,7 +36,7 @@ class AllCommentsBloc extends Bloc<AllCommentsEvent, AllCommentsState> {
       emit(AllCommentsLoading());
     }
 
-    PostDetailResponse? response = await feedApi.getPost(postDetailRequest);
+    PostDetailResponse? response = await locator<LikeMindsService>().getFeedApi().getPost(postDetailRequest);
     if (response == null) {
       emit(AllCommentsError(message: "No data found"));
     } else {

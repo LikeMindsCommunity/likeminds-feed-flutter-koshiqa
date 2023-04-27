@@ -454,7 +454,6 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                       itemBuilder: (context, item, index) {
                         Post rebuildPostData = item;
                         return PostWidget(
-                          postType: 1,
                           postDetails: rebuildPostData,
                           feedRoomId: widget.feedRoom.id,
                           user: widget.feedResponse.users[item.userId]!,
