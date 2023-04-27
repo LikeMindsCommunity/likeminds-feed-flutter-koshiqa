@@ -62,29 +62,14 @@ class DropdownOptionsComments extends StatelessWidget {
                           "comment_id": replyDetails.id,
                         },
                       );
-                      final response =
-                          await locator<LikeMindsService>().deleteComment(
-                        (DeleteCommentRequestBuilder()
-                              ..postId(postId)
-                              ..commentId(replyDetails.id)
-                              ..reason(reason.isEmpty
-                                  ? "Reason for deletion"
-                                  : reason))
-                            .build(),
-                      );
-
-                      if (response.success) {
-                        toast(
-                          'Comment Deleted',
-                          duration: Toast.LENGTH_LONG,
-                        );
-                        refresh();
-                      } else {
-                        toast(
-                          response.errorMessage ?? '',
-                          duration: Toast.LENGTH_LONG,
-                        );
-                      }
+                      addCommentReplyBloc.add(DeleteComment(
+                          (DeleteCommentRequestBuilder()
+                                ..postId(postId)
+                                ..commentId(replyDetails.id)
+                                ..reason(reason.isEmpty
+                                    ? "Reason for deletion"
+                                    : reason))
+                              .build()));
                     }, actionText: 'Delete'));
           } else if (value == 7) {
             print("Report functionality");

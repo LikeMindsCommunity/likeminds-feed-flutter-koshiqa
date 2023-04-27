@@ -168,8 +168,30 @@ class _ReplyTileState extends State<ReplyTile> {
                 ],
               ),
               const Spacer(),
+              reply!.isEdited != null && reply!.isEdited!
+                  ? Row(
+                      children: const [
+                        Text(
+                          "Edited",
+                          style: TextStyle(
+                            fontSize: kFontSmallMed,
+                            color: kGrey3Color,
+                          ),
+                        ),
+                        kHorizontalPaddingMedium,
+                        Text(
+                          '·',
+                          style: TextStyle(
+                            fontSize: kFontSmallMed,
+                            color: kGrey3Color,
+                          ),
+                        ),
+                        kHorizontalPaddingMedium,
+                      ],
+                    )
+                  : const SizedBox(),
               Text(
-                reply!.updatedAt.timeAgo(),
+                reply!.createdAt.timeAgo(),
                 style: const TextStyle(
                     fontSize: kFontSmallMed, color: kGrey3Color),
               ),

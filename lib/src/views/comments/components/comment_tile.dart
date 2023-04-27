@@ -79,6 +79,7 @@ class _CommentTileState extends State<CommentTile>
     AddCommentReplyBloc addCommentReplyBloc =
         BlocProvider.of<AddCommentReplyBloc>(context);
     initialiseReply();
+
     return Container(
       decoration: const BoxDecoration(color: kWhiteColor),
       padding: const EdgeInsets.all(kPaddingLarge),
@@ -262,6 +263,28 @@ class _CommentTileState extends State<CommentTile>
                     )
                   : Container(),
               const Spacer(),
+              reply!.isEdited != null && reply!.isEdited!
+                  ? Row(
+                      children: const [
+                        Text(
+                          "Edited",
+                          style: TextStyle(
+                            fontSize: kFontSmallMed,
+                            color: kGrey3Color,
+                          ),
+                        ),
+                        kHorizontalPaddingMedium,
+                        Text(
+                          '·',
+                          style: TextStyle(
+                            fontSize: kFontSmallMed,
+                            color: kGrey3Color,
+                          ),
+                        ),
+                        kHorizontalPaddingMedium,
+                      ],
+                    )
+                  : const SizedBox(),
               Text(
                 reply!.createdAt.timeAgo(),
                 style: const TextStyle(
@@ -356,8 +379,62 @@ class _CommentTileState extends State<CommentTile>
                 }
                 return BlocConsumer<AddCommentReplyBloc, AddCommentReplyState>(
                   bloc: addCommentReplyBloc,
-                  listener: (context, state) {},
-                  builder: (context, state) {
+                  listener: (context, state) {
+                    if (state is AddCommentReplySuccess) {
+                      replies.insert(0, state.addCommentResponse.reply!);
+
+                      repliesW = replies.mapIndexed((index, element) {
+                        return ReplyTile(
+                          // key: Key(element.id),
+                          reply: element,
+                          user: users[element.userId]!,
+                          postId: postId,
+                          refresh: refresh!,
+                          commentId: reply!.id,
+                        );
+                      }).toList();
+                      if (replies.isNotEmpty &&
+                          replies.length % 10 == 0 &&
+                          _replyVisible &&
+                          replies.length != reply!.repliesCount) {
+                        repliesW = [
+                          ...repliesW,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              TextButton(
+                                onPressed: () {
+                                  page++;
+                                  _commentRepliesBloc.add(GetCommentReplies(
+                                      commentDetailRequest:
+                                          (CommentDetailRequestBuilder()
+                                                ..commentId(reply!.id)
+                                                ..page(page)
+                                                ..postId(postId))
+                                              .build(),
+                                      forLoadMore: true));
+                                },
+                                child: const Text(
+                                  'View more replies',
+                                  style: TextStyle(
+                                    color: kBlueGreyColor,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                ' ${replies.length} of ${widget.reply.repliesCount}',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: kGrey3Color,
+                                ),
+                              )
+                            ],
+                          )
+                        ];
+                        // replies.add();
+                      }
+                    }
                     if (state is EditReplySuccess) {
                       int index = replies.indexWhere((element) =>
                           element.id ==
@@ -380,7 +457,8 @@ class _CommentTileState extends State<CommentTile>
                           repliesW = [];
                         }
 
-                        if (replies.length % 10 == 0 &&
+                        if (replies.isNotEmpty &&
+                            replies.length % 10 == 0 &&
                             _replyVisible &&
                             replies.length != reply!.repliesCount) {
                           repliesW = [
@@ -422,6 +500,72 @@ class _CommentTileState extends State<CommentTile>
                         }
                       }
                     }
+                    if (state is CommentReplyDeleted) {
+                      int index = replies
+                          .indexWhere((element) => element.id == state.replyId);
+                      if (index != -1) {
+                        replies.removeAt(index);
+
+                        if (_replyVisible) {
+                          repliesW = replies.mapIndexed((index, element) {
+                            return ReplyTile(
+                              // key: Key(element.id),
+                              reply: element,
+                              user: users[element.userId]!,
+                              postId: postId,
+                              refresh: refresh!,
+                              commentId: reply!.id,
+                            );
+                          }).toList();
+                        } else {
+                          repliesW = [];
+                        }
+
+                        if (replies.isNotEmpty &&
+                            replies.length % 10 == 0 &&
+                            _replyVisible &&
+                            replies.length != reply!.repliesCount) {
+                          repliesW = [
+                            ...repliesW,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                TextButton(
+                                  onPressed: () {
+                                    page++;
+                                    _commentRepliesBloc.add(GetCommentReplies(
+                                        commentDetailRequest:
+                                            (CommentDetailRequestBuilder()
+                                                  ..commentId(reply!.id)
+                                                  ..page(page)
+                                                  ..postId(postId))
+                                                .build(),
+                                        forLoadMore: true));
+                                  },
+                                  child: const Text(
+                                    'View more replies',
+                                    style: TextStyle(
+                                      color: kBlueGreyColor,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  ' ${replies.length} of ${widget.reply.repliesCount}',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: kGrey3Color,
+                                  ),
+                                )
+                              ],
+                            )
+                          ];
+                          // replies.add();
+                        }
+                      }
+                    }
+                  },
+                  builder: (context, state) {
                     return Container(
                       padding: const EdgeInsets.only(
                         left: 48,

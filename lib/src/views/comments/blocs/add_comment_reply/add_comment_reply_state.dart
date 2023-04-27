@@ -66,3 +66,25 @@ class EditReplyError extends AddCommentReplyState {
   final String message;
   const EditReplyError({required this.message});
 }
+
+class CommentDeletionLoading extends AddCommentReplyState {}
+
+class CommentDeleted extends AddCommentReplyState {
+  final String commentId;
+  const CommentDeleted({
+    required this.commentId,
+  });
+}
+
+class CommentDeleteError extends AddCommentReplyState {}
+
+class ReplyDeletionLoading extends AddCommentReplyState {}
+
+class CommentReplyDeleted extends AddCommentReplyState {
+  final String replyId;
+  const CommentReplyDeleted({
+    required this.replyId,
+  });
+}
+
+class CommentReplyDeleteError extends AddCommentReplyState {}

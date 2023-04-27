@@ -6,6 +6,7 @@ import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/analytics/analytics.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 part 'add_comment_reply_event.dart';
 
@@ -71,6 +72,74 @@ class AddCommentReplyBloc
         emit(EditCommentSuccess(editCommentResponse: response));
       }
     });
+    on<DeleteComment>(
+      (event, emit) async {
+        try {
+          emit(CommentDeletionLoading());
+          final response = await locator<LikeMindsService>().deleteComment(
+            event.deleteCommentRequest,
+          );
+
+          if (response.success) {
+            toast(
+              'Comment Deleted',
+              duration: Toast.LENGTH_LONG,
+            );
+            emit(
+              CommentDeleted(
+                commentId: event.deleteCommentRequest.commentId,
+              ),
+            );
+          } else {
+            toast(
+              response.errorMessage ?? '',
+              duration: Toast.LENGTH_LONG,
+            );
+            emit(CommentDeleteError());
+          }
+        } catch (err) {
+          toast(
+            'An error occcurred while deleting comment',
+            duration: Toast.LENGTH_LONG,
+          );
+          emit(CommentDeleteError());
+        }
+      },
+    );
+    on<DeleteCommentReply>(
+      (event, emit) async {
+        try {
+          emit(ReplyDeletionLoading());
+          final response = await locator<LikeMindsService>().deleteComment(
+            event.deleteCommentReplyRequest,
+          );
+
+          if (response.success) {
+            toast(
+              'Comment Deleted',
+              duration: Toast.LENGTH_LONG,
+            );
+            emit(
+              CommentReplyDeleted(
+                replyId: event.deleteCommentReplyRequest.commentId,
+              ),
+            );
+          } else {
+            toast(
+              response.errorMessage ?? '',
+              duration: Toast.LENGTH_LONG,
+            );
+            emit(CommentDeleteError());
+          }
+        } catch (err) {
+          toast(
+            'An error occcurred while deleting reply',
+            duration: Toast.LENGTH_LONG,
+          );
+          emit(CommentDeleteError());
+        }
+      },
+    );
   }
 
   FutureOr<void> _mapAddCommentReplyToState(
