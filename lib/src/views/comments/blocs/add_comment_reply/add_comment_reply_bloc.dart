@@ -22,6 +22,55 @@ class AddCommentReplyBloc
         );
       },
     );
+    on<EditReplyCancel>(
+      (event, emit) {
+        emit(EditReplyCanceled());
+      },
+    );
+    on<EditingReply>((event, emit) {
+      emit(
+        ReplyEditingStarted(
+          commentId: event.commentId,
+          text: event.text,
+          replyId: event.replyId,
+        ),
+      );
+    });
+    on<EditReply>((event, emit) async {
+      emit(EditReplyLoading());
+      EditCommentReplyResponse? response = await locator<LikeMindsService>()
+          .getFeedApi()
+          .editCommentReply(event.editCommentReplyRequest);
+      if (response == null) {
+        emit(const EditReplyError(message: "An error occurred"));
+      } else {
+        emit(EditReplySuccess(editCommentReplyResponse: response));
+      }
+    });
+    on<EditCommentCancel>(
+      (event, emit) {
+        emit(EditCommentCanceled());
+      },
+    );
+    on<EditingComment>((event, emit) {
+      emit(
+        CommentEditingStarted(
+          commentId: event.commentId,
+          text: event.text,
+        ),
+      );
+    });
+    on<EditComment>((event, emit) async {
+      emit(EditCommentLoading());
+      EditCommentResponse? response = await locator<LikeMindsService>()
+          .getFeedApi()
+          .editComment(event.editCommentRequest);
+      if (response == null) {
+        emit(const EditCommentError(message: "An error occurred"));
+      } else {
+        emit(EditCommentSuccess(editCommentResponse: response));
+      }
+    });
   }
 
   FutureOr<void> _mapAddCommentReplyToState(

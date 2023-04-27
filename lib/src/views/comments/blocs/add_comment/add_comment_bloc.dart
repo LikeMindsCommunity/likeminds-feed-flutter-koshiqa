@@ -19,25 +19,6 @@ class AddCommentBloc extends Bloc<AddCommentEvent, AddCommentState> {
         );
       },
     );
-    on<EditCommentCancel>(
-      (event, emit) {
-        emit(EditCommentCanceled());
-      },
-    );
-    on<EditingComment>((event, emit) {
-      emit(EditingStarted(commentId: event.commentId, text: event.text));
-    });
-    on<EditComment>((event, emit) async {
-      emit(EditCommentLoading());
-      EditCommentResponse? response = await locator<LikeMindsService>()
-          .getFeedApi()
-          .editComment(event.editCommentRequest);
-      if (response == null) {
-        emit(EditCommentError(message: "No data found"));
-      } else {
-        emit(EditCommentSuccess(editCommentResponse: response));
-      }
-    });
   }
 
   FutureOr<void> _mapAddCommentToState(

@@ -2,6 +2,8 @@ import 'package:collection/collection.dart';
 import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/packages/expandable_text/expandable_text.dart';
 import 'package:feed_sx/src/utils/constants/string_constants.dart';
+import 'package:feed_sx/src/views/comments/blocs/add_comment/add_comment_bloc.dart';
+import 'package:feed_sx/src/views/comments/blocs/add_comment_reply/add_comment_reply_bloc.dart';
 import 'package:feed_sx/src/views/comments/components/dropdown_options_comment.dart';
 import 'package:feed_sx/src/widgets/profile_picture.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
@@ -41,6 +43,7 @@ class _CommentTileState extends State<CommentTile>
     with AutomaticKeepAliveClientMixin {
   late final ToggleLikeCommentBloc _toggleLikeCommentBloc;
   late final CommentRepliesBloc _commentRepliesBloc;
+  ValueNotifier<bool> rebuildLikeButton = ValueNotifier(false);
   Reply? reply;
   late final User user;
   late final String postId;
@@ -73,6 +76,8 @@ class _CommentTileState extends State<CommentTile>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    AddCommentReplyBloc addCommentReplyBloc =
+        BlocProvider.of<AddCommentReplyBloc>(context);
     initialiseReply();
     return Container(
       decoration: const BoxDecoration(color: kWhiteColor),
@@ -80,37 +85,56 @@ class _CommentTileState extends State<CommentTile>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              ProfilePicture(user: user, size: 28),
-              kHorizontalPaddingMedium,
-              Text(
-                user.name,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const Spacer(),
-              DropdownOptionsComments(
-                menuItems: reply!.menuItems,
-                replyDetails: reply!,
-                postId: postId,
-                refresh: refresh!,
-              ),
-            ],
-          ),
-          kVerticalPaddingMedium,
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 36,
-              vertical: 2,
-            ),
-            child: ExpandableText(
-              reply!.text,
-              expandText: 'show more',
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: ProfilePicture(user: user, size: 32),
+                ),
+                kHorizontalPaddingLarge,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      user.name,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Container(
+                      width: 240,
+                      padding: EdgeInsets.symmetric(vertical: 8),
+                      child: ExpandableText(
+                        reply!.text,
+                        expandText: 'show more',
+                      ),
+                    ),
+                    // SizedBox(
+                    //   height: 4,
+                    // ),
+                    // SizedBox(
+                    //   child: ExpandableText(
+                    //     reply!.text,
+                    //     expandText: 'show more',
+                    //   ),
+                    // ),
+                  ],
+                ),
+                const Spacer(),
+                DropdownOptionsComments(
+                  menuItems: reply!.menuItems,
+                  replyDetails: reply!,
+                  postId: postId,
+                  refresh: refresh!,
+                ),
+              ],
             ),
           ),
+          // kVerticalPaddingMedium,
           kVerticalPaddingLarge,
           Row(
             children: [
@@ -118,14 +142,14 @@ class _CommentTileState extends State<CommentTile>
                 children: [
                   GestureDetector(
                     onTap: () {
-                      setState(() {
-                        if (isLiked) {
-                          likeCount = likeCount! - 1;
-                        } else {
-                          likeCount = likeCount! + 1;
-                        }
-                        isLiked = !isLiked;
-                      });
+                      if (isLiked) {
+                        likeCount = likeCount! - 1;
+                      } else {
+                        likeCount = likeCount! + 1;
+                      }
+                      isLiked = !isLiked;
+
+                      rebuildLikeButton.value = !rebuildLikeButton.value;
 
                       _toggleLikeCommentBloc.add(ToggleLikeComment(
                           toggleLikeCommentRequest:
@@ -134,40 +158,47 @@ class _CommentTileState extends State<CommentTile>
                                     ..postId(postId))
                                   .build()));
                     },
-                    child: Builder(builder: ((context) {
-                      return isLiked
-                          ? SvgPicture.asset(
-                              kAssetLikeFilledIcon,
-                              // color: kPrimaryColor,
-                              height: 18,
-                            )
-                          : SvgPicture.asset(
-                              kAssetLikeIcon,
-                              color: kGrey3Color,
-                              height: 14,
-                            );
-                    })),
+                    child: ValueListenableBuilder(
+                        valueListenable: rebuildLikeButton,
+                        builder: (context, _, __) {
+                          return isLiked
+                              ? SvgPicture.asset(
+                                  kAssetLikeFilledIcon,
+                                  // color: kPrimaryColor,
+                                  height: 18,
+                                )
+                              : SvgPicture.asset(
+                                  kAssetLikeIcon,
+                                  color: kGrey3Color,
+                                  height: 14,
+                                );
+                        }),
                   ),
                   kHorizontalPaddingSmall,
-                  GestureDetector(
-                    onTap: () {
-                      locator<NavigationService>().navigateTo(LikesScreen.route,
-                          arguments: LikesScreenArguments(
-                            postId: postId,
-                            commentId: reply!.id,
-                            isCommentLikes: true,
-                          ));
-                    },
-                    child: Text(
-                      likeCount! > 0
-                          ? "$likeCount ${likeCount! > 1 ? kStringLikes : kStringLike}"
-                          : '',
-                      style: const TextStyle(
-                        fontSize: kFontSmallMed,
-                        color: kGrey3Color,
-                      ),
-                    ),
-                  ),
+                  ValueListenableBuilder(
+                      valueListenable: rebuildLikeButton,
+                      builder: (context, _, __) {
+                        return GestureDetector(
+                          onTap: () {
+                            locator<NavigationService>()
+                                .navigateTo(LikesScreen.route,
+                                    arguments: LikesScreenArguments(
+                                      postId: postId,
+                                      commentId: reply!.id,
+                                      isCommentLikes: true,
+                                    ));
+                          },
+                          child: Text(
+                            likeCount! > 0
+                                ? "$likeCount ${likeCount! > 1 ? kStringLikes : kStringLike}"
+                                : '',
+                            style: const TextStyle(
+                              fontSize: kFontSmallMed,
+                              color: kGrey3Color,
+                            ),
+                          ),
+                        );
+                      }),
                 ],
               ),
               kHorizontalPaddingMedium,
@@ -323,13 +354,87 @@ class _CommentTileState extends State<CommentTile>
                   ];
                   // replies.add();
                 }
-                return Container(
-                  padding: const EdgeInsets.only(left: 48),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: repliesW,
-                  ),
+                return BlocConsumer<AddCommentReplyBloc, AddCommentReplyState>(
+                  bloc: addCommentReplyBloc,
+                  listener: (context, state) {},
+                  builder: (context, state) {
+                    if (state is EditReplySuccess) {
+                      int index = replies.indexWhere((element) =>
+                          element.id ==
+                          state.editCommentReplyResponse.reply!.id);
+                      if (index != -1) {
+                        replies[index] = state.editCommentReplyResponse.reply!;
+
+                        if (_replyVisible) {
+                          repliesW = replies.mapIndexed((index, element) {
+                            return ReplyTile(
+                              // key: Key(element.id),
+                              reply: element,
+                              user: users[element.userId]!,
+                              postId: postId,
+                              refresh: refresh!,
+                              commentId: reply!.id,
+                            );
+                          }).toList();
+                        } else {
+                          repliesW = [];
+                        }
+
+                        if (replies.length % 10 == 0 &&
+                            _replyVisible &&
+                            replies.length != reply!.repliesCount) {
+                          repliesW = [
+                            ...repliesW,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                TextButton(
+                                  onPressed: () {
+                                    page++;
+                                    _commentRepliesBloc.add(GetCommentReplies(
+                                        commentDetailRequest:
+                                            (CommentDetailRequestBuilder()
+                                                  ..commentId(reply!.id)
+                                                  ..page(page)
+                                                  ..postId(postId))
+                                                .build(),
+                                        forLoadMore: true));
+                                  },
+                                  child: const Text(
+                                    'View more replies',
+                                    style: TextStyle(
+                                      color: kBlueGreyColor,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  ' ${replies.length} of ${widget.reply.repliesCount}',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: kGrey3Color,
+                                  ),
+                                )
+                              ],
+                            )
+                          ];
+                          // replies.add();
+                        }
+                      }
+                    }
+                    return Container(
+                      padding: const EdgeInsets.only(
+                        left: 48,
+                        top: 8,
+                        bottom: 0,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: repliesW,
+                      ),
+                    );
+                  },
                 );
               }
               return Container();

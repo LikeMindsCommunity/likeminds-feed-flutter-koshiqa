@@ -15,20 +15,3 @@ class AddComment extends AddCommentEvent {
   @override
   List<Object> get props => [addCommentRequest];
 }
-
-class EditComment extends AddCommentEvent {
-  final EditCommentRequest editCommentRequest;
-  EditComment({required this.editCommentRequest});
-
-  @override
-  List<Object> get props => [editCommentRequest];
-}
-
-class EditCommentCancel extends AddCommentEvent {}
-
-class EditingComment extends AddCommentEvent {
-  final String commentId;
-  final String text;
-
-  const EditingComment({required this.commentId, required this.text});
-}
