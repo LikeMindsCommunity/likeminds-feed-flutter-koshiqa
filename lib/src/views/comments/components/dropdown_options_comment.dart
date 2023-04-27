@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:feed_sx/src/views/comments/blocs/add_comment/add_comment_bloc.dart';
+import 'package:feed_sx/src/views/comments/blocs/add_comment_reply/add_comment_reply_bloc.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
@@ -35,7 +36,8 @@ class DropdownOptionsComments extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AddCommentBloc addCommentBloc = BlocProvider.of<AddCommentBloc>(context);
+    AddCommentReplyBloc addCommentReplyBloc =
+        BlocProvider.of<AddCommentReplyBloc>(context);
     removeReportIntegration();
     return Builder(builder: (context) {
       return PopupMenuButton<int>(
@@ -88,8 +90,8 @@ class DropdownOptionsComments extends StatelessWidget {
             print("Report functionality");
           } else if (value == 8) {
             print('Editing functionality');
-            addCommentBloc.add(EditCommentCancel());
-            addCommentBloc.add(
+            addCommentReplyBloc.add(EditCommentCancel());
+            addCommentReplyBloc.add(
               EditingComment(
                 commentId: replyDetails.id,
                 text: replyDetails.text,
