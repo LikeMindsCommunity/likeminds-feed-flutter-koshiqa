@@ -108,6 +108,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     selectedReplyId = replyId;
     isReplying = false;
     _commentController?.value = TextEditingValue(text: text);
+    openOnScreenKeyboard();
     rebuildReplyWidget.value = !rebuildReplyWidget.value;
   }
 
@@ -116,6 +117,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     selectedReplyId = null;
     isEditing = false;
     _commentController?.clear();
+    closeOnScreenKeyboard();
     rebuildReplyWidget.value = !rebuildReplyWidget.value;
   }
 
@@ -125,9 +127,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     selectedUsername = username;
     isReplying = true;
     isEditing = false;
-    if (focusNode.canRequestFocus) {
-      focusNode.requestFocus();
-    }
+    openOnScreenKeyboard();
     rebuildReplyWidget.value = !rebuildReplyWidget.value;
   }
 
@@ -135,6 +135,8 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     selectedCommentId = null;
     selectedUsername = null;
     isReplying = false;
+    closeOnScreenKeyboard();
+    _commentController?.clear();
     rebuildReplyWidget.value = !rebuildReplyWidget.value;
   }
 
@@ -160,7 +162,12 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
 
   void increaseCommentCount() {
     postData!.commentCount = postData!.commentCount + 1;
-    rebuildPostWidget.value = !rebuildPostWidget.value;
+  }
+
+  void decreaseCommentCount() {
+    if (postData!.commentCount != 0) {
+      postData!.commentCount = postData!.commentCount - 1;
+    }
   }
 
   addCommentToList(AddCommentSuccess addCommentSuccess) {
@@ -170,6 +177,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
       commentItemList.removeAt(9);
     }
     commentItemList.insert(0, addCommentSuccess.addCommentResponse.reply!);
+    increaseCommentCount();
     rebuildPostWidget.value = !rebuildPostWidget.value;
   }
 
@@ -194,6 +202,17 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
             commentItemList[index].repliesCount + 1;
         rebuildPostWidget.value = !rebuildPostWidget.value;
       }
+    }
+  }
+
+  removeCommentFromList(String commentId) {
+    List<Reply>? commentItemList = _pagingController.itemList;
+    int index =
+        commentItemList!.indexWhere((element) => element.id == commentId);
+    if (index != -1) {
+      commentItemList.removeAt(index);
+      decreaseCommentCount();
+      rebuildPostWidget.value = !rebuildPostWidget.value;
     }
   }
 
@@ -222,6 +241,9 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
               child: BlocConsumer<AddCommentReplyBloc, AddCommentReplyState>(
                 bloc: _addCommentReplyBloc,
                 listener: (context, state) {
+                  if (state is CommentDeleted) {
+                    removeCommentFromList(state.commentId);
+                  }
                   if (state is EditReplyLoading) {
                     deselectCommentToEdit();
                   }
@@ -239,12 +261,9 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                     _commentController!.clear();
                     addReplyToList(state);
                     deselectCommentToReply();
-                    closeOnScreenKeyboard();
                   }
                   if (state is AddCommentReplyError) {
                     deselectCommentToReply();
-                    _commentController!.clear();
-                    closeOnScreenKeyboard();
                   }
                   if (state is EditCommentSuccess) {
                     updateCommentInList(state);
@@ -458,7 +477,6 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                   listener: (context, state) {
                                     if (state is AddCommentSuccess) {
                                       addCommentToList(state);
-                                      increaseCommentCount();
                                     }
                                     if (state is AddCommentLoading) {
                                       deselectCommentToEdit();
@@ -687,9 +705,19 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     );
   }
 
+  void openOnScreenKeyboard() {
+    if (focusNode.canRequestFocus) {
+      focusNode.requestFocus();
+      if (_commentController != null && _commentController!.text.isNotEmpty) {
+        _commentController!.selection = TextSelection.fromPosition(
+            TextPosition(offset: _commentController!.text.length));
+      }
+    }
+  }
+
   void closeOnScreenKeyboard() {
     if (focusNode.hasFocus) {
-      focusNode.nextFocus();
+      focusNode.unfocus();
     }
   }
 }
