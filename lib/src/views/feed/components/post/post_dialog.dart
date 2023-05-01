@@ -17,6 +17,7 @@ Dialog deleteConfirmationDialog(
   required String actionText,
 }) {
   Size screenSize = MediaQuery.of(context).size;
+  bool _boolVarLoading = false;
   ValueNotifier<bool> rebuildReasonBox = ValueNotifier(false);
   DeleteReason? reasonForDeletion;
   bool isCm = UserLocalPreference.instance.fetchMemberState();
@@ -57,114 +58,131 @@ Dialog deleteConfirmationDialog(
                           valueListenable: rebuildReasonBox,
                           builder: (context, _, __) {
                             return GestureDetector(
-                              onTap: () async {
-                                GetDeleteReasonResponse response =
-                                    await locator<LikeMindsService>()
-                                        .getReportTags(
-                                            ((GetDeleteReasonRequestBuilder()
-                                                  ..type(0))
-                                                .build()));
-                                if (response.success) {
-                                  List<DeleteReason> reportTags =
-                                      response.reportTags!;
+                              onTap: _boolVarLoading
+                                  ? () {}
+                                  : () async {
+                                      _boolVarLoading = true;
+                                      rebuildReasonBox.value =
+                                          !rebuildReasonBox.value;
+                                      GetDeleteReasonResponse response =
+                                          await locator<LikeMindsService>()
+                                              .getReportTags(
+                                                  ((GetDeleteReasonRequestBuilder()
+                                                        ..type(0))
+                                                      .build()));
+                                      if (response.success) {
+                                        List<DeleteReason> reportTags =
+                                            response.reportTags!;
 
-                                  await showModalBottomSheet(
-                                      context: context,
-                                      elevation: 5,
-                                      enableDrag: true,
-                                      clipBehavior: Clip.hardEdge,
-                                      backgroundColor: kWhiteColor,
-                                      useSafeArea: true,
-                                      shape: const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(16.0),
-                                          topRight: Radius.circular(16.0),
-                                        ),
-                                      ),
-                                      builder: (context) {
-                                        return Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 20.0, vertical: 30.0),
-                                          width: screenSize.width,
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              const Padding(
+                                        await showModalBottomSheet(
+                                            context: context,
+                                            elevation: 5,
+                                            enableDrag: true,
+                                            clipBehavior: Clip.hardEdge,
+                                            backgroundColor: kWhiteColor,
+                                            useSafeArea: true,
+                                            shape: const RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(16.0),
+                                                topRight: Radius.circular(16.0),
+                                              ),
+                                            ),
+                                            builder: (context) {
+                                              return Container(
                                                 padding:
-                                                    EdgeInsets.only(left: 10.0),
-                                                child: Text(
-                                                  'Reason for deletion',
-                                                  textAlign: TextAlign.left,
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: kFontMedium,
-                                                  ),
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 20.0,
+                                                        vertical: 30.0),
+                                                width: screenSize.width,
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    const Padding(
+                                                      padding: EdgeInsets.only(
+                                                          left: 10.0),
+                                                      child: Text(
+                                                        'Reason for deletion',
+                                                        textAlign:
+                                                            TextAlign.left,
+                                                        style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: kFontMedium,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    kVerticalPaddingXLarge,
+                                                    Expanded(
+                                                      child: ListView.separated(
+                                                          separatorBuilder:
+                                                              (context,
+                                                                      index) =>
+                                                                  Container(
+                                                                    margin: const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            50),
+                                                                    child:
+                                                                        const Divider(
+                                                                      thickness:
+                                                                          0.5,
+                                                                      color:
+                                                                          kGrey3Color,
+                                                                    ),
+                                                                  ),
+                                                          itemBuilder:
+                                                              (context, index) {
+                                                            return InkWell(
+                                                              onTap: () {
+                                                                reasonForDeletion =
+                                                                    reportTags[
+                                                                        index];
+                                                                Navigator.pop(
+                                                                    context);
+                                                              },
+                                                              child: Row(
+                                                                children: [
+                                                                  SizedBox(
+                                                                    width: 35,
+                                                                    child: Radio(
+                                                                        value: reportTags[index]
+                                                                            .id,
+                                                                        groupValue: reasonForDeletion ==
+                                                                                null
+                                                                            ? -1
+                                                                            : reasonForDeletion!
+                                                                                .id,
+                                                                        onChanged:
+                                                                            (value) {}),
+                                                                  ),
+                                                                  kHorizontalPaddingLarge,
+                                                                  Text(
+                                                                    reportTags[
+                                                                            index]
+                                                                        .name,
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            );
+                                                          },
+                                                          itemCount: reportTags
+                                                              .length),
+                                                    ),
+                                                  ],
                                                 ),
-                                              ),
-                                              kVerticalPaddingXLarge,
-                                              Expanded(
-                                                child: ListView.separated(
-                                                    separatorBuilder: (context,
-                                                            index) =>
-                                                        Container(
-                                                          margin:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  left: 50),
-                                                          child: const Divider(
-                                                            thickness: 0.5,
-                                                            color: kGrey3Color,
-                                                          ),
-                                                        ),
-                                                    itemBuilder:
-                                                        (context, index) {
-                                                      return InkWell(
-                                                        onTap: () {
-                                                          reasonForDeletion =
-                                                              reportTags[index];
-                                                          Navigator.pop(
-                                                              context);
-                                                        },
-                                                        child: Row(
-                                                          children: [
-                                                            SizedBox(
-                                                              width: 35,
-                                                              child: Radio(
-                                                                  value: reportTags[
-                                                                          index]
-                                                                      .id,
-                                                                  groupValue: reasonForDeletion ==
-                                                                          null
-                                                                      ? -1
-                                                                      : reasonForDeletion!
-                                                                          .id,
-                                                                  onChanged:
-                                                                      (value) {}),
-                                                            ),
-                                                            kHorizontalPaddingLarge,
-                                                            Text(
-                                                              reportTags[index]
-                                                                  .name,
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      );
-                                                    },
-                                                    itemCount:
-                                                        reportTags.length),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      });
-                                  rebuildReasonBox.value =
-                                      !rebuildReasonBox.value;
-                                } else {
-                                  toast(response.errorMessage ??
-                                      'An error occured');
-                                }
-                              },
+                                              );
+                                            });
+                                        rebuildReasonBox.value =
+                                            !rebuildReasonBox.value;
+                                      } else {
+                                        toast(response.errorMessage ??
+                                            'An error occured');
+                                      }
+                                      _boolVarLoading = false;
+                                      rebuildReasonBox.value =
+                                          !rebuildReasonBox.value;
+                                    },
                               child: Container(
                                   padding: const EdgeInsets.all(14.0),
                                   decoration: BoxDecoration(
@@ -219,8 +237,16 @@ Dialog deleteConfirmationDialog(
                 ),
               ),
               TextButton(
-                onPressed: () => action(
-                    reasonForDeletion == null ? '' : reasonForDeletion!.name),
+                onPressed: () {
+                  if (user.userUniqueId != userId && isCm) {
+                    if (reasonForDeletion == null) {
+                      toast('Please select a reason for deletion');
+                      return;
+                    }
+                  }
+                  action(
+                      reasonForDeletion == null ? '' : reasonForDeletion!.name);
+                },
                 style: ButtonStyle(
                   padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
                     EdgeInsets.zero,
