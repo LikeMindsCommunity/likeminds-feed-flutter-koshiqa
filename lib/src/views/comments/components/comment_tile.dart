@@ -44,6 +44,7 @@ class _CommentTileState extends State<CommentTile>
   late final ToggleLikeCommentBloc _toggleLikeCommentBloc;
   late final CommentRepliesBloc _commentRepliesBloc;
   ValueNotifier<bool> rebuildLikeButton = ValueNotifier(false);
+  ValueNotifier<bool> rebuildReplyList = ValueNotifier(false);
   Reply? reply;
   late final User user;
   late final String postId;
@@ -145,10 +146,13 @@ class _CommentTileState extends State<CommentTile>
                     onTap: () {
                       if (isLiked) {
                         likeCount = likeCount! - 1;
+                        widget.reply.likesCount -= 1;
                       } else {
                         likeCount = likeCount! + 1;
+                        widget.reply.likesCount += 1;
                       }
                       isLiked = !isLiked;
+                      widget.reply.isLiked = isLiked;
 
                       rebuildLikeButton.value = !rebuildLikeButton.value;
 
@@ -234,10 +238,9 @@ class _CommentTileState extends State<CommentTile>
                   ? GestureDetector(
                       onTap: () {
                         if (_replyVisible) {
-                          setState(() {
-                            _replyVisible = false;
-                            page = 1;
-                          });
+                          _replyVisible = false;
+                          page = 1;
+                          rebuildReplyList.value = !rebuildReplyList.value;
                           return;
                         } else {
                           _commentRepliesBloc.add(GetCommentReplies(
@@ -294,107 +297,53 @@ class _CommentTileState extends State<CommentTile>
               ),
             ],
           ),
-          BlocConsumer(
-            bloc: _commentRepliesBloc,
-            builder: ((context, state) {
-              if (state is CommentRepliesLoading) {
-                return const Padding(
-                  padding: EdgeInsets.only(top: 8.0),
-                  child: Center(
-                    child: SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-                );
-              }
-              if (state is CommentRepliesLoaded ||
-                  state is PaginatedCommentRepliesLoading) {
-                // replies.addAll(state.commentDetails.postReplies.replies);
-                List<CommentReply> replies = [];
-                Map<String, User> users = {};
-                if (state is CommentRepliesLoaded) {
-                  replies = state.commentDetails.postReplies.replies;
-                  users = state.commentDetails.users;
-                } else if (state is PaginatedCommentRepliesLoading) {
-                  replies = state.prevCommentDetails.postReplies.replies;
-                  users = state.prevCommentDetails.users;
-                }
-                List<Widget> repliesW = [];
-                if (_replyVisible) {
-                  repliesW = replies.mapIndexed((index, element) {
-                    return ReplyTile(
-                      // key: Key(element.id),
-                      reply: element,
-                      user: users[element.userId]!,
-                      postId: postId,
-                      refresh: refresh!,
-                      commentId: reply!.id,
-                    );
-                  }).toList();
-                } else {
-                  repliesW = [];
-                }
-
-                if (replies.length % 10 == 0 &&
-                    _replyVisible &&
-                    replies.length != reply!.repliesCount) {
-                  repliesW = [
-                    ...repliesW,
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        TextButton(
-                          onPressed: () {
-                            page++;
-                            _commentRepliesBloc.add(GetCommentReplies(
-                                commentDetailRequest:
-                                    (CommentDetailRequestBuilder()
-                                          ..commentId(reply!.id)
-                                          ..page(page)
-                                          ..postId(postId))
-                                        .build(),
-                                forLoadMore: true));
-                          },
-                          child: const Text(
-                            'View more replies',
-                            style: TextStyle(
-                              color: kBlueGreyColor,
-                              fontSize: 14,
-                            ),
+          ValueListenableBuilder(
+              valueListenable: rebuildReplyList,
+              builder: (context, _, __) {
+                return BlocConsumer(
+                  bloc: _commentRepliesBloc,
+                  builder: ((context, state) {
+                    if (state is CommentRepliesLoading) {
+                      return const Padding(
+                        padding: EdgeInsets.only(top: 8.0),
+                        child: Center(
+                          child: SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(),
                           ),
                         ),
-                        Text(
-                          ' ${replies.length} of ${widget.reply.repliesCount}',
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: kGrey3Color,
-                          ),
-                        )
-                      ],
-                    )
-                  ];
-                  // replies.add();
-                }
-                return BlocConsumer<AddCommentReplyBloc, AddCommentReplyState>(
-                  bloc: addCommentReplyBloc,
-                  listener: (context, state) {
-                    if (state is AddCommentReplySuccess) {
-                      replies.insert(0, state.addCommentResponse.reply!);
+                      );
+                    }
+                    if (state is CommentRepliesLoaded ||
+                        state is PaginatedCommentRepliesLoading) {
+                      // replies.addAll(state.commentDetails.postReplies.replies);
+                      List<CommentReply> replies = [];
+                      Map<String, User> users = {};
+                      if (state is CommentRepliesLoaded) {
+                        replies = state.commentDetails.postReplies.replies;
+                        users = state.commentDetails.users;
+                      } else if (state is PaginatedCommentRepliesLoading) {
+                        replies = state.prevCommentDetails.postReplies.replies;
+                        users = state.prevCommentDetails.users;
+                      }
+                      List<Widget> repliesW = [];
+                      if (_replyVisible) {
+                        repliesW = replies.mapIndexed((index, element) {
+                          return ReplyTile(
+                            // key: Key(element.id),
+                            reply: element,
+                            user: users[element.userId]!,
+                            postId: postId,
+                            refresh: refresh!,
+                            commentId: reply!.id,
+                          );
+                        }).toList();
+                      } else {
+                        repliesW = [];
+                      }
 
-                      repliesW = replies.mapIndexed((index, element) {
-                        return ReplyTile(
-                          // key: Key(element.id),
-                          reply: element,
-                          user: users[element.userId]!,
-                          postId: postId,
-                          refresh: refresh!,
-                          commentId: reply!.id,
-                        );
-                      }).toList();
-                      if (replies.isNotEmpty &&
-                          replies.length % 10 == 0 &&
+                      if (replies.length % 10 == 0 &&
                           _replyVisible &&
                           replies.length != reply!.repliesCount) {
                         repliesW = [
@@ -434,157 +383,225 @@ class _CommentTileState extends State<CommentTile>
                         ];
                         // replies.add();
                       }
-                    }
-                    if (state is EditReplySuccess) {
-                      int index = replies.indexWhere((element) =>
-                          element.id ==
-                          state.editCommentReplyResponse.reply!.id);
-                      if (index != -1) {
-                        replies[index] = state.editCommentReplyResponse.reply!;
+                      return BlocConsumer<AddCommentReplyBloc,
+                          AddCommentReplyState>(
+                        bloc: addCommentReplyBloc,
+                        listener: (context, state) {
+                          if (state is AddCommentReplySuccess) {
+                            replies.insert(0, state.addCommentResponse.reply!);
 
-                        if (_replyVisible) {
-                          repliesW = replies.mapIndexed((index, element) {
-                            return ReplyTile(
-                              // key: Key(element.id),
-                              reply: element,
-                              user: users[element.userId]!,
-                              postId: postId,
-                              refresh: refresh!,
-                              commentId: reply!.id,
-                            );
-                          }).toList();
-                        } else {
-                          repliesW = [];
-                        }
-
-                        if (replies.isNotEmpty &&
-                            replies.length % 10 == 0 &&
-                            _replyVisible &&
-                            replies.length != reply!.repliesCount) {
-                          repliesW = [
-                            ...repliesW,
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                TextButton(
-                                  onPressed: () {
-                                    page++;
-                                    _commentRepliesBloc.add(GetCommentReplies(
-                                        commentDetailRequest:
-                                            (CommentDetailRequestBuilder()
-                                                  ..commentId(reply!.id)
-                                                  ..page(page)
-                                                  ..postId(postId))
-                                                .build(),
-                                        forLoadMore: true));
-                                  },
-                                  child: const Text(
-                                    'View more replies',
-                                    style: TextStyle(
-                                      color: kBlueGreyColor,
-                                      fontSize: 14,
+                            repliesW = replies.mapIndexed((index, element) {
+                              return ReplyTile(
+                                // key: Key(element.id),
+                                reply: element,
+                                user: users[element.userId]!,
+                                postId: postId,
+                                refresh: refresh!,
+                                commentId: reply!.id,
+                              );
+                            }).toList();
+                            if (replies.isNotEmpty &&
+                                replies.length % 10 == 0 &&
+                                _replyVisible &&
+                                replies.length != reply!.repliesCount) {
+                              repliesW = [
+                                ...repliesW,
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    TextButton(
+                                      onPressed: () {
+                                        page++;
+                                        _commentRepliesBloc.add(
+                                            GetCommentReplies(
+                                                commentDetailRequest:
+                                                    (CommentDetailRequestBuilder()
+                                                          ..commentId(reply!.id)
+                                                          ..page(page)
+                                                          ..postId(postId))
+                                                        .build(),
+                                                forLoadMore: true));
+                                      },
+                                      child: const Text(
+                                        'View more replies',
+                                        style: TextStyle(
+                                          color: kBlueGreyColor,
+                                          fontSize: 14,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                                Text(
-                                  ' ${replies.length} of ${widget.reply.repliesCount}',
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    color: kGrey3Color,
-                                  ),
+                                    Text(
+                                      ' ${replies.length} of ${widget.reply.repliesCount}',
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: kGrey3Color,
+                                      ),
+                                    )
+                                  ],
                                 )
-                              ],
-                            )
-                          ];
-                          // replies.add();
-                        }
-                      }
-                    }
-                    if (state is CommentReplyDeleted) {
-                      int index = replies
-                          .indexWhere((element) => element.id == state.replyId);
-                      if (index != -1) {
-                        replies.removeAt(index);
+                              ];
+                              // replies.add();
+                            }
+                          }
+                          if (state is EditReplySuccess) {
+                            int index = replies.indexWhere((element) =>
+                                element.id ==
+                                state.editCommentReplyResponse.reply!.id);
+                            if (index != -1) {
+                              replies[index] =
+                                  state.editCommentReplyResponse.reply!;
 
-                        if (_replyVisible) {
-                          repliesW = replies.mapIndexed((index, element) {
-                            return ReplyTile(
-                              // key: Key(element.id),
-                              reply: element,
-                              user: users[element.userId]!,
-                              postId: postId,
-                              refresh: refresh!,
-                              commentId: reply!.id,
-                            );
-                          }).toList();
-                        } else {
-                          repliesW = [];
-                        }
+                              if (_replyVisible) {
+                                repliesW = replies.mapIndexed((index, element) {
+                                  return ReplyTile(
+                                    // key: Key(element.id),
+                                    reply: element,
+                                    user: users[element.userId]!,
+                                    postId: postId,
+                                    refresh: refresh!,
+                                    commentId: reply!.id,
+                                  );
+                                }).toList();
+                              } else {
+                                repliesW = [];
+                              }
 
-                        if (replies.isNotEmpty &&
-                            replies.length % 10 == 0 &&
-                            _replyVisible &&
-                            replies.length != reply!.repliesCount) {
-                          repliesW = [
-                            ...repliesW,
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                TextButton(
-                                  onPressed: () {
-                                    page++;
-                                    _commentRepliesBloc.add(GetCommentReplies(
-                                        commentDetailRequest:
-                                            (CommentDetailRequestBuilder()
-                                                  ..commentId(reply!.id)
-                                                  ..page(page)
-                                                  ..postId(postId))
-                                                .build(),
-                                        forLoadMore: true));
-                                  },
-                                  child: const Text(
-                                    'View more replies',
-                                    style: TextStyle(
-                                      color: kBlueGreyColor,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ),
-                                Text(
-                                  ' ${replies.length} of ${widget.reply.repliesCount}',
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    color: kGrey3Color,
-                                  ),
-                                )
-                              ],
-                            )
-                          ];
-                          // replies.add();
-                        }
-                      }
+                              if (replies.isNotEmpty &&
+                                  replies.length % 10 == 0 &&
+                                  _replyVisible &&
+                                  replies.length != reply!.repliesCount) {
+                                repliesW = [
+                                  ...repliesW,
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      TextButton(
+                                        onPressed: () {
+                                          page++;
+                                          _commentRepliesBloc.add(
+                                              GetCommentReplies(
+                                                  commentDetailRequest:
+                                                      (CommentDetailRequestBuilder()
+                                                            ..commentId(
+                                                                reply!.id)
+                                                            ..page(page)
+                                                            ..postId(postId))
+                                                          .build(),
+                                                  forLoadMore: true));
+                                        },
+                                        child: const Text(
+                                          'View more replies',
+                                          style: TextStyle(
+                                            color: kBlueGreyColor,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                      Text(
+                                        ' ${replies.length} of ${widget.reply.repliesCount}',
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          color: kGrey3Color,
+                                        ),
+                                      )
+                                    ],
+                                  )
+                                ];
+                                // replies.add();
+                              }
+                            }
+                          }
+                          if (state is CommentReplyDeleted) {
+                            int index = replies.indexWhere(
+                                (element) => element.id == state.replyId);
+                            if (index != -1) {
+                              replies.removeAt(index);
+
+                              if (_replyVisible) {
+                                repliesW = replies.mapIndexed((index, element) {
+                                  return ReplyTile(
+                                    // key: Key(element.id),
+                                    reply: element,
+                                    user: users[element.userId]!,
+                                    postId: postId,
+                                    refresh: refresh!,
+                                    commentId: reply!.id,
+                                  );
+                                }).toList();
+                              } else {
+                                repliesW = [];
+                              }
+
+                              if (replies.isNotEmpty &&
+                                  replies.length % 10 == 0 &&
+                                  _replyVisible &&
+                                  replies.length != reply!.repliesCount) {
+                                repliesW = [
+                                  ...repliesW,
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      TextButton(
+                                        onPressed: () {
+                                          page++;
+                                          _commentRepliesBloc.add(
+                                              GetCommentReplies(
+                                                  commentDetailRequest:
+                                                      (CommentDetailRequestBuilder()
+                                                            ..commentId(
+                                                                reply!.id)
+                                                            ..page(page)
+                                                            ..postId(postId))
+                                                          .build(),
+                                                  forLoadMore: true));
+                                        },
+                                        child: const Text(
+                                          'View more replies',
+                                          style: TextStyle(
+                                            color: kBlueGreyColor,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                      Text(
+                                        ' ${replies.length} of ${widget.reply.repliesCount}',
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          color: kGrey3Color,
+                                        ),
+                                      )
+                                    ],
+                                  )
+                                ];
+                                // replies.add();
+                              }
+                            }
+                          }
+                        },
+                        builder: (context, state) {
+                          return Container(
+                            padding: const EdgeInsets.only(
+                              left: 48,
+                              top: 8,
+                              bottom: 0,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: repliesW,
+                            ),
+                          );
+                        },
+                      );
                     }
-                  },
-                  builder: (context, state) {
-                    return Container(
-                      padding: const EdgeInsets.only(
-                        left: 48,
-                        top: 8,
-                        bottom: 0,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: repliesW,
-                      ),
-                    );
-                  },
+                    return Container();
+                  }),
+                  listener: (BuildContext context, state) {},
                 );
-              }
-              return Container();
-            }),
-            listener: (BuildContext context, state) {},
-          ),
+              }),
         ],
       ),
     );
