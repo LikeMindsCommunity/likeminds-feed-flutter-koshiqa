@@ -415,7 +415,10 @@ class ExpandableTextState extends State<ExpandableText>
             if (!isTag) {
               String checkLink = getFirstValidLinkFromString(link ?? '');
               if (Uri.parse(checkLink).isAbsolute) {
-                launchUrl(Uri.parse(checkLink));
+                launchUrl(
+                  Uri.parse(checkLink),
+                  mode: LaunchMode.externalApplication,
+                );
               }
             } else {
               TaggingHelper.routeToProfile(
