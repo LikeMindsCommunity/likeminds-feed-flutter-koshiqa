@@ -107,7 +107,10 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     isEditing = true;
     selectedReplyId = replyId;
     isReplying = false;
-    _commentController?.value = TextEditingValue(text: text);
+    Map<String, dynamic> decodedComment =
+        TaggingHelper.convertRouteToTagAndUserMap(text);
+    userTags = decodedComment['userTags'];
+    _commentController?.value = TextEditingValue(text: decodedComment['text']);
     openOnScreenKeyboard();
     rebuildReplyWidget.value = !rebuildReplyWidget.value;
   }

@@ -108,10 +108,13 @@ class _ReplyTileState extends State<ReplyTile> {
                             print('like button tapped');
                             if (isLiked) {
                               likeCount = likeCount! - 1;
+                              widget.reply.likesCount -= 1;
                             } else {
                               likeCount = likeCount! + 1;
+                              widget.reply.likesCount += 1;
                             }
                             isLiked = !isLiked;
+                            widget.reply.isLiked = isLiked;
 
                             rebuildLikeButton.value = !rebuildLikeButton.value;
 

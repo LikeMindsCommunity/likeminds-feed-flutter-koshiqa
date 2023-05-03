@@ -31,9 +31,12 @@ class PostLinkView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        launchUrl(Uri.parse(linkModel == null
-            ? attachment!.attachmentMeta.ogTags!.url!
-            : linkModel!.link!));
+        launchUrl(
+          Uri.parse(linkModel == null
+              ? attachment!.attachmentMeta.ogTags!.url!
+              : linkModel!.link!),
+          mode: LaunchMode.externalApplication,
+        );
       },
       child: Container(
         clipBehavior: Clip.hardEdge,
