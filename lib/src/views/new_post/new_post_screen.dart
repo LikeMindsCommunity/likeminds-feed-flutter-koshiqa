@@ -527,6 +527,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                             padding: const EdgeInsets.all(4.0),
                             child: TaggingAheadTextField(
                               feedroomId: feedRoomId,
+                              focusNode: FocusNode(),
                               isDown: true,
                               controller: _controller,
                               onTagSelected: (tag) {

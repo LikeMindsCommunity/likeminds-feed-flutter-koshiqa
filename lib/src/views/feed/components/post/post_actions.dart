@@ -128,12 +128,14 @@ class _PostActionsState extends State<PostActions> {
                           "comment_count": postDetails!.commentCount.toString(),
                         },
                       );
+
                       locator<NavigationService>()
                           .navigateTo(
                         AllCommentsScreen.route,
                         arguments: AllCommentsScreenArguments(
-                          post: postDetails!,
-                          feedroomId: locator<LikeMindsService>().getFeedroomId,
+                          postId: postDetails!.id,
+                          feedRoomId: locator<LikeMindsService>().feedroomId!,
+                          fromComment: true,
                         ),
                       )
                           .then((result) {
