@@ -13,10 +13,10 @@ class AddCommentLoading extends AddCommentState {}
 
 class AddCommentSuccess extends AddCommentState {
   final AddCommentResponse addCommentResponse;
-  AddCommentSuccess({required this.addCommentResponse});
+  const AddCommentSuccess({required this.addCommentResponse});
 }
 
 class AddCommentError extends AddCommentState {
   final String message;
-  AddCommentError({required this.message});
+  const AddCommentError({required this.message});
 }

@@ -1,5 +1,8 @@
 import 'package:collection/collection.dart';
+import 'package:feed_sx/src/views/comments/blocs/add_comment/add_comment_bloc.dart';
+import 'package:feed_sx/src/views/comments/blocs/add_comment_reply/add_comment_reply_bloc.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
@@ -27,8 +30,6 @@ class DropdownOptionsReply extends StatelessWidget {
     menuItems.removeWhere((element) {
       if (element.id == 7) {
         return true;
-      } else if (element.id == 8) {
-        return true;
       } else {
         return false;
       }
@@ -38,6 +39,8 @@ class DropdownOptionsReply extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     removeEditIntegration();
+    AddCommentReplyBloc addCommentReplyBloc =
+        BlocProvider.of<AddCommentReplyBloc>(context);
     return Builder(builder: (context) {
       return PopupMenuButton<int>(
         onSelected: (value) async {
@@ -64,29 +67,14 @@ class DropdownOptionsReply extends StatelessWidget {
                       "reply_id": replyDetails.id,
                     },
                   );
-                  final response =
-                      await locator<LikeMindsService>().deleteComment(
-                    (DeleteCommentRequestBuilder()
-                          ..postId(postId)
-                          ..commentId(replyDetails.id)
-                          ..reason(
-                              reason.isEmpty ? "Reason for deletion" : reason))
-                        .build(),
-                  );
-                  print(response.toString());
-
-                  if (response.success) {
-                    toast(
-                      'Comment Deleted',
-                      duration: Toast.LENGTH_LONG,
-                    );
-                    refresh();
-                  } else {
-                    toast(
-                      response.errorMessage ?? '',
-                      duration: Toast.LENGTH_LONG,
-                    );
-                  }
+                  addCommentReplyBloc.add(DeleteCommentReply(
+                      (DeleteCommentRequestBuilder()
+                            ..postId(postId)
+                            ..commentId(replyDetails.id)
+                            ..reason(reason.isEmpty
+                                ? "Reason for deletion"
+                                : reason))
+                          .build()));
                 },
                 actionText: 'Delete',
               ),
@@ -95,6 +83,14 @@ class DropdownOptionsReply extends StatelessWidget {
             print("Report functionality");
           } else if (value == 8) {
             print("Editing functionality");
+            addCommentReplyBloc.add(EditReplyCancel());
+            addCommentReplyBloc.add(
+              EditingReply(
+                commentId: commentId,
+                text: replyDetails.text,
+                replyId: replyDetails.id,
+              ),
+            );
           }
         },
         itemBuilder: (context) => menuItems

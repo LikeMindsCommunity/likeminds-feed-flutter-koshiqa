@@ -3,7 +3,6 @@ import 'package:feed_sx/src/services/service_locator.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/views/comments/all_comments_screen.dart';
-import 'package:feed_sx/src/views/feed/feedroom_screen.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
@@ -119,19 +118,11 @@ class LMNotificationHandler {
     // If the notification is post related, route to the post detail screen
     if (host == "post_detail") {
       final String postId = queryParams["post_id"]!;
-      final GetPostResponse postDetails =
-          await locator<LikeMindsService>().getPost(
-        (GetPostRequestBuilder()
-              ..postId(postId)
-              ..page(1)
-              ..pageSize(10))
-            .build(),
-      );
       locator<NavigationService>().navigateTo(
         AllCommentsScreen.route,
         arguments: AllCommentsScreenArguments(
-          post: postDetails.post!,
-          feedroomId: locator<LikeMindsService>().feedroomId!,
+          postId: postId,
+          feedRoomId: locator<LikeMindsService>().feedroomId!,
         ),
       );
     }

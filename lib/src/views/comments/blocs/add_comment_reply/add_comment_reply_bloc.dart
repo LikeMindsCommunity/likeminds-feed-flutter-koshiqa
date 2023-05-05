@@ -2,17 +2,19 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:feed_sx/feed.dart';
+import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/analytics/analytics.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 part 'add_comment_reply_event.dart';
+
 part 'add_comment_reply_state.dart';
 
 class AddCommentReplyBloc
     extends Bloc<AddCommentReplyEvent, AddCommentReplyState> {
-  final FeedApi feedApi;
-  AddCommentReplyBloc({required this.feedApi})
-      : super(AddCommentReplyInitial()) {
+  AddCommentReplyBloc() : super(AddCommentReplyInitial()) {
     on<AddCommentReply>(
       (event, emit) async {
         await _mapAddCommentReplyToState(
@@ -21,14 +23,132 @@ class AddCommentReplyBloc
         );
       },
     );
+    on<EditReplyCancel>(
+      (event, emit) {
+        emit(EditReplyCanceled());
+      },
+    );
+    on<EditingReply>((event, emit) {
+      emit(
+        ReplyEditingStarted(
+          commentId: event.commentId,
+          text: event.text,
+          replyId: event.replyId,
+        ),
+      );
+    });
+    on<EditReply>((event, emit) async {
+      emit(EditReplyLoading());
+      EditCommentReplyResponse? response = await locator<LikeMindsService>()
+          .getFeedApi()
+          .editCommentReply(event.editCommentReplyRequest);
+      if (response == null) {
+        emit(const EditReplyError(message: "An error occurred"));
+      } else {
+        emit(EditReplySuccess(editCommentReplyResponse: response));
+      }
+    });
+    on<EditCommentCancel>(
+      (event, emit) {
+        emit(EditCommentCanceled());
+      },
+    );
+    on<EditingComment>((event, emit) {
+      emit(
+        CommentEditingStarted(
+          commentId: event.commentId,
+          text: event.text,
+        ),
+      );
+    });
+    on<EditComment>((event, emit) async {
+      emit(EditCommentLoading());
+      EditCommentResponse? response = await locator<LikeMindsService>()
+          .getFeedApi()
+          .editComment(event.editCommentRequest);
+      if (response == null) {
+        emit(const EditCommentError(message: "An error occurred"));
+      } else {
+        emit(EditCommentSuccess(editCommentResponse: response));
+      }
+    });
+    on<DeleteComment>(
+      (event, emit) async {
+        try {
+          emit(CommentDeletionLoading());
+          final response = await locator<LikeMindsService>().deleteComment(
+            event.deleteCommentRequest,
+          );
+
+          if (response.success) {
+            toast(
+              'Comment Deleted',
+              duration: Toast.LENGTH_LONG,
+            );
+            emit(
+              CommentDeleted(
+                commentId: event.deleteCommentRequest.commentId,
+              ),
+            );
+          } else {
+            toast(
+              response.errorMessage ?? '',
+              duration: Toast.LENGTH_LONG,
+            );
+            emit(CommentDeleteError());
+          }
+        } catch (err) {
+          toast(
+            'An error occcurred while deleting comment',
+            duration: Toast.LENGTH_LONG,
+          );
+          emit(CommentDeleteError());
+        }
+      },
+    );
+    on<DeleteCommentReply>(
+      (event, emit) async {
+        try {
+          emit(ReplyDeletionLoading());
+          final response = await locator<LikeMindsService>().deleteComment(
+            event.deleteCommentReplyRequest,
+          );
+
+          if (response.success) {
+            toast(
+              'Comment Deleted',
+              duration: Toast.LENGTH_LONG,
+            );
+            emit(
+              CommentReplyDeleted(
+                replyId: event.deleteCommentReplyRequest.commentId,
+              ),
+            );
+          } else {
+            toast(
+              response.errorMessage ?? '',
+              duration: Toast.LENGTH_LONG,
+            );
+            emit(CommentDeleteError());
+          }
+        } catch (err) {
+          toast(
+            'An error occcurred while deleting reply',
+            duration: Toast.LENGTH_LONG,
+          );
+          emit(CommentDeleteError());
+        }
+      },
+    );
   }
 
   FutureOr<void> _mapAddCommentReplyToState(
       {required AddCommentReplyRequest addCommentReplyRequest,
       required Emitter<AddCommentReplyState> emit}) async {
     emit(AddCommentReplyLoading());
-    AddCommentReplyResponse? response =
-        await feedApi.addCommentReply(addCommentReplyRequest);
+    AddCommentReplyResponse? response = await locator<LikeMindsService>()
+        .getFeedApi()
+        .addCommentReply(addCommentReplyRequest);
     if (response == null) {
       emit(AddCommentReplyError(message: "No data found"));
     } else {
