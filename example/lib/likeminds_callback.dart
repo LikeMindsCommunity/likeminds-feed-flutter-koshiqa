@@ -1,7 +1,7 @@
 import 'package:likeminds_feed/likeminds_feed.dart';
 
-/// This class is used to implement the [LMSdkCallback] interface
-class LikeMindsCallback implements LMSdkCallback {
+/// This class is used to implement the [LMSDKCallback] interface
+class LikeMindsCallback implements LMSDKCallback {
   LikeMindsCallback();
 
   /// This method is called when an analytics event is fired from the SDK
