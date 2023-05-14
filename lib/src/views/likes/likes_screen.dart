@@ -27,12 +27,18 @@ class LikesScreen extends StatefulWidget {
 
 class _LikesScreenState extends State<LikesScreen> {
   LikesBloc? _likesBloc;
-  final PagingController<int, User> _pagingController =
+  int _offset = 1;
+  Map<String, User> userData = {};
+
+  final PagingController<int, Like> _pagingControllerLikes =
+      PagingController(firstPageKey: 1);
+
+  final PagingController<int, CommentLike> _pagingControllerCommentLikes =
       PagingController(firstPageKey: 1);
 
   _addPaginationListener() {
     if (widget.isCommentLikes) {
-      _pagingController.addPageRequestListener(
+      _pagingControllerCommentLikes.addPageRequestListener(
         (pageKey) {
           _likesBloc!.add(
             GetCommentLikes(
@@ -45,7 +51,7 @@ class _LikesScreenState extends State<LikesScreen> {
         },
       );
     } else {
-      _pagingController.addPageRequestListener(
+      _pagingControllerLikes.addPageRequestListener(
         (pageKey) {
           _likesBloc!.add(
             GetLikes(
@@ -87,32 +93,31 @@ class _LikesScreenState extends State<LikesScreen> {
 
   @override
   void dispose() {
-    _pagingController.dispose();
+    _pagingControllerLikes.dispose();
+    _pagingControllerCommentLikes.dispose();
     super.dispose();
   }
 
   void updatePagingControllers(Object? state) {
+    _offset += 1;
     if (state is LikesLoaded) {
-      _offset++;
-      if (state.response.users == null) {
-        _pagingController.appendLastPage([]);
+      if (state.response.likes!.length < 10) {
+        userData.addAll(state.response.users ?? {});
+        _pagingControllerLikes.appendLastPage(state.response.likes ?? []);
+      } else {
+        userData.addAll(state.response.users ?? {});
+        _pagingControllerLikes.appendPage(state.response.likes!, _offset);
       }
-      if (state.response.users != null && state.response.users!.length < 10) {
-        _pagingController.appendLastPage(state.response.users!.values.toList());
-      } else if (state.response.users != null &&
-          state.response.users!.length >= 10) {
-        _pagingController.appendPage(
-            state.response.users!.values.toList(), _offset);
-      }
-    } else if (state is CommentLikesLoaded) {
-      _offset++;
-      if (state.response.users == null) {
-        _pagingController.appendLastPage([]);
-      } else if (state.response.users!.length < 10) {
-        _pagingController.appendLastPage(state.response.users!.values.toList());
-      } else if (state.response.users!.length >= 10) {
-        _pagingController.appendPage(
-            state.response.users!.values.toList(), _offset);
+    }
+    if (state is CommentLikesLoaded) {
+      if (state.response.commentLikes!.length < 10) {
+        userData.addAll(state.response.users ?? {});
+        _pagingControllerCommentLikes
+            .appendLastPage(state.response.commentLikes ?? []);
+      } else {
+        userData.addAll(state.response.users ?? {});
+        _pagingControllerCommentLikes.appendPage(
+            state.response.commentLikes!, _offset);
       }
     }
   }
@@ -127,8 +132,6 @@ class _LikesScreenState extends State<LikesScreen> {
       },
     );
   }
-
-  int _offset = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -158,16 +161,9 @@ class _LikesScreenState extends State<LikesScreen> {
                 if (!widget.isCommentLikes) {
                   logLikeListEvent(state.response.totalCount);
                 }
-                return getLikesLoadedView(
-                  state: state,
-                  _pagingController,
-                );
+                return getLikesLoadedView(state: state);
               } else if (state is CommentLikesLoaded) {
-                return getLikesLoadedView(
-                  commentState: state,
-                  isCommentLikes: true,
-                  _pagingController,
-                );
+                return getCommentLikesLoadedView(commentState: state);
               } else {
                 return const SizedBox();
               }
@@ -175,93 +171,139 @@ class _LikesScreenState extends State<LikesScreen> {
       ),
     );
   }
-}
 
-Widget getAppBar(String text) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 18.0),
-    child: Row(
-      children: [
-        kHorizontalPaddingSmall,
-        IconButton(
-          onPressed: () {
-            locator<NavigationService>().goBack();
-          },
-          icon: const Icon(Icons.arrow_back_ios),
-        ),
-        kHorizontalPaddingSmall,
-        Text(
-          text,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-        )
-      ],
-    ),
-  );
-}
-
-Widget getLikesLoadedView(
-  PagingController<int, User> pagingController, {
-  LikesLoaded? state,
-  CommentLikesLoaded? commentState,
-  bool isCommentLikes = false,
-}) {
-  return Column(
-    children: [
-      const SizedBox(height: 64),
-      getAppBar(
-        "${isCommentLikes ? commentState!.response.totalCount : state!.response.totalCount} Likes",
+  Widget getAppBar(String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 18.0),
+      child: Row(
+        children: [
+          kHorizontalPaddingSmall,
+          IconButton(
+            onPressed: () {
+              locator<NavigationService>().goBack();
+            },
+            icon: const Icon(Icons.arrow_back_ios),
+          ),
+          kHorizontalPaddingSmall,
+          Text(
+            text,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+          )
+        ],
       ),
-      kVerticalPaddingLarge,
-      Expanded(
-        child: PagedListView(
-          padding: EdgeInsets.zero,
-          pagingController: pagingController,
-          builderDelegate: PagedChildBuilderDelegate<User>(
-            noMoreItemsIndicatorBuilder: (context) => const SizedBox(
-              height: 20,
-            ),
-            noItemsFoundIndicatorBuilder: (context) => Scaffold(
-              backgroundColor: kWhiteColor,
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: const <Widget>[
-                    Text("No likes to show",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        )),
-                    SizedBox(height: 12),
-                    Text("Be the first one to like this post",
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w300,
-                            color: kGrey2Color)),
-                    SizedBox(height: 28),
-                  ],
+    );
+  }
+
+  Widget getCommentLikesLoadedView({CommentLikesLoaded? commentState}) {
+    return Column(
+      children: [
+        const SizedBox(height: 64),
+        getAppBar(
+          "${commentState!.response.totalCount} Likes",
+        ),
+        kVerticalPaddingLarge,
+        Expanded(
+          child: PagedListView(
+            padding: EdgeInsets.zero,
+            pagingController: _pagingControllerCommentLikes,
+            builderDelegate: PagedChildBuilderDelegate<CommentLike>(
+              noMoreItemsIndicatorBuilder: (context) => const SizedBox(
+                height: 20,
+              ),
+              noItemsFoundIndicatorBuilder: (context) => Scaffold(
+                backgroundColor: kWhiteColor,
+                body: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: const <Widget>[
+                      Text("No likes to show",
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          )),
+                      SizedBox(height: 12),
+                      Text("Be the first one to like this post",
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w300,
+                              color: kGrey2Color)),
+                      SizedBox(height: 28),
+                    ],
+                  ),
                 ),
               ),
+              itemBuilder: (context, item, index) =>
+                  LikesTile(user: userData[item.userId]),
             ),
-            itemBuilder: (context, item, index) => LikesTile(user: item),
           ),
+        )
+      ],
+    );
+  }
+
+  Widget getLikesLoadedView({
+    LikesLoaded? state,
+  }) {
+    return Column(
+      children: [
+        const SizedBox(height: 64),
+        getAppBar(
+          "${state!.response.totalCount} Likes",
         ),
-      )
-    ],
-  );
-}
+        kVerticalPaddingLarge,
+        Expanded(
+          child: PagedListView<int, Like>(
+            padding: EdgeInsets.zero,
+            pagingController: _pagingControllerLikes,
+            builderDelegate: PagedChildBuilderDelegate<Like>(
+              noMoreItemsIndicatorBuilder: (context) => const SizedBox(
+                height: 20,
+              ),
+              noItemsFoundIndicatorBuilder: (context) => Scaffold(
+                backgroundColor: kWhiteColor,
+                body: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: const <Widget>[
+                      Text("No likes to show",
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          )),
+                      SizedBox(height: 12),
+                      Text("Be the first one to like this post",
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w300,
+                              color: kGrey2Color)),
+                      SizedBox(height: 28),
+                    ],
+                  ),
+                ),
+              ),
+              itemBuilder: (context, item, index) =>
+                  LikesTile(user: userData[item.userId]),
+            ),
+          ),
+        )
+      ],
+    );
+  }
 
-Widget getLikesErrorView(String message) {
-  return Center(
-    child: Text(message),
-  );
-}
+  Widget getLikesErrorView(String message) {
+    return Center(
+      child: Text(message),
+    );
+  }
 
-Widget getLikesLoadingView() {
-  return ListView.builder(
-      padding: const EdgeInsets.only(top: 120),
-      itemCount: 5,
-      itemBuilder: (context, index) => getLikesTileShimmer());
+  Widget getLikesLoadingView() {
+    return ListView.builder(
+        padding: const EdgeInsets.only(top: 120),
+        itemCount: 5,
+        itemBuilder: (context, index) => getLikesTileShimmer());
+  }
 }
 
 class LikesTile extends StatelessWidget {
