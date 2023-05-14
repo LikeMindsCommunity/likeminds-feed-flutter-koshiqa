@@ -5,12 +5,12 @@ class LMAnalytics {
   static LMAnalytics? _instance;
   static LMAnalytics get() => _instance ??= LMAnalytics._();
 
-  late final LMSdkCallback sdkCallback;
+  late final LMSDKCallback sdkCallback;
 
   LMAnalytics._();
 
   void initialize() {
-    sdkCallback = DIService.getIt.get<LMSdkCallback>(
+    sdkCallback = DIService.getIt.get<LMSDKCallback>(
       instanceName: "LMCallback",
     );
     print("Analytics initialized");

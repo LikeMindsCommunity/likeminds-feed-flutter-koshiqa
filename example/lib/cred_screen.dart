@@ -39,7 +39,6 @@ class _CredScreenState extends State<CredScreen> {
   LMFeed? lmFeed;
 
   @override
-  @override
   void initState() {
     super.initState();
     NetworkConnectivity networkConnectivity = NetworkConnectivity.instance;
