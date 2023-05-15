@@ -99,8 +99,8 @@ class _LikesScreenState extends State<LikesScreen> {
   }
 
   void updatePagingControllers(Object? state) {
-    _offset += 1;
     if (state is LikesLoaded) {
+      _offset += 1;
       if (state.response.likes!.length < 10) {
         userData.addAll(state.response.users ?? {});
         _pagingControllerLikes.appendLastPage(state.response.likes ?? []);
@@ -110,6 +110,7 @@ class _LikesScreenState extends State<LikesScreen> {
       }
     }
     if (state is CommentLikesLoaded) {
+      _offset += 1;
       if (state.response.commentLikes!.length < 10) {
         userData.addAll(state.response.users ?? {});
         _pagingControllerCommentLikes
