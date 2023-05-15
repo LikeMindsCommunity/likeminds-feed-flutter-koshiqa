@@ -37,7 +37,7 @@ class LMFeed extends StatefulWidget {
   final String? userName;
   final int defaultFeedroom;
   final String apiKey;
-  final LMSdkCallback callback;
+  final LMSDKCallback callback;
 
   static LMFeed? _instance;
 
@@ -49,7 +49,7 @@ class LMFeed extends StatefulWidget {
     String? userId,
     String? userName,
     required int defaultFeedroom,
-    required LMSdkCallback callback,
+    required LMSDKCallback callback,
     required String apiKey,
   }) {
     setupLMFeed(callback, apiKey);
@@ -134,7 +134,6 @@ class _LMFeedState extends State<LMFeed> {
                 title: 'LikeMinds Feed',
                 navigatorKey: locator<NavigationService>().navigatorKey,
                 onGenerateRoute: (settings) {
-
                   if (settings.name == AllCommentsScreen.route) {
                     final args =
                         settings.arguments as AllCommentsScreenArguments;
