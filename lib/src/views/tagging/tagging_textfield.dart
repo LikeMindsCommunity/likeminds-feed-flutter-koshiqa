@@ -13,7 +13,7 @@ class TaggingTextField extends StatefulWidget {
   final InputDecoration? decoration;
   final Function(String)? onChange;
 
-  TaggingTextField({
+  const TaggingTextField({
     super.key,
     required this.onTagSelected,
     required this.result,
@@ -197,7 +197,7 @@ class _TaggingTextFieldState extends State<TaggingTextField> {
   void _showUserTagsPopup(BuildContext context) {
     showMenu<UserTag>(
       context: context,
-      position: RelativeRect.fromLTRB(0, 0, 24, 24),
+      position: const RelativeRect.fromLTRB(0, 0, 24, 24),
       items: userTags.map((tag) {
         return PopupMenuItem<UserTag>(
           value: tag,
@@ -270,7 +270,7 @@ class AtText extends SpecialText {
             style: textStyle,
             recognizer: (TapGestureRecognizer()
               ..onTap = () {
-                if (onTap != null) onTap(atText);
+ onTap(atText);
               }),
           )
         : SpecialTextSpan(
@@ -280,7 +280,7 @@ class AtText extends SpecialText {
             style: textStyle,
             recognizer: (TapGestureRecognizer()
               ..onTap = () {
-                if (onTap != null) onTap(atText);
+ onTap(atText);
               }),
           );
   }
@@ -304,7 +304,7 @@ class MySpecialTextSpanBuilder extends SpecialTextSpanBuilder {
     ///index is end index of start flag, so text start index should be index-(flag.length-1)
     if (isStart(flag, AtText.flag)) {
       return AtText(
-        textStyle ?? TextStyle(),
+        textStyle ?? const TextStyle(),
         onTap: onTap ??
             (d) {
               TaggingHelper.routeToProfile(d);

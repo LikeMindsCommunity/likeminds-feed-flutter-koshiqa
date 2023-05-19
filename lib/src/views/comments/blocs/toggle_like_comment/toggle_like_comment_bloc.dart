@@ -25,7 +25,7 @@ class ToggleLikeCommentBloc
     ToggleLikeCommentResponse? response =
         await feedApi.toggleLikeComment(toggleLikeCommentRequest);
     if (response == null) {
-      emit(ToggleLikeCommentError(message: "No data found"));
+      emit(const ToggleLikeCommentError(message: "No data found"));
     } else {
       emit(ToggleLikeCommentSuccess(toggleLikeCommentResponse: response));
     }

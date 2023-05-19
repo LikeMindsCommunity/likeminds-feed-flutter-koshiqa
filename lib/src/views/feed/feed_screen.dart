@@ -91,8 +91,8 @@ class _FeedScreenState extends State<FeedScreen> {
           //     MaterialPageRoute(builder: (context) => NewPostScreen());
           // Navigator.push(context, route);
         },
-        child: const Icon(Icons.add),
         backgroundColor: kPrimaryColor,
+        child: const Icon(Icons.add),
       ),
     );
   }

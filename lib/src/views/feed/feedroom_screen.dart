@@ -1,3 +1,4 @@
+import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
 import 'package:flutter/material.dart';
@@ -188,7 +189,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
             return const Scaffold(
               backgroundColor: kBackgroundColor,
               body: Center(
-                child: const Loader(),
+                child: Loader(),
               ),
             );
           }),
@@ -330,14 +331,14 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                   color: kWhiteColor,
                   alignment: Alignment.center,
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Row(
+                  child: const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
-                        children: const <Widget>[
+                        children: <Widget>[
                           SizedBox(
                             width: 50,
                             height: 50,
@@ -346,7 +347,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                           Text('Saving')
                         ],
                       ),
-                      const CircularProgressIndicator(
+                      CircularProgressIndicator(
                         backgroundColor: kGrey3Color,
                         valueColor: AlwaysStoppedAnimation(kPrimaryColor),
                         strokeWidth: 3,

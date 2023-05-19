@@ -1,5 +1,4 @@
 import 'package:collection/collection.dart';
-import 'package:feed_sx/src/views/comments/blocs/add_comment/add_comment_bloc.dart';
 import 'package:feed_sx/src/views/comments/blocs/add_comment_reply/add_comment_reply_bloc.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,7 +7,6 @@ import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:flutter/material.dart';
-import 'package:overlay_support/overlay_support.dart';
 
 class DropdownOptionsReply extends StatelessWidget {
   final String postId;

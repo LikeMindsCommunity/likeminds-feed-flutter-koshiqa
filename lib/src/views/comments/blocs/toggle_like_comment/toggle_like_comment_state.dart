@@ -13,7 +13,7 @@ class ToggleLikeCommentLoading extends ToggleLikeCommentState {}
 
 class ToggleLikeCommentSuccess extends ToggleLikeCommentState {
   final ToggleLikeCommentResponse toggleLikeCommentResponse;
-  ToggleLikeCommentSuccess({required this.toggleLikeCommentResponse});
+  const ToggleLikeCommentSuccess({required this.toggleLikeCommentResponse});
 
   @override
   List<Object> get props => [toggleLikeCommentResponse];
@@ -21,7 +21,7 @@ class ToggleLikeCommentSuccess extends ToggleLikeCommentState {
 
 class ToggleLikeCommentError extends ToggleLikeCommentState {
   final String message;
-  ToggleLikeCommentError({required this.message});
+  const ToggleLikeCommentError({required this.message});
 
   @override
   List<Object> get props => [message];

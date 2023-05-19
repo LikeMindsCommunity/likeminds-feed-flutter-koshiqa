@@ -1,8 +1,9 @@
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
-import 'package:feed_sx/src/views/new_post/new_post_screen.dart';
+import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 class NewPostButton extends StatelessWidget {
   final Function() onTap;
@@ -13,13 +14,16 @@ class NewPostButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final enabled = UserLocalPreference.instance.fetchMemberRight(9);
     return GestureDetector(
-      onTap: onTap,
+      onTap: enabled
+          ? onTap
+          : () => toast("You do not have permission to create a post"),
       child: Container(
         height: 42,
         width: 142,
         decoration: BoxDecoration(
-          color: kPrimaryColor,
+          color: enabled ? kPrimaryColor : kGrey3Color,
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(

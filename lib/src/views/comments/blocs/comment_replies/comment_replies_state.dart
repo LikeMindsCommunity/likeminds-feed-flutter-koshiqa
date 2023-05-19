@@ -14,7 +14,7 @@ class CommentRepliesInitial extends CommentRepliesState {
 class CommentRepliesLoaded extends CommentRepliesState {
   final CommentDetailResponse commentDetails;
   final bool hasReachedMax;
-  CommentRepliesLoaded(
+  const CommentRepliesLoaded(
       {required this.commentDetails, required this.hasReachedMax});
 
   @override
@@ -28,7 +28,7 @@ class CommentRepliesLoading extends CommentRepliesState {
 
 class PaginatedCommentRepliesLoading extends CommentRepliesState {
   final CommentDetailResponse prevCommentDetails;
-  PaginatedCommentRepliesLoading({
+  const PaginatedCommentRepliesLoading({
     required this.prevCommentDetails,
   });
   @override
@@ -37,7 +37,7 @@ class PaginatedCommentRepliesLoading extends CommentRepliesState {
 
 class CommentRepliesError extends CommentRepliesState {
   final String message;
-  CommentRepliesError({
+  const CommentRepliesError({
     required this.message,
   });
 

@@ -3,7 +3,7 @@ import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class GeneralAppBar extends StatelessWidget with PreferredSizeWidget {
+class GeneralAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget? title;
   final bool autoImplyEnd;
   final double elevation;

@@ -7,7 +7,7 @@ abstract class CommentRepliesEvent extends Equatable {
 class GetCommentReplies extends CommentRepliesEvent {
   final CommentDetailRequest commentDetailRequest;
   final bool forLoadMore;
-  GetCommentReplies(
+  const GetCommentReplies(
       {required this.commentDetailRequest, required this.forLoadMore});
 
   @override

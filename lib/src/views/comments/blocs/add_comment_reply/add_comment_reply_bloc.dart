@@ -4,7 +4,6 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
-import 'package:feed_sx/src/utils/analytics/analytics.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:overlay_support/overlay_support.dart';
 
@@ -150,7 +149,7 @@ class AddCommentReplyBloc
         .getFeedApi()
         .addCommentReply(addCommentReplyRequest);
     if (response == null) {
-      emit(AddCommentReplyError(message: "No data found"));
+      emit(const AddCommentReplyError(message: "No data found"));
     } else {
       LMAnalytics.get().track(
         AnalyticsKeys.replyPosted,

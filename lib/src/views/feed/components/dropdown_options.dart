@@ -45,7 +45,7 @@ class DropdownOptions extends StatelessWidget {
                   LMAnalytics.get().track(
                     AnalyticsKeys.postDeleted,
                     {
-                      "user_state": res ? "CM" : "member",
+                      "user_state": res.state == 1 ? "CM" : "member",
                       "post_id": postDetails.id,
                       "user_id": postDetails.userId,
                     },
@@ -82,7 +82,7 @@ class DropdownOptions extends StatelessWidget {
             LMAnalytics.get().track(
               AnalyticsKeys.postPinned,
               {
-                "user_state": res ? "CM" : "member",
+                "user_state": res.state == 1 ? "CM" : "member",
                 "post_id": postDetails.id,
                 "user_id": postDetails.userId,
               },
@@ -109,7 +109,7 @@ class DropdownOptions extends StatelessWidget {
             LMAnalytics.get().track(
               AnalyticsKeys.postUnpinned,
               {
-                "user_state": res ? "CM" : "member",
+                "user_state": res.state == 1 ? "CM" : "member",
                 "post_id": postDetails.id,
                 "user_id": postDetails.userId,
               },

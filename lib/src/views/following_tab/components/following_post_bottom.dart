@@ -1,6 +1,5 @@
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
-import 'package:feed_sx/src/views/feed/components/dropdown_options.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -27,12 +26,12 @@ class FollowingTabBottom extends StatelessWidget {
             child: Column(
               children: [
                 Container(
-                  padding: EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(12),
                   width: double.infinity,
                   decoration: BoxDecoration(
-                      color: Color.fromRGBO(230, 235, 245, 0.5),
+                      color: const Color.fromRGBO(230, 235, 245, 0.5),
                       borderRadius: BorderRadius.circular(16)),
-                  child: Column(
+                  child: const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Hridesh Shrotiya'),
@@ -41,7 +40,7 @@ class FollowingTabBottom extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 6,
                 ),
                 Row(
@@ -54,7 +53,7 @@ class FollowingTabBottom extends StatelessWidget {
                           height: 12,
                         ),
                         kHorizontalPaddingSmall,
-                        Text(
+                        const Text(
                           'Like',
                           style: TextStyle(
                               fontSize: kFontSmall, color: kGrey3Color),
@@ -62,19 +61,19 @@ class FollowingTabBottom extends StatelessWidget {
                       ],
                     ),
                     kHorizontalPaddingSmall,
-                    Text(
+                    const Text(
                       '|',
                       style:
                           TextStyle(fontSize: kFontSmall, color: kGrey3Color),
                     ),
                     kHorizontalPaddingSmall,
-                    Text(
+                    const Text(
                       'Reply',
                       style:
                           TextStyle(fontSize: kFontSmall, color: kGrey3Color),
                     ),
-                    Spacer(),
-                    Text(
+                    const Spacer(),
+                    const Text(
                       '20m',
                       style:
                           TextStyle(fontSize: kFontSmall, color: kGrey3Color),
@@ -85,7 +84,7 @@ class FollowingTabBottom extends StatelessWidget {
                   children: [
                     SvgPicture.asset(kAssetReplyIcon),
                     kHorizontalPaddingSmall,
-                    Text(
+                    const Text(
                       '3 Replies',
                       style:
                           TextStyle(fontSize: kFontSmall, color: kPrimaryColor),

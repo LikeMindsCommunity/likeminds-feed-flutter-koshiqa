@@ -30,7 +30,7 @@ export 'src/services/service_locator.dart';
 export 'src/utils/notification_handler.dart';
 export 'src/utils/analytics/analytics.dart';
 
-const _prodFlag = true;
+const _prodFlag = false;
 
 class LMFeed extends StatefulWidget {
   final String? userId;
@@ -204,19 +204,23 @@ class _LMFeedState extends State<LMFeed> {
                       },
                     );
                   }
+                  return null;
                 },
                 home: FutureBuilder(
                   future: locator<LikeMindsService>().getMemberState(),
                   initialData: null,
                   builder: (BuildContext context, AsyncSnapshot snapshot) {
                     if (snapshot.hasData) {
-                      if (snapshot.data) {
-                        UserLocalPreference.instance.storeMemberState(true);
+                      final MemberStateResponse response = snapshot.data;
+                      final isCm = response.state == 1;
+                      UserLocalPreference.instance.storeMemberRights(response);
+                      if (isCm) {
+                        UserLocalPreference.instance.storeMemberState(isCm);
                         return FeedRoomListScreen(user: user!);
                       } else {
                         UserLocalPreference.instance.storeMemberState(false);
                         return FeedRoomScreen(
-                          isCm: snapshot.data,
+                          isCm: isCm,
                           user: user!,
                           feedRoomId: widget.defaultFeedroom,
                         );

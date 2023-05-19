@@ -106,10 +106,10 @@ class _PostMediaState extends State<PostMedia> {
                 errorWidget: (context, url, error) {
                   return Container(
                     color: kBackgroundColor,
-                    child: Column(
+                    child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
+                      children: [
                         Icon(
                           Icons.error_outline,
                           size: 24,
@@ -209,10 +209,10 @@ class _PostMediaState extends State<PostMedia> {
                 errorWidget: (context, url, error) {
                   return Container(
                     color: kBackgroundColor,
-                    child: Column(
+                    child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
+                      children: [
                         Icon(
                           Icons.error_outline,
                           size: 24,

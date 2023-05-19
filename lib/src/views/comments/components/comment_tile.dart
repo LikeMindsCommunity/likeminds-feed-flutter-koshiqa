@@ -1,8 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:feed_sx/src/navigation/arguments.dart';
-import 'package:feed_sx/src/packages/expandable_text/expandable_text.dart';
+import 'package:feed_sx/src/utils/expandable_text/expandable_text.dart';
 import 'package:feed_sx/src/utils/constants/string_constants.dart';
-import 'package:feed_sx/src/views/comments/blocs/add_comment/add_comment_bloc.dart';
 import 'package:feed_sx/src/views/comments/blocs/add_comment_reply/add_comment_reply_bloc.dart';
 import 'package:feed_sx/src/views/comments/components/dropdown_options_comment.dart';
 import 'package:feed_sx/src/widgets/profile_picture.dart';
@@ -109,7 +108,7 @@ class _CommentTileState extends State<CommentTile>
                     ),
                     Container(
                       width: 240,
-                      padding: EdgeInsets.symmetric(vertical: 8),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
                       child: ExpandableText(
                         reply!.text,
                         expandText: 'show more',
@@ -267,8 +266,8 @@ class _CommentTileState extends State<CommentTile>
                   : Container(),
               const Spacer(),
               reply!.isEdited != null && reply!.isEdited!
-                  ? Row(
-                      children: const [
+                  ? const Row(
+                      children: [
                         Text(
                           "Edited",
                           style: TextStyle(

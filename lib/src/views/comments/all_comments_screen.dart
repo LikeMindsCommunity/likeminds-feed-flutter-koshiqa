@@ -1,3 +1,4 @@
+import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_image_shimmer.dart';
 import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
 import 'package:feed_sx/src/views/tagging/tagging_textfield_ta.dart';
@@ -221,6 +222,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final right = UserLocalPreference.instance.fetchMemberRight(10);
     return WillPopScope(
       onWillPop: () {
         locator<NavigationService>().goBack(result: {'isBack': false});
@@ -350,7 +352,6 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                         isDown: false,
                         controller: _commentController,
                         onTagSelected: (tag) {
-                          print(tag);
                           userTags.add(tag);
                         },
                         onChange: (val) {
@@ -358,11 +359,11 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                           // setState(() {
                           result = val;
                           rebuildButton.value = !rebuildButton.value;
-                          print(result);
                           // });
                         },
                         decoration: InputDecoration(
                           border: InputBorder.none,
+                          enabled: right,
                           suffixIconConstraints: const BoxConstraints(
                             maxHeight: 50,
                             maxWidth: 50,
@@ -525,9 +526,11 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                                   },
                                             icon: Icon(
                                               Icons.send,
-                                              color: result!.isNotEmpty
-                                                  ? kPrimaryColor
-                                                  : kGreyColor,
+                                              color: right
+                                                  ? result!.isNotEmpty
+                                                      ? kPrimaryColor
+                                                      : kGreyColor
+                                                  : Colors.transparent,
                                             ),
                                           );
                                         });
@@ -535,7 +538,9 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                 ),
                           contentPadding: const EdgeInsets.symmetric(
                               vertical: 16, horizontal: 16),
-                          hintText: 'Write a comment',
+                          hintText: right
+                              ? 'Write a comment'
+                              : "You do not have permission to comment.",
                         ),
                       ),
                     ],
@@ -594,10 +599,10 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                     state is PaginatedAllCommentsLoading) {
                   late PostDetailResponse postDetailResponse;
                   if (state is AllCommentsLoaded) {
-                    print("AllCommentsLoaded" + state.toString());
+                    print("AllCommentsLoaded$state");
                     postDetailResponse = state.postDetails;
                   } else {
-                    print("PaginatedAllCommentsLoading" + state.toString());
+                    print("PaginatedAllCommentsLoading$state");
                     postDetailResponse =
                         (state as PaginatedAllCommentsLoading).prevPostDetails;
                   }
@@ -660,8 +665,8 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                   noMoreItemsIndicatorBuilder: (context) =>
                                       const SizedBox(height: 75),
                                   noItemsFoundIndicatorBuilder: (context) =>
-                                      Column(
-                                    children: const <Widget>[
+                                      const Column(
+                                    children: <Widget>[
                                       SizedBox(height: 42),
                                       Text(
                                         'No comment found',

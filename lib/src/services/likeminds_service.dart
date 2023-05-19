@@ -7,12 +7,12 @@ import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:flutter/foundation.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
-const bool _prodFlag = true;
+const bool _prodFlag = false;
 
 abstract class ILikeMindsService {
   FeedApi getFeedApi();
   Future<InitiateUserResponse> initiateUser(InitiateUserRequest request);
-  Future<bool> getMemberState();
+  Future<MemberStateResponse> getMemberState();
   Future<UniversalFeedResponse?> getUniversalFeed(UniversalFeedRequest request);
   Future<GetFeedRoomResponse> getFeedRoom(GetFeedRoomRequest request);
   Future<GetFeedOfFeedRoomResponse> getFeedOfFeedRoom(
@@ -145,7 +145,7 @@ class LikeMindsService implements ILikeMindsService {
   }
 
   @override
-  Future<bool> getMemberState() async {
+  Future<MemberStateResponse> getMemberState() async {
     return await _sdkApplication.getMemberState();
   }
 

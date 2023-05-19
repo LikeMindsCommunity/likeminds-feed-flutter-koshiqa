@@ -29,7 +29,7 @@ class AddCommentBloc extends Bloc<AddCommentEvent, AddCommentState> {
         .getFeedApi()
         .addComment(addCommentRequest);
     if (response == null) {
-      emit(AddCommentError(message: "No data found"));
+      emit(const AddCommentError(message: "No data found"));
     } else {
       LMAnalytics.get().track(
         AnalyticsKeys.commentPosted,

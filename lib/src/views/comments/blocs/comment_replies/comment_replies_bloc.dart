@@ -43,7 +43,7 @@ class CommentRepliesBloc
     CommentDetailResponse? response =
         await feedApi.getComment(commentDetailRequest);
     if (response == null) {
-      emit(CommentRepliesError(message: "No data found"));
+      emit(const CommentRepliesError(message: "No data found"));
     } else {
       response.postReplies.replies.insertAll(0, comments);
       response.users.addAll(users);
