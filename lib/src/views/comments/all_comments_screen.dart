@@ -220,9 +220,19 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     }
   }
 
+  bool checkCommentRights() {
+    final MemberStateResponse memberStateResponse =
+        UserLocalPreference.instance.fetchMemberRights();
+    if (memberStateResponse.state == 1) {
+      return true;
+    }
+    bool memberRights = UserLocalPreference.instance.fetchMemberRight(10);
+    return memberRights;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final right = UserLocalPreference.instance.fetchMemberRight(10);
+    final right = checkCommentRights();
     return WillPopScope(
       onWillPop: () {
         locator<NavigationService>().goBack(result: {'isBack': false});

@@ -3,6 +3,7 @@ import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:overlay_support/overlay_support.dart';
 
 class NewPostButton extends StatelessWidget {
@@ -12,9 +13,19 @@ class NewPostButton extends StatelessWidget {
     required this.onTap,
   });
 
+  bool checkPostCreationRights() {
+    final MemberStateResponse memberStateResponse =
+        UserLocalPreference.instance.fetchMemberRights();
+    if (memberStateResponse.state == 1) {
+      return true;
+    }
+    final memberRights = UserLocalPreference.instance.fetchMemberRight(9);
+    return memberRights;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final enabled = UserLocalPreference.instance.fetchMemberRight(9);
+    bool enabled = checkPostCreationRights();
     return GestureDetector(
       onTap: enabled
           ? onTap

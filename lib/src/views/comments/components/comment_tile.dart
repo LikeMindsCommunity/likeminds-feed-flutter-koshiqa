@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/utils/expandable_text/expandable_text.dart';
 import 'package:feed_sx/src/utils/constants/string_constants.dart';
+import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:feed_sx/src/views/comments/blocs/add_comment_reply/add_comment_reply_bloc.dart';
 import 'package:feed_sx/src/views/comments/components/dropdown_options_comment.dart';
 import 'package:feed_sx/src/widgets/profile_picture.dart';
@@ -17,6 +18,7 @@ import 'package:feed_sx/src/views/comments/components/reply_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 class CommentTile extends StatefulWidget {
   final String postId;
@@ -72,6 +74,16 @@ class _CommentTileState extends State<CommentTile>
   int page = 1;
 
   // List<CommentReply> replies = [];
+
+  bool checkCommentRights() {
+    final MemberStateResponse memberStateResponse =
+        UserLocalPreference.instance.fetchMemberRights();
+    if (memberStateResponse.state == 1) {
+      return true;
+    }
+    bool memberRights = UserLocalPreference.instance.fetchMemberRight(10);
+    return memberRights;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -215,7 +227,11 @@ class _CommentTileState extends State<CommentTile>
               ),
               kHorizontalPaddingMedium,
               GestureDetector(
-                onTap: () => widget.onReply(reply!.id, user.name),
+                onTap: checkCommentRights()
+                    ? () {
+                        widget.onReply(reply!.id, user.name);
+                      }
+                    : () => toast("You do not have permission to comment"),
                 child: const Text(
                   'Reply',
                   style: TextStyle(
