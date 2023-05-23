@@ -39,7 +39,7 @@ class AddCommentReplyBloc
     on<EditReply>((event, emit) async {
       emit(EditReplyLoading());
       EditCommentReplyResponse? response = await locator<LikeMindsService>()
-          .getFeedApi()
+          .getCommentApi()
           .editCommentReply(event.editCommentReplyRequest);
       if (response == null) {
         emit(const EditReplyError(message: "An error occurred"));
@@ -63,7 +63,7 @@ class AddCommentReplyBloc
     on<EditComment>((event, emit) async {
       emit(EditCommentLoading());
       EditCommentResponse? response = await locator<LikeMindsService>()
-          .getFeedApi()
+          .getCommentApi()
           .editComment(event.editCommentRequest);
       if (response == null) {
         emit(const EditCommentError(message: "An error occurred"));
@@ -146,7 +146,7 @@ class AddCommentReplyBloc
       required Emitter<AddCommentReplyState> emit}) async {
     emit(AddCommentReplyLoading());
     AddCommentReplyResponse? response = await locator<LikeMindsService>()
-        .getFeedApi()
+        .getCommentApi()
         .addCommentReply(addCommentReplyRequest);
     if (response == null) {
       emit(const AddCommentReplyError(message: "No data found"));

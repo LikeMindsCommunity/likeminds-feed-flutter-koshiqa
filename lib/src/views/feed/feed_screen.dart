@@ -69,7 +69,7 @@ class _FeedScreenState extends State<FeedScreen> {
         },
         builder: ((context, state) {
           if (state is UniversalFeedLoaded) {
-            UniversalFeedResponse feedResponse = state.feed;
+            GetFeedResponse feedResponse = state.feed;
             return PagedListView<int, Post>(
               pagingController: _pagingController,
               builderDelegate: PagedChildBuilderDelegate<Post>(

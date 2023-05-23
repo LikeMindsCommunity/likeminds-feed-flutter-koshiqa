@@ -36,7 +36,9 @@ class AllCommentsBloc extends Bloc<AllCommentsEvent, AllCommentsState> {
       emit(AllCommentsLoading());
     }
 
-    PostDetailResponse? response = await locator<LikeMindsService>().getFeedApi().getPost(postDetailRequest);
+    PostDetailResponse? response = await locator<LikeMindsService>()
+        .getFeedApi()
+        .getPost(postDetailRequest);
     if (response == null) {
       emit(const AllCommentsError(message: "No data found"));
     } else {

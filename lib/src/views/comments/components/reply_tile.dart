@@ -50,8 +50,7 @@ class _ReplyTileState extends State<ReplyTile> {
     user = widget.user;
 
     likeCount = widget.reply.likesCount;
-    FeedApi feedApi = locator<LikeMindsService>().getFeedApi();
-    _toggleLikeCommentBloc = ToggleLikeCommentBloc(feedApi: feedApi);
+    _toggleLikeCommentBloc = ToggleLikeCommentBloc();
   }
 
   initialise() {

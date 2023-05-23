@@ -34,9 +34,8 @@ class UniversalFeedBloc extends Bloc<UniversalFeedEvent, UniversalFeedState> {
           prevFeed: (state as UniversalFeedLoaded).feed));
     }
     emit(UniversalFeedLoading());
-    UniversalFeedResponse? response =
-        await locator<LikeMindsService>().getUniversalFeed(
-      (UniversalFeedRequestBuilder()
+    GetFeedResponse? response = await locator<LikeMindsService>().getFeed(
+      (GetFeedRequestBuilder()
             ..page(offset)
             ..pageSize(10))
           .build(),

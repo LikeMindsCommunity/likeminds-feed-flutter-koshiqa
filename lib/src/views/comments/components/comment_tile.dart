@@ -60,8 +60,8 @@ class _CommentTileState extends State<CommentTile>
     user = widget.user;
     postId = widget.postId;
     FeedApi feedApi = locator<LikeMindsService>().getFeedApi();
-    _toggleLikeCommentBloc = ToggleLikeCommentBloc(feedApi: feedApi);
-    _commentRepliesBloc = CommentRepliesBloc(feedApi: feedApi);
+    _toggleLikeCommentBloc = ToggleLikeCommentBloc();
+    _commentRepliesBloc = CommentRepliesBloc();
   }
 
   void initialiseReply() {
@@ -259,12 +259,11 @@ class _CommentTileState extends State<CommentTile>
                           return;
                         } else {
                           _commentRepliesBloc.add(GetCommentReplies(
-                              commentDetailRequest:
-                                  (CommentDetailRequestBuilder()
-                                        ..commentId(reply!.id)
-                                        ..page(1)
-                                        ..postId(postId))
-                                      .build(),
+                              commentDetailRequest: (GetCommentRequestBuilder()
+                                    ..commentId(reply!.id)
+                                    ..page(1)
+                                    ..postId(postId))
+                                  .build(),
                               forLoadMore: false));
                           _replyVisible = true;
                         }
@@ -336,11 +335,11 @@ class _CommentTileState extends State<CommentTile>
                       List<CommentReply> replies = [];
                       Map<String, User> users = {};
                       if (state is CommentRepliesLoaded) {
-                        replies = state.commentDetails.postReplies.replies;
-                        users = state.commentDetails.users;
+                        replies = state.commentDetails.postReplies!.replies;
+                        users = state.commentDetails.users!;
                       } else if (state is PaginatedCommentRepliesLoading) {
-                        replies = state.prevCommentDetails.postReplies.replies;
-                        users = state.prevCommentDetails.users;
+                        replies = state.prevCommentDetails.postReplies!.replies;
+                        users = state.prevCommentDetails.users!;
                       }
                       List<Widget> repliesW = [];
                       if (_replyVisible) {
@@ -371,7 +370,7 @@ class _CommentTileState extends State<CommentTile>
                                   page++;
                                   _commentRepliesBloc.add(GetCommentReplies(
                                       commentDetailRequest:
-                                          (CommentDetailRequestBuilder()
+                                          (GetCommentRequestBuilder()
                                                 ..commentId(reply!.id)
                                                 ..page(page)
                                                 ..postId(postId))
@@ -431,7 +430,7 @@ class _CommentTileState extends State<CommentTile>
                                         _commentRepliesBloc.add(
                                             GetCommentReplies(
                                                 commentDetailRequest:
-                                                    (CommentDetailRequestBuilder()
+                                                    (GetCommentRequestBuilder()
                                                           ..commentId(reply!.id)
                                                           ..page(page)
                                                           ..postId(postId))
@@ -498,7 +497,7 @@ class _CommentTileState extends State<CommentTile>
                                           _commentRepliesBloc.add(
                                               GetCommentReplies(
                                                   commentDetailRequest:
-                                                      (CommentDetailRequestBuilder()
+                                                      (GetCommentRequestBuilder()
                                                             ..commentId(
                                                                 reply!.id)
                                                             ..page(page)
@@ -565,7 +564,7 @@ class _CommentTileState extends State<CommentTile>
                                           _commentRepliesBloc.add(
                                               GetCommentReplies(
                                                   commentDetailRequest:
-                                                      (CommentDetailRequestBuilder()
+                                                      (GetCommentRequestBuilder()
                                                             ..commentId(
                                                                 reply!.id)
                                                             ..page(page)

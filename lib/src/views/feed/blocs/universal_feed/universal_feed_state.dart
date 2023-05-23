@@ -11,7 +11,7 @@ class UniversalFeedInitial extends UniversalFeedState {
 }
 
 class UniversalFeedLoaded extends UniversalFeedState {
-  final UniversalFeedResponse feed;
+  final GetFeedResponse feed;
   final bool hasReachedMax;
   const UniversalFeedLoaded({required this.feed, required this.hasReachedMax});
 
@@ -25,7 +25,7 @@ class UniversalFeedLoading extends UniversalFeedState {
 }
 
 class PaginatedUniversalFeedLoading extends UniversalFeedState {
-  final UniversalFeedResponse prevFeed;
+  final GetFeedResponse prevFeed;
   const PaginatedUniversalFeedLoading({
     required this.prevFeed,
   });

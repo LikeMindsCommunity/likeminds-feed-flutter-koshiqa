@@ -11,9 +11,10 @@ const bool _prodFlag = false;
 
 abstract class ILikeMindsService {
   FeedApi getFeedApi();
+  CommentApi getCommentApi();
   Future<InitiateUserResponse> initiateUser(InitiateUserRequest request);
   Future<MemberStateResponse> getMemberState();
-  Future<UniversalFeedResponse?> getUniversalFeed(UniversalFeedRequest request);
+  Future<GetFeedResponse?> getFeed(GetFeedRequest request);
   Future<GetFeedRoomResponse> getFeedRoom(GetFeedRoomRequest request);
   Future<GetFeedOfFeedRoomResponse> getFeedOfFeedRoom(
       GetFeedOfFeedRoomRequest request);
@@ -29,7 +30,8 @@ abstract class ILikeMindsService {
   Future<DeleteCommentResponse> deleteComment(DeleteCommentRequest request);
   Future<String?> uploadFile(File file, String userUniqueId);
   Future<RegisterDeviceResponse> registerDevice(RegisterDeviceRequest request);
-  Future<TagResponseModel> getTags({required TagRequestModel request});
+  Future<GetTaggingListResponse> getTaggingList(
+      {required GetTaggingListRequest request});
   Future<DecodeUrlResponse> decodeUrl(DecodeUrlRequest request);
   Future<GetDeleteReasonResponse> getReportTags(GetDeleteReasonRequest request);
   void routeToProfile(String userId);
@@ -76,9 +78,13 @@ class LikeMindsService implements ILikeMindsService {
   }
 
   @override
-  Future<UniversalFeedResponse?> getUniversalFeed(
-      UniversalFeedRequest request) async {
-    return await _sdkApplication.getUniversalFeed(request);
+  CommentApi getCommentApi() {
+    return _sdkApplication.getCommentApi();
+  }
+
+  @override
+  Future<GetFeedResponse?> getFeed(GetFeedRequest request) async {
+    return await _sdkApplication.getFeed(request);
   }
 
   @override
@@ -156,8 +162,9 @@ class LikeMindsService implements ILikeMindsService {
   }
 
   @override
-  Future<TagResponseModel> getTags({required TagRequestModel request}) async {
-    return await _sdkApplication.getTags(request: request);
+  Future<GetTaggingListResponse> getTaggingList(
+      {required GetTaggingListRequest request}) async {
+    return await _sdkApplication.getTaggingList(request: request);
   }
 
   @override

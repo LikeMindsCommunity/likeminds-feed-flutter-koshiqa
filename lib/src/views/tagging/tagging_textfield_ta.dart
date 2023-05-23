@@ -57,8 +57,8 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
         page++;
-        final taggingData = await locator<LikeMindsService>().getTags(
-          request: (TagRequestModelBuilder()
+        final taggingData = await locator<LikeMindsService>().getTaggingList(
+          request: (GetTaggingListRequestBuilder()
                 ..feedroomId(widget.feedroomId)
                 ..page(page)
                 ..pageSize(FIXED_SIZE))
@@ -81,8 +81,8 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
         return const Iterable.empty();
       } else if (!tagComplete && currentText.contains('@')) {
         String tag = tagValue.substring(1).replaceAll(' ', '');
-        final taggingData = await locator<LikeMindsService>().getTags(
-          request: (TagRequestModelBuilder()
+        final taggingData = await locator<LikeMindsService>().getTaggingList(
+          request: (GetTaggingListRequestBuilder()
                 ..feedroomId(widget.feedroomId)
                 ..page(1)
                 ..pageSize(FIXED_SIZE)
