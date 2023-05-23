@@ -23,7 +23,6 @@ class FeedScreen extends StatefulWidget {
 
 class _FeedScreenState extends State<FeedScreen> {
   late final UniversalFeedBloc _feedBloc;
-  static const _pageSize = 20;
 
   final PagingController<int, Post> _pagingController = PagingController(
     firstPageKey: 1,

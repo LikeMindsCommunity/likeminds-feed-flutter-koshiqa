@@ -1,4 +1,3 @@
-import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
 import 'package:flutter/material.dart';

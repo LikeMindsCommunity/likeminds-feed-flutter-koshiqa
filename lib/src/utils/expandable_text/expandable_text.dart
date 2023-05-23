@@ -84,7 +84,6 @@ class ExpandableText extends StatefulWidget {
 
 class ExpandableTextState extends State<ExpandableText>
     with TickerProviderStateMixin {
-  late String _passedText;
   bool _expanded = false;
   RegExp regExp = RegExp(kRegexLinksAndTags);
   late TapGestureRecognizer _linkTapGestureRecognizer;
@@ -96,7 +95,6 @@ class ExpandableTextState extends State<ExpandableText>
   @override
   void initState() {
     super.initState();
-    _passedText = widget.text;
     _expanded = widget.expanded;
     _linkTapGestureRecognizer = TapGestureRecognizer()..onTap = _linkTapped;
     _prefixTapGestureRecognizer = TapGestureRecognizer()..onTap = _prefixTapped;
@@ -246,7 +244,7 @@ class ExpandableTextState extends State<ExpandableText>
                 TaggingHelper.convertRouteToTagAndUserMap(widget.text);
             List<UserTag> userTags = response['userTags'];
             resultText = response['text'];
-            final lineCount = textPainter.computeLineMetrics().length;
+            // final lineCount = textPainter.computeLineMetrics().length;
             final nCount = '\n'.allMatches(resultText).length + 1;
             if (resultText.length > 300 && nCount <= 4) {
               resultText = resultText.substring(0, max(endOffset, 0));

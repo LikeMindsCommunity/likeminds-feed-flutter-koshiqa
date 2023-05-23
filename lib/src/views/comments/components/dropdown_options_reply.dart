@@ -4,7 +4,6 @@ import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:flutter/material.dart';
 
@@ -54,8 +53,7 @@ class DropdownOptionsReply extends StatelessWidget {
                     'Are you sure you want to delete this comment. This action can not be reversed.',
                 action: (String reason) async {
                   Navigator.of(childContext).pop();
-                  final res =
-                      await locator<LikeMindsService>().getMemberState();
+
                   //Implement delete post analytics tracking
                   LMAnalytics.get().track(
                     AnalyticsKeys.replyDeleted,

@@ -11,8 +11,7 @@ part 'comment_replies_state.dart';
 
 class CommentRepliesBloc
     extends Bloc<CommentRepliesEvent, CommentRepliesState> {
-  final FeedApi feedApi = locator<LikeMindsService>().getFeedApi();
-  final CommentApi commentApi = locator<LikeMindsService>().getCommentApi();
+  LikeMindsService lmService = locator<LikeMindsService>();
   CommentRepliesBloc() : super(CommentRepliesInitial()) {
     on<CommentRepliesEvent>((event, emit) async {
       if (event is GetCommentReplies) {
@@ -44,7 +43,7 @@ class CommentRepliesBloc
     print("hellobook");
 
     GetCommentResponse response =
-        await commentApi.getComment(commentDetailRequest);
+        await lmService.getComment(commentDetailRequest);
     if (!response.success) {
       emit(const CommentRepliesError(message: "No data found"));
     } else {

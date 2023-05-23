@@ -9,7 +9,7 @@ part 'toggle_like_comment_state.dart';
 
 class ToggleLikeCommentBloc
     extends Bloc<ToggleLikeCommentEvent, ToggleLikeCommentState> {
-  final CommentApi commentApi = locator<LikeMindsService>().getCommentApi();
+  final LikeMindsService lmService = locator<LikeMindsService>();
 
   ToggleLikeCommentBloc() : super(ToggleLikeCommentInitial()) {
     on<ToggleLikeComment>((event, emit) async {
@@ -25,8 +25,8 @@ class ToggleLikeCommentBloc
       required Emitter<ToggleLikeCommentState> emit}) async {
     emit(ToggleLikeCommentLoading());
     ToggleLikeCommentResponse? response =
-        await commentApi.toggleLikeComment(toggleLikeCommentRequest);
-    if (response == null) {
+        await lmService.toggleLikeComment(toggleLikeCommentRequest);
+    if (!response.success) {
       emit(const ToggleLikeCommentError(message: "No data found"));
     } else {
       emit(ToggleLikeCommentSuccess(toggleLikeCommentResponse: response));

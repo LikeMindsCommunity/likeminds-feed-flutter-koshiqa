@@ -25,10 +25,9 @@ class AddCommentBloc extends Bloc<AddCommentEvent, AddCommentState> {
       {required AddCommentRequest addCommentRequest,
       required Emitter<AddCommentState> emit}) async {
     emit(AddCommentLoading());
-    AddCommentResponse? response = await locator<LikeMindsService>()
-        .getCommentApi()
-        .addComment(addCommentRequest);
-    if (response == null) {
+    AddCommentResponse? response =
+        await locator<LikeMindsService>().addComment(addCommentRequest);
+    if (!response.success) {
       emit(const AddCommentError(message: "No data found"));
     } else {
       LMAnalytics.get().track(

@@ -594,12 +594,12 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
               listener: (context, state) {
                 if (state is AllCommentsLoaded) {
                   _page++;
-                  if (state.postDetails.postReplies.replies.length < 10) {
+                  if (state.postDetails.postReplies!.replies.length < 10) {
                     _pagingController
-                        .appendLastPage(state.postDetails.postReplies.replies);
+                        .appendLastPage(state.postDetails.postReplies!.replies);
                   } else {
                     _pagingController.appendPage(
-                        state.postDetails.postReplies.replies, _page);
+                        state.postDetails.postReplies!.replies, _page);
                   }
                 }
               },
@@ -635,9 +635,9 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                       : PostWidget(
                                           postDetails: postData!,
                                           feedRoomId: widget.feedRoomId,
-                                          user: postDetailResponse.users[
+                                          user: postDetailResponse.users![
                                               postDetailResponse
-                                                  .postReplies.userId]!,
+                                                  .postReplies!.userId]!,
                                           isFeed: false,
                                           refresh: (bool isDeleted) async {
                                             if (isDeleted) {
@@ -699,8 +699,9 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                       key: ValueKey(item.id),
                                       reply: item,
                                       user: postDetailResponse
-                                          .users[item.userId]!,
-                                      postId: postDetailResponse.postReplies.id,
+                                          .users![item.userId]!,
+                                      postId:
+                                          postDetailResponse.postReplies!.id,
                                       onReply: selectCommentToReply,
                                       refresh: () {
                                         _pagingController.refresh();

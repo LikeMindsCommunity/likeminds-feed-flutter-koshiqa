@@ -10,8 +10,6 @@ import 'package:likeminds_feed/likeminds_feed.dart';
 const bool _prodFlag = false;
 
 abstract class ILikeMindsService {
-  FeedApi getFeedApi();
-  CommentApi getCommentApi();
   Future<InitiateUserResponse> initiateUser(InitiateUserRequest request);
   Future<MemberStateResponse> getMemberState();
   Future<GetFeedResponse?> getFeed(GetFeedRequest request);
@@ -20,6 +18,7 @@ abstract class ILikeMindsService {
       GetFeedOfFeedRoomRequest request);
   Future<AddPostResponse> addPost(AddPostRequest request);
   Future<GetPostResponse> getPost(GetPostRequest request);
+  Future<PostDetailResponse> getPostDetails(PostDetailRequest request);
   Future<GetPostLikesResponse> getPostLikes(GetPostLikesRequest request);
   Future<PinPostResponse> pinPost(PinPostRequest request);
   Future<EditPostResponse> editPost(EditPostRequest request);
@@ -27,7 +26,16 @@ abstract class ILikeMindsService {
       GetCommentLikesRequest request);
   Future<DeletePostResponse> deletePost(DeletePostRequest request);
   Future<LikePostResponse> likePost(LikePostRequest request);
+  Future<AddCommentResponse> addComment(AddCommentRequest request);
+  Future<GetCommentResponse> getComment(GetCommentRequest request);
+  Future<ToggleLikeCommentResponse> toggleLikeComment(
+      ToggleLikeCommentRequest request);
   Future<DeleteCommentResponse> deleteComment(DeleteCommentRequest request);
+  Future<EditCommentResponse> editComment(EditCommentRequest request);
+  Future<AddCommentReplyResponse> addCommentReply(
+      AddCommentReplyRequest request);
+  Future<EditCommentReplyResponse> editCommentReply(
+      EditCommentReplyRequest request);
   Future<String?> uploadFile(File file, String userUniqueId);
   Future<RegisterDeviceResponse> registerDevice(RegisterDeviceRequest request);
   Future<GetTaggingListResponse> getTaggingList(
@@ -70,16 +78,6 @@ class LikeMindsService implements ILikeMindsService {
     UserLocalPreference userLocalPreference = UserLocalPreference.instance;
     await userLocalPreference.initialize();
     return await _sdkApplication.initiateUser(request);
-  }
-
-  @override
-  FeedApi getFeedApi() {
-    return _sdkApplication.getFeedApi();
-  }
-
-  @override
-  CommentApi getCommentApi() {
-    return _sdkApplication.getCommentApi();
   }
 
   @override
@@ -129,9 +127,50 @@ class LikeMindsService implements ILikeMindsService {
   }
 
   @override
+  Future<AddCommentResponse> addComment(
+      AddCommentRequest addCommentRequest) async {
+    return await _sdkApplication.addComment(addCommentRequest);
+  }
+
+  @override
+  Future<AddCommentReplyResponse> addCommentReply(
+      AddCommentReplyRequest addCommentReplyRequest) async {
+    return await _sdkApplication.addCommentReply(addCommentReplyRequest);
+  }
+
+  @override
+  Future<EditCommentReplyResponse> editCommentReply(
+      EditCommentReplyRequest editCommentReplyRequest) async {
+    return await _sdkApplication.editCommentReply(editCommentReplyRequest);
+  }
+
+  @override
+  Future<GetCommentResponse> getComment(GetCommentRequest request) {
+    return _sdkApplication.getComment(request);
+  }
+
+  @override
+  Future<ToggleLikeCommentResponse> toggleLikeComment(
+      ToggleLikeCommentRequest toggleLikeCommentRequest) async {
+    return await _sdkApplication.toggleLikeComment(toggleLikeCommentRequest);
+  }
+
+  @override
+  Future<PostDetailResponse> getPostDetails(
+      PostDetailRequest postDetailRequest) async {
+    return await _sdkApplication.getPostDetails(postDetailRequest);
+  }
+
+  @override
   Future<DeleteCommentResponse> deleteComment(
       DeleteCommentRequest deleteCommentRequest) async {
     return await _sdkApplication.deleteComment(deleteCommentRequest);
+  }
+
+  @override
+  Future<EditCommentResponse> editComment(
+      EditCommentRequest editCommentRequest) async {
+    return await _sdkApplication.editComment(editCommentRequest);
   }
 
   @override

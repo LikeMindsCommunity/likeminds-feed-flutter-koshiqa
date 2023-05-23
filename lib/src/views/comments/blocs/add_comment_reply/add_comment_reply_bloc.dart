@@ -39,9 +39,8 @@ class AddCommentReplyBloc
     on<EditReply>((event, emit) async {
       emit(EditReplyLoading());
       EditCommentReplyResponse? response = await locator<LikeMindsService>()
-          .getCommentApi()
           .editCommentReply(event.editCommentReplyRequest);
-      if (response == null) {
+      if (!response.success) {
         emit(const EditReplyError(message: "An error occurred"));
       } else {
         emit(EditReplySuccess(editCommentReplyResponse: response));
@@ -63,9 +62,8 @@ class AddCommentReplyBloc
     on<EditComment>((event, emit) async {
       emit(EditCommentLoading());
       EditCommentResponse? response = await locator<LikeMindsService>()
-          .getCommentApi()
           .editComment(event.editCommentRequest);
-      if (response == null) {
+      if (!response.success) {
         emit(const EditCommentError(message: "An error occurred"));
       } else {
         emit(EditCommentSuccess(editCommentResponse: response));
@@ -145,10 +143,9 @@ class AddCommentReplyBloc
       {required AddCommentReplyRequest addCommentReplyRequest,
       required Emitter<AddCommentReplyState> emit}) async {
     emit(AddCommentReplyLoading());
-    AddCommentReplyResponse? response = await locator<LikeMindsService>()
-        .getCommentApi()
+    AddCommentReplyResponse response = await locator<LikeMindsService>()
         .addCommentReply(addCommentReplyRequest);
-    if (response == null) {
+    if (!response.success) {
       emit(const AddCommentReplyError(message: "No data found"));
     } else {
       LMAnalytics.get().track(

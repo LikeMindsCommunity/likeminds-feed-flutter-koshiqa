@@ -3,7 +3,6 @@ import 'package:feed_sx/src/views/comments/components/dropdown_options_reply.dar
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/utils/expandable_text/expandable_text.dart';
-import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/utils.dart';

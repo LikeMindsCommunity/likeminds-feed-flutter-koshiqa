@@ -8,7 +8,6 @@ import 'package:feed_sx/src/views/comments/components/dropdown_options_comment.d
 import 'package:feed_sx/src/widgets/profile_picture.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/utils.dart';
@@ -59,7 +58,6 @@ class _CommentTileState extends State<CommentTile>
     super.initState();
     user = widget.user;
     postId = widget.postId;
-    FeedApi feedApi = locator<LikeMindsService>().getFeedApi();
     _toggleLikeCommentBloc = ToggleLikeCommentBloc();
     _commentRepliesBloc = CommentRepliesBloc();
   }
