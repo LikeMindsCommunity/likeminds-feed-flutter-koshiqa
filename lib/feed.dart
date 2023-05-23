@@ -2,7 +2,6 @@
 
 library feed;
 
-// import 'package:feed_sx/src/utils/branding/lm_branding.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/credentials/credentials.dart';
 import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
@@ -30,7 +29,8 @@ export 'src/services/service_locator.dart';
 export 'src/utils/notification_handler.dart';
 export 'src/utils/analytics/analytics.dart';
 
-const _prodFlag = false;
+/// Flutter environment manager v0.0.1
+const _prodFlag = !bool.fromEnvironment('DEBUG');
 
 class LMFeed extends StatefulWidget {
   final String? userId;
@@ -53,13 +53,6 @@ class LMFeed extends StatefulWidget {
     required String apiKey,
   }) {
     setupLMFeed(callback, apiKey);
-    // LMBranding lmBranding = LMBranding.instance;
-    // lmBranding.setBranding((SetBrandingRequestBuilder()
-    //       ..headerColor('')
-    //       ..buttonsColor('')
-    //       ..textLinkColor('')
-    //       ..fonts(LMFontsBuilder().build()))
-    //     .build());
     return _instance ??= LMFeed._(
       userId: userId,
       userName: userName,
@@ -104,9 +97,9 @@ class _LMFeedState extends State<LMFeed> {
   firebase() {
     try {
       final firebase = Firebase.app();
-      print("Firebase - ${firebase.options.appId}");
+      debugPrint("Firebase - ${firebase.options.appId}");
     } on FirebaseException catch (e) {
-      print("Make sure you have initialized firebase, ${e.toString()}");
+      debugPrint("Make sure you have initialized firebase, ${e.toString()}");
     }
   }
 
@@ -225,7 +218,6 @@ class _LMFeedState extends State<LMFeed> {
                           feedRoomId: widget.defaultFeedroom,
                         );
                       }
-                      // return TaggingTestView();
                     }
 
                     return Container(
@@ -244,7 +236,7 @@ class _LMFeedState extends State<LMFeed> {
             );
           } else {}
         } else if (snapshot.hasError) {
-          print("Error - ${snapshot.error}");
+          debugPrint("Error - ${snapshot.error}");
           return Container(
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,

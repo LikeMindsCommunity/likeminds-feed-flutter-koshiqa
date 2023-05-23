@@ -24,13 +24,15 @@ class FeedRoomScreen extends StatefulWidget {
   final bool isCm;
   final User user;
   final int feedRoomId;
-  String? feedRoomTitle;
-  FeedRoomScreen(
-      {super.key,
-      required this.isCm,
-      required this.user,
-      required this.feedRoomId,
-      this.feedRoomTitle});
+  final String? feedRoomTitle;
+
+  const FeedRoomScreen({
+    super.key,
+    required this.isCm,
+    required this.user,
+    required this.feedRoomId,
+    this.feedRoomTitle,
+  });
 
   @override
   State<FeedRoomScreen> createState() => _FeedRoomScreenState();

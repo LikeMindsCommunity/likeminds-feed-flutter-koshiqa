@@ -7,7 +7,8 @@ import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:flutter/foundation.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
-const bool _prodFlag = false;
+/// Flutter environment manager v0.0.1
+const _prodFlag = !bool.fromEnvironment('DEBUG');
 
 abstract class ILikeMindsService {
   Future<InitiateUserResponse> initiateUser(InitiateUserRequest request);
@@ -59,7 +60,7 @@ class LikeMindsService implements ILikeMindsService {
   get getFeedroomId => feedroomId;
 
   LikeMindsService(LMSDKCallback sdkCallback, String apiKey) {
-    print("UI Layer: LikeMindsService initialized");
+    debugPrint("UI Layer: LikeMindsService initialized");
     _mediaService = MediaService(_prodFlag);
     final String key = apiKey.isEmpty
         ? _prodFlag
