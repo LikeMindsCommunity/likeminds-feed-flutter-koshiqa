@@ -894,7 +894,6 @@ class _TypeAheadFieldState<T> extends State<TypeAheadField<T>>
 
 class AtText extends SpecialText {
   static const String flag = "@";
-  @override
   final SpecialTextGestureTapCallback? onTap;
   final int start;
 

@@ -14,7 +14,7 @@ import './text_parser.dart';
 typedef StringCallback = void Function(String value);
 
 class ExpandableText extends StatefulWidget {
-  ExpandableText(
+  const ExpandableText(
     this.text, {
     Key? key,
     required this.expandText,
@@ -48,7 +48,7 @@ class ExpandableText extends StatefulWidget {
   })  : assert(maxLines > 0),
         super(key: key);
 
-  String text;
+  final String text;
   final String expandText;
   final String? collapseText;
   final bool expanded;

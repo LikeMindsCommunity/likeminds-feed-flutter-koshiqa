@@ -21,7 +21,7 @@ class PostActions extends StatefulWidget {
     required this.isFeed,
   });
 
-  get getPostDetails => postDetails;
+  Post get getPostDetails => postDetails;
 
   @override
   State<PostActions> createState() => _PostActionsState();
@@ -35,7 +35,7 @@ class _PostActionsState extends State<PostActions> {
   late Function(bool) refresh;
   ValueNotifier<bool> rebuildLikeWidget = ValueNotifier(false);
 
-  setPostDetails() {
+  void setPostDetails() {
     postDetails = widget.postDetails;
     postLikes = postDetails!.likeCount;
     comments = postDetails!.commentCount;

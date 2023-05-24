@@ -13,11 +13,12 @@ import 'package:carousel_slider/carousel_slider.dart';
 
 class PostMedia extends StatefulWidget {
   final String postId;
-  double? height;
-  List<Attachment>? attachments;
-  List<MediaModel>? mediaFiles;
-  Function(int)? removeAttachment;
-  PostMedia({
+  final double? height;
+  final List<Attachment>? attachments;
+  final List<MediaModel>? mediaFiles;
+  final Function(int)? removeAttachment;
+
+  const PostMedia({
     super.key,
     this.height,
     this.attachments,

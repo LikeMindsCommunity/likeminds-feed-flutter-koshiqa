@@ -20,7 +20,7 @@ class ToggleLikeCommentBloc
     });
   }
 
-  _mapToggleLikeCommentToState(
+  Future<void> _mapToggleLikeCommentToState(
       {required ToggleLikeCommentRequest toggleLikeCommentRequest,
       required Emitter<ToggleLikeCommentState> emit}) async {
     emit(ToggleLikeCommentLoading());

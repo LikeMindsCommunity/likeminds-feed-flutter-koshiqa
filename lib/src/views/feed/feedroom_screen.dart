@@ -67,7 +67,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     super.dispose();
   }
 
-  _addPaginationListener() {
+  void _addPaginationListener() {
     _pagingController.addPageRequestListener(
       (pageKey) {
         _feedBloc.add(
@@ -81,7 +81,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     );
   }
 
-  refresh() => _pagingController.refresh();
+  void refresh() => _pagingController.refresh();
 
   int _pageFeedRoom = 1; // current index of FeedRoom
 
@@ -100,7 +100,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     }
   }
 
-  setTitleWidget(String feedRoomTitle) {
+  void setTitleWidget(String feedRoomTitle) {
     if (title == null) {
       title = feedRoomTitle;
       _rebuildAppBar.value = !_rebuildAppBar.value;

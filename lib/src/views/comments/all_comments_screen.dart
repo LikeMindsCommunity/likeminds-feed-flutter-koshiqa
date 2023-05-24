@@ -87,7 +87,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
 
   int _page = 1;
 
-  _addPaginationListener() {
+  void _addPaginationListener() {
     _pagingController.addPageRequestListener(
       (pageKey) {
         _allCommentsBloc.add(
@@ -103,7 +103,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     );
   }
 
-  selectCommentToEdit(String commentId, String? replyId, String text) {
+  void selectCommentToEdit(String commentId, String? replyId, String text) {
     selectedCommentId = commentId;
     isEditing = true;
     selectedReplyId = replyId;
@@ -116,7 +116,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     rebuildReplyWidget.value = !rebuildReplyWidget.value;
   }
 
-  deselectCommentToEdit() {
+  void deselectCommentToEdit() {
     selectedCommentId = null;
     selectedReplyId = null;
     isEditing = false;
@@ -125,7 +125,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     rebuildReplyWidget.value = !rebuildReplyWidget.value;
   }
 
-  selectCommentToReply(String commentId, String username) {
+  void selectCommentToReply(String commentId, String username) {
     selectedCommentId = commentId;
     print(commentId);
     selectedUsername = username;
@@ -135,7 +135,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     rebuildReplyWidget.value = !rebuildReplyWidget.value;
   }
 
-  deselectCommentToReply() {
+  void deselectCommentToReply() {
     selectedCommentId = null;
     selectedUsername = null;
     isReplying = false;
@@ -174,7 +174,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     }
   }
 
-  addCommentToList(AddCommentSuccess addCommentSuccess) {
+  void addCommentToList(AddCommentSuccess addCommentSuccess) {
     List<Reply>? commentItemList = _pagingController.itemList;
     commentItemList ??= [];
     if (commentItemList.length >= 10) {
@@ -185,7 +185,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     rebuildPostWidget.value = !rebuildPostWidget.value;
   }
 
-  updateCommentInList(EditCommentSuccess editCommentSuccess) {
+  void updateCommentInList(EditCommentSuccess editCommentSuccess) {
     List<Reply>? commentItemList = _pagingController.itemList;
     commentItemList ??= [];
     int index = commentItemList.indexWhere((element) =>
@@ -194,7 +194,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     rebuildPostWidget.value = !rebuildPostWidget.value;
   }
 
-  addReplyToList(AddCommentReplySuccess addCommentReplySuccess) {
+  void addReplyToList(AddCommentReplySuccess addCommentReplySuccess) {
     List<Reply>? commentItemList = _pagingController.itemList;
     if (addCommentReplySuccess.addCommentResponse.reply!.parentComment !=
         null) {
@@ -209,7 +209,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     }
   }
 
-  removeCommentFromList(String commentId) {
+  void removeCommentFromList(String commentId) {
     List<Reply>? commentItemList = _pagingController.itemList;
     int index =
         commentItemList!.indexWhere((element) => element.id == commentId);

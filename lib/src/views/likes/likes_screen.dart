@@ -13,8 +13,9 @@ class LikesScreen extends StatefulWidget {
   static const String route = "/likes_screen";
   final String postId;
   final bool isCommentLikes;
-  String? commentId;
-  LikesScreen({
+  final String? commentId;
+
+  const LikesScreen({
     super.key,
     this.isCommentLikes = false,
     required this.postId,
@@ -36,7 +37,7 @@ class _LikesScreenState extends State<LikesScreen> {
   final PagingController<int, CommentLike> _pagingControllerCommentLikes =
       PagingController(firstPageKey: 1);
 
-  _addPaginationListener() {
+  void _addPaginationListener() {
     if (widget.isCommentLikes) {
       _pagingControllerCommentLikes.addPageRequestListener(
         (pageKey) {

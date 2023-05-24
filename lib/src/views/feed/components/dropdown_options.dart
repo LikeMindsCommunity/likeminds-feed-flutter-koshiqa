@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
-import 'package:feed_sx/src/views/feed/edit_post/edit_post_screen.dart';
+import 'package:feed_sx/src/views/edit_post/edit_post_screen.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';

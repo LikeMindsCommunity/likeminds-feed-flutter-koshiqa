@@ -45,7 +45,7 @@ class _PostWidgetState extends State<PostWidget> {
     isFeed = widget.isFeed;
   }
 
-  setPostValues() {
+  void setPostValues() {
     refresh = widget.refresh;
     postDetails = widget.postDetails;
   }

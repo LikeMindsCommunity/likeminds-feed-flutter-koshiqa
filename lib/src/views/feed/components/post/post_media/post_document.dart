@@ -11,14 +11,14 @@ import 'package:open_filex/open_filex.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PostDocument extends StatefulWidget {
-  String? url;
+  final String? url;
   final String type;
   final String size;
-  File? docFile;
-  int? index;
-  Function(int)? removeAttachment;
+  final File? docFile;
+  final int? index;
+  final Function(int)? removeAttachment;
 
-  PostDocument(
+  const PostDocument(
       {super.key,
       this.docFile,
       this.url,

@@ -43,7 +43,7 @@ class FadePageRoute<T> extends PageRoute<T> {
   ) {
     final Widget result = builder(context);
     assert(() {
-      if (result == null) {
+      if (result.runtimeType != Widget) {
         throw FlutterError(
             'The builder for route "${settings.name}" returned null.\n'
             'Route builders must never return null.');
@@ -78,12 +78,12 @@ class _FadeInPageTransition extends StatelessWidget {
         super(key: key);
 
   // Fractional offset from 1/4 screen below the top to fully on screen.
-  static final Tween<Offset> _bottomUpTween = Tween<Offset>(
-    begin: const Offset(0.0, 0.25),
-    end: Offset.zero,
-  );
-  static final Animatable<double> _fastOutSlowInTween =
-      CurveTween(curve: Curves.fastOutSlowIn);
+  // static final Tween<Offset> _bottomUpTween = Tween<Offset>(
+  //   begin: const Offset(0.0, 0.25),
+  //   end: Offset.zero,
+  // );
+  // static final Animatable<double> _fastOutSlowInTween =
+  //     CurveTween(curve: Curves.fastOutSlowIn);
   static final Animatable<double> _easeInTween =
       CurveTween(curve: Curves.easeIn);
 

@@ -6,7 +6,7 @@ import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/credentials/credentials.dart';
 import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
-import 'package:feed_sx/src/views/feed/edit_post/edit_post_screen.dart';
+import 'package:feed_sx/src/views/edit_post/edit_post_screen.dart';
 import 'package:feed_sx/src/views/feed/feedroom_list_screen.dart';
 import 'package:feed_sx/src/views/new_post/feedroom_select.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
@@ -24,7 +24,6 @@ export 'src/views/likes/likes_screen.dart';
 export 'src/views/report_post/report_screen.dart';
 export 'src/views/comments/all_comments_screen.dart';
 export 'src/views/new_post/new_post_screen.dart';
-export 'src/views/following_tab/following_tab_screen.dart';
 export 'src/services/service_locator.dart';
 export 'src/utils/notification_handler.dart';
 export 'src/utils/analytics/analytics.dart';
@@ -94,7 +93,7 @@ class _LMFeedState extends State<LMFeed> {
     firebase();
   }
 
-  firebase() {
+  void firebase() {
     try {
       final firebase = Firebase.app();
       debugPrint("Firebase - ${firebase.options.appId}");
