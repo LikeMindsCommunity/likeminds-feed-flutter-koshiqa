@@ -103,7 +103,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     );
   }
 
-  void selectCommentToEdit(String commentId, String? replyId, String text) {
+  selectCommentToEdit(String commentId, String? replyId, String text) {
     selectedCommentId = commentId;
     isEditing = true;
     selectedReplyId = replyId;
@@ -116,7 +116,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     rebuildReplyWidget.value = !rebuildReplyWidget.value;
   }
 
-  void deselectCommentToEdit() {
+  deselectCommentToEdit() {
     selectedCommentId = null;
     selectedReplyId = null;
     isEditing = false;
@@ -125,7 +125,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     rebuildReplyWidget.value = !rebuildReplyWidget.value;
   }
 
-  void selectCommentToReply(String commentId, String username) {
+  selectCommentToReply(String commentId, String username) {
     selectedCommentId = commentId;
     print(commentId);
     selectedUsername = username;
@@ -135,7 +135,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     rebuildReplyWidget.value = !rebuildReplyWidget.value;
   }
 
-  void deselectCommentToReply() {
+  deselectCommentToReply() {
     selectedCommentId = null;
     selectedUsername = null;
     isReplying = false;
@@ -194,7 +194,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     rebuildPostWidget.value = !rebuildPostWidget.value;
   }
 
-  void addReplyToList(AddCommentReplySuccess addCommentReplySuccess) {
+  addReplyToList(AddCommentReplySuccess addCommentReplySuccess) {
     List<Reply>? commentItemList = _pagingController.itemList;
     if (addCommentReplySuccess.addCommentResponse.reply!.parentComment !=
         null) {

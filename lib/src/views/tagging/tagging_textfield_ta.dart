@@ -45,7 +45,7 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
   bool tagComplete = false;
   String textValue = "";
   String tagValue = "";
-  static const FIXED_SIZE = 6;
+  static const fixedSize = 6;
 
   @override
   void initState() {
@@ -61,7 +61,7 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
           request: (GetTaggingListRequestBuilder()
                 ..feedroomId(widget.feedroomId)
                 ..page(page)
-                ..pageSize(FIXED_SIZE))
+                ..pageSize(fixedSize))
               .build(),
         );
         if (taggingData.members != null && taggingData.members!.isNotEmpty) {
@@ -85,7 +85,7 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
           request: (GetTaggingListRequestBuilder()
                 ..feedroomId(widget.feedroomId)
                 ..page(1)
-                ..pageSize(FIXED_SIZE)
+                ..pageSize(fixedSize)
                 ..searchQuery(tag))
               .build(),
         );

@@ -12,7 +12,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 // import 'package:likeminds_feed/likeminds_feed.dart';
 
-const List<int> DUMMY_FEEDROOMS = [72200, 72232, 72233];
+const List<int> dummyFeedRooms = [72200, 72232, 72233];
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -73,7 +73,7 @@ class _FeedScreenState extends State<FeedScreen> {
               pagingController: _pagingController,
               builderDelegate: PagedChildBuilderDelegate<Post>(
                 itemBuilder: (context, item, index) => PostWidget(
-                  feedRoomId: DUMMY_FEEDROOMS.first,
+                  feedRoomId: dummyFeedRooms.first,
                   postDetails: item,
                   user: feedResponse.users[item.userId]!,
                   refresh: refresh(),

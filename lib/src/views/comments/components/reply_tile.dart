@@ -52,7 +52,7 @@ class _ReplyTileState extends State<ReplyTile> {
     _toggleLikeCommentBloc = ToggleLikeCommentBloc();
   }
 
-  initialise() {
+  void initialise() {
     reply = widget.reply;
     postId = widget.postId;
     isLiked = reply!.isLiked;
