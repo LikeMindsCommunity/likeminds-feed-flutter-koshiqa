@@ -2,12 +2,11 @@
 
 library feed;
 
-import 'package:feed_sx/src/utils/branding/lm_branding.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/credentials/credentials.dart';
 import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
-import 'package:feed_sx/src/views/feed/edit_post/edit_post_screen.dart';
+import 'package:feed_sx/src/views/edit_post/edit_post_screen.dart';
 import 'package:feed_sx/src/views/feed/feedroom_list_screen.dart';
 import 'package:feed_sx/src/views/new_post/feedroom_select.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
@@ -25,19 +24,19 @@ export 'src/views/likes/likes_screen.dart';
 export 'src/views/report_post/report_screen.dart';
 export 'src/views/comments/all_comments_screen.dart';
 export 'src/views/new_post/new_post_screen.dart';
-export 'src/views/following_tab/following_tab_screen.dart';
 export 'src/services/service_locator.dart';
 export 'src/utils/notification_handler.dart';
 export 'src/utils/analytics/analytics.dart';
 
-const _prodFlag = true;
+/// Flutter environment manager v0.0.1
+const _prodFlag = !bool.fromEnvironment('DEBUG');
 
 class LMFeed extends StatefulWidget {
   final String? userId;
   final String? userName;
   final int defaultFeedroom;
   final String apiKey;
-  final LMSdkCallback callback;
+  final LMSDKCallback callback;
 
   static LMFeed? _instance;
 
@@ -49,17 +48,10 @@ class LMFeed extends StatefulWidget {
     String? userId,
     String? userName,
     required int defaultFeedroom,
-    required LMSdkCallback callback,
+    required LMSDKCallback callback,
     required String apiKey,
   }) {
     setupLMFeed(callback, apiKey);
-    LMBranding lmBranding = LMBranding.instance;
-    // lmBranding.setBranding((SetBrandingRequestBuilder()
-    //       ..headerColor('')
-    //       ..buttonsColor('')
-    //       ..textLinkColor('')
-    //       ..fonts(LMFontsBuilder().build()))
-    //     .build());
     return _instance ??= LMFeed._(
       userId: userId,
       userName: userName,
@@ -101,12 +93,12 @@ class _LMFeedState extends State<LMFeed> {
     firebase();
   }
 
-  firebase() {
+  void firebase() {
     try {
       final firebase = Firebase.app();
-      print("Firebase - ${firebase.options.appId}");
+      debugPrint("Firebase - ${firebase.options.appId}");
     } on FirebaseException catch (e) {
-      print("Make sure you have initialized firebase, ${e.toString()}");
+      debugPrint("Make sure you have initialized firebase, ${e.toString()}");
     }
   }
 
@@ -134,7 +126,6 @@ class _LMFeedState extends State<LMFeed> {
                 title: 'LikeMinds Feed',
                 navigatorKey: locator<NavigationService>().navigatorKey,
                 onGenerateRoute: (settings) {
-
                   if (settings.name == AllCommentsScreen.route) {
                     final args =
                         settings.arguments as AllCommentsScreenArguments;
@@ -205,24 +196,27 @@ class _LMFeedState extends State<LMFeed> {
                       },
                     );
                   }
+                  return null;
                 },
                 home: FutureBuilder(
                   future: locator<LikeMindsService>().getMemberState(),
                   initialData: null,
                   builder: (BuildContext context, AsyncSnapshot snapshot) {
                     if (snapshot.hasData) {
-                      if (snapshot.data) {
-                        UserLocalPreference.instance.storeMemberState(true);
+                      final MemberStateResponse response = snapshot.data;
+                      final isCm = response.state == 1;
+                      UserLocalPreference.instance.storeMemberRights(response);
+                      if (isCm) {
+                        UserLocalPreference.instance.storeMemberState(isCm);
                         return FeedRoomListScreen(user: user!);
                       } else {
                         UserLocalPreference.instance.storeMemberState(false);
                         return FeedRoomScreen(
-                          isCm: snapshot.data,
+                          isCm: isCm,
                           user: user!,
                           feedRoomId: widget.defaultFeedroom,
                         );
                       }
-                      // return TaggingTestView();
                     }
 
                     return Container(
@@ -241,7 +235,7 @@ class _LMFeedState extends State<LMFeed> {
             );
           } else {}
         } else if (snapshot.hasError) {
-          print("Error - ${snapshot.error}");
+          debugPrint("Error - ${snapshot.error}");
           return Container(
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,

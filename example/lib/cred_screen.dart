@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:overlay_support/overlay_support.dart';
 
+const debug = bool.fromEnvironment('DEBUG');
+
 final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
@@ -36,19 +38,11 @@ class CredScreen extends StatefulWidget {
 class _CredScreenState extends State<CredScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _userIdController = TextEditingController();
-  late final LMFeed lmFeed;
+  LMFeed? lmFeed;
 
-  @override
   @override
   void initState() {
     super.initState();
-    lmFeed = LMFeed.instance(
-      userId: _userIdController.text,
-      userName: _usernameController.text,
-      defaultFeedroom: 1262837,
-      callback: LikeMindsCallback(),
-      apiKey: "",
-    );
     NetworkConnectivity networkConnectivity = NetworkConnectivity.instance;
     networkConnectivity.initialise();
   }
@@ -115,9 +109,16 @@ class _CredScreenState extends State<CredScreen> {
             const SizedBox(height: 36),
             GestureDetector(
               onTap: () {
+                lmFeed = LMFeed.instance(
+                  userId: _userIdController.text,
+                  userName: _usernameController.text,
+                  defaultFeedroom: debug ? 72200 : 1262837,
+                  callback: LikeMindsCallback(),
+                  apiKey: "",
+                );
                 MaterialPageRoute route = MaterialPageRoute(
                   // INIT - Get the LMFeed instance and pass the credentials (if any)
-                  builder: (context) => lmFeed,
+                  builder: (context) => lmFeed!,
                 );
                 Navigator.pushReplacement(context, route);
               },

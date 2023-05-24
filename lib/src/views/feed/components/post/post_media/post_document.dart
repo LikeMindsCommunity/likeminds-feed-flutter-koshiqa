@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:dio/dio.dart';
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_image_shimmer.dart';
@@ -8,20 +7,18 @@ import 'package:feed_sx/src/widgets/close_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 class PostDocument extends StatefulWidget {
-  String? url;
+  final String? url;
   final String type;
   final String size;
-  File? docFile;
-  int? index;
-  Function(int)? removeAttachment;
+  final File? docFile;
+  final int? index;
+  final Function(int)? removeAttachment;
 
-  PostDocument(
+  const PostDocument(
       {super.key,
       this.docFile,
       this.url,

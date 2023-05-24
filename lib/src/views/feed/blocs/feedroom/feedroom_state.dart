@@ -34,7 +34,7 @@ class FeedRoomLoaded extends FeedRoomState {
 
 class FeedRoomError extends FeedRoomState {
   final String message;
-  FeedRoomError({required this.message});
+  const FeedRoomError({required this.message});
   @override
   List<Object> get props => [message];
 }

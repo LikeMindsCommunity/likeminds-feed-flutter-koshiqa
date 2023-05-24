@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
-import 'package:feed_sx/src/views/feed/edit_post/edit_post_screen.dart';
+import 'package:feed_sx/src/views/edit_post/edit_post_screen.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
@@ -45,7 +45,7 @@ class DropdownOptions extends StatelessWidget {
                   LMAnalytics.get().track(
                     AnalyticsKeys.postDeleted,
                     {
-                      "user_state": res ? "CM" : "member",
+                      "user_state": res.state == 1 ? "CM" : "member",
                       "post_id": postDetails.id,
                       "user_id": postDetails.userId,
                     },
@@ -82,7 +82,7 @@ class DropdownOptions extends StatelessWidget {
             LMAnalytics.get().track(
               AnalyticsKeys.postPinned,
               {
-                "user_state": res ? "CM" : "member",
+                "user_state": res.state == 1 ? "CM" : "member",
                 "post_id": postDetails.id,
                 "user_id": postDetails.userId,
               },
@@ -109,7 +109,7 @@ class DropdownOptions extends StatelessWidget {
             LMAnalytics.get().track(
               AnalyticsKeys.postUnpinned,
               {
-                "user_state": res ? "CM" : "member",
+                "user_state": res.state == 1 ? "CM" : "member",
                 "post_id": postDetails.id,
                 "user_id": postDetails.userId,
               },

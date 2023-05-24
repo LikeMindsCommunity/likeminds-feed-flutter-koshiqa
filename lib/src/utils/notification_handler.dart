@@ -1,6 +1,7 @@
 import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/services/service_locator.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
+import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/views/comments/all_comments_screen.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,7 @@ class LMNotificationHandler {
   int? memberId;
 
   static LMNotificationHandler? _instance;
+
   static LMNotificationHandler get instance =>
       _instance ??= LMNotificationHandler._();
 
@@ -136,12 +138,25 @@ class LMNotificationHandler {
           onTap: () {
             routeNotification(message);
           },
-          child: Text(
-            message.data["sub_title"],
-            style: const TextStyle(
-              color: Colors.black,
-              fontSize: 16,
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                message.data["title"],
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                ),
+              ),
+              kVerticalPaddingSmall,
+              Text(
+                message.data["sub_title"],
+                style: const TextStyle(
+                  color: kGrey2Color,
+                  fontSize: 12,
+                ),
+              ),
+            ],
           ),
         ),
         background: Colors.white,
