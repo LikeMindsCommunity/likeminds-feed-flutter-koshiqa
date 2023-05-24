@@ -51,8 +51,8 @@ dependencies:
   shared_preferences: ^2.1.0
   visibility_detector: ^0.4.0+2
 
-  likeminds_feed:
-    path: ../LikeMinds-Flutter-SDK
+  likeminds_feed: 1.2.0
+   # path: ../LikeMinds-Flutter-SDK
 
 dev_dependencies:
   flutter_test:
