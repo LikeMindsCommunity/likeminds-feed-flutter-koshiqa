@@ -1,8 +1,6 @@
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/widgets/general_app_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 
 class ReportPostScreen extends StatefulWidget {
   static const String route = "/report_post_screen";
@@ -25,8 +23,8 @@ class _ReportPostScreenState extends State<ReportPostScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kWhiteColor,
-      appBar: GeneralAppBar(
-        title: const Text(
+      appBar: const GeneralAppBar(
+        title: Text(
           'Report Abuse',
           style: TextStyle(
               fontSize: 20, fontWeight: FontWeight.w500, color: Colors.red),
@@ -37,7 +35,7 @@ class _ReportPostScreenState extends State<ReportPostScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Please specify the problem to continue',
               style: TextStyle(
                   color: kGrey1Color,
@@ -45,7 +43,7 @@ class _ReportPostScreenState extends State<ReportPostScreen> {
                   fontSize: kFontMedium),
             ),
             kVerticalPaddingSmall,
-            Text(
+            const Text(
               'You would be able to report this post after selecting a problem.',
               style: TextStyle(
                   color: kGrey2Color,
@@ -58,10 +56,10 @@ class _ReportPostScreenState extends State<ReportPostScreen> {
               spacing: 10,
               children: reportOptions
                   .map((e) => Chip(
-                        side: BorderSide(color: kGrey2Color),
+                        side: const BorderSide(color: kGrey2Color),
                         label: Text(
                           e,
-                          style: TextStyle(color: kGrey2Color),
+                          style: const TextStyle(color: kGrey2Color),
                         ),
                         backgroundColor: kWhiteColor,
                       ))

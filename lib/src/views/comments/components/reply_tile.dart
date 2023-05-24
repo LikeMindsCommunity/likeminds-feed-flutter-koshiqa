@@ -2,8 +2,7 @@ import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/views/comments/components/dropdown_options_reply.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/packages/expandable_text/expandable_text.dart';
-import 'package:feed_sx/src/services/likeminds_service.dart';
+import 'package:feed_sx/src/utils/expandable_text/expandable_text.dart';
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/utils.dart';
@@ -50,11 +49,10 @@ class _ReplyTileState extends State<ReplyTile> {
     user = widget.user;
 
     likeCount = widget.reply.likesCount;
-    FeedApi feedApi = locator<LikeMindsService>().getFeedApi();
-    _toggleLikeCommentBloc = ToggleLikeCommentBloc(feedApi: feedApi);
+    _toggleLikeCommentBloc = ToggleLikeCommentBloc();
   }
 
-  initialise() {
+  void initialise() {
     reply = widget.reply;
     postId = widget.postId;
     isLiked = reply!.isLiked;
@@ -172,8 +170,8 @@ class _ReplyTileState extends State<ReplyTile> {
               ),
               const Spacer(),
               reply!.isEdited != null && reply!.isEdited!
-                  ? Row(
-                      children: const [
+                  ? const Row(
+                      children: [
                         Text(
                           "Edited",
                           style: TextStyle(

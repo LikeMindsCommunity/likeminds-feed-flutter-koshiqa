@@ -1,8 +1,7 @@
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
-class CustomFeedAppBar extends StatelessWidget with PreferredSizeWidget {
+class CustomFeedAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomFeedAppBar({Key? key}) : super(key: key);
 
   @override

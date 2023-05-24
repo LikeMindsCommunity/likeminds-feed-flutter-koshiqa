@@ -27,7 +27,6 @@ import 'package:likeminds_feed/likeminds_feed.dart';
 
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'package:feed_sx/src/services/service_locator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:multi_image_crop/multi_image_crop.dart';
 import 'package:overlay_support/overlay_support.dart';
@@ -212,7 +211,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
   }
 
   void handleTextLinks(String text) async {
-    String link = await getFirstValidLinkFromString(text);
+    String link = getFirstValidLinkFromString(text);
     if (link.isNotEmpty) {
       previewLink = link;
       DecodeUrlRequest request =

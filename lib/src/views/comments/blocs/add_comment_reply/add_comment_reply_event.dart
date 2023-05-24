@@ -10,7 +10,7 @@ abstract class AddCommentReplyEvent extends Equatable {
 // Add Comment events
 class AddCommentReply extends AddCommentReplyEvent {
   final AddCommentReplyRequest addCommentRequest;
-  AddCommentReply({required this.addCommentRequest});
+  const AddCommentReply({required this.addCommentRequest});
 
   @override
   List<Object> get props => [addCommentRequest];
@@ -28,7 +28,7 @@ class DeleteCommentReply extends AddCommentReplyEvent {
 
 class EditComment extends AddCommentReplyEvent {
   final EditCommentRequest editCommentRequest;
-  EditComment({required this.editCommentRequest});
+  const EditComment({required this.editCommentRequest});
 
   @override
   List<Object> get props => [editCommentRequest];
@@ -46,7 +46,7 @@ class EditingComment extends AddCommentReplyEvent {
 class EditReply extends AddCommentReplyEvent {
   final EditCommentReplyRequest editCommentReplyRequest;
 
-  EditReply({required this.editCommentReplyRequest});
+  const EditReply({required this.editCommentReplyRequest});
 
   @override
   List<Object> get props => [editCommentReplyRequest];

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:overlay_support/overlay_support.dart';
 
+const debug = bool.fromEnvironment('DEBUG');
+
 final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
@@ -110,7 +112,7 @@ class _CredScreenState extends State<CredScreen> {
                 lmFeed = LMFeed.instance(
                   userId: _userIdController.text,
                   userName: _usernameController.text,
-                  defaultFeedroom: 1262837,
+                  defaultFeedroom: debug ? 72200 : 1262837,
                   callback: LikeMindsCallback(),
                   apiKey: "",
                 );

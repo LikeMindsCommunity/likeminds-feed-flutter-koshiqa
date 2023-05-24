@@ -12,6 +12,7 @@
 
 #import "AVAssetTrackUtils.h"
 #import "FLTVideoPlayerPlugin.h"
+#import "FLTVideoPlayerPlugin_Test.h"
 #import "messages.g.h"
 
 FOUNDATION_EXPORT double video_player_avfoundationVersionNumber;

@@ -13,8 +13,9 @@ class LikesScreen extends StatefulWidget {
   static const String route = "/likes_screen";
   final String postId;
   final bool isCommentLikes;
-  String? commentId;
-  LikesScreen({
+  final String? commentId;
+
+  const LikesScreen({
     super.key,
     this.isCommentLikes = false,
     required this.postId,
@@ -36,7 +37,7 @@ class _LikesScreenState extends State<LikesScreen> {
   final PagingController<int, CommentLike> _pagingControllerCommentLikes =
       PagingController(firstPageKey: 1);
 
-  _addPaginationListener() {
+  void _addPaginationListener() {
     if (widget.isCommentLikes) {
       _pagingControllerCommentLikes.addPageRequestListener(
         (pageKey) {
@@ -211,13 +212,13 @@ class _LikesScreenState extends State<LikesScreen> {
               noMoreItemsIndicatorBuilder: (context) => const SizedBox(
                 height: 20,
               ),
-              noItemsFoundIndicatorBuilder: (context) => Scaffold(
+              noItemsFoundIndicatorBuilder: (context) => const Scaffold(
                 backgroundColor: kWhiteColor,
                 body: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    children: const <Widget>[
+                    children: <Widget>[
                       Text("No likes to show",
                           style: TextStyle(
                             fontSize: 24,
@@ -261,13 +262,13 @@ class _LikesScreenState extends State<LikesScreen> {
               noMoreItemsIndicatorBuilder: (context) => const SizedBox(
                 height: 20,
               ),
-              noItemsFoundIndicatorBuilder: (context) => Scaffold(
+              noItemsFoundIndicatorBuilder: (context) => const Scaffold(
                 backgroundColor: kWhiteColor,
                 body: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    children: const <Widget>[
+                    children: <Widget>[
                       Text("No likes to show",
                           style: TextStyle(
                             fontSize: 24,

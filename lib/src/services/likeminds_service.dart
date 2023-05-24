@@ -7,18 +7,19 @@ import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:flutter/foundation.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
-const bool _prodFlag = true;
+/// Flutter environment manager v0.0.1
+const _prodFlag = !bool.fromEnvironment('DEBUG');
 
 abstract class ILikeMindsService {
-  FeedApi getFeedApi();
   Future<InitiateUserResponse> initiateUser(InitiateUserRequest request);
-  Future<bool> getMemberState();
-  Future<UniversalFeedResponse?> getUniversalFeed(UniversalFeedRequest request);
+  Future<MemberStateResponse> getMemberState();
+  Future<GetFeedResponse?> getFeed(GetFeedRequest request);
   Future<GetFeedRoomResponse> getFeedRoom(GetFeedRoomRequest request);
   Future<GetFeedOfFeedRoomResponse> getFeedOfFeedRoom(
       GetFeedOfFeedRoomRequest request);
   Future<AddPostResponse> addPost(AddPostRequest request);
   Future<GetPostResponse> getPost(GetPostRequest request);
+  Future<PostDetailResponse> getPostDetails(PostDetailRequest request);
   Future<GetPostLikesResponse> getPostLikes(GetPostLikesRequest request);
   Future<PinPostResponse> pinPost(PinPostRequest request);
   Future<EditPostResponse> editPost(EditPostRequest request);
@@ -26,10 +27,20 @@ abstract class ILikeMindsService {
       GetCommentLikesRequest request);
   Future<DeletePostResponse> deletePost(DeletePostRequest request);
   Future<LikePostResponse> likePost(LikePostRequest request);
+  Future<AddCommentResponse> addComment(AddCommentRequest request);
+  Future<GetCommentResponse> getComment(GetCommentRequest request);
+  Future<ToggleLikeCommentResponse> toggleLikeComment(
+      ToggleLikeCommentRequest request);
   Future<DeleteCommentResponse> deleteComment(DeleteCommentRequest request);
+  Future<EditCommentResponse> editComment(EditCommentRequest request);
+  Future<AddCommentReplyResponse> addCommentReply(
+      AddCommentReplyRequest request);
+  Future<EditCommentReplyResponse> editCommentReply(
+      EditCommentReplyRequest request);
   Future<String?> uploadFile(File file, String userUniqueId);
   Future<RegisterDeviceResponse> registerDevice(RegisterDeviceRequest request);
-  Future<TagResponseModel> getTags({required TagRequestModel request});
+  Future<GetTaggingListResponse> getTaggingList(
+      {required GetTaggingListRequest request});
   Future<DecodeUrlResponse> decodeUrl(DecodeUrlRequest request);
   Future<GetDeleteReasonResponse> getReportTags(GetDeleteReasonRequest request);
   void routeToProfile(String userId);
@@ -46,10 +57,10 @@ class LikeMindsService implements ILikeMindsService {
     this.feedroomId = feedroomId;
   }
 
-  get getFeedroomId => feedroomId;
+  int? get getFeedroomId => feedroomId;
 
   LikeMindsService(LMSDKCallback sdkCallback, String apiKey) {
-    print("UI Layer: LikeMindsService initialized");
+    debugPrint("UI Layer: LikeMindsService initialized");
     _mediaService = MediaService(_prodFlag);
     final String key = apiKey.isEmpty
         ? _prodFlag
@@ -71,14 +82,8 @@ class LikeMindsService implements ILikeMindsService {
   }
 
   @override
-  FeedApi getFeedApi() {
-    return _sdkApplication.getFeedApi();
-  }
-
-  @override
-  Future<UniversalFeedResponse?> getUniversalFeed(
-      UniversalFeedRequest request) async {
-    return await _sdkApplication.getUniversalFeed(request);
+  Future<GetFeedResponse?> getFeed(GetFeedRequest request) async {
+    return await _sdkApplication.getFeed(request);
   }
 
   @override
@@ -123,9 +128,50 @@ class LikeMindsService implements ILikeMindsService {
   }
 
   @override
+  Future<AddCommentResponse> addComment(
+      AddCommentRequest addCommentRequest) async {
+    return await _sdkApplication.addComment(addCommentRequest);
+  }
+
+  @override
+  Future<AddCommentReplyResponse> addCommentReply(
+      AddCommentReplyRequest addCommentReplyRequest) async {
+    return await _sdkApplication.addCommentReply(addCommentReplyRequest);
+  }
+
+  @override
+  Future<EditCommentReplyResponse> editCommentReply(
+      EditCommentReplyRequest editCommentReplyRequest) async {
+    return await _sdkApplication.editCommentReply(editCommentReplyRequest);
+  }
+
+  @override
+  Future<GetCommentResponse> getComment(GetCommentRequest request) {
+    return _sdkApplication.getComment(request);
+  }
+
+  @override
+  Future<ToggleLikeCommentResponse> toggleLikeComment(
+      ToggleLikeCommentRequest toggleLikeCommentRequest) async {
+    return await _sdkApplication.toggleLikeComment(toggleLikeCommentRequest);
+  }
+
+  @override
+  Future<PostDetailResponse> getPostDetails(
+      PostDetailRequest postDetailRequest) async {
+    return await _sdkApplication.getPostDetails(postDetailRequest);
+  }
+
+  @override
   Future<DeleteCommentResponse> deleteComment(
       DeleteCommentRequest deleteCommentRequest) async {
     return await _sdkApplication.deleteComment(deleteCommentRequest);
+  }
+
+  @override
+  Future<EditCommentResponse> editComment(
+      EditCommentRequest editCommentRequest) async {
+    return await _sdkApplication.editComment(editCommentRequest);
   }
 
   @override
@@ -145,7 +191,7 @@ class LikeMindsService implements ILikeMindsService {
   }
 
   @override
-  Future<bool> getMemberState() async {
+  Future<MemberStateResponse> getMemberState() async {
     return await _sdkApplication.getMemberState();
   }
 
@@ -156,8 +202,9 @@ class LikeMindsService implements ILikeMindsService {
   }
 
   @override
-  Future<TagResponseModel> getTags({required TagRequestModel request}) async {
-    return await _sdkApplication.getTags(request: request);
+  Future<GetTaggingListResponse> getTaggingList(
+      {required GetTaggingListRequest request}) async {
+    return await _sdkApplication.getTaggingList(request: request);
   }
 
   @override

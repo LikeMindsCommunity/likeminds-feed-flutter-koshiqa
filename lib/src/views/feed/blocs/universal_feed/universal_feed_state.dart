@@ -11,9 +11,9 @@ class UniversalFeedInitial extends UniversalFeedState {
 }
 
 class UniversalFeedLoaded extends UniversalFeedState {
-  final UniversalFeedResponse feed;
+  final GetFeedResponse feed;
   final bool hasReachedMax;
-  UniversalFeedLoaded({required this.feed, required this.hasReachedMax});
+  const UniversalFeedLoaded({required this.feed, required this.hasReachedMax});
 
   @override
   List<Object?> get props => [feed, hasReachedMax];
@@ -25,8 +25,8 @@ class UniversalFeedLoading extends UniversalFeedState {
 }
 
 class PaginatedUniversalFeedLoading extends UniversalFeedState {
-  final UniversalFeedResponse prevFeed;
-  PaginatedUniversalFeedLoading({
+  final GetFeedResponse prevFeed;
+  const PaginatedUniversalFeedLoading({
     required this.prevFeed,
   });
   @override
@@ -35,7 +35,7 @@ class PaginatedUniversalFeedLoading extends UniversalFeedState {
 
 class UniversalFeedError extends UniversalFeedState {
   final String message;
-  UniversalFeedError({
+  const UniversalFeedError({
     required this.message,
   });
 

@@ -14,7 +14,7 @@ class AllCommentsInitial extends AllCommentsState {
 class AllCommentsLoaded extends AllCommentsState {
   final PostDetailResponse postDetails;
   final bool hasReachedMax;
-  AllCommentsLoaded({required this.postDetails, required this.hasReachedMax});
+  const AllCommentsLoaded({required this.postDetails, required this.hasReachedMax});
 
   @override
   List<Object?> get props => [postDetails, hasReachedMax];
@@ -27,7 +27,7 @@ class AllCommentsLoading extends AllCommentsState {
 
 class PaginatedAllCommentsLoading extends AllCommentsState {
   final PostDetailResponse prevPostDetails;
-  PaginatedAllCommentsLoading({
+  const PaginatedAllCommentsLoading({
     required this.prevPostDetails,
   });
   @override
@@ -36,7 +36,7 @@ class PaginatedAllCommentsLoading extends AllCommentsState {
 
 class AllCommentsError extends AllCommentsState {
   final String message;
-  AllCommentsError({
+  const AllCommentsError({
     required this.message,
   });
 

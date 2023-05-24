@@ -12,7 +12,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 // import 'package:likeminds_feed/likeminds_feed.dart';
 
-const List<int> DUMMY_FEEDROOMS = [72200, 72232, 72233];
+const List<int> dummyFeedRooms = [72200, 72232, 72233];
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -23,7 +23,6 @@ class FeedScreen extends StatefulWidget {
 
 class _FeedScreenState extends State<FeedScreen> {
   late final UniversalFeedBloc _feedBloc;
-  static const _pageSize = 20;
 
   final PagingController<int, Post> _pagingController = PagingController(
     firstPageKey: 1,
@@ -36,7 +35,7 @@ class _FeedScreenState extends State<FeedScreen> {
     _feedBloc = UniversalFeedBloc();
   }
 
-  _addPaginationListener() {
+  void _addPaginationListener() {
     _pagingController.addPageRequestListener((pageKey) {
       _feedBloc.add(GetUniversalFeed(offset: pageKey, forLoadMore: true));
     });
@@ -69,12 +68,12 @@ class _FeedScreenState extends State<FeedScreen> {
         },
         builder: ((context, state) {
           if (state is UniversalFeedLoaded) {
-            UniversalFeedResponse feedResponse = state.feed;
+            GetFeedResponse feedResponse = state.feed;
             return PagedListView<int, Post>(
               pagingController: _pagingController,
               builderDelegate: PagedChildBuilderDelegate<Post>(
                 itemBuilder: (context, item, index) => PostWidget(
-                  feedRoomId: DUMMY_FEEDROOMS.first,
+                  feedRoomId: dummyFeedRooms.first,
                   postDetails: item,
                   user: feedResponse.users[item.userId]!,
                   refresh: refresh(),
@@ -91,8 +90,8 @@ class _FeedScreenState extends State<FeedScreen> {
           //     MaterialPageRoute(builder: (context) => NewPostScreen());
           // Navigator.push(context, route);
         },
-        child: const Icon(Icons.add),
         backgroundColor: kPrimaryColor,
+        child: const Icon(Icons.add),
       ),
     );
   }

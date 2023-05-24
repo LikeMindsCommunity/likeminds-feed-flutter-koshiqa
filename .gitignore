@@ -36,3 +36,9 @@ example/.flutter-plugins-dependencies
 #Environment files
 .env.dev
 .env.prod
+
+.vscode/
+.scannerwork/
+tests.output
+.flutter-plugins
+.flutter-plugins-dependencies
