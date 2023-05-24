@@ -4,7 +4,6 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
-import 'package:feed_sx/src/utils/analytics/analytics.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:overlay_support/overlay_support.dart';
 
@@ -40,9 +39,8 @@ class AddCommentReplyBloc
     on<EditReply>((event, emit) async {
       emit(EditReplyLoading());
       EditCommentReplyResponse? response = await locator<LikeMindsService>()
-          .getFeedApi()
           .editCommentReply(event.editCommentReplyRequest);
-      if (response == null) {
+      if (!response.success) {
         emit(const EditReplyError(message: "An error occurred"));
       } else {
         emit(EditReplySuccess(editCommentReplyResponse: response));
@@ -64,9 +62,8 @@ class AddCommentReplyBloc
     on<EditComment>((event, emit) async {
       emit(EditCommentLoading());
       EditCommentResponse? response = await locator<LikeMindsService>()
-          .getFeedApi()
           .editComment(event.editCommentRequest);
-      if (response == null) {
+      if (!response.success) {
         emit(const EditCommentError(message: "An error occurred"));
       } else {
         emit(EditCommentSuccess(editCommentResponse: response));
@@ -146,11 +143,10 @@ class AddCommentReplyBloc
       {required AddCommentReplyRequest addCommentReplyRequest,
       required Emitter<AddCommentReplyState> emit}) async {
     emit(AddCommentReplyLoading());
-    AddCommentReplyResponse? response = await locator<LikeMindsService>()
-        .getFeedApi()
+    AddCommentReplyResponse response = await locator<LikeMindsService>()
         .addCommentReply(addCommentReplyRequest);
-    if (response == null) {
-      emit(AddCommentReplyError(message: "No data found"));
+    if (!response.success) {
+      emit(const AddCommentReplyError(message: "No data found"));
     } else {
       LMAnalytics.get().track(
         AnalyticsKeys.replyPosted,

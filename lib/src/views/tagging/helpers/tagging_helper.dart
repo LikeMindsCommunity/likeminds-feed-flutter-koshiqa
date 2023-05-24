@@ -105,12 +105,12 @@ List<String> extractLinkFromString(String text) {
   RegExp exp = RegExp(r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+');
   Iterable<RegExpMatch> matches = exp.allMatches(text);
   List<String> links = [];
-  matches.forEach((match) {
+  for (var match in matches) {
     String link = text.substring(match.start, match.end);
     if (link.isNotEmpty) {
       links.add(link);
     }
-  });
+  }
   if (links.isNotEmpty) {
     return links;
   } else {

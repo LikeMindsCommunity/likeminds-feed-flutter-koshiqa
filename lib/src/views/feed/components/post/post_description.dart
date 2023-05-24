@@ -1,5 +1,5 @@
-import 'package:feed_sx/src/packages/expandable_text/expandable_text.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
+import 'package:feed_sx/src/utils/expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
 
 class PostDescription extends StatelessWidget {

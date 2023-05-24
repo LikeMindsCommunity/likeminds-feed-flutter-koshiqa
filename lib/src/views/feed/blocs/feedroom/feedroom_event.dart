@@ -12,7 +12,7 @@ class GetFeedRoom extends FeedRoomEvent {
   final int offset;
   final bool isPaginationLoading;
   final FeedRoom? feedRoomResponse;
-  GetFeedRoom({
+  const GetFeedRoom({
     required this.feedRoomId,
     required this.offset,
     this.isPaginationLoading = false,

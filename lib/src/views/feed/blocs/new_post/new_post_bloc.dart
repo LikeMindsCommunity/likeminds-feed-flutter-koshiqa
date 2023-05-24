@@ -34,7 +34,7 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
             emit(
               NewPostUploading(
                 progress: progress.stream,
-                thumbnailMedia: postMedia == null || postMedia.isEmpty
+                thumbnailMedia: postMedia.isEmpty
                     ? null
                     : postMedia[0].mediaType == MediaType.link
                         ? null

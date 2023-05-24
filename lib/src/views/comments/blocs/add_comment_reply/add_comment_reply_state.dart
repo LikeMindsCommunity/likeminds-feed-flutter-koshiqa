@@ -13,12 +13,12 @@ class AddCommentReplyLoading extends AddCommentReplyState {}
 
 class AddCommentReplySuccess extends AddCommentReplyState {
   final AddCommentReplyResponse addCommentResponse;
-  AddCommentReplySuccess({required this.addCommentResponse});
+  const AddCommentReplySuccess({required this.addCommentResponse});
 }
 
 class AddCommentReplyError extends AddCommentReplyState {
   final String message;
-  AddCommentReplyError({required this.message});
+  const AddCommentReplyError({required this.message});
 }
 
 class CommentEditingStarted extends AddCommentReplyState {
@@ -35,7 +35,7 @@ class EditCommentCanceled extends AddCommentReplyState {}
 class EditCommentSuccess extends AddCommentReplyState {
   final EditCommentResponse editCommentResponse;
 
-  EditCommentSuccess({required this.editCommentResponse});
+  const EditCommentSuccess({required this.editCommentResponse});
 }
 
 class EditCommentError extends AddCommentReplyState {

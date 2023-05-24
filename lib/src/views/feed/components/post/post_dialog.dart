@@ -17,7 +17,7 @@ Dialog deleteConfirmationDialog(
   required String actionText,
 }) {
   Size screenSize = MediaQuery.of(context).size;
-  bool _boolVarLoading = false;
+  bool boolVarLoading = false;
   ValueNotifier<bool> rebuildReasonBox = ValueNotifier(false);
   DeleteReason? reasonForDeletion;
   bool isCm = UserLocalPreference.instance.fetchMemberState();
@@ -58,10 +58,10 @@ Dialog deleteConfirmationDialog(
                           valueListenable: rebuildReasonBox,
                           builder: (context, _, __) {
                             return GestureDetector(
-                              onTap: _boolVarLoading
+                              onTap: boolVarLoading
                                   ? () {}
                                   : () async {
-                                      _boolVarLoading = true;
+                                      boolVarLoading = true;
                                       rebuildReasonBox.value =
                                           !rebuildReasonBox.value;
                                       GetDeleteReasonResponse response =
@@ -179,7 +179,7 @@ Dialog deleteConfirmationDialog(
                                         toast(response.errorMessage ??
                                             'An error occured');
                                       }
-                                      _boolVarLoading = false;
+                                      boolVarLoading = false;
                                       rebuildReasonBox.value =
                                           !rebuildReasonBox.value;
                                     },

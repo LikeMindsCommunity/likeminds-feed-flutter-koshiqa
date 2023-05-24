@@ -24,13 +24,15 @@ class FeedRoomScreen extends StatefulWidget {
   final bool isCm;
   final User user;
   final int feedRoomId;
-  String? feedRoomTitle;
-  FeedRoomScreen(
-      {super.key,
-      required this.isCm,
-      required this.user,
-      required this.feedRoomId,
-      this.feedRoomTitle});
+  final String? feedRoomTitle;
+
+  const FeedRoomScreen({
+    super.key,
+    required this.isCm,
+    required this.user,
+    required this.feedRoomId,
+    this.feedRoomTitle,
+  });
 
   @override
   State<FeedRoomScreen> createState() => _FeedRoomScreenState();
@@ -65,7 +67,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     super.dispose();
   }
 
-  _addPaginationListener() {
+  void _addPaginationListener() {
     _pagingController.addPageRequestListener(
       (pageKey) {
         _feedBloc.add(
@@ -79,7 +81,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     );
   }
 
-  refresh() => _pagingController.refresh();
+  void refresh() => _pagingController.refresh();
 
   int _pageFeedRoom = 1; // current index of FeedRoom
 
@@ -98,7 +100,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     }
   }
 
-  setTitleWidget(String feedRoomTitle) {
+  void setTitleWidget(String feedRoomTitle) {
     if (title == null) {
       title = feedRoomTitle;
       _rebuildAppBar.value = !_rebuildAppBar.value;
@@ -188,7 +190,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
             return const Scaffold(
               backgroundColor: kBackgroundColor,
               body: Center(
-                child: const Loader(),
+                child: Loader(),
               ),
             );
           }),
@@ -330,14 +332,14 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                   color: kWhiteColor,
                   alignment: Alignment.center,
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Row(
+                  child: const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
-                        children: const <Widget>[
+                        children: <Widget>[
                           SizedBox(
                             width: 50,
                             height: 50,
@@ -346,7 +348,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                           Text('Saving')
                         ],
                       ),
-                      const CircularProgressIndicator(
+                      CircularProgressIndicator(
                         backgroundColor: kGrey3Color,
                         valueColor: AlwaysStoppedAnimation(kPrimaryColor),
                         strokeWidth: 3,

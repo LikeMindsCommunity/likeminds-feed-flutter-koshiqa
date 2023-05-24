@@ -1,14 +1,13 @@
 import 'package:collection/collection.dart';
 import 'package:feed_sx/src/navigation/arguments.dart';
-import 'package:feed_sx/src/packages/expandable_text/expandable_text.dart';
+import 'package:feed_sx/src/utils/expandable_text/expandable_text.dart';
 import 'package:feed_sx/src/utils/constants/string_constants.dart';
-import 'package:feed_sx/src/views/comments/blocs/add_comment/add_comment_bloc.dart';
+import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:feed_sx/src/views/comments/blocs/add_comment_reply/add_comment_reply_bloc.dart';
 import 'package:feed_sx/src/views/comments/components/dropdown_options_comment.dart';
 import 'package:feed_sx/src/widgets/profile_picture.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/utils.dart';
@@ -18,6 +17,7 @@ import 'package:feed_sx/src/views/comments/components/reply_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 class CommentTile extends StatefulWidget {
   final String postId;
@@ -58,9 +58,8 @@ class _CommentTileState extends State<CommentTile>
     super.initState();
     user = widget.user;
     postId = widget.postId;
-    FeedApi feedApi = locator<LikeMindsService>().getFeedApi();
-    _toggleLikeCommentBloc = ToggleLikeCommentBloc(feedApi: feedApi);
-    _commentRepliesBloc = CommentRepliesBloc(feedApi: feedApi);
+    _toggleLikeCommentBloc = ToggleLikeCommentBloc();
+    _commentRepliesBloc = CommentRepliesBloc();
   }
 
   void initialiseReply() {
@@ -73,6 +72,16 @@ class _CommentTileState extends State<CommentTile>
   int page = 1;
 
   // List<CommentReply> replies = [];
+
+  bool checkCommentRights() {
+    final MemberStateResponse memberStateResponse =
+        UserLocalPreference.instance.fetchMemberRights();
+    if (memberStateResponse.state == 1) {
+      return true;
+    }
+    bool memberRights = UserLocalPreference.instance.fetchMemberRight(10);
+    return memberRights;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +118,7 @@ class _CommentTileState extends State<CommentTile>
                     ),
                     Container(
                       width: 240,
-                      padding: EdgeInsets.symmetric(vertical: 8),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
                       child: ExpandableText(
                         reply!.text,
                         expandText: 'show more',
@@ -216,7 +225,11 @@ class _CommentTileState extends State<CommentTile>
               ),
               kHorizontalPaddingMedium,
               GestureDetector(
-                onTap: () => widget.onReply(reply!.id, user.name),
+                onTap: checkCommentRights()
+                    ? () {
+                        widget.onReply(reply!.id, user.name);
+                      }
+                    : () => toast("You do not have permission to comment"),
                 child: const Text(
                   'Reply',
                   style: TextStyle(
@@ -244,12 +257,11 @@ class _CommentTileState extends State<CommentTile>
                           return;
                         } else {
                           _commentRepliesBloc.add(GetCommentReplies(
-                              commentDetailRequest:
-                                  (CommentDetailRequestBuilder()
-                                        ..commentId(reply!.id)
-                                        ..page(1)
-                                        ..postId(postId))
-                                      .build(),
+                              commentDetailRequest: (GetCommentRequestBuilder()
+                                    ..commentId(reply!.id)
+                                    ..page(1)
+                                    ..postId(postId))
+                                  .build(),
                               forLoadMore: false));
                           _replyVisible = true;
                         }
@@ -267,8 +279,8 @@ class _CommentTileState extends State<CommentTile>
                   : Container(),
               const Spacer(),
               reply!.isEdited != null && reply!.isEdited!
-                  ? Row(
-                      children: const [
+                  ? const Row(
+                      children: [
                         Text(
                           "Edited",
                           style: TextStyle(
@@ -321,11 +333,11 @@ class _CommentTileState extends State<CommentTile>
                       List<CommentReply> replies = [];
                       Map<String, User> users = {};
                       if (state is CommentRepliesLoaded) {
-                        replies = state.commentDetails.postReplies.replies;
-                        users = state.commentDetails.users;
+                        replies = state.commentDetails.postReplies!.replies;
+                        users = state.commentDetails.users!;
                       } else if (state is PaginatedCommentRepliesLoading) {
-                        replies = state.prevCommentDetails.postReplies.replies;
-                        users = state.prevCommentDetails.users;
+                        replies = state.prevCommentDetails.postReplies!.replies;
+                        users = state.prevCommentDetails.users!;
                       }
                       List<Widget> repliesW = [];
                       if (_replyVisible) {
@@ -356,7 +368,7 @@ class _CommentTileState extends State<CommentTile>
                                   page++;
                                   _commentRepliesBloc.add(GetCommentReplies(
                                       commentDetailRequest:
-                                          (CommentDetailRequestBuilder()
+                                          (GetCommentRequestBuilder()
                                                 ..commentId(reply!.id)
                                                 ..page(page)
                                                 ..postId(postId))
@@ -416,7 +428,7 @@ class _CommentTileState extends State<CommentTile>
                                         _commentRepliesBloc.add(
                                             GetCommentReplies(
                                                 commentDetailRequest:
-                                                    (CommentDetailRequestBuilder()
+                                                    (GetCommentRequestBuilder()
                                                           ..commentId(reply!.id)
                                                           ..page(page)
                                                           ..postId(postId))
@@ -483,7 +495,7 @@ class _CommentTileState extends State<CommentTile>
                                           _commentRepliesBloc.add(
                                               GetCommentReplies(
                                                   commentDetailRequest:
-                                                      (CommentDetailRequestBuilder()
+                                                      (GetCommentRequestBuilder()
                                                             ..commentId(
                                                                 reply!.id)
                                                             ..page(page)
@@ -550,7 +562,7 @@ class _CommentTileState extends State<CommentTile>
                                           _commentRepliesBloc.add(
                                               GetCommentReplies(
                                                   commentDetailRequest:
-                                                      (CommentDetailRequestBuilder()
+                                                      (GetCommentRequestBuilder()
                                                             ..commentId(
                                                                 reply!.id)
                                                             ..page(page)

@@ -1,3 +1,4 @@
+import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_image_shimmer.dart';
 import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
 import 'package:feed_sx/src/views/tagging/tagging_textfield_ta.dart';
@@ -86,7 +87,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
 
   int _page = 1;
 
-  _addPaginationListener() {
+  void _addPaginationListener() {
     _pagingController.addPageRequestListener(
       (pageKey) {
         _allCommentsBloc.add(
@@ -173,7 +174,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     }
   }
 
-  addCommentToList(AddCommentSuccess addCommentSuccess) {
+  void addCommentToList(AddCommentSuccess addCommentSuccess) {
     List<Reply>? commentItemList = _pagingController.itemList;
     commentItemList ??= [];
     if (commentItemList.length >= 10) {
@@ -184,7 +185,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     rebuildPostWidget.value = !rebuildPostWidget.value;
   }
 
-  updateCommentInList(EditCommentSuccess editCommentSuccess) {
+  void updateCommentInList(EditCommentSuccess editCommentSuccess) {
     List<Reply>? commentItemList = _pagingController.itemList;
     commentItemList ??= [];
     int index = commentItemList.indexWhere((element) =>
@@ -208,7 +209,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     }
   }
 
-  removeCommentFromList(String commentId) {
+  void removeCommentFromList(String commentId) {
     List<Reply>? commentItemList = _pagingController.itemList;
     int index =
         commentItemList!.indexWhere((element) => element.id == commentId);
@@ -219,8 +220,19 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     }
   }
 
+  bool checkCommentRights() {
+    final MemberStateResponse memberStateResponse =
+        UserLocalPreference.instance.fetchMemberRights();
+    if (memberStateResponse.state == 1) {
+      return true;
+    }
+    bool memberRights = UserLocalPreference.instance.fetchMemberRight(10);
+    return memberRights;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final right = checkCommentRights();
     return WillPopScope(
       onWillPop: () {
         locator<NavigationService>().goBack(result: {'isBack': false});
@@ -350,7 +362,6 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                         isDown: false,
                         controller: _commentController,
                         onTagSelected: (tag) {
-                          print(tag);
                           userTags.add(tag);
                         },
                         onChange: (val) {
@@ -358,11 +369,11 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                           // setState(() {
                           result = val;
                           rebuildButton.value = !rebuildButton.value;
-                          print(result);
                           // });
                         },
                         decoration: InputDecoration(
                           border: InputBorder.none,
+                          enabled: right,
                           suffixIconConstraints: const BoxConstraints(
                             maxHeight: 50,
                             maxWidth: 50,
@@ -525,9 +536,11 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                                   },
                                             icon: Icon(
                                               Icons.send,
-                                              color: result!.isNotEmpty
-                                                  ? kPrimaryColor
-                                                  : kGreyColor,
+                                              color: right
+                                                  ? result!.isNotEmpty
+                                                      ? kPrimaryColor
+                                                      : kGreyColor
+                                                  : Colors.transparent,
                                             ),
                                           );
                                         });
@@ -535,7 +548,9 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                 ),
                           contentPadding: const EdgeInsets.symmetric(
                               vertical: 16, horizontal: 16),
-                          hintText: 'Write a comment',
+                          hintText: right
+                              ? 'Write a comment'
+                              : "You do not have permission to comment.",
                         ),
                       ),
                     ],
@@ -579,12 +594,12 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
               listener: (context, state) {
                 if (state is AllCommentsLoaded) {
                   _page++;
-                  if (state.postDetails.postReplies.replies.length < 10) {
+                  if (state.postDetails.postReplies!.replies.length < 10) {
                     _pagingController
-                        .appendLastPage(state.postDetails.postReplies.replies);
+                        .appendLastPage(state.postDetails.postReplies!.replies);
                   } else {
                     _pagingController.appendPage(
-                        state.postDetails.postReplies.replies, _page);
+                        state.postDetails.postReplies!.replies, _page);
                   }
                 }
               },
@@ -594,10 +609,10 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                     state is PaginatedAllCommentsLoading) {
                   late PostDetailResponse postDetailResponse;
                   if (state is AllCommentsLoaded) {
-                    print("AllCommentsLoaded" + state.toString());
+                    print("AllCommentsLoaded$state");
                     postDetailResponse = state.postDetails;
                   } else {
-                    print("PaginatedAllCommentsLoading" + state.toString());
+                    print("PaginatedAllCommentsLoading$state");
                     postDetailResponse =
                         (state as PaginatedAllCommentsLoading).prevPostDetails;
                   }
@@ -620,9 +635,9 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                       : PostWidget(
                                           postDetails: postData!,
                                           feedRoomId: widget.feedRoomId,
-                                          user: postDetailResponse.users[
+                                          user: postDetailResponse.users![
                                               postDetailResponse
-                                                  .postReplies.userId]!,
+                                                  .postReplies!.userId]!,
                                           isFeed: false,
                                           refresh: (bool isDeleted) async {
                                             if (isDeleted) {
@@ -660,8 +675,8 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                   noMoreItemsIndicatorBuilder: (context) =>
                                       const SizedBox(height: 75),
                                   noItemsFoundIndicatorBuilder: (context) =>
-                                      Column(
-                                    children: const <Widget>[
+                                      const Column(
+                                    children: <Widget>[
                                       SizedBox(height: 42),
                                       Text(
                                         'No comment found',
@@ -684,8 +699,9 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                       key: ValueKey(item.id),
                                       reply: item,
                                       user: postDetailResponse
-                                          .users[item.userId]!,
-                                      postId: postDetailResponse.postReplies.id,
+                                          .users![item.userId]!,
+                                      postId:
+                                          postDetailResponse.postReplies!.id,
                                       onReply: selectCommentToReply,
                                       refresh: () {
                                         _pagingController.refresh();

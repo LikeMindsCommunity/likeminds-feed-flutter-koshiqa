@@ -36,14 +36,15 @@ class AllCommentsBloc extends Bloc<AllCommentsEvent, AllCommentsState> {
       emit(AllCommentsLoading());
     }
 
-    PostDetailResponse? response = await locator<LikeMindsService>().getFeedApi().getPost(postDetailRequest);
-    if (response == null) {
-      emit(AllCommentsError(message: "No data found"));
+    PostDetailResponse response =
+        await locator<LikeMindsService>().getPostDetails(postDetailRequest);
+    if (!response.success) {
+      emit(const AllCommentsError(message: "No data found"));
     } else {
-      response.users.addAll(users);
+      response.users!.addAll(users!);
       emit(AllCommentsLoaded(
           postDetails: response,
-          hasReachedMax: response.postReplies.replies.isEmpty));
+          hasReachedMax: response.postReplies!.replies.isEmpty));
     }
   }
 }
