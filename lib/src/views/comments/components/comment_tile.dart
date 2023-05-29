@@ -62,6 +62,15 @@ class _CommentTileState extends State<CommentTile>
     _commentRepliesBloc = CommentRepliesBloc();
   }
 
+  @override
+  void dispose() {
+    _toggleLikeCommentBloc.close();
+    _commentRepliesBloc.close();
+    rebuildLikeButton.dispose();
+    rebuildReplyList.dispose();
+    super.dispose();
+  }
+
   void initialiseReply() {
     reply = widget.reply;
     isLiked = reply!.isLiked;

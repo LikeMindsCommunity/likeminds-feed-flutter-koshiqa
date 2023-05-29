@@ -35,6 +35,12 @@ class _PostActionsState extends State<PostActions> {
   late Function(bool) refresh;
   ValueNotifier<bool> rebuildLikeWidget = ValueNotifier(false);
 
+  @override
+  void dispose() {
+    rebuildLikeWidget.dispose();
+    super.dispose();
+  }
+
   void setPostDetails() {
     postDetails = widget.postDetails;
     postLikes = postDetails!.likeCount;

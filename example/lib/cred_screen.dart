@@ -48,6 +48,13 @@ class _CredScreenState extends State<CredScreen> {
   }
 
   @override
+  void dispose() {
+    _usernameController.dispose();
+    _userIdController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 6, 92, 193),

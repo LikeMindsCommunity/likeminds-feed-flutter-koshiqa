@@ -55,6 +55,14 @@ class _EditPostScreenState extends State<EditPostScreen> {
   Timer? _debounce;
   Size? screenSize;
 
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    textEditingController?.dispose();
+    rebuildAttachments.dispose();
+    super.dispose();
+  }
+
   void _onTextChanged(String p0) {
     if (_debounce?.isActive ?? false) {
       _debounce?.cancel();

@@ -57,6 +57,20 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
   String? selectedReplyId;
 
   @override
+  void dispose() {
+    _allCommentsBloc.close();
+    _addCommentBloc.close();
+    _addCommentReplyBloc.close();
+    _pagingController.dispose();
+    _commentController?.dispose();
+    focusNode.dispose();
+    rebuildButton.dispose();
+    rebuildPostWidget.dispose();
+    rebuildReplyWidget.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     updatePostDetails(context);

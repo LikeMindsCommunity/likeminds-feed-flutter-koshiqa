@@ -33,6 +33,8 @@ class _PostVideoState extends State<PostVideo> {
   void dispose() {
     _timer?.cancel();
     videoPlayerController.dispose();
+    rebuildOverlay.dispose();
+    chewieController.dispose();
     super.dispose();
   }
 

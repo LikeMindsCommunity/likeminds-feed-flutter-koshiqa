@@ -39,6 +39,12 @@ class _PostMediaState extends State<PostMedia> {
   List<Widget> mediaWidgets = [];
   // Current index of carousel
 
+  @override
+  void dispose() {
+    rebuildCurr.dispose();
+    super.dispose();
+  }
+
   bool checkIfMultipleAttachments() {
     return ((widget.attachments != null && widget.attachments!.length > 1) ||
         (widget.mediaFiles != null && widget.mediaFiles!.length > 1));
