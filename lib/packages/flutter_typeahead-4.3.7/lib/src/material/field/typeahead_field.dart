@@ -519,6 +519,8 @@ class TypeAheadField<T> extends StatefulWidget {
   /// Defaults to false
   final bool hideKeyboardOnDrag;
 
+  final Color? tagColor;
+
   // Adds a callback for the suggestion box opening or closing
   final void Function(bool)? onSuggestionsBoxToggle;
 
@@ -530,6 +532,7 @@ class TypeAheadField<T> extends StatefulWidget {
     required this.itemBuilder,
     required this.onSuggestionSelected,
     this.onTagTap,
+    this.tagColor,
     this.textFieldConfiguration = const TextFieldConfiguration(),
     this.suggestionsBoxDecoration = const SuggestionsBoxDecoration(),
     this.debounceDuration = const Duration(milliseconds: 300),
@@ -853,13 +856,14 @@ class _TypeAheadFieldState<T> extends State<TypeAheadField<T>>
       child: ExtendedTextField(
         specialTextSpanBuilder: MySpecialTextSpanBuilder(
           onTagTap: widget.onTagTap ?? null,
+          tagColor: widget.tagColor,
         ),
         focusNode: this._effectiveFocusNode,
         controller: this._effectiveController,
         decoration: widget.textFieldConfiguration.decoration,
         style: widget.textFieldConfiguration.style,
         textAlign: widget.textFieldConfiguration.textAlign,
-        enabled: widget.textFieldConfiguration.decoration.enabled,
+        enabled: widget.textFieldConfiguration.enabled,
         keyboardType: widget.textFieldConfiguration.keyboardType,
         autofocus: widget.textFieldConfiguration.autofocus,
         inputFormatters: widget.textFieldConfiguration.inputFormatters,
@@ -894,8 +898,10 @@ class _TypeAheadFieldState<T> extends State<TypeAheadField<T>>
 
 class AtText extends SpecialText {
   static const String flag = "@";
+  @override
   final SpecialTextGestureTapCallback? onTap;
   final int start;
+  final Color? tagColor;
 
   /// whether show background for @somebody
   final bool showAtBackground;
@@ -903,6 +909,7 @@ class AtText extends SpecialText {
   AtText(
     TextStyle textStyle, {
     this.showAtBackground = false,
+    this.tagColor,
     required this.start,
     this.onTap,
   }) : super(
@@ -914,8 +921,7 @@ class AtText extends SpecialText {
   @override
   InlineSpan finishText() {
     TextStyle textStyle = this.textStyle!.copyWith(
-          color: Colors.blue,
-          fontSize: 16.0,
+          color: tagColor ?? Colors.blue,
         );
 
     final String atText = toString();
@@ -953,10 +959,12 @@ class MySpecialTextSpanBuilder extends SpecialTextSpanBuilder {
   MySpecialTextSpanBuilder({
     this.showAtBackground = false,
     this.onTagTap,
+    this.tagColor,
   });
 
   /// whether show background for @somebody
   final bool showAtBackground;
+  final Color? tagColor;
   final void Function(dynamic)? onTagTap;
 
   @override
@@ -975,6 +983,7 @@ class MySpecialTextSpanBuilder extends SpecialTextSpanBuilder {
         onTap: onTap ?? onTagTap ?? null,
         start: index! - (AtText.flag.length),
         showAtBackground: showAtBackground,
+        tagColor: tagColor,
       );
     }
     return null;
