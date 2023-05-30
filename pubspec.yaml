@@ -4,7 +4,7 @@ version: 1.2.1
 publish_to: none
 
 environment:
-  sdk: '>=3.0.0 <=3.10.0'
+  sdk: '>=3.0.0 <4.0.0'
   flutter: ">=3.7.0"
 
 dependencies:
@@ -46,6 +46,10 @@ dependencies:
   simple_s3: ^0.3.2
   shared_preferences: ^2.1.0
   visibility_detector: ^0.4.0+2
+  flutter_typeahead: 
+    path: lib/packages/flutter_typeahead-4.3.7
+  multi_image_crop:
+    path: lib/packages/multi_image_crop
 
   likeminds_feed: 1.2.1
   #  path: ../LikeMinds-Flutter-Feed-SDK

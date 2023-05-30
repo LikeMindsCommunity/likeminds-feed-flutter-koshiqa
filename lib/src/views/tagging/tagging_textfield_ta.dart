@@ -1,9 +1,6 @@
 import 'dart:async';
 import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/packages/flutter_typeahead-4.3.7/lib/src/material/field/text_field_configuration.dart';
-import 'package:feed_sx/packages/flutter_typeahead-4.3.7/lib/src/material/field/typeahead_field.dart';
-import 'package:feed_sx/packages/flutter_typeahead-4.3.7/lib/src/material/suggestions_box/suggestions_box_controller.dart';
-import 'package:feed_sx/packages/flutter_typeahead-4.3.7/lib/src/material/suggestions_box/suggestions_box_decoration.dart';
+import 'package:feed_sx/packages/flutter_typeahead-4.3.7/lib/flutter_typeahead.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/widgets/profile_picture.dart';

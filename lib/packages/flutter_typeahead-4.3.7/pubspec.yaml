@@ -5,10 +5,6 @@ publish_to: none
 description: A highly customizable typeahead (autocomplete) text input field for Flutter
 homepage: https://github.com/AbdulRahmanAlHamali/flutter_typeahead
 
-environment:
-  sdk: '>=3.0.0 <=3.10.0'
-  flutter: ">=3.7.0"
-
 dependencies:
   flutter:
     sdk: flutter
@@ -18,7 +14,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+environment:
+  sdk: '>=2.19.0 <3.0.0'
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
