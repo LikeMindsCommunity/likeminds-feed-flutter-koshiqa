@@ -41,22 +41,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.17.1"
-  extended_text_field:
-    dependency: "direct main"
-    description:
-      name: extended_text_field
-      sha256: "0dc6240580fe047063d1f168182af54f0d69ad8e8bb2ea81bdf0a66d480a8e8f"
-      url: "https://pub.dev"
-    source: hosted
-    version: "11.0.0"
-  extended_text_library:
-    dependency: transitive
-    description:
-      name: extended_text_library
-      sha256: "3538b6ab1c177071b7897bc059d666ba289a042d2142e9f647b7ccbc3e65496b"
-      url: "https://pub.dev"
-    source: hosted
-    version: "9.1.1"
   fake_async:
     dependency: transitive
     description:
@@ -70,64 +54,26 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_keyboard_visibility:
-    dependency: "direct main"
+  flutter_lints:
+    dependency: "direct dev"
     description:
-      name: flutter_keyboard_visibility
-      sha256: "86b71bbaffa38e885f5c21b1182408b9be6951fd125432cf6652c636254cef2d"
+      name: flutter_lints
+      sha256: b543301ad291598523947dc534aaddc5aaad597b709d2426d3a0e0d44c5cb493
       url: "https://pub.dev"
     source: hosted
-    version: "5.4.0"
-  flutter_keyboard_visibility_linux:
-    dependency: transitive
-    description:
-      name: flutter_keyboard_visibility_linux
-      sha256: "6fba7cd9bb033b6ddd8c2beb4c99ad02d728f1e6e6d9b9446667398b2ac39f08"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
-  flutter_keyboard_visibility_macos:
-    dependency: transitive
-    description:
-      name: flutter_keyboard_visibility_macos
-      sha256: c5c49b16fff453dfdafdc16f26bdd8fb8d55812a1d50b0ce25fc8d9f2e53d086
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
-  flutter_keyboard_visibility_platform_interface:
-    dependency: transitive
-    description:
-      name: flutter_keyboard_visibility_platform_interface
-      sha256: e43a89845873f7be10cb3884345ceb9aebf00a659f479d1c8f4293fcb37022a4
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.0"
-  flutter_keyboard_visibility_web:
-    dependency: transitive
-    description:
-      name: flutter_keyboard_visibility_web
-      sha256: d3771a2e752880c79203f8d80658401d0c998e4183edca05a149f5098ce6e3d1
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.0"
-  flutter_keyboard_visibility_windows:
-    dependency: transitive
-    description:
-      name: flutter_keyboard_visibility_windows
-      sha256: fc4b0f0b6be9b93ae527f3d527fb56ee2d918cd88bbca438c478af7bcfd0ef73
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
+    version: "1.0.4"
   flutter_test:
     dependency: "direct dev"
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_web_plugins:
-    dependency: transitive
-    description: flutter
-    source: sdk
-    version: "0.0.0"
+  image_crop:
+    dependency: "direct main"
+    description:
+      path: "packages/image_crop_0.4.1"
+      relative: true
+    source: path
+    version: "0.4.1"
   js:
     dependency: transitive
     description:
@@ -136,6 +82,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.7"
+  lints:
+    dependency: transitive
+    description:
+      name: lints
+      sha256: a2c3d198cb5ea2e179926622d433331d8b58374ab8f29cdda6e863bd62fd369c
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
   matcher:
     dependency: transitive
     description:
@@ -168,14 +122,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.8.3"
-  plugin_platform_interface:
-    dependency: transitive
+  preload_page_view:
+    dependency: "direct main"
     description:
-      name: plugin_platform_interface
-      sha256: "6a2128648c854906c53fa8e33986fc0247a1116122f9534dd20e3ab9e16a32bc"
+      name: preload_page_view
+      sha256: "488a10c158c5c2e9ba9d77e5dbc09b1e49e37a20df2301e5ba02992eac802b7a"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.4"
+    version: "0.2.0"
+  scroll_to_index:
+    dependency: "direct main"
+    description:
+      name: scroll_to_index
+      sha256: "5df1597b5bfa1703c02962a7478a187a8c9dedaeb871aedbf7874ee0d58a0bba"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.1"
   sky_engine:
     dependency: transitive
     description: flutter
