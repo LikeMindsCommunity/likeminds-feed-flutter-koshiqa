@@ -45,18 +45,18 @@ packages:
     dependency: "direct main"
     description:
       name: extended_text_field
-      sha256: "6c266c9c1436ec4be2c827ecde9037290710d6ac6269ea57095d2675ca74fafe"
+      sha256: "0dc6240580fe047063d1f168182af54f0d69ad8e8bb2ea81bdf0a66d480a8e8f"
       url: "https://pub.dev"
     source: hosted
-    version: "12.0.0-dev.2"
+    version: "11.0.0"
   extended_text_library:
     dependency: transitive
     description:
       name: extended_text_library
-      sha256: b5563a564bc6504ae6152a56133fb18dbcacc98d4907992f2713886620d2c26b
+      sha256: "3538b6ab1c177071b7897bc059d666ba289a042d2142e9f647b7ccbc3e65496b"
       url: "https://pub.dev"
     source: hosted
-    version: "11.0.0-dev.1"
+    version: "9.1.1"
   fake_async:
     dependency: transitive
     description:
@@ -238,5 +238,5 @@ packages:
     source: hosted
     version: "2.1.4"
 sdks:
-  dart: ">=3.0.0 <=3.10.0"
-  flutter: ">=3.10.0"
+  dart: ">=3.0.0-0 <4.0.0"
+  flutter: ">=3.7.0"

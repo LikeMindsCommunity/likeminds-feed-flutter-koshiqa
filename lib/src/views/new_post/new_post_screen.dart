@@ -28,7 +28,7 @@ import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:image_picker/image_picker.dart';
-import 'package:multi_image_crop/multi_image_crop.dart';
+import '../../../packages/multi_image_crop/lib/multi_image_crop.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:video_player/video_player.dart';
