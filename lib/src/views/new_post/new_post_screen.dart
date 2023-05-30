@@ -855,7 +855,7 @@ class AddAssetsButton extends StatelessWidget {
                 mediaType: MediaType.video,
                 mediaFile: video,
                 duration: videoDuration.inSeconds);
-
+            controller.dispose();
             videoFiles.add(videoFile);
           }
         }

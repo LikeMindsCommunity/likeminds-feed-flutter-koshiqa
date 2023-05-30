@@ -21,9 +21,9 @@ class PostVideo extends StatefulWidget {
 }
 
 class _PostVideoState extends State<PostVideo> {
-  late final VideoPlayerController videoPlayerController;
+  VideoPlayerController? videoPlayerController;
   ValueNotifier<bool> rebuildOverlay = ValueNotifier(false);
-  late ChewieController chewieController;
+  ChewieController? chewieController;
   bool _onTouch = true;
   bool initialiseOverlay = false;
 
@@ -32,9 +32,9 @@ class _PostVideoState extends State<PostVideo> {
   @override
   void dispose() {
     _timer?.cancel();
-    videoPlayerController.dispose();
+    videoPlayerController?.dispose();
     rebuildOverlay.dispose();
-    chewieController.dispose();
+    chewieController?.dispose();
     super.dispose();
   }
 
@@ -45,22 +45,23 @@ class _PostVideoState extends State<PostVideo> {
 
   Future<void> initialiseControllers() async {
     if (widget.url != null) {
-      videoPlayerController = VideoPlayerController.network(
+      videoPlayerController ??= VideoPlayerController.network(
         widget.url!,
         videoPlayerOptions: VideoPlayerOptions(
           allowBackgroundPlayback: false,
         ),
       );
     } else {
-      videoPlayerController = VideoPlayerController.file(
+      videoPlayerController ??= VideoPlayerController.file(
         widget.videoFile!,
         videoPlayerOptions: VideoPlayerOptions(
           allowBackgroundPlayback: false,
         ),
       );
     }
-    chewieController = ChewieController(
-      videoPlayerController: videoPlayerController,
+
+    chewieController ??= ChewieController(
+      videoPlayerController: videoPlayerController!,
       autoPlay: false,
       looping: false,
       showOptions: false,
@@ -71,8 +72,9 @@ class _PostVideoState extends State<PostVideo> {
       autoInitialize: false,
       showControlsOnInitialize: false,
     );
-    if (!videoPlayerController.value.isInitialized) {
-      await videoPlayerController.initialize();
+
+    if (!videoPlayerController!.value.isInitialized) {
+      await videoPlayerController?.initialize();
     }
   }
 
@@ -93,22 +95,30 @@ class _PostVideoState extends State<PostVideo> {
             });
           }
           return Stack(children: [
-            GestureDetector(
-              onTap: () {
-                _onTouch = !_onTouch;
-                rebuildOverlay.value = !rebuildOverlay.value;
+            VisibilityDetector(
+              key: Key('post_video_${widget.url ?? widget.videoFile}'),
+              onVisibilityChanged: (visibilityInfo) async {
+                var visiblePercentage = visibilityInfo.visibleFraction * 100;
+                if (visiblePercentage <= 50) {
+                  if (videoPlayerController != null &&
+                      videoPlayerController!.value.isInitialized) {
+                    videoPlayerController?.pause();
+                    videoPlayerController?.dispose();
+                  }
+                }
+                if (visiblePercentage > 50) {
+                  if (videoPlayerController != null &&
+                      !videoPlayerController!.value.isInitialized) {
+                    await initialiseControllers();
+                  }
+                  videoPlayerController?.play();
+                  rebuildOverlay.value = !rebuildOverlay.value;
+                }
               },
-              child: VisibilityDetector(
-                key: Key('post_video_${widget.url ?? widget.videoFile}'),
-                onVisibilityChanged: (visibilityInfo) async {
-                  var visiblePercentage = visibilityInfo.visibleFraction * 100;
-                  if (visiblePercentage <= 50) {
-                    videoPlayerController.pause();
-                  }
-                  if (visiblePercentage > 50) {
-                    videoPlayerController.play();
-                    rebuildOverlay.value = !rebuildOverlay.value;
-                  }
+              child: GestureDetector(
+                onTap: () {
+                  _onTouch = !_onTouch;
+                  rebuildOverlay.value = !rebuildOverlay.value;
                 },
                 child: Container(
                   width: screenSize.width,
@@ -116,7 +126,7 @@ class _PostVideoState extends State<PostVideo> {
                   color: kWhiteColor,
                   alignment: Alignment.center,
                   child: Chewie(
-                    controller: chewieController,
+                    controller: chewieController!,
                   ),
                 ),
               ),
@@ -139,20 +149,23 @@ class _PostVideoState extends State<PostVideo> {
                                 side: BorderSide(color: Colors.white))),
                           ),
                           child: Icon(
-                            videoPlayerController.value.isPlaying
+                            videoPlayerController!.value.isPlaying
                                 ? Icons.pause
                                 : Icons.play_arrow,
                             size: 30,
                             color: Colors.white,
                           ),
-                          onPressed: () {
+                          onPressed: () async {
                             _timer?.cancel();
 
                             // pause while video is playing, play while video is pausing
+                            if (!videoPlayerController!.value.isInitialized) {
+                              await videoPlayerController!.initialize();
+                            }
 
-                            videoPlayerController.value.isPlaying
-                                ? videoPlayerController.pause()
-                                : videoPlayerController.play();
+                            videoPlayerController!.value.isPlaying
+                                ? videoPlayerController!.pause()
+                                : videoPlayerController!.play();
                             rebuildOverlay.value = !rebuildOverlay.value;
 
                             // Auto dismiss overlay after 1 second
