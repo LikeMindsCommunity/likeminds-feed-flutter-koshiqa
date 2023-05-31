@@ -1,5 +1,7 @@
 import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
+import 'package:feed_sx/src/views/notification/notification_screen.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:feed_sx/src/navigation/arguments.dart';
@@ -130,6 +132,20 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                 },
               )
             : null,
+        actions: [
+          GestureDetector(
+              onTap: () {
+                locator<NavigationService>().navigateTo(
+                  NotificationScreen.route,
+                );
+              },
+              child: const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Icon(
+                  CupertinoIcons.bell,
+                ),
+              ))
+        ],
         title: ValueListenableBuilder(
             valueListenable: _rebuildAppBar,
             builder: (context, _, __) {
