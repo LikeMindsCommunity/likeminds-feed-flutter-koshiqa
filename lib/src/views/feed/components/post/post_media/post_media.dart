@@ -9,7 +9,6 @@ import 'package:feed_sx/src/views/feed/components/post/post_media/post_video.dar
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 
 class PostMedia extends StatefulWidget {
   final String postId;
@@ -34,7 +33,6 @@ class PostMedia extends StatefulWidget {
 class _PostMediaState extends State<PostMedia> {
   Size? screenSize;
   int currPosition = 0;
-  CarouselController controller = CarouselController();
   ValueNotifier<bool> rebuildCurr = ValueNotifier<bool>(false);
   List<Widget> mediaWidgets = [];
   // Current index of carousel
@@ -254,21 +252,25 @@ class _PostMediaState extends State<PostMedia> {
           SizedBox(
             width: widget.height ?? screenSize!.width,
             height: widget.height ?? screenSize!.width,
-            child: CarouselSlider.builder(
+            child: PageView.builder(
               itemCount: mediaWidgets.length,
-              itemBuilder: (context, index, index2) => mediaWidgets[index],
-              options: CarouselOptions(
-                  aspectRatio: 1.0,
-                  initialPage: 0,
-                  disableCenter: true,
-                  scrollDirection: Axis.horizontal,
-                  enableInfiniteScroll: false,
-                  enlargeFactor: 0.0,
-                  viewportFraction: 1.0,
-                  onPageChanged: (index, reason) {
-                    currPosition = index;
-                    rebuildCurr.value = !rebuildCurr.value;
-                  }),
+              itemBuilder: (context, index) => mediaWidgets[index],
+              onPageChanged: (index) {
+                currPosition = index;
+                rebuildCurr.value = !rebuildCurr.value;
+              },
+              // options: CarouselOptions(
+              //     aspectRatio: 1.0,
+              //     initialPage: 0,
+              //     disableCenter: true,
+              //     scrollDirection: Axis.horizontal,
+              //     enableInfiniteScroll: false,
+              //     enlargeFactor: 0.0,
+              //     viewportFraction: 1.0,
+              //     onPageChanged: (index, reason) {
+              //       currPosition = index;
+              //       rebuildCurr.value = !rebuildCurr.value;
+              //     }),
             ),
           ),
           ValueListenableBuilder(

@@ -32,9 +32,11 @@ class _PostVideoState extends State<PostVideo> {
   @override
   void dispose() {
     _timer?.cancel();
-    videoPlayerController?.dispose();
     rebuildOverlay.dispose();
-    chewieController?.dispose();
+    if (chewieController != null &&
+        chewieController!.videoPlayerController.value.isInitialized) {
+      chewieController?.dispose();
+    }
     super.dispose();
   }
 
@@ -107,10 +109,8 @@ class _PostVideoState extends State<PostVideo> {
                   }
                 }
                 if (visiblePercentage > 50) {
-                  if (videoPlayerController != null &&
-                      !videoPlayerController!.value.isInitialized) {
-                    await initialiseControllers();
-                  }
+                  await initialiseControllers();
+
                   videoPlayerController?.play();
                   rebuildOverlay.value = !rebuildOverlay.value;
                 }
@@ -159,9 +159,8 @@ class _PostVideoState extends State<PostVideo> {
                             _timer?.cancel();
 
                             // pause while video is playing, play while video is pausing
-                            if (!videoPlayerController!.value.isInitialized) {
-                              await videoPlayerController!.initialize();
-                            }
+
+                            await videoPlayerController!.initialize();
 
                             videoPlayerController!.value.isPlaying
                                 ? videoPlayerController!.pause()
