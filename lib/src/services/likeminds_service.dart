@@ -19,6 +19,7 @@ abstract class ILikeMindsService {
       GetFeedOfFeedRoomRequest request);
   Future<GetNotificationFeedResponse> getNotificationFeed(
       GetNotificationFeedRequest request);
+  Future<GetUnreadNotificationCountResponse> getUnreadNotificationCount();
   Future<AddPostResponse> addPost(AddPostRequest request);
   Future<GetPostResponse> getPost(GetPostRequest request);
   Future<PostDetailResponse> getPostDetails(PostDetailRequest request);
@@ -44,6 +45,8 @@ abstract class ILikeMindsService {
   Future<GetTaggingListResponse> getTaggingList(
       {required GetTaggingListRequest request});
   Future<DecodeUrlResponse> decodeUrl(DecodeUrlRequest request);
+  Future<MarkReadNotificationResponse> markReadNotification(
+      MarkReadNotificationRequest request);
   Future<GetDeleteReasonResponse> getReportTags(GetDeleteReasonRequest request);
   void routeToProfile(String userId);
 }
@@ -196,6 +199,18 @@ class LikeMindsService implements ILikeMindsService {
   Future<GetNotificationFeedResponse> getNotificationFeed(
       GetNotificationFeedRequest request) async {
     return await _sdkApplication.getNotificationFeed(request);
+  }
+
+  @override
+  Future<GetUnreadNotificationCountResponse>
+      getUnreadNotificationCount() async {
+    return await _sdkApplication.getUnreadNotificationCount();
+  }
+
+  @override
+  Future<MarkReadNotificationResponse> markReadNotification(
+      MarkReadNotificationRequest request) {
+    return _sdkApplication.markReadNotification(request);
   }
 
   @override

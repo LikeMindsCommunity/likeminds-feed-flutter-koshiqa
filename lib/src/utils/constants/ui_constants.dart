@@ -13,6 +13,7 @@ const Color kBlueGreyColor = Color(0xff484F67);
 const Color kLinkColor = Color(0xff007AFF);
 const Color kHeadingColor = Color(0xff333149);
 const Color kBorderColor = Color.fromRGBO(208, 216, 226, 0.5);
+const Color notificationRedColor = Color.fromRGBO(208, 216, 226, 0.4);
 
 const double kFontSmall = 12;
 const double kButtonFontSize = 12;
