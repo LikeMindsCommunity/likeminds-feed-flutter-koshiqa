@@ -25,6 +25,7 @@ abstract class ILikeMindsService {
   Future<PostDetailResponse> getPostDetails(PostDetailRequest request);
   Future<GetPostLikesResponse> getPostLikes(GetPostLikesRequest request);
   Future<PinPostResponse> pinPost(PinPostRequest request);
+  Future<SavePostResponse> savePost(SavePostRequest request);
   Future<EditPostResponse> editPost(EditPostRequest request);
   Future<GetCommentLikesResponse> getCommentLikes(
       GetCommentLikesRequest request);
@@ -125,6 +126,11 @@ class LikeMindsService implements ILikeMindsService {
   @override
   Future<PinPostResponse> pinPost(PinPostRequest pinPostRequest) async {
     return await _sdkApplication.pinPost(pinPostRequest);
+  }
+
+  @override
+  Future<SavePostResponse> savePost(SavePostRequest savePostRequest) async {
+    return await _sdkApplication.savePost(savePostRequest);
   }
 
   @override

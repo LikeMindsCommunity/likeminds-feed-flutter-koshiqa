@@ -69,12 +69,11 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
 
   // This function fetches the unread notification count
   // and updates the respective future
-  void updateUnreadNotificationCount() {
+  void updateUnreadNotificationCount() async {
     getUnreadNotificationCount =
-        locator<LikeMindsService>().getUnreadNotificationCount().then((value) {
-      _rebuildAppBar.value = !_rebuildAppBar.value;
-      return value;
-    });
+        locator<LikeMindsService>().getUnreadNotificationCount();
+    await getUnreadNotificationCount;
+    _rebuildAppBar.value = !_rebuildAppBar.value;
   }
 
   @override
@@ -157,45 +156,53 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                 NotificationScreen.route,
               );
             },
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: FutureBuilder<GetUnreadNotificationCountResponse>(
-                future: getUnreadNotificationCount,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done &&
-                      snapshot.hasData &&
-                      snapshot.data!.success) {
-                    return Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        const Icon(
-                          CupertinoIcons.bell,
-                        ),
-                        Positioned(
-                          top: -10,
-                          right: -2.5,
-                          child: Container(
-                            padding: const EdgeInsets.all(4.0),
-                            decoration: const BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
+            child: ValueListenableBuilder(
+              valueListenable: _rebuildAppBar,
+              builder: (context, _, __) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 8.0, horizontal: 12.0),
+                  child: FutureBuilder<GetUnreadNotificationCountResponse>(
+                    future: getUnreadNotificationCount,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done &&
+                          snapshot.hasData &&
+                          snapshot.data!.success) {
+                        return Stack(
+                          alignment: Alignment.center,
+                          clipBehavior: Clip.none,
+                          children: [
+                            const Icon(
+                              CupertinoIcons.bell,
                             ),
-                            child: Text(snapshot.data!.count.toString()),
+                            Positioned(
+                              top: -5,
+                              right: -5,
+                              child: Container(
+                                padding: const EdgeInsets.all(4.0),
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Text(snapshot.data!.count.toString()),
+                              ),
+                            )
+                          ],
+                        );
+                      }
+                      return const Stack(
+                        alignment: Alignment.center,
+                        clipBehavior: Clip.none,
+                        children: [
+                          Icon(
+                            CupertinoIcons.bell,
                           ),
-                        )
-                      ],
-                    );
-                  }
-                  return const Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Icon(
-                        CupertinoIcons.bell,
-                      ),
-                    ],
-                  );
-                },
-              ),
+                        ],
+                      );
+                    },
+                  ),
+                );
+              },
             ),
           )
         ],
