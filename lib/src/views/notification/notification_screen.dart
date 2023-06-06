@@ -56,7 +56,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   void updatePagingControllers(Object? state) {
     if (state is NotificationsLoaded) {
-      _page++;
+      _page += 1;
       if (state.response.items!.length < 10) {
         pagingController.appendLastPage(state.response.items!);
       } else {

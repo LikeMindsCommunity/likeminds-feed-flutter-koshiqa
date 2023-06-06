@@ -70,6 +70,7 @@ flutter:
     - packages/feed_sx/assets/icons/like.svg
     - packages/feed_sx/assets/icons/comment.svg
     - packages/feed_sx/assets/icons/bookmark.svg
+    - packages/feed_sx/assets/icons/bookmark_filled.svg
     - packages/feed_sx/assets/icons/share.svg
     - packages/feed_sx/assets/icons/doc_pdf.svg
     - packages/feed_sx/assets/icons/cross.svg
