@@ -14,8 +14,8 @@ class NotificationsLoading extends NotificationsState {}
 class NotificationsPaginationLoading extends NotificationsState {}
 
 class NotificationsLoaded extends NotificationsState {
-  final List<dynamic> response;
-  //final GetNotificationFeedRequest response;
+  final GetNotificationFeedResponse response;
+
   const NotificationsLoaded({required this.response});
 
   @override
