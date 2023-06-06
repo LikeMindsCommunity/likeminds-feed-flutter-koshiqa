@@ -41,10 +41,13 @@ class FeedRoomScreen extends StatefulWidget {
 }
 
 class _FeedRoomScreenState extends State<FeedRoomScreen> {
-  late final FeedRoomBloc _feedBloc;
-  String? title;
-  bool? isCm;
+  late final FeedRoomBloc _feedBloc; // bloc to fetch the feedroom data
+  String? title; // feedroom title
+  bool? isCm; // whether the logged in user is a community manager or not
+  // future to get the unread notification count
+  late Future<GetUnreadNotificationCountResponse> getUnreadNotificationCount;
 
+  // used to rebuild the appbar
   final ValueNotifier _rebuildAppBar = ValueNotifier(false);
 
   // to control paging on FeedRoom View
@@ -61,6 +64,17 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     _feedBloc.add(
       GetFeedRoom(feedRoomId: widget.feedRoomId, offset: 1),
     );
+    updateUnreadNotificationCount();
+  }
+
+  // This function fetches the unread notification count
+  // and updates the respective future
+  void updateUnreadNotificationCount() {
+    getUnreadNotificationCount =
+        locator<LikeMindsService>().getUnreadNotificationCount().then((value) {
+      _rebuildAppBar.value = !_rebuildAppBar.value;
+      return value;
+    });
   }
 
   @override
@@ -87,6 +101,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
 
   int _pageFeedRoom = 1; // current index of FeedRoom
 
+  // This function updates the paging controller based on the state changes
   void updatePagingControllers(Object? state) {
     if (state is FeedRoomLoaded) {
       _pageFeedRoom++;
@@ -102,6 +117,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     }
   }
 
+  // This functions updates the feedroom title
   void setTitleWidget(String feedRoomTitle) {
     if (title == null) {
       title = feedRoomTitle;
@@ -109,6 +125,8 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     }
   }
 
+  // This function clears the paging controller
+  // whenever user uses pull to refresh on feedroom screen
   void clearPagingController() {
     /* Clearing paging controller while changing the
      event to prevent duplication of list */
@@ -132,17 +150,52 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
             : null,
         actions: [
           GestureDetector(
-              onTap: () {
-                locator<NavigationService>().navigateTo(
-                  NotificationScreen.route,
-                );
-              },
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Icon(
-                  CupertinoIcons.bell,
-                ),
-              ))
+            onTap: () {
+              locator<NavigationService>().navigateTo(
+                NotificationScreen.route,
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: FutureBuilder<GetUnreadNotificationCountResponse>(
+                future: getUnreadNotificationCount,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done &&
+                      snapshot.hasData &&
+                      snapshot.data!.success) {
+                    return Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        const Icon(
+                          CupertinoIcons.bell,
+                        ),
+                        Positioned(
+                          top: -10,
+                          right: -2.5,
+                          child: Container(
+                            padding: const EdgeInsets.all(4.0),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(snapshot.data!.count.toString()),
+                          ),
+                        )
+                      ],
+                    );
+                  }
+                  return const Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Icon(
+                        CupertinoIcons.bell,
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          )
         ],
         title: ValueListenableBuilder(
             valueListenable: _rebuildAppBar,
@@ -154,6 +207,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
       body: RefreshIndicator(
         onRefresh: () async {
           _feedBloc.add(GetFeedRoom(feedRoomId: widget.feedRoomId, offset: 1));
+          updateUnreadNotificationCount(); // funtion to update the unread notification count
           clearPagingController();
         },
         child: BlocConsumer(
