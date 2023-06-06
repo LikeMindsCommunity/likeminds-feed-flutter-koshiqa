@@ -17,6 +17,8 @@ abstract class ILikeMindsService {
   Future<GetFeedRoomResponse> getFeedRoom(GetFeedRoomRequest request);
   Future<GetFeedOfFeedRoomResponse> getFeedOfFeedRoom(
       GetFeedOfFeedRoomRequest request);
+  Future<GetNotificationFeedResponse> getNotificationFeed(
+      GetNotificationFeedRequest request);
   Future<AddPostResponse> addPost(AddPostRequest request);
   Future<GetPostResponse> getPost(GetPostRequest request);
   Future<PostDetailResponse> getPostDetails(PostDetailRequest request);
@@ -188,6 +190,12 @@ class LikeMindsService implements ILikeMindsService {
   @override
   Future<GetFeedRoomResponse> getFeedRoom(GetFeedRoomRequest request) async {
     return await _sdkApplication.getFeedRoom(request);
+  }
+
+  @override
+  Future<GetNotificationFeedResponse> getNotificationFeed(
+      GetNotificationFeedRequest request) async {
+    return await _sdkApplication.getNotificationFeed(request);
   }
 
   @override

@@ -7,6 +7,7 @@ import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:likeminds_feed/likeminds_feed.dart';
 
 class NotificationScreen extends StatefulWidget {
   static const String route = "/notification_screen";
@@ -17,8 +18,8 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
-  PagingController<int, dynamic> pagingController =
-      PagingController<int, dynamic>(
+  PagingController<int, NotificationFeedItem> pagingController =
+      PagingController<int, NotificationFeedItem>(
     firstPageKey: 1,
   );
   NotificationsBloc? _notificationsBloc;
@@ -56,10 +57,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
   void updatePagingControllers(Object? state) {
     if (state is NotificationsLoaded) {
       _page++;
-      if (state.response.length < 10) {
-        pagingController.appendLastPage(state.response);
+      if (state.response.items!.length < 10) {
+        pagingController.appendLastPage(state.response.items!);
       } else {
-        pagingController.appendPage(state.response, _page);
+        pagingController.appendPage(state.response.items!, _page);
       }
     }
   }
@@ -137,7 +138,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       Text(
                         "No notifications to show",
                         style: TextStyle(
-                          fontSize: 24,
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
