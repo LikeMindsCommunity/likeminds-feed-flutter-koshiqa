@@ -18,106 +18,24 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
             emit(NotificationsLoading());
           }
           try {
-            // GetNotificationFeedResponse? response =
-            //     await locator<LikeMindsService>().getNotificationFeed(
-            //   (GetNotificationFeedResponse()).build(),
-            // );
-
-            // if (response.success) {
-            //   emit(
-            //     NotificationsLoaded(response: response),
-            //   );
-            // } else {
-            //   emit(
-            //     const NotificationsError(message: "An error occurred, Please try again"),
-            //   );
-            // }
-            await Future.delayed(
-              const Duration(seconds: 3),
+            GetNotificationFeedResponse? response =
+                await locator<LikeMindsService>().getNotificationFeed(
+              (GetNotificationFeedRequestBuilder()
+                    ..page(event.offset)
+                    ..pageSize(event.pageSize))
+                  .build(),
             );
-            List<Map<String, dynamic>> response = [
-              {
-                'isRead': false,
-                'name': "Anurag Tyagi",
-                'action': "likes a post",
-                'time': '4 days ago',
-                'post':
-                    "This is the actual post bla bla bla, Here is the list of all the social media tool to help get started withcommunity building and more",
-              },
-              {
-                'isRead': false,
-                'name': "Divyansh Gandhi",
-                'action': "commented on",
-                'time': '4 days ago',
-                'post':
-                    "This is the actual post bla bla bla, Here is the list of all the social media tool to help get started withcommunity building and more",
-              },
-              {
-                'isRead': true,
-                'name': "Anurag Tyagi",
-                'action': "likes a post",
-                'time': '4 days ago',
-                'post':
-                    "This is the actual post bla bla bla, Here is the list of all the social media tool to help get started withcommunity building and more",
-              },
-              {
-                'isRead': true,
-                'name': "Anurag Tyagi",
-                'action': "likes a post",
-                'time': '4 days ago',
-                'post':
-                    "This is the actual post bla bla bla, Here is the list of all the social media tool to help get started withcommunity building and more",
-              },
-              {
-                'isRead': false,
-                'name': "Anurag Tyagi",
-                'action': "likes a post",
-                'time': '4 days ago',
-                'post':
-                    "This is the actual post bla bla bla, Here is the list of all the social media tool to help get started withcommunity building and more",
-              },
-              {
-                'isRead': false,
-                'name': "Anurag Tyagi",
-                'action': "likes a post",
-                'time': '4 days ago',
-                'post':
-                    "This is the actual post bla bla bla, Here is the list of all the social media tool to help get started withcommunity building and more",
-              },
-              {
-                'isRead': false,
-                'name': "Anurag Tyagi",
-                'action': "likes a post",
-                'time': '4 days ago',
-                'post':
-                    "This is the actual post bla bla bla, Here is the list of all the social media tool to help get started withcommunity building and more",
-              },
-              {
-                'isRead': true,
-                'name': "Anurag Tyagi",
-                'action': "likes a post",
-                'time': '4 days ago',
-                'post':
-                    "This is the actual post bla bla bla, Here is the list of all the social media tool to help get started withcommunity building and more",
-              },
-              {
-                'isRead': true,
-                'name': "Anurag Tyagi",
-                'action': "likes a post",
-                'time': '4 days ago',
-                'post':
-                    "This is the actual post bla bla bla, Here is the list of all the social media tool to help get started withcommunity building and more",
-              },
-              {
-                'isRead': true,
-                'name': "Anurag Tyagi",
-                'action': "likes a post",
-                'time': '4 days ago',
-                'post':
-                    "This is the actual post bla bla bla, Here is the list of all the social media tool to help get started withcommunity building and more",
-              },
-            ];
-            emit(NotificationsLoaded(response: response));
+
+            if (response.success) {
+              emit(
+                NotificationsLoaded(response: response),
+              );
+            } else {
+              emit(
+                const NotificationsError(
+                    message: "An error occurred, Please try again"),
+              );
+            }
           } catch (e) {
             emit(
               NotificationsError(message: "${e.toString()} No data found"),

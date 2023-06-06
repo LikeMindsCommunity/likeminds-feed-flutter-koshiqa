@@ -13,7 +13,6 @@ import 'package:feed_sx/src/widgets/close_icon.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
-import 'package:feed_sx/src/views/feed/components/post/post_media/post_media.dart';
 import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
 import 'package:feed_sx/src/views/tagging/tagging_textfield_ta.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
@@ -72,7 +71,7 @@ class NewPostScreen extends StatefulWidget {
 }
 
 class _NewPostScreenState extends State<NewPostScreen> {
-  TextEditingController? _controller;
+  TextEditingController? _controller = TextEditingController();
   NewPostBloc? newPostBloc;
   final ImagePicker _picker = ImagePicker();
   final FilePicker _filePicker = FilePicker.platform;
@@ -98,7 +97,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
   void initState() {
     super.initState();
     user = UserLocalPreference.instance.fetchUserData();
-    _controller = TextEditingController();
     feedRoomId = widget.feedRoomId;
     if (widget.populatePostMedia != null &&
         widget.populatePostMedia!.isNotEmpty) {
