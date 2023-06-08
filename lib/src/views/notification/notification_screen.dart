@@ -37,7 +37,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
     _notificationsBloc!.add(
       const GetNotifications(
         offset: 1,
-        pageSize: 10,
+        pageSize: 20,
       ),
     );
   }
@@ -48,7 +48,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
         _notificationsBloc!.add(
           GetNotifications(
             offset: pageKey,
-            pageSize: 10,
+            pageSize: 20,
           ),
         );
       },
@@ -59,7 +59,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
     if (state is NotificationsLoaded) {
       _page += 1;
       if (state.response.users != null) users?.addAll(state.response.users!);
-      if (state.response.items!.length < 10) {
+      if (state.response.items!.length < 20) {
         pagingController.appendLastPage(state.response.items!);
       } else {
         pagingController.appendPage(state.response.items!, _page);
