@@ -32,22 +32,17 @@ class PostWidget extends StatefulWidget {
 
 class _PostWidgetState extends State<PostWidget> {
   Post? postDetails;
-  late final User user;
-  late final bool showActions;
+  User? user;
+  bool? showActions;
   Function(bool)? refresh;
-  late bool isFeed;
-
-  @override
-  void initState() {
-    super.initState();
-    user = widget.user;
-    showActions = widget.showActions;
-    isFeed = widget.isFeed;
-  }
+  bool? isFeed;
 
   void setPostValues() {
     refresh = widget.refresh;
+    user = widget.user;
     postDetails = widget.postDetails;
+    showActions = widget.showActions;
+    isFeed = widget.isFeed;
   }
 
   @override
@@ -55,7 +50,7 @@ class _PostWidgetState extends State<PostWidget> {
     setPostValues();
     return GestureDetector(
       onTap: () {
-        if (isFeed) {
+        if (isFeed!) {
           locator<NavigationService>().navigateTo(
             AllCommentsScreen.route,
             arguments: AllCommentsScreenArguments(
@@ -75,7 +70,7 @@ class _PostWidgetState extends State<PostWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               PostHeader(
-                user: user,
+                user: user!,
                 menuItems: postDetails!.menuItems,
                 postDetails: postDetails!,
                 refresh: refresh!,
@@ -88,11 +83,11 @@ class _PostWidgetState extends State<PostWidget> {
                 attachments: postDetails!.attachments,
                 postId: postDetails!.id,
               ),
-              showActions
+              showActions!
                   ? PostActions(
                       postDetails: postDetails!,
                       refresh: refresh!,
-                      isFeed: isFeed,
+                      isFeed: isFeed!,
                     )
                   : const SizedBox.shrink()
             ],
