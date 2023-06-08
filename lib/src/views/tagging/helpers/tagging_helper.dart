@@ -1,6 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/services/service_locator.dart';
+import 'package:feed_sx/src/utils/constants/ui_constants.dart';
+import 'package:flutter/material.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 class TaggingHelper {
@@ -32,6 +34,21 @@ class TaggingHelper {
       final String id = match.group(2)!;
       string = string.replaceAll('<<$tag|route://member/$id>>', '@$tag~');
       result.addAll({'@$tag': id});
+    }
+    return result;
+  }
+
+  static Map<String, String> decodeNotificationString(String string) {
+    Map<String, String> result = {};
+    final Iterable<RegExpMatch> matches =
+        RegExp(r'<<([a-z\sA-Z]+)\|route://([a-z_]+)/([a-zA-Z-0-9]+)>>')
+            .allMatches(string);
+    for (final match in matches) {
+      final String tag = match.group(1)!;
+      final String mid = match.group(2)!;
+      final String id = match.group(3)!;
+      string = string.replaceAll('<<$tag|route://$mid/$id>>', tag);
+      result.addAll({tag: id});
     }
     return result;
   }
@@ -72,6 +89,21 @@ class TaggingHelper {
     return text;
   }
 
+  static String convertNotificationRouteToTag(String text,
+      {bool withTilde = true}) {
+    final Iterable<RegExpMatch> matches =
+        RegExp(r'<<([a-z\sA-Z]+)\|route://([a-z_]+)/([a-zA-Z-0-9]+)>>')
+            .allMatches(text);
+
+    for (final match in matches) {
+      final String tag = match.group(1)!;
+      final String mid = match.group(2)!;
+      final String id = match.group(3)!;
+      text = text.replaceAll('<<$tag|route://$mid/$id>>', '@$tag~');
+    }
+    return text;
+  }
+
   static Map<String, dynamic> convertRouteToTagAndUserMap(String text,
       {bool withTilde = true}) {
     final Iterable<RegExpMatch> matches =
@@ -98,6 +130,55 @@ class TaggingHelper {
       userTags.add(UserTag(userUniqueId: id, name: tag));
     }
     return userTags;
+  }
+
+  static List<TextSpan> extractNotificationTags(String text) {
+    List<TextSpan> textSpans = [];
+    final Iterable<RegExpMatch> matches =
+        RegExp(r'<<([a-z\sA-Z]+)\|route://([a-z_]+)/([a-zA-Z-0-9]+)>>')
+            .allMatches(text);
+    int lastIndex = 0;
+    for (Match match in matches) {
+      int startIndex = match.start;
+      int endIndex = match.end;
+      String? link = match.group(0);
+
+      if (lastIndex != startIndex) {
+        // Add a TextSpan for the preceding text
+        textSpans.add(
+          TextSpan(
+            text: text.substring(lastIndex, startIndex),
+            style: const TextStyle(
+              wordSpacing: 1.5,
+              color: kGrey1Color,
+            ),
+          ),
+        );
+      }
+      // Add a TextSpan for the URL
+      textSpans.add(
+        TextSpan(
+          text: TaggingHelper.decodeNotificationString(link!).keys.first,
+          style: const TextStyle(
+            wordSpacing: 1.5,
+            fontWeight: FontWeight.bold,
+            color: kGrey1Color,
+          ),
+        ),
+      );
+
+      lastIndex = endIndex;
+    }
+
+    if (lastIndex != text.length) {
+      // Add a TextSpan for the remaining text
+      textSpans.add(TextSpan(
+        text: text.substring(lastIndex),
+        style: const TextStyle(wordSpacing: 1.5, color: kGrey1Color),
+      ));
+    }
+
+    return textSpans;
   }
 }
 

@@ -18,6 +18,7 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
+  Map<String, User>? users = {};
   PagingController<int, NotificationFeedItem> pagingController =
       PagingController<int, NotificationFeedItem>(
     firstPageKey: 1,
@@ -57,6 +58,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
   void updatePagingControllers(Object? state) {
     if (state is NotificationsLoaded) {
       _page += 1;
+      if (state.response.users != null) users?.addAll(state.response.users!);
       if (state.response.items!.length < 10) {
         pagingController.appendLastPage(state.response.items!);
       } else {
@@ -148,7 +150,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 ),
               ),
               itemBuilder: (context, item, index) =>
-                  NotificationTile(response: item),
+                  NotificationTile(response: item, users: users!),
             ),
           ),
         ),
