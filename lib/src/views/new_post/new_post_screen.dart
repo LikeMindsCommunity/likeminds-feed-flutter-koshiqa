@@ -375,14 +375,18 @@ class _NewPostScreenState extends State<NewPostScreen> {
                                 _controller!.text, userTags);
                             result = TaggingHelper.encodeString(
                                 _controller!.text, userTags);
-                            newPostBloc?.add(CreateNewPost(
-                              postText: result ?? '',
-                              feedRoomId: feedRoomId,
-                              postMedia: postMedia,
-                            ));
-                            locator<NavigationService>().goBack(result: {
-                              "isBack": true,
-                            });
+                            newPostBloc?.add(
+                              CreateNewPost(
+                                postText: result ?? '',
+                                feedRoomId: feedRoomId,
+                                postMedia: postMedia,
+                              ),
+                            );
+                            locator<NavigationService>().goBack(
+                              result: {
+                                "isBack": true,
+                              },
+                            );
                           } else {
                             toast(
                               "Can't create a post without text or attachments",
@@ -411,14 +415,15 @@ class _NewPostScreenState extends State<NewPostScreen> {
                   child: Row(
                     children: [
                       ProfilePicture(
-                          user: User(
-                        id: user.id,
-                        imageUrl: user.imageUrl,
-                        name: user.name,
-                        userUniqueId: user.userUniqueId,
-                        isGuest: user.isGuest,
-                        isDeleted: false,
-                      )),
+                        user: User(
+                          id: user.id,
+                          imageUrl: user.imageUrl,
+                          name: user.name,
+                          userUniqueId: user.userUniqueId,
+                          isGuest: user.isGuest,
+                          isDeleted: false,
+                        ),
+                      ),
                       kHorizontalPaddingLarge,
                       Column(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -550,21 +555,23 @@ class _NewPostScreenState extends State<NewPostScreen> {
                         if (postMedia.isEmpty &&
                             linkModel != null &&
                             showLinkPreview)
-                          Stack(children: [
-                            PostLinkView(
-                                screenSize: screenSize, linkModel: linkModel),
-                            Positioned(
-                              top: 5,
-                              right: 5,
-                              child: GestureDetector(
-                                onTap: () {
-                                  showLinkPreview = false;
-                                  setState(() {});
-                                },
-                                child: const CloseIcon(),
-                              ),
-                            )
-                          ]),
+                          Stack(
+                            children: [
+                              PostLinkView(
+                                  screenSize: screenSize, linkModel: linkModel),
+                              Positioned(
+                                top: 5,
+                                right: 5,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    showLinkPreview = false;
+                                    setState(() {});
+                                  },
+                                  child: const CloseIcon(),
+                                ),
+                              )
+                            ],
+                          ),
                         if (postMedia.isNotEmpty)
                           postMedia.first.mediaType == MediaType.document
                               ? getPostDocument(screenSize!.width)

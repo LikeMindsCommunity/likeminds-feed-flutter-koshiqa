@@ -368,16 +368,25 @@ class _FeedRoomViewState extends State<FeedRoomView> {
               }
               if (curr is NewPostUploaded) {
                 Post? item = curr.postData;
-                List<Post>? feedRoomItemList =
-                    widget.feedRoomPagingController.itemList;
-                for (int i = 0; i < feedRoomItemList!.length; i++) {
+                int length =
+                    widget.feedRoomPagingController.itemList?.length ?? 0;
+                List<Post> feedRoomItemList =
+                    widget.feedRoomPagingController.itemList ?? [];
+                for (int i = 0; i < feedRoomItemList.length; i++) {
                   if (!feedRoomItemList[i].isPinned) {
                     feedRoomItemList.insert(i, item);
                     break;
                   }
                 }
-                feedRoomItemList.removeLast();
+                if (length == feedRoomItemList.length) {
+                  feedRoomItemList.add(item);
+                }
+                if (feedRoomItemList.isNotEmpty &&
+                    feedRoomItemList.length > 10) {
+                  feedRoomItemList.removeLast();
+                }
                 widget.feedResponse.users.addAll(curr.userData);
+                widget.feedRoomPagingController.itemList = feedRoomItemList;
                 postUploading.value = false;
                 rebuildPostWidget.value = !rebuildPostWidget.value;
               }
