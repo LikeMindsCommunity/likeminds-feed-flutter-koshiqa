@@ -2,11 +2,11 @@ import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/navigation/router.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
-import 'package:feed_sx/src/utils/expandable_text/expandable_text.dart';
 import 'package:feed_sx/src/utils/utils.dart';
 import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
 import 'package:feed_sx/src/widgets/profile_picture.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 class NotificationTile extends StatelessWidget {
@@ -47,7 +47,14 @@ class NotificationTile extends StatelessWidget {
               Row(
                 children: [
                   users[response.actionBy.last] != null
-                      ? ProfilePicture(user: users[response.actionBy.last]!)
+                      ? Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            ProfilePicture(
+                                user: users[response.actionBy.last]!),
+                            getNotificationAttachmentTag(),
+                          ],
+                        )
                       : const SizedBox(),
                   kHorizontalPaddingLarge,
                   Expanded(
@@ -86,6 +93,49 @@ class NotificationTile extends StatelessWidget {
               //   ],
               // ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget getNotificationAttachmentTag() {
+    if (response.activityEntityData.attachments == null ||
+        response.activityEntityData.attachments!.isEmpty ||
+        response.activityEntityData.attachments!.first.attachmentType == 4) {
+      return const SizedBox();
+    }
+
+    int getAttachmentType =
+        response.activityEntityData.attachments!.first.attachmentType;
+    String getSvgURL = '';
+    switch (getAttachmentType) {
+      case 1:
+        getSvgURL = assetButtonData[getAttachmentType]['svg_icon'];
+        break;
+      case 2:
+        getSvgURL = assetButtonData[getAttachmentType]['svg_icon'];
+        break;
+      case 3:
+        getSvgURL = 'packages/feed_sx/assets/icons/doc_pdf.svg';
+        break;
+      default:
+    }
+    return Positioned(
+      bottom: -2.5,
+      right: 3,
+      child: Container(
+        width: 18,
+        height: 18,
+        padding: const EdgeInsets.all(3.0),
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          color: kWhiteColor,
+        ),
+        child: Center(
+          child: SvgPicture.asset(
+            getSvgURL,
+            height: 28,
           ),
         ),
       ),
