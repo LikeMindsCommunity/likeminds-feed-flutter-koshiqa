@@ -11,9 +11,10 @@ import 'package:likeminds_feed/likeminds_feed.dart';
 
 class NotificationTile extends StatelessWidget {
   final NotificationFeedItem response;
+  final ValueNotifier<bool> rebuildNotificationTile = ValueNotifier(false);
   final Map<String, User> users;
 
-  const NotificationTile({
+  NotificationTile({
     Key? key,
     required this.response,
     required this.users,
@@ -31,56 +32,61 @@ class NotificationTile extends StatelessWidget {
                 .build();
         locator<LikeMindsService>().markReadNotification(request);
         if (response.cta != null) routeNotification(response.cta!);
+        response.isRead = true;
+        rebuildNotificationTile.value = !rebuildNotificationTile.value;
       },
-      child: Container(
-        width: screenSize.width,
-        padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
-        color: response.isRead ? notificationRedColor : kWhiteColor,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              children: [
-                users[response.actionBy.last] != null
-                    ? ProfilePicture(user: users[response.actionBy.last]!)
-                    : const SizedBox(),
-                kHorizontalPaddingLarge,
-                Expanded(
-                  child: RichText(
-                    text: TextSpan(
-                        children: TaggingHelper.extractNotificationTags(
-                            response.activityText)),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
+      child: ValueListenableBuilder(
+        valueListenable: rebuildNotificationTile,
+        builder: (context, _, __) => Container(
+          width: screenSize.width,
+          padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+          color: response.isRead ? notificationRedColor : kWhiteColor,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                children: [
+                  users[response.actionBy.last] != null
+                      ? ProfilePicture(user: users[response.actionBy.last]!)
+                      : const SizedBox(),
+                  kHorizontalPaddingLarge,
+                  Expanded(
+                    child: RichText(
+                      text: TextSpan(
+                          children: TaggingHelper.extractNotificationTags(
+                              response.activityText)),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-                kHorizontalPaddingLarge,
-              ],
-            ),
-            Container(
-              margin: const EdgeInsets.only(left: 63),
-              child: Text(
-                createdAt.timeAgo(),
-                style: const TextStyle(color: kGrey3Color, fontSize: 12),
+                  kHorizontalPaddingLarge,
+                ],
               ),
-            ),
+              Container(
+                margin: const EdgeInsets.only(left: 63),
+                child: Text(
+                  createdAt.timeAgo(),
+                  style: const TextStyle(color: kGrey3Color, fontSize: 12),
+                ),
+              ),
 
-            // PopupMenuButton(
-            //   padding: EdgeInsets.zero,
-            //   itemBuilder: (context) => const <PopupMenuEntry>[
-            //     PopupMenuItem(
-            //       child: Text(
-            //         'Remove this notification',
-            //       ),
-            //     ),
-            //     PopupMenuItem(
-            //       child: Text(
-            //         'Mute notification for this post',
-            //       ),
-            //     ),
-            //   ],
-            // ),
-          ],
+              // PopupMenuButton(
+              //   padding: EdgeInsets.zero,
+              //   itemBuilder: (context) => const <PopupMenuEntry>[
+              //     PopupMenuItem(
+              //       child: Text(
+              //         'Remove this notification',
+              //       ),
+              //     ),
+              //     PopupMenuItem(
+              //       child: Text(
+              //         'Mute notification for this post',
+              //       ),
+              //     ),
+              //   ],
+              // ),
+            ],
+          ),
         ),
       ),
     );
