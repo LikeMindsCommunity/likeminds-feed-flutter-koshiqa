@@ -175,18 +175,21 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                             const Icon(
                               CupertinoIcons.bell,
                             ),
-                            Positioned(
-                              top: -5,
-                              right: -5,
-                              child: Container(
-                                padding: const EdgeInsets.all(4.0),
-                                decoration: const BoxDecoration(
-                                  color: Colors.red,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Text(snapshot.data!.count.toString()),
-                              ),
-                            )
+                            snapshot.data!.count! > 0
+                                ? Positioned(
+                                    top: -5,
+                                    right: -5,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4.0),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child:
+                                          Text(snapshot.data!.count.toString()),
+                                    ),
+                                  )
+                                : const SizedBox()
                           ],
                         );
                       }
