@@ -10,7 +10,6 @@ import 'package:feed_sx/src/views/feed/components/post/post_media/post_document.
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_helper.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_link_view.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_media.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_media/post_media_file.dart';
 import 'package:feed_sx/src/widgets/close_icon.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';

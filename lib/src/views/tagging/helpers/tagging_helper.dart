@@ -6,7 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 class TaggingHelper {
-  static final RegExp tagRegExp = RegExp(r'@([a-z\sA-Z]+)~');
+  static final RegExp tagRegExp = RegExp(r'@([^<>]+)\~');
+  static const String notificationTagRoute =
+      r'<<([^<>]+)\|route://([^<>]+)/([a-zA-Z-0-9]+)>>';
+  static const String tagRoute =
+      r'<<([^<>]+)\|route://member/([a-zA-Z-0-9]+)>>';
+  static const String linkRoute =
+      r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+';
 
   /// Encodes the string with the user tags and returns the encoded string
   static String encodeString(String string, List<UserTag> userTags) {
@@ -27,13 +33,12 @@ class TaggingHelper {
   static Map<String, String> decodeString(String string) {
     Map<String, String> result = {};
     final Iterable<RegExpMatch> matches =
-        RegExp(r'<<([a-z\sA-Z]+)\|route://member/([a-zA-Z-0-9]+)>>')
-            .allMatches(string);
+        RegExp(notificationTagRoute).allMatches(string);
     for (final match in matches) {
       final String tag = match.group(1)!;
-      final String id = match.group(2)!;
-      string = string.replaceAll('<<$tag|route://member/$id>>', '@$tag~');
-      result.addAll({'@$tag': id});
+      final String id = match.group(3)!;
+      string = string.replaceAll('<<$tag|route://member/$id>>', tag);
+      result.addAll({tag: id});
     }
     return result;
   }
@@ -41,8 +46,7 @@ class TaggingHelper {
   static Map<String, String> decodeNotificationString(String string) {
     Map<String, String> result = {};
     final Iterable<RegExpMatch> matches =
-        RegExp(r'<<([a-z\sA-Z]+)\|route://([a-z_]+)/([a-zA-Z-0-9]+)>>')
-            .allMatches(string);
+        RegExp(notificationTagRoute).allMatches(string);
     for (final match in matches) {
       final String tag = match.group(1)!;
       final String mid = match.group(2)!;
@@ -78,13 +82,13 @@ class TaggingHelper {
 
   static String convertRouteToTag(String text, {bool withTilde = true}) {
     final Iterable<RegExpMatch> matches =
-        RegExp(r'<<([a-z\sA-Z]+)\|route://member/([a-zA-Z-0-9]+)>>')
-            .allMatches(text);
+        RegExp(notificationTagRoute).allMatches(text);
 
     for (final match in matches) {
       final String tag = match.group(1)!;
-      final String id = match.group(2)!;
-      text = text.replaceAll('<<$tag|route://member/$id>>', '@$tag~');
+      final String mid = match.group(2)!;
+      final String id = match.group(3)!;
+      text = text.replaceAll('<<$tag|route://$mid/$id>>', tag);
     }
     return text;
   }
@@ -92,8 +96,7 @@ class TaggingHelper {
   static String convertNotificationRouteToTag(String text,
       {bool withTilde = true}) {
     final Iterable<RegExpMatch> matches =
-        RegExp(r'<<([a-z\sA-Z]+)\|route://([a-z_]+)/([a-zA-Z-0-9]+)>>')
-            .allMatches(text);
+        RegExp(notificationTagRoute).allMatches(text);
 
     for (final match in matches) {
       final String tag = match.group(1)!;
@@ -107,13 +110,13 @@ class TaggingHelper {
   static Map<String, dynamic> convertRouteToTagAndUserMap(String text,
       {bool withTilde = true}) {
     final Iterable<RegExpMatch> matches =
-        RegExp(r'<<([a-z\sA-Z]+)\|route://member/([a-zA-Z-0-9]+)>>')
-            .allMatches(text);
+        RegExp(notificationTagRoute).allMatches(text);
     List<UserTag> userTags = [];
     for (final match in matches) {
       final String tag = match.group(1)!;
-      final String id = match.group(2)!;
-      text = text.replaceAll('<<$tag|route://member/$id>>', '@$tag~');
+      final String mid = match.group(2)!;
+      final String id = match.group(3)!;
+      text = text.replaceAll('<<$tag|route://$mid/$id>>', tag);
       userTags.add(UserTag(userUniqueId: id, name: tag));
     }
     return {'text': text, 'userTags': userTags};
@@ -121,12 +124,12 @@ class TaggingHelper {
 
   static List<UserTag> addUserTagsIfMatched(String input) {
     final Iterable<RegExpMatch> matches =
-        RegExp(r'<<([a-z\sA-Z]+)\|route://member/([a-zA-Z-0-9]+)>>')
-            .allMatches(input);
+        RegExp(notificationTagRoute).allMatches(input);
     List<UserTag> userTags = [];
     for (final match in matches) {
       final String tag = match.group(1)!;
-      final String id = match.group(2)!;
+      final String mid = match.group(2)!;
+      final String id = match.group(3)!;
       userTags.add(UserTag(userUniqueId: id, name: tag));
     }
     return userTags;
@@ -135,8 +138,7 @@ class TaggingHelper {
   static List<TextSpan> extractNotificationTags(String text) {
     List<TextSpan> textSpans = [];
     final Iterable<RegExpMatch> matches =
-        RegExp(r'<<([a-z\sA-Z]+)\|route://([a-z_]+)/([a-zA-Z-0-9]+)>>')
-            .allMatches(text);
+        RegExp(notificationTagRoute).allMatches(text);
     int lastIndex = 0;
     for (Match match in matches) {
       int startIndex = match.start;
@@ -183,7 +185,7 @@ class TaggingHelper {
 }
 
 List<String> extractLinkFromString(String text) {
-  RegExp exp = RegExp(r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+');
+  RegExp exp = RegExp(TaggingHelper.linkRoute);
   Iterable<RegExpMatch> matches = exp.allMatches(text);
   List<String> links = [];
   for (var match in matches) {
