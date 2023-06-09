@@ -96,6 +96,7 @@ class _LikesScreenState extends State<LikesScreen> {
   void dispose() {
     _pagingControllerLikes.dispose();
     _pagingControllerCommentLikes.dispose();
+    _likesBloc?.close();
     super.dispose();
   }
 

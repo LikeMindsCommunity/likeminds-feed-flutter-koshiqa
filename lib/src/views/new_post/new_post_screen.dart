@@ -95,6 +95,14 @@ class _NewPostScreenState extends State<NewPostScreen> {
   Timer? _debounce;
 
   @override
+  void dispose() {
+    _controller?.dispose();
+    rebuildFeedRoomSelectTab.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     user = UserLocalPreference.instance.fetchUserData();
