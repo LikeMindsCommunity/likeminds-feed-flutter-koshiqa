@@ -19,6 +19,7 @@ class NotificationScreen extends StatefulWidget {
 
 class _NotificationScreenState extends State<NotificationScreen> {
   Map<String, User>? users = {};
+  Size? screenSize;
   PagingController<int, NotificationFeedItem> pagingController =
       PagingController<int, NotificationFeedItem>(
     firstPageKey: 1,
@@ -69,6 +70,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    screenSize = MediaQuery.of(context).size;
     return WillPopScope(
       onWillPop: () async {
         locator<NavigationService>().goBack();
@@ -130,21 +132,30 @@ class _NotificationScreenState extends State<NotificationScreen> {
               noMoreItemsIndicatorBuilder: (context) => const SizedBox(
                 height: 20,
               ),
-              noItemsFoundIndicatorBuilder: (context) => const Scaffold(
+              noItemsFoundIndicatorBuilder: (context) => Scaffold(
                 backgroundColor: kWhiteColor,
                 body: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      Text(
-                        "No notifications to show",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                      Image.asset(
+                        "packages/feed_sx/assets/icons/nothing.png",
+                        height: 100,
+                        width: 100,
+                      ),
+                      kVerticalPaddingXLarge,
+                      SizedBox(
+                        width: screenSize!.width * 0.8,
+                        child: const Text(
+                          "Opps! You don't have any notifications yet.",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                      SizedBox(height: 28),
                     ],
                   ),
                 ),
