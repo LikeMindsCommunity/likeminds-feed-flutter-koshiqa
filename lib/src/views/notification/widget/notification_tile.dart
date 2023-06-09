@@ -24,7 +24,7 @@ class NotificationTile extends StatelessWidget {
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     DateTime createdAt =
-        DateTime.fromMillisecondsSinceEpoch(response.createdAt);
+        DateTime.fromMillisecondsSinceEpoch(response.updatedAt);
     return GestureDetector(
       onTap: () {
         MarkReadNotificationRequest request =
@@ -40,12 +40,12 @@ class NotificationTile extends StatelessWidget {
         builder: (context, _, __) => Container(
           width: screenSize.width,
           padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
-          color: response.isRead ? notificationRedColor : kWhiteColor,
+          color: response.isRead ? kWhiteColor : notificationRedColor,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   users[response.actionBy.last] != null
                       ? Stack(
@@ -112,16 +112,17 @@ class NotificationTile extends StatelessWidget {
     String getSvgURL = '';
     switch (getAttachmentType) {
       case 1:
-        getSvgURL = assetButtonData[getAttachmentType]['svg_icon'];
+        getSvgURL = assetButtonData[1]['svg_icon'];
         break;
       case 2:
-        getSvgURL = assetButtonData[getAttachmentType]['svg_icon'];
+        getSvgURL = assetButtonData[1]['svg_icon'];
         break;
       case 3:
         getSvgURL = 'packages/feed_sx/assets/icons/doc_pdf.svg';
         break;
       default:
     }
+
     return Positioned(
       bottom: -2.5,
       right: 3,
@@ -143,6 +144,7 @@ class NotificationTile extends StatelessWidget {
         child: Center(
           child: SvgPicture.asset(
             getSvgURL,
+            color: kPrimaryColor,
             height: 28,
           ),
         ),
@@ -150,15 +152,3 @@ class NotificationTile extends StatelessWidget {
     );
   }
 }
-
-// const Map<int, dynamic> notificationTileData = {
-//   1: {
-//     'svg_icon': 'packages/feed_sx/assets/icons/gallery_not.svg',
-//   },
-//   2: {
-//     'svg_icon': 'packages/feed_sx/assets/icons/gallery_not.svg',
-//   },
-//   3: {
-//     'svg_icon': 'packages/feed_sx/assets/icons/doc_not.svg',
-//   },
-// };
