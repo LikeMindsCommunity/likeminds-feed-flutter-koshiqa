@@ -45,6 +45,7 @@ class NotificationTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   users[response.actionBy.last] != null
                       ? Stack(
@@ -128,10 +129,17 @@ class NotificationTile extends StatelessWidget {
         width: 18,
         height: 18,
         padding: const EdgeInsets.all(3.0),
-        decoration: const BoxDecoration(
-          shape: BoxShape.circle,
-          color: kWhiteColor,
-        ),
+        decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: kWhiteColor,
+            boxShadow: [
+              BoxShadow(
+                color: kGrey1Color.withOpacity(0.25),
+                blurRadius: 10.0,
+                spreadRadius: 0.0,
+                offset: const Offset(0.0, 0.0),
+              ),
+            ]),
         child: Center(
           child: SvgPicture.asset(
             getSvgURL,
@@ -142,3 +150,15 @@ class NotificationTile extends StatelessWidget {
     );
   }
 }
+
+// const Map<int, dynamic> notificationTileData = {
+//   1: {
+//     'svg_icon': 'packages/feed_sx/assets/icons/gallery_not.svg',
+//   },
+//   2: {
+//     'svg_icon': 'packages/feed_sx/assets/icons/gallery_not.svg',
+//   },
+//   3: {
+//     'svg_icon': 'packages/feed_sx/assets/icons/doc_not.svg',
+//   },
+// };

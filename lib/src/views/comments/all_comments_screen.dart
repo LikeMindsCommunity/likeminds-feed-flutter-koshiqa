@@ -46,6 +46,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
   final PagingController<int, Reply> _pagingController =
       PagingController(firstPageKey: 1);
   Post? postData;
+  User currentUser = UserLocalPreference.instance.fetchUserData();
 
   List<UserTag> userTags = [];
   String? result = '';
@@ -180,6 +181,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     if (commentItemList.length >= 10) {
       commentItemList.removeAt(9);
     }
+
     commentItemList.insert(0, addCommentSuccess.addCommentResponse.reply!);
     increaseCommentCount();
     rebuildPostWidget.value = !rebuildPostWidget.value;
@@ -611,10 +613,14 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                   if (state is AllCommentsLoaded) {
                     print("AllCommentsLoaded$state");
                     postDetailResponse = state.postDetails;
+                    postDetailResponse.users!.putIfAbsent(
+                        currentUser.userUniqueId, () => currentUser);
                   } else {
                     print("PaginatedAllCommentsLoading$state");
                     postDetailResponse =
                         (state as PaginatedAllCommentsLoading).prevPostDetails;
+                    postDetailResponse.users!.putIfAbsent(
+                        currentUser.userUniqueId, () => currentUser);
                   }
                   return RefreshIndicator(
                     onRefresh: () async {
