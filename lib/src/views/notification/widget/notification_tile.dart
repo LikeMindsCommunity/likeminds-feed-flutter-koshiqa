@@ -24,7 +24,7 @@ class NotificationTile extends StatelessWidget {
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     DateTime createdAt =
-        DateTime.fromMillisecondsSinceEpoch(response.updatedAt);
+        DateTime.fromMillisecondsSinceEpoch(response.createdAt);
     return GestureDetector(
       onTap: () {
         MarkReadNotificationRequest request =
