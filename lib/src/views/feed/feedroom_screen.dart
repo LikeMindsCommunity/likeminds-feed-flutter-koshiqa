@@ -145,16 +145,21 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
             ? BackButton(
                 color: Colors.white,
                 onPressed: () {
+                  // if the user is a community manager then
+                  // navigate back to the feedroom list screen
                   locator<NavigationService>().goBack();
                 },
               )
             : null,
         actions: [
           GestureDetector(
-            onTap: () {
-              locator<NavigationService>().navigateTo(
+            onTap: () async {
+              await locator<NavigationService>().navigateTo(
                 NotificationScreen.route,
               );
+              updateUnreadNotificationCount();
+              // updates the unread notification count when a user
+              // navigates back from notification screen
             },
             child: ValueListenableBuilder(
               valueListenable: _rebuildAppBar,
