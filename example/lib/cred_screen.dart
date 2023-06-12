@@ -119,7 +119,7 @@ class _CredScreenState extends State<CredScreen> {
                 lmFeed = LMFeed.instance(
                   userId: _userIdController.text,
                   userName: _usernameController.text,
-                  defaultFeedroom: debug ? 72200 : 1262837,
+                  defaultFeedroom: debug ? 83301 : 1262837,
                   callback: LikeMindsCallback(),
                   apiKey: "",
                 );

@@ -145,16 +145,21 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
             ? BackButton(
                 color: Colors.white,
                 onPressed: () {
+                  // if the user is a community manager then
+                  // navigate back to the feedroom list screen
                   locator<NavigationService>().goBack();
                 },
               )
             : null,
         actions: [
           GestureDetector(
-            onTap: () {
-              locator<NavigationService>().navigateTo(
+            onTap: () async {
+              await locator<NavigationService>().navigateTo(
                 NotificationScreen.route,
               );
+              updateUnreadNotificationCount();
+              // updates the unread notification count when a user
+              // navigates back from notification screen
             },
             child: ValueListenableBuilder(
               valueListenable: _rebuildAppBar,
@@ -175,18 +180,21 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                             const Icon(
                               CupertinoIcons.bell,
                             ),
-                            Positioned(
-                              top: -5,
-                              right: -5,
-                              child: Container(
-                                padding: const EdgeInsets.all(4.0),
-                                decoration: const BoxDecoration(
-                                  color: Colors.red,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Text(snapshot.data!.count.toString()),
-                              ),
-                            )
+                            snapshot.data!.count! > 0
+                                ? Positioned(
+                                    top: -5,
+                                    right: -5,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4.0),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child:
+                                          Text(snapshot.data!.count.toString()),
+                                    ),
+                                  )
+                                : const SizedBox()
                           ],
                         );
                       }
@@ -370,16 +378,25 @@ class _FeedRoomViewState extends State<FeedRoomView> {
               }
               if (curr is NewPostUploaded) {
                 Post? item = curr.postData;
-                List<Post>? feedRoomItemList =
-                    widget.feedRoomPagingController.itemList;
-                for (int i = 0; i < feedRoomItemList!.length; i++) {
+                int length =
+                    widget.feedRoomPagingController.itemList?.length ?? 0;
+                List<Post> feedRoomItemList =
+                    widget.feedRoomPagingController.itemList ?? [];
+                for (int i = 0; i < feedRoomItemList.length; i++) {
                   if (!feedRoomItemList[i].isPinned) {
                     feedRoomItemList.insert(i, item);
                     break;
                   }
                 }
-                feedRoomItemList.removeLast();
+                if (length == feedRoomItemList.length) {
+                  feedRoomItemList.add(item);
+                }
+                if (feedRoomItemList.isNotEmpty &&
+                    feedRoomItemList.length > 10) {
+                  feedRoomItemList.removeLast();
+                }
                 widget.feedResponse.users.addAll(curr.userData);
+                widget.feedRoomPagingController.itemList = feedRoomItemList;
                 postUploading.value = false;
                 rebuildPostWidget.value = !rebuildPostWidget.value;
               }

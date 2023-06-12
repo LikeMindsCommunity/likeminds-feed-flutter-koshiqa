@@ -18,6 +18,8 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
+  Map<String, User>? users = {};
+  Size? screenSize;
   PagingController<int, NotificationFeedItem> pagingController =
       PagingController<int, NotificationFeedItem>(
     firstPageKey: 1,
@@ -36,7 +38,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
     _notificationsBloc!.add(
       const GetNotifications(
         offset: 1,
-        pageSize: 10,
+        pageSize: 20,
       ),
     );
   }
@@ -47,7 +49,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
         _notificationsBloc!.add(
           GetNotifications(
             offset: pageKey,
-            pageSize: 10,
+            pageSize: 20,
           ),
         );
       },
@@ -57,7 +59,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
   void updatePagingControllers(Object? state) {
     if (state is NotificationsLoaded) {
       _page += 1;
-      if (state.response.items!.length < 10) {
+      if (state.response.users != null) users?.addAll(state.response.users!);
+      if (state.response.items!.length < 20) {
         pagingController.appendLastPage(state.response.items!);
       } else {
         pagingController.appendPage(state.response.items!, _page);
@@ -67,6 +70,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    screenSize = MediaQuery.of(context).size;
     return WillPopScope(
       onWillPop: () async {
         locator<NavigationService>().goBack();
@@ -128,27 +132,36 @@ class _NotificationScreenState extends State<NotificationScreen> {
               noMoreItemsIndicatorBuilder: (context) => const SizedBox(
                 height: 20,
               ),
-              noItemsFoundIndicatorBuilder: (context) => const Scaffold(
+              noItemsFoundIndicatorBuilder: (context) => Scaffold(
                 backgroundColor: kWhiteColor,
                 body: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      Text(
-                        "No notifications to show",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                      Image.asset(
+                        "packages/feed_sx/assets/icons/nothing.png",
+                        height: 100,
+                        width: 100,
+                      ),
+                      kVerticalPaddingXLarge,
+                      SizedBox(
+                        width: screenSize!.width * 0.8,
+                        child: const Text(
+                          "Opps! You don't have any notifications yet.",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                      SizedBox(height: 28),
                     ],
                   ),
                 ),
               ),
               itemBuilder: (context, item, index) =>
-                  NotificationTile(response: item),
+                  NotificationTile(response: item, users: users!),
             ),
           ),
         ),
