@@ -48,6 +48,15 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
   static const fixedSize = 6;
 
   @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode!.dispose();
+    _scrollController.dispose();
+    _suggestionsBoxController.close();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     _focusNode = widget.focusNode;

@@ -48,6 +48,13 @@ class _CredScreenState extends State<CredScreen> {
   }
 
   @override
+  void dispose() {
+    _usernameController.dispose();
+    _userIdController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 6, 92, 193),
@@ -112,7 +119,7 @@ class _CredScreenState extends State<CredScreen> {
                 lmFeed = LMFeed.instance(
                   userId: _userIdController.text,
                   userName: _usernameController.text,
-                  defaultFeedroom: debug ? 72200 : 1262837,
+                  defaultFeedroom: debug ? 83301 : 1262837,
                   callback: LikeMindsCallback(),
                   apiKey: "",
                 );

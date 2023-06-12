@@ -41,6 +41,7 @@ class _FeedRoomListScreenState extends State<FeedRoomListScreen> {
   @override
   void dispose() {
     _pagingControllerFeedRoomList.dispose();
+    _feedRoomListBloc?.close();
     super.dispose();
   }
 

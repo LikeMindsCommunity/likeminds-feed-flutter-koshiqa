@@ -9,11 +9,11 @@ import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.da
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_document.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_helper.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_link_view.dart';
+import 'package:feed_sx/src/views/feed/components/post/post_media/post_media.dart';
 import 'package:feed_sx/src/widgets/close_icon.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
-import 'package:feed_sx/src/views/feed/components/post/post_media/post_media.dart';
 import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
 import 'package:feed_sx/src/views/tagging/tagging_textfield_ta.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
@@ -72,7 +72,7 @@ class NewPostScreen extends StatefulWidget {
 }
 
 class _NewPostScreenState extends State<NewPostScreen> {
-  TextEditingController? _controller;
+  TextEditingController? _controller = TextEditingController();
   NewPostBloc? newPostBloc;
   final ImagePicker _picker = ImagePicker();
   final FilePicker _filePicker = FilePicker.platform;
@@ -95,10 +95,17 @@ class _NewPostScreenState extends State<NewPostScreen> {
   Timer? _debounce;
 
   @override
+  void dispose() {
+    _controller?.dispose();
+    rebuildFeedRoomSelectTab.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     user = UserLocalPreference.instance.fetchUserData();
-    _controller = TextEditingController();
     feedRoomId = widget.feedRoomId;
     if (widget.populatePostMedia != null &&
         widget.populatePostMedia!.isNotEmpty) {
@@ -376,14 +383,18 @@ class _NewPostScreenState extends State<NewPostScreen> {
                                 _controller!.text, userTags);
                             result = TaggingHelper.encodeString(
                                 _controller!.text, userTags);
-                            newPostBloc?.add(CreateNewPost(
-                              postText: result ?? '',
-                              feedRoomId: feedRoomId,
-                              postMedia: postMedia,
-                            ));
-                            locator<NavigationService>().goBack(result: {
-                              "isBack": true,
-                            });
+                            newPostBloc?.add(
+                              CreateNewPost(
+                                postText: result ?? '',
+                                feedRoomId: feedRoomId,
+                                postMedia: postMedia,
+                              ),
+                            );
+                            locator<NavigationService>().goBack(
+                              result: {
+                                "isBack": true,
+                              },
+                            );
                           } else {
                             toast(
                               "Can't create a post without text or attachments",
@@ -412,14 +423,15 @@ class _NewPostScreenState extends State<NewPostScreen> {
                   child: Row(
                     children: [
                       ProfilePicture(
-                          user: User(
-                        id: user.id,
-                        imageUrl: user.imageUrl,
-                        name: user.name,
-                        userUniqueId: user.userUniqueId,
-                        isGuest: user.isGuest,
-                        isDeleted: false,
-                      )),
+                        user: User(
+                          id: user.id,
+                          imageUrl: user.imageUrl,
+                          name: user.name,
+                          userUniqueId: user.userUniqueId,
+                          isGuest: user.isGuest,
+                          isDeleted: false,
+                        ),
+                      ),
                       kHorizontalPaddingLarge,
                       Column(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -551,21 +563,23 @@ class _NewPostScreenState extends State<NewPostScreen> {
                         if (postMedia.isEmpty &&
                             linkModel != null &&
                             showLinkPreview)
-                          Stack(children: [
-                            PostLinkView(
-                                screenSize: screenSize, linkModel: linkModel),
-                            Positioned(
-                              top: 5,
-                              right: 5,
-                              child: GestureDetector(
-                                onTap: () {
-                                  showLinkPreview = false;
-                                  setState(() {});
-                                },
-                                child: const CloseIcon(),
-                              ),
-                            )
-                          ]),
+                          Stack(
+                            children: [
+                              PostLinkView(
+                                  screenSize: screenSize, linkModel: linkModel),
+                              Positioned(
+                                top: 5,
+                                right: 5,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    showLinkPreview = false;
+                                    setState(() {});
+                                  },
+                                  child: const CloseIcon(),
+                                ),
+                              )
+                            ],
+                          ),
                         if (postMedia.isNotEmpty)
                           postMedia.first.mediaType == MediaType.document
                               ? getPostDocument(screenSize!.width)

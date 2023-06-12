@@ -35,6 +35,13 @@ class _FeedScreenState extends State<FeedScreen> {
     _feedBloc = UniversalFeedBloc();
   }
 
+  @override
+  void dispose() {
+    _feedBloc.close();
+    _pagingController.dispose();
+    super.dispose();
+  }
+
   void _addPaginationListener() {
     _pagingController.addPageRequestListener((pageKey) {
       _feedBloc.add(GetUniversalFeed(offset: pageKey, forLoadMore: true));
