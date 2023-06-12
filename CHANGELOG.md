@@ -4,5 +4,5 @@ Updating package versions
 
 ## 1.3.0
 
-Adding Notification Fee
+Adding Notification Feed
 Adding Save Post
