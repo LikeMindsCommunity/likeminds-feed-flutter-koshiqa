@@ -35,6 +35,12 @@ class _PostActionsState extends State<PostActions> {
   late Function(bool) refresh;
   ValueNotifier<bool> rebuildLikeWidget = ValueNotifier(false);
 
+  @override
+  void dispose() {
+    rebuildLikeWidget.dispose();
+    super.dispose();
+  }
+
   void setPostDetails() {
     postDetails = widget.postDetails;
     postLikes = postDetails!.likeCount;
@@ -163,19 +169,48 @@ class _PostActionsState extends State<PostActions> {
           ],
         ),
         // TODO: Add bookmark and share icons
-        // const Spacer(),
-        // Row(
-        //   children: [
-        //     IconButton(
-        //       onPressed: () {},
-        //       icon: SvgPicture.asset(kAssetBookmarkIcon),
-        //     ),
-        //     IconButton(
-        //       onPressed: () {},
-        //       icon: SvgPicture.asset(kAssetShareIcon),
-        //     ),
-        //   ],
-        // ),
+        const Spacer(),
+        Row(
+          children: [
+            IconButton(
+              onPressed: () async {
+                postDetails!.isSaved = !postDetails!.isSaved;
+                rebuildLikeWidget.value = !rebuildLikeWidget.value;
+                final response = await locator<LikeMindsService>().savePost(
+                  (SavePostRequestBuilder()..postId(postDetails!.id)).build(),
+                );
+                if (response.success) {
+                  if (postDetails!.isSaved) {
+                    toast(
+                      "Post saved",
+                      duration: Toast.LENGTH_LONG,
+                    );
+                  }
+                } else {
+                  toast(
+                    response.errorMessage ?? "An error occurred",
+                    duration: Toast.LENGTH_LONG,
+                  );
+                  postDetails!.isSaved = !postDetails!.isSaved;
+                  rebuildLikeWidget.value = !rebuildLikeWidget.value;
+                }
+              },
+              icon: ValueListenableBuilder(
+                  valueListenable: rebuildLikeWidget,
+                  builder: (context, _, __) {
+                    return SvgPicture.asset(
+                      postDetails!.isSaved
+                          ? kAssetBookmarkFilledIcon
+                          : kAssetBookmarkIcon,
+                    );
+                  }),
+            ),
+            //     IconButton(
+            //       onPressed: () {},
+            //       icon: SvgPicture.asset(kAssetShareIcon),
+            //     ),
+          ],
+        ),
       ],
     );
   }

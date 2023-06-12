@@ -52,6 +52,13 @@ class _ReplyTileState extends State<ReplyTile> {
     _toggleLikeCommentBloc = ToggleLikeCommentBloc();
   }
 
+  @override
+  void dispose() {
+    _toggleLikeCommentBloc.close();
+    rebuildLikeButton.dispose();
+    super.dispose();
+  }
+
   void initialise() {
     reply = widget.reply;
     postId = widget.postId;

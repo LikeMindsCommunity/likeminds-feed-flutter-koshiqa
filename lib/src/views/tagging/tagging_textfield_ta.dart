@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:feed_sx/feed.dart';
+import 'package:feed_sx/packages/flutter_typeahead-4.3.7/lib/flutter_typeahead.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/widgets/profile_picture.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 class TaggingAheadTextField extends StatefulWidget {
@@ -46,6 +46,15 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
   String textValue = "";
   String tagValue = "";
   static const fixedSize = 6;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode!.dispose();
+    _scrollController.dispose();
+    _suggestionsBoxController.close();
+    super.dispose();
+  }
 
   @override
   void initState() {

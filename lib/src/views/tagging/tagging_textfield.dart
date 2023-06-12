@@ -45,6 +45,13 @@ class _TaggingTextFieldState extends State<TaggingTextField> {
     getController = widget.getController;
   }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
   TextEditingController? get controller => _controller;
 
   @override
@@ -270,7 +277,7 @@ class AtText extends SpecialText {
             style: textStyle,
             recognizer: (TapGestureRecognizer()
               ..onTap = () {
- onTap(atText);
+                onTap(atText);
               }),
           )
         : SpecialTextSpan(
@@ -280,7 +287,7 @@ class AtText extends SpecialText {
             style: textStyle,
             recognizer: (TapGestureRecognizer()
               ..onTap = () {
- onTap(atText);
+                onTap(atText);
               }),
           );
   }

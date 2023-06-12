@@ -17,11 +17,15 @@ abstract class ILikeMindsService {
   Future<GetFeedRoomResponse> getFeedRoom(GetFeedRoomRequest request);
   Future<GetFeedOfFeedRoomResponse> getFeedOfFeedRoom(
       GetFeedOfFeedRoomRequest request);
+  Future<GetNotificationFeedResponse> getNotificationFeed(
+      GetNotificationFeedRequest request);
+  Future<GetUnreadNotificationCountResponse> getUnreadNotificationCount();
   Future<AddPostResponse> addPost(AddPostRequest request);
   Future<GetPostResponse> getPost(GetPostRequest request);
   Future<PostDetailResponse> getPostDetails(PostDetailRequest request);
   Future<GetPostLikesResponse> getPostLikes(GetPostLikesRequest request);
   Future<PinPostResponse> pinPost(PinPostRequest request);
+  Future<SavePostResponse> savePost(SavePostRequest request);
   Future<EditPostResponse> editPost(EditPostRequest request);
   Future<GetCommentLikesResponse> getCommentLikes(
       GetCommentLikesRequest request);
@@ -42,6 +46,8 @@ abstract class ILikeMindsService {
   Future<GetTaggingListResponse> getTaggingList(
       {required GetTaggingListRequest request});
   Future<DecodeUrlResponse> decodeUrl(DecodeUrlRequest request);
+  Future<MarkReadNotificationResponse> markReadNotification(
+      MarkReadNotificationRequest request);
   Future<GetDeleteReasonResponse> getReportTags(GetDeleteReasonRequest request);
   void routeToProfile(String userId);
 }
@@ -123,6 +129,11 @@ class LikeMindsService implements ILikeMindsService {
   }
 
   @override
+  Future<SavePostResponse> savePost(SavePostRequest savePostRequest) async {
+    return await _sdkApplication.savePost(savePostRequest);
+  }
+
+  @override
   Future<EditPostResponse> editPost(EditPostRequest editPostRequest) async {
     return await _sdkApplication.editPost(editPostRequest);
   }
@@ -188,6 +199,24 @@ class LikeMindsService implements ILikeMindsService {
   @override
   Future<GetFeedRoomResponse> getFeedRoom(GetFeedRoomRequest request) async {
     return await _sdkApplication.getFeedRoom(request);
+  }
+
+  @override
+  Future<GetNotificationFeedResponse> getNotificationFeed(
+      GetNotificationFeedRequest request) async {
+    return await _sdkApplication.getNotificationFeed(request);
+  }
+
+  @override
+  Future<GetUnreadNotificationCountResponse>
+      getUnreadNotificationCount() async {
+    return await _sdkApplication.getUnreadNotificationCount();
+  }
+
+  @override
+  Future<MarkReadNotificationResponse> markReadNotification(
+      MarkReadNotificationRequest request) {
+    return _sdkApplication.markReadNotification(request);
   }
 
   @override

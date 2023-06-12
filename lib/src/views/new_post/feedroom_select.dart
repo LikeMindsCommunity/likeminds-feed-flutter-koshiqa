@@ -53,6 +53,8 @@ class _FeedRoomSelectState extends State<FeedRoomSelect> {
   @override
   void dispose() {
     _pagingControllerFeedRoomList.dispose();
+    rebuildList.dispose();
+    _feedRoomListBloc?.close();
     super.dispose();
   }
 

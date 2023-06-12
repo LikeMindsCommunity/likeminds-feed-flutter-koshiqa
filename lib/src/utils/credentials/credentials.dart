@@ -19,9 +19,9 @@ abstract class CredsDev {
   @EnviedField(varName: 'BOT_ID', obfuscate: true)
   static final String botId = _CredsDev.botId;
   @EnviedField(varName: 'BUCKET_NAME', obfuscate: true)
-  static final bucketName = _CredsDev.bucketName;
+  static final String bucketName = _CredsDev.bucketName;
   @EnviedField(varName: 'POOL_ID', obfuscate: true)
-  static final poolId = _CredsDev.poolId;
+  static final String poolId = _CredsDev.poolId;
 }
 
 ///These are PROD community credentials
@@ -32,7 +32,7 @@ abstract class CredsProd {
   @EnviedField(varName: 'BOT_ID', obfuscate: true)
   static final String botId = _CredsProd.botId;
   @EnviedField(varName: 'BUCKET_NAME', obfuscate: true)
-  static final bucketName = _CredsProd.bucketName;
+  static final String bucketName = _CredsProd.bucketName;
   @EnviedField(varName: 'POOL_ID', obfuscate: true)
-  static final poolId = _CredsProd.poolId;
+  static final String poolId = _CredsProd.poolId;
 }

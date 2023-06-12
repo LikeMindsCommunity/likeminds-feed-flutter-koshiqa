@@ -1,3 +1,8 @@
-## 0.0.1
+## 1.2.1
 
-* TODO: Describe initial release.
+Updating package versions
+
+## 1.3.0
+
+Adding Notification Fee
+Adding Save Post
