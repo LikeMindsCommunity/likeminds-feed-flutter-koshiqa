@@ -1,14 +1,15 @@
 import 'dart:async';
 import 'package:feed_sx/feed.dart';
+import 'package:feed_sx/packages/flutter_typeahead-4.3.7/lib/flutter_typeahead.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/widgets/profile_picture.dart';
 import 'package:flutter/material.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 class TaggingAheadTextField extends StatefulWidget {
   final bool isDown;
+  final FocusNode focusNode;
   final Function(UserTag) onTagSelected;
   final TextEditingController? controller;
   final InputDecoration? decoration;
@@ -21,6 +22,7 @@ class TaggingAheadTextField extends StatefulWidget {
     required this.feedroomId,
     required this.onTagSelected,
     required this.controller,
+    required this.focusNode,
     this.decoration,
     this.onChange,
   });
@@ -31,7 +33,7 @@ class TaggingAheadTextField extends StatefulWidget {
 
 class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
   late final TextEditingController _controller;
-  final FocusNode _focusNode = FocusNode();
+  FocusNode? _focusNode;
   final ScrollController _scrollController = ScrollController();
   final SuggestionsBoxController _suggestionsBoxController =
       SuggestionsBoxController();
@@ -43,22 +45,32 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
   bool tagComplete = false;
   String textValue = "";
   String tagValue = "";
-  static const FIXED_SIZE = 6;
+  static const fixedSize = 6;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode!.dispose();
+    _scrollController.dispose();
+    _suggestionsBoxController.close();
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
+    _focusNode = widget.focusNode;
     _controller = widget.controller!;
     _scrollController.addListener(() async {
       // page++;
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
         page++;
-        final taggingData = await locator<LikeMindsService>().getTags(
-          request: (TagRequestModelBuilder()
+        final taggingData = await locator<LikeMindsService>().getTaggingList(
+          request: (GetTaggingListRequestBuilder()
                 ..feedroomId(widget.feedroomId)
                 ..page(page)
-                ..pageSize(FIXED_SIZE))
+                ..pageSize(fixedSize))
               .build(),
         );
         if (taggingData.members != null && taggingData.members!.isNotEmpty) {
@@ -78,11 +90,11 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
         return const Iterable.empty();
       } else if (!tagComplete && currentText.contains('@')) {
         String tag = tagValue.substring(1).replaceAll(' ', '');
-        final taggingData = await locator<LikeMindsService>().getTags(
-          request: (TagRequestModelBuilder()
+        final taggingData = await locator<LikeMindsService>().getTaggingList(
+          request: (GetTaggingListRequestBuilder()
                 ..feedroomId(widget.feedroomId)
                 ..page(1)
-                ..pageSize(FIXED_SIZE)
+                ..pageSize(fixedSize)
                 ..searchQuery(tag))
               .build(),
         );
@@ -122,7 +134,7 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
         textFieldConfiguration: TextFieldConfiguration(
           keyboardType: TextInputType.multiline,
           controller: _controller,
-          // focusNode: _focusNode,
+          focusNode: _focusNode,
           minLines: 2,
           maxLines: 200,
           decoration: widget.decoration ??
@@ -130,7 +142,6 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
                 hintText: 'Write something here...',
                 border: InputBorder.none,
               ),
-
           onChanged: ((value) {
             widget.onChange!(value);
             final int newTagCount = '@'.allMatches(value).length;
@@ -148,7 +159,6 @@ class _TaggingAheadTextFieldState extends State<TaggingAheadTextField> {
         ),
         direction: widget.isDown ? AxisDirection.down : AxisDirection.up,
         suggestionsCallback: (suggestion) async {
-          var str = suggestion;
           return await _getSuggestions(suggestion);
         },
         keepSuggestionsOnSuggestionSelected: true,

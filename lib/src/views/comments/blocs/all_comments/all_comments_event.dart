@@ -7,7 +7,7 @@ abstract class AllCommentsEvent extends Equatable {
 class GetAllComments extends AllCommentsEvent {
   final PostDetailRequest postDetailRequest;
   final bool forLoadMore;
-  GetAllComments({required this.postDetailRequest, required this.forLoadMore});
+  const GetAllComments({required this.postDetailRequest, required this.forLoadMore});
 
   @override
   List<Object?> get props => [postDetailRequest, forLoadMore];

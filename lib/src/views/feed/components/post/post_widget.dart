@@ -12,14 +12,12 @@ class PostWidget extends StatefulWidget {
   final Post postDetails;
   final int feedRoomId;
   final User user;
-  final int postType;
   final bool showActions;
   final Function(bool) refresh;
   final bool isFeed;
 
   const PostWidget({
     super.key,
-    required this.postType,
     this.showActions = true,
     required this.postDetails,
     required this.feedRoomId,
@@ -34,22 +32,17 @@ class PostWidget extends StatefulWidget {
 
 class _PostWidgetState extends State<PostWidget> {
   Post? postDetails;
-  late final User user;
-  late final bool showActions;
+  User? user;
+  bool? showActions;
   Function(bool)? refresh;
-  late bool isFeed;
+  bool? isFeed;
 
-  @override
-  void initState() {
-    super.initState();
+  void setPostValues() {
+    refresh = widget.refresh;
     user = widget.user;
+    postDetails = widget.postDetails;
     showActions = widget.showActions;
     isFeed = widget.isFeed;
-  }
-
-  setPostValues() {
-    refresh = widget.refresh;
-    postDetails = widget.postDetails;
   }
 
   @override
@@ -57,12 +50,13 @@ class _PostWidgetState extends State<PostWidget> {
     setPostValues();
     return GestureDetector(
       onTap: () {
-        if (isFeed) {
+        if (isFeed!) {
           locator<NavigationService>().navigateTo(
             AllCommentsScreen.route,
             arguments: AllCommentsScreenArguments(
-              post: postDetails!,
-              feedroomId: widget.feedRoomId,
+              postId: postDetails!.id,
+              feedRoomId: widget.feedRoomId,
+              fromComment: false,
             ),
           );
         }
@@ -76,7 +70,7 @@ class _PostWidgetState extends State<PostWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               PostHeader(
-                user: user,
+                user: user!,
                 menuItems: postDetails!.menuItems,
                 postDetails: postDetails!,
                 refresh: refresh!,
@@ -89,11 +83,11 @@ class _PostWidgetState extends State<PostWidget> {
                 attachments: postDetails!.attachments,
                 postId: postDetails!.id,
               ),
-              showActions
+              showActions!
                   ? PostActions(
                       postDetails: postDetails!,
                       refresh: refresh!,
-                      isFeed: isFeed,
+                      isFeed: isFeed!,
                     )
                   : const SizedBox.shrink()
             ],

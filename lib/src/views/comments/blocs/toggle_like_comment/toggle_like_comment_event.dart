@@ -9,7 +9,7 @@ abstract class ToggleLikeCommentEvent extends Equatable {
 
 class ToggleLikeComment extends ToggleLikeCommentEvent {
   final ToggleLikeCommentRequest toggleLikeCommentRequest;
-  ToggleLikeComment({required this.toggleLikeCommentRequest});
+  const ToggleLikeComment({required this.toggleLikeCommentRequest});
 
   @override
   List<Object> get props => [toggleLikeCommentRequest];

@@ -7,6 +7,8 @@ import 'package:feed_sx/feed.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:uni_links/uni_links.dart';
 
+const debug = bool.fromEnvironment('DEBUG');
+
 final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
@@ -39,22 +41,12 @@ class CredScreen extends StatefulWidget {
 class _CredScreenState extends State<CredScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _userIdController = TextEditingController();
-  late final LMFeed lmFeed;
   StreamSubscription? _sub;
+  LMFeed? lmFeed;
 
-  @override
   @override
   void initState() {
     super.initState();
-    lmFeed = LMFeed.instance(
-      userId: _userIdController.text,
-      domain: 'www.feedsample.com',
-      userName: _usernameController.text,
-      defaultFeedroom: 1262837,
-      callback: LikeMindsCallback(),
-      deepLinkCallBack: initUniLinks,
-      apiKey: "",
-    );
     NetworkConnectivity networkConnectivity = NetworkConnectivity.instance;
     networkConnectivity.initialise();
     //initUniLinks();
@@ -103,7 +95,8 @@ class _CredScreenState extends State<CredScreen> {
 
   @override
   void dispose() {
-    if (_sub != null) _sub!.cancel();
+    _usernameController.dispose();
+    _userIdController.dispose();
     super.dispose();
   }
 
@@ -170,9 +163,18 @@ class _CredScreenState extends State<CredScreen> {
             const SizedBox(height: 36),
             GestureDetector(
               onTap: () {
+                lmFeed = LMFeed.instance(
+                  userId: _userIdController.text,
+                  userName: _usernameController.text,
+                  defaultFeedroom: debug ? 83301 : 2238799,
+                  callback: LikeMindsCallback(),
+                  deepLinkCallBack: () {},
+                  domain: '',
+                  apiKey: "",
+                );
                 MaterialPageRoute route = MaterialPageRoute(
                   // INIT - Get the LMFeed instance and pass the credentials (if any)
-                  builder: (context) => lmFeed,
+                  builder: (context) => lmFeed!,
                 );
                 Navigator.pushReplacement(context, route);
               },

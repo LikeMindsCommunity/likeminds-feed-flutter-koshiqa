@@ -36,22 +36,10 @@
 @import firebase_messaging;
 #endif
 
-#if __has_include(<flutter_keyboard_visibility/FlutterKeyboardVisibilityPlugin.h>)
-#import <flutter_keyboard_visibility/FlutterKeyboardVisibilityPlugin.h>
-#else
-@import flutter_keyboard_visibility;
-#endif
-
 #if __has_include(<flutter_notification_channel/FlutterNotificationChannelPlugin.h>)
 #import <flutter_notification_channel/FlutterNotificationChannelPlugin.h>
 #else
 @import flutter_notification_channel;
-#endif
-
-#if __has_include(<image_crop/ImageCropPlugin.h>)
-#import <image_crop/ImageCropPlugin.h>
-#else
-@import image_crop;
 #endif
 
 #if __has_include(<image_picker_ios/FLTImagePickerPlugin.h>)
@@ -76,6 +64,12 @@
 #import <permission_handler_apple/PermissionHandlerPlugin.h>
 #else
 @import permission_handler_apple;
+#endif
+
+#if __has_include(<shared_preferences_foundation/SharedPreferencesPlugin.h>)
+#import <shared_preferences_foundation/SharedPreferencesPlugin.h>
+#else
+@import shared_preferences_foundation;
 #endif
 
 #if __has_include(<simple_s3/SimpleS3Plugin.h>)
@@ -116,13 +110,12 @@
   [FilePickerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FilePickerPlugin"]];
   [FLTFirebaseCorePlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseCorePlugin"]];
   [FLTFirebaseMessagingPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseMessagingPlugin"]];
-  [FlutterKeyboardVisibilityPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterKeyboardVisibilityPlugin"]];
   [FlutterNotificationChannelPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterNotificationChannelPlugin"]];
-  [ImageCropPlugin registerWithRegistrar:[registry registrarForPlugin:@"ImageCropPlugin"]];
   [FLTImagePickerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTImagePickerPlugin"]];
   [OpenFilePlugin registerWithRegistrar:[registry registrarForPlugin:@"OpenFilePlugin"]];
   [PathProviderPlugin registerWithRegistrar:[registry registrarForPlugin:@"PathProviderPlugin"]];
   [PermissionHandlerPlugin registerWithRegistrar:[registry registrarForPlugin:@"PermissionHandlerPlugin"]];
+  [SharedPreferencesPlugin registerWithRegistrar:[registry registrarForPlugin:@"SharedPreferencesPlugin"]];
   [SimpleS3Plugin registerWithRegistrar:[registry registrarForPlugin:@"SimpleS3Plugin"]];
   [SqflitePlugin registerWithRegistrar:[registry registrarForPlugin:@"SqflitePlugin"]];
   [FLTURLLauncherPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTURLLauncherPlugin"]];

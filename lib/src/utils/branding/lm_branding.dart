@@ -24,7 +24,7 @@ class LMBranding {
     _fonts = fonts;
   }
 
-  setBranding(SetBrandingRequest setBrandingRequest) {
+  void setBranding(SetBrandingRequest setBrandingRequest) {
     _headerColor = setBrandingRequest.headerColor;
     _buttonsColor = setBrandingRequest.buttonsColor;
     _textLinkColor = setBrandingRequest.textLinkColor;

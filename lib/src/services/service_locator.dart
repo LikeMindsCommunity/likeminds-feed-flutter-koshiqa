@@ -6,11 +6,11 @@ import 'package:likeminds_feed/likeminds_feed.dart';
 
 final GetIt locator = GetIt.I;
 
-void _setupLocator(LMSdkCallback callback, String apiKey) {
+void _setupLocator(LMSDKCallback callback, String apiKey) {
   locator.registerSingleton(LikeMindsService(callback, apiKey));
   locator.registerSingleton(NavigationService());
 }
 
-void setupLMFeed(LMSdkCallback callback, String apiKey) {
+void setupLMFeed(LMSDKCallback callback, String apiKey) {
   _setupLocator(callback, apiKey);
 }

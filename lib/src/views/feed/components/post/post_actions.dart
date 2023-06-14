@@ -22,7 +22,7 @@ class PostActions extends StatefulWidget {
     required this.isFeed,
   });
 
-  get getPostDetails => postDetails;
+  Post get getPostDetails => postDetails;
 
   @override
   State<PostActions> createState() => _PostActionsState();
@@ -36,7 +36,13 @@ class _PostActionsState extends State<PostActions> {
   late Function(bool) refresh;
   ValueNotifier<bool> rebuildLikeWidget = ValueNotifier(false);
 
-  setPostDetails() {
+  @override
+  void dispose() {
+    rebuildLikeWidget.dispose();
+    super.dispose();
+  }
+
+  void setPostDetails() {
     postDetails = widget.postDetails;
     postLikes = postDetails!.likeCount;
     comments = postDetails!.commentCount;
@@ -129,12 +135,14 @@ class _PostActionsState extends State<PostActions> {
                           "comment_count": postDetails!.commentCount.toString(),
                         },
                       );
+
                       locator<NavigationService>()
                           .navigateTo(
                         AllCommentsScreen.route,
                         arguments: AllCommentsScreenArguments(
-                          post: postDetails!,
-                          feedroomId: locator<LikeMindsService>().getFeedroomId,
+                          postId: postDetails!.id,
+                          feedRoomId: locator<LikeMindsService>().feedroomId!,
+                          fromComment: true,
                         ),
                       )
                           .then((result) {
@@ -175,9 +183,46 @@ class _PostActionsState extends State<PostActions> {
               },
               icon: SvgPicture.asset(kAssetShareIcon),
             ),
+            kHorizontalPaddingSmall,
+            IconButton(
+              onPressed: () async {
+                postDetails!.isSaved = !postDetails!.isSaved;
+                rebuildLikeWidget.value = !rebuildLikeWidget.value;
+                final response = await locator<LikeMindsService>().savePost(
+                  (SavePostRequestBuilder()..postId(postDetails!.id)).build(),
+                );
+                if (response.success) {
+                  if (postDetails!.isSaved) {
+                    toast(
+                      "Post saved",
+                      duration: Toast.LENGTH_LONG,
+                    );
+                  }
+                } else {
+                  toast(
+                    response.errorMessage ?? "An error occurred",
+                    duration: Toast.LENGTH_LONG,
+                  );
+                  postDetails!.isSaved = !postDetails!.isSaved;
+                  rebuildLikeWidget.value = !rebuildLikeWidget.value;
+                }
+              },
+              icon: ValueListenableBuilder(
+                  valueListenable: rebuildLikeWidget,
+                  builder: (context, _, __) {
+                    return SvgPicture.asset(
+                      postDetails!.isSaved
+                          ? kAssetBookmarkFilledIcon
+                          : kAssetBookmarkIcon,
+                    );
+                  }),
+            ),
+            //     IconButton(
+            //       onPressed: () {},
+            //       icon: SvgPicture.asset(kAssetShareIcon),
+            //     ),
           ],
         ),
-        kHorizontalPaddingSmall,
       ],
     );
   }

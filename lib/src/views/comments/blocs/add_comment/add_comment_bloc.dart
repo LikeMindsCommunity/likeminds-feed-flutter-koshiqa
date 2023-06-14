@@ -2,15 +2,15 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:feed_sx/src/utils/analytics/analytics.dart';
+import 'package:feed_sx/feed.dart';
+import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 part 'add_comment_event.dart';
 part 'add_comment_state.dart';
 
 class AddCommentBloc extends Bloc<AddCommentEvent, AddCommentState> {
-  final FeedApi feedApi;
-  AddCommentBloc({required this.feedApi}) : super(AddCommentInitial()) {
+  AddCommentBloc() : super(AddCommentInitial()) {
     on<AddComment>(
       (event, emit) async {
         await _mapAddCommentToState(
@@ -25,9 +25,10 @@ class AddCommentBloc extends Bloc<AddCommentEvent, AddCommentState> {
       {required AddCommentRequest addCommentRequest,
       required Emitter<AddCommentState> emit}) async {
     emit(AddCommentLoading());
-    AddCommentResponse? response = await feedApi.addComment(addCommentRequest);
-    if (response == null) {
-      emit(AddCommentError(message: "No data found"));
+    AddCommentResponse? response =
+        await locator<LikeMindsService>().addComment(addCommentRequest);
+    if (!response.success) {
+      emit(const AddCommentError(message: "No data found"));
     } else {
       LMAnalytics.get().track(
         AnalyticsKeys.commentPosted,

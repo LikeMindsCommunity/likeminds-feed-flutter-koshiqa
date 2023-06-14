@@ -2,8 +2,7 @@ import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/views/comments/components/dropdown_options_reply.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/packages/expandable_text/expandable_text.dart';
-import 'package:feed_sx/src/services/likeminds_service.dart';
+import 'package:feed_sx/src/utils/expandable_text/expandable_text.dart';
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/utils.dart';
@@ -34,11 +33,12 @@ class ReplyTile extends StatefulWidget {
 
 class _ReplyTileState extends State<ReplyTile> {
   late final ToggleLikeCommentBloc _toggleLikeCommentBloc;
-  late final CommentReply reply;
+  ValueNotifier<bool> rebuildLikeButton = ValueNotifier(false);
+  CommentReply? reply;
   late final User user;
-  late final String postId;
-  late final String commentId;
-  late final Function() refresh;
+  String? postId;
+  String? commentId;
+  Function()? refresh;
   int? likeCount;
 
   bool isLiked = false;
@@ -46,19 +46,30 @@ class _ReplyTileState extends State<ReplyTile> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    reply = widget.reply;
     user = widget.user;
+
+    likeCount = widget.reply.likesCount;
+    _toggleLikeCommentBloc = ToggleLikeCommentBloc();
+  }
+
+  @override
+  void dispose() {
+    _toggleLikeCommentBloc.close();
+    rebuildLikeButton.dispose();
+    super.dispose();
+  }
+
+  void initialise() {
+    reply = widget.reply;
     postId = widget.postId;
-    isLiked = reply.isLiked;
+    isLiked = reply!.isLiked;
     commentId = widget.commentId;
     refresh = widget.refresh;
-    likeCount = widget.reply.likesCount;
-    FeedApi feedApi = locator<LikeMindsService>().getFeedApi();
-    _toggleLikeCommentBloc = ToggleLikeCommentBloc(feedApi: feedApi);
   }
 
   @override
   Widget build(BuildContext context) {
+    initialise();
     return Container(
       decoration: const BoxDecoration(color: kWhiteColor),
       padding: const EdgeInsets.all(16),
@@ -76,11 +87,11 @@ class _ReplyTileState extends State<ReplyTile> {
               ),
               const Spacer(),
               DropdownOptionsReply(
-                menuItems: reply.menuItems,
-                replyDetails: reply,
-                postId: postId,
+                menuItems: reply!.menuItems,
+                replyDetails: reply!,
+                postId: postId!,
                 commentId: widget.commentId,
-                refresh: refresh,
+                refresh: refresh!,
               ),
             ],
           ),
@@ -94,62 +105,101 @@ class _ReplyTileState extends State<ReplyTile> {
             children: [
               Row(
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        if (isLiked) {
-                          likeCount = likeCount! - 1;
-                        } else {
-                          likeCount = likeCount! + 1;
-                        }
-                        isLiked = !isLiked;
-                      });
+                  ValueListenableBuilder(
+                      valueListenable: rebuildLikeButton,
+                      builder: (context, _, __) {
+                        return GestureDetector(
+                          onTap: () {
+                            print('like button tapped');
+                            if (isLiked) {
+                              likeCount = likeCount! - 1;
+                              widget.reply.likesCount -= 1;
+                            } else {
+                              likeCount = likeCount! + 1;
+                              widget.reply.likesCount += 1;
+                            }
+                            isLiked = !isLiked;
+                            widget.reply.isLiked = isLiked;
 
-                      _toggleLikeCommentBloc.add(ToggleLikeComment(
-                        toggleLikeCommentRequest:
-                            (ToggleLikeCommentRequestBuilder()
-                                  ..commentId(reply.id)
-                                  ..postId(postId))
-                                .build(),
-                      ));
-                    },
-                    child: Builder(builder: ((context) {
-                      return isLiked
-                          ? SvgPicture.asset(
-                              kAssetLikeFilledIcon,
-                              // color: kPrimaryColor,
-                              height: 17,
-                            )
-                          : SvgPicture.asset(
-                              kAssetLikeIcon,
-                              color: kGrey3Color,
-                              height: 13,
-                            );
-                    })),
-                  ),
+                            rebuildLikeButton.value = !rebuildLikeButton.value;
+
+                            _toggleLikeCommentBloc.add(ToggleLikeComment(
+                              toggleLikeCommentRequest:
+                                  (ToggleLikeCommentRequestBuilder()
+                                        ..commentId(reply!.id)
+                                        ..postId(postId!))
+                                      .build(),
+                            ));
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(3),
+                            child: isLiked
+                                ? SvgPicture.asset(
+                                    kAssetLikeFilledIcon,
+                                    // color: kPrimaryColor,
+                                    height: 17,
+                                  )
+                                : SvgPicture.asset(
+                                    kAssetLikeIcon,
+                                    color: kGrey3Color,
+                                    height: 13,
+                                  ),
+                          ),
+                        );
+                      }),
                   kHorizontalPaddingSmall,
-                  GestureDetector(
-                    onTap: () {
-                      locator<NavigationService>().navigateTo(LikesScreen.route,
-                          arguments: LikesScreenArguments(
-                            postId: postId,
-                            commentId: reply.id,
-                            isCommentLikes: true,
-                          ));
+                  ValueListenableBuilder(
+                    valueListenable: rebuildLikeButton,
+                    builder: (context, _, __) {
+                      return GestureDetector(
+                        onTap: () {
+                          locator<NavigationService>()
+                              .navigateTo(LikesScreen.route,
+                                  arguments: LikesScreenArguments(
+                                    postId: postId!,
+                                    commentId: reply!.id,
+                                    isCommentLikes: true,
+                                  ));
+                        },
+                        child: Text(
+                          likeCount! > 0
+                              ? "$likeCount ${likeCount! > 1 ? 'Likes' : 'Like'}"
+                              : '',
+                          style: const TextStyle(
+                            fontSize: kFontSmallMed,
+                            color: kGrey3Color,
+                          ),
+                        ),
+                      );
                     },
-                    child: Text(
-                      likeCount! > 0
-                          ? "$likeCount ${likeCount! > 1 ? 'Likes' : 'Like'}"
-                          : '',
-                      style: const TextStyle(
-                          fontSize: kFontSmallMed, color: kGrey3Color),
-                    ),
                   ),
                 ],
               ),
               const Spacer(),
+              reply!.isEdited != null && reply!.isEdited!
+                  ? const Row(
+                      children: [
+                        Text(
+                          "Edited",
+                          style: TextStyle(
+                            fontSize: kFontSmallMed,
+                            color: kGrey3Color,
+                          ),
+                        ),
+                        kHorizontalPaddingMedium,
+                        Text(
+                          '·',
+                          style: TextStyle(
+                            fontSize: kFontSmallMed,
+                            color: kGrey3Color,
+                          ),
+                        ),
+                        kHorizontalPaddingMedium,
+                      ],
+                    )
+                  : const SizedBox(),
               Text(
-                reply.createdAt.timeAgo(),
+                reply!.createdAt.timeAgo(),
                 style: const TextStyle(
                     fontSize: kFontSmallMed, color: kGrey3Color),
               ),

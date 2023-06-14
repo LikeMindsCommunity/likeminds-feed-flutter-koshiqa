@@ -14,8 +14,8 @@ import 'package:likeminds_feed/likeminds_feed.dart';
 class FeedRoomSelect extends StatefulWidget {
   static const String route = "/feedroom_select";
   final User user;
-  List<FeedRoom> feedRoomIds;
-  FeedRoomSelect({
+  final List<FeedRoom> feedRoomIds;
+  const FeedRoomSelect({
     super.key,
     required this.user,
     required this.feedRoomIds,
@@ -34,7 +34,7 @@ class _FeedRoomSelectState extends State<FeedRoomSelect> {
   final PagingController<int, FeedRoom> _pagingControllerFeedRoomList =
       PagingController(firstPageKey: 1);
 
-  _addPaginationListener() {
+  void _addPaginationListener() {
     _pagingControllerFeedRoomList.addPageRequestListener((pageKey) {
       _feedRoomListBloc!.add(GetFeedRoomList(offset: pageKey));
     });
@@ -53,6 +53,8 @@ class _FeedRoomSelectState extends State<FeedRoomSelect> {
   @override
   void dispose() {
     _pagingControllerFeedRoomList.dispose();
+    rebuildList.dispose();
+    _feedRoomListBloc?.close();
     super.dispose();
   }
 
@@ -226,9 +228,9 @@ class _FeedRoomSelectState extends State<FeedRoomSelect> {
                     } else if (state is FeedRoomListError) {
                       return getFeedRoomListErrorView(state.message);
                     } else if (state is FeedRoomListEmpty) {
-                      return SizedBox(
+                      return const SizedBox(
                         child: Column(
-                          children: const <Widget>[
+                          children: <Widget>[
                             Text('No feed room found'),
                           ],
                         ),

@@ -32,7 +32,7 @@ class _PostVideoState extends State<PostVideo> {
   @override
   void dispose() {
     _timer?.cancel();
-    videoPlayerController.dispose();
+    videoPlayerController?.dispose();
     super.dispose();
   }
 
@@ -41,7 +41,7 @@ class _PostVideoState extends State<PostVideo> {
     super.initState();
   }
 
-  initialiseControllers() async {
+  Future<void> initialiseControllers() async {
     if (widget.url != null) {
       videoPlayerController = VideoPlayerController.network(
         widget.url!,

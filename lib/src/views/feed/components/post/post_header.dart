@@ -22,11 +22,9 @@ class PostHeader extends StatelessWidget {
       required this.refresh});
 
   void removeReportIntegration() {
-    if (menuItems != null) {
-      menuItems.removeWhere((element) {
-        return element.title == 'Report';
-      });
-    }
+    menuItems.removeWhere((element) {
+      return element.title == 'Report';
+    });
   }
 
   @override

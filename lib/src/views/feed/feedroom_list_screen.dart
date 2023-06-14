@@ -23,7 +23,7 @@ class _FeedRoomListScreenState extends State<FeedRoomListScreen> {
   final PagingController<int, FeedRoom> _pagingControllerFeedRoomList =
       PagingController(firstPageKey: 1);
 
-  _addPaginationListener() {
+  void _addPaginationListener() {
     _pagingControllerFeedRoomList.addPageRequestListener((pageKey) {
       _feedRoomListBloc!.add(GetFeedRoomList(offset: pageKey));
     });
@@ -41,6 +41,7 @@ class _FeedRoomListScreenState extends State<FeedRoomListScreen> {
   @override
   void dispose() {
     _pagingControllerFeedRoomList.dispose();
+    _feedRoomListBloc?.close();
     super.dispose();
   }
 

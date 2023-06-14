@@ -13,11 +13,12 @@ import 'package:carousel_slider/carousel_slider.dart';
 
 class PostMedia extends StatefulWidget {
   final String postId;
-  double? height;
-  List<Attachment>? attachments;
-  List<MediaModel>? mediaFiles;
-  Function(int)? removeAttachment;
-  PostMedia({
+  final double? height;
+  final List<Attachment>? attachments;
+  final List<MediaModel>? mediaFiles;
+  final Function(int)? removeAttachment;
+
+  const PostMedia({
     super.key,
     this.height,
     this.attachments,
@@ -37,6 +38,12 @@ class _PostMediaState extends State<PostMedia> {
   ValueNotifier<bool> rebuildCurr = ValueNotifier<bool>(false);
   List<Widget> mediaWidgets = [];
   // Current index of carousel
+
+  @override
+  void dispose() {
+    rebuildCurr.dispose();
+    super.dispose();
+  }
 
   bool checkIfMultipleAttachments() {
     return ((widget.attachments != null && widget.attachments!.length > 1) ||
@@ -106,10 +113,10 @@ class _PostMediaState extends State<PostMedia> {
                 errorWidget: (context, url, error) {
                   return Container(
                     color: kBackgroundColor,
-                    child: Column(
+                    child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
+                      children: [
                         Icon(
                           Icons.error_outline,
                           size: 24,
@@ -141,7 +148,6 @@ class _PostMediaState extends State<PostMedia> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 
@@ -209,10 +215,10 @@ class _PostMediaState extends State<PostMedia> {
                 errorWidget: (context, url, error) {
                   return Container(
                     color: kBackgroundColor,
-                    child: Column(
+                    child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
+                      children: [
                         Icon(
                           Icons.error_outline,
                           size: 24,

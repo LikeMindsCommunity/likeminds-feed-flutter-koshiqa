@@ -1,5 +1,7 @@
 import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
+import 'package:feed_sx/src/views/notification/notification_screen.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:feed_sx/src/navigation/arguments.dart';
@@ -24,23 +26,28 @@ class FeedRoomScreen extends StatefulWidget {
   final bool isCm;
   final User user;
   final int feedRoomId;
-  String? feedRoomTitle;
-  FeedRoomScreen(
-      {super.key,
-      required this.isCm,
-      required this.user,
-      required this.feedRoomId,
-      this.feedRoomTitle});
+  final String? feedRoomTitle;
+
+  const FeedRoomScreen({
+    super.key,
+    required this.isCm,
+    required this.user,
+    required this.feedRoomId,
+    this.feedRoomTitle,
+  });
 
   @override
   State<FeedRoomScreen> createState() => _FeedRoomScreenState();
 }
 
 class _FeedRoomScreenState extends State<FeedRoomScreen> {
-  late final FeedRoomBloc _feedBloc;
-  String? title;
-  bool? isCm;
+  late final FeedRoomBloc _feedBloc; // bloc to fetch the feedroom data
+  String? title; // feedroom title
+  bool? isCm; // whether the logged in user is a community manager or not
+  // future to get the unread notification count
+  late Future<GetUnreadNotificationCountResponse> getUnreadNotificationCount;
 
+  // used to rebuild the appbar
   final ValueNotifier _rebuildAppBar = ValueNotifier(false);
 
   // to control paging on FeedRoom View
@@ -57,15 +64,27 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     _feedBloc.add(
       GetFeedRoom(feedRoomId: widget.feedRoomId, offset: 1),
     );
+    updateUnreadNotificationCount();
+  }
+
+  // This function fetches the unread notification count
+  // and updates the respective future
+  void updateUnreadNotificationCount() async {
+    getUnreadNotificationCount =
+        locator<LikeMindsService>().getUnreadNotificationCount();
+    await getUnreadNotificationCount;
+    _rebuildAppBar.value = !_rebuildAppBar.value;
   }
 
   @override
   void dispose() {
     _pagingController.dispose();
+    _rebuildAppBar.dispose();
+    _feedBloc.close();
     super.dispose();
   }
 
-  _addPaginationListener() {
+  void _addPaginationListener() {
     _pagingController.addPageRequestListener(
       (pageKey) {
         _feedBloc.add(
@@ -79,10 +98,11 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     );
   }
 
-  refresh() => _pagingController.refresh();
+  void refresh() => _pagingController.refresh();
 
   int _pageFeedRoom = 1; // current index of FeedRoom
 
+  // This function updates the paging controller based on the state changes
   void updatePagingControllers(Object? state) {
     if (state is FeedRoomLoaded) {
       _pageFeedRoom++;
@@ -98,13 +118,16 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     }
   }
 
-  setTitleWidget(String feedRoomTitle) {
+  // This functions updates the feedroom title
+  void setTitleWidget(String feedRoomTitle) {
     if (title == null) {
       title = feedRoomTitle;
       _rebuildAppBar.value = !_rebuildAppBar.value;
     }
   }
 
+  // This function clears the paging controller
+  // whenever user uses pull to refresh on feedroom screen
   void clearPagingController() {
     /* Clearing paging controller while changing the
      event to prevent duplication of list */
@@ -122,10 +145,75 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
             ? BackButton(
                 color: Colors.white,
                 onPressed: () {
+                  // if the user is a community manager then
+                  // navigate back to the feedroom list screen
                   locator<NavigationService>().goBack();
                 },
               )
             : null,
+        actions: [
+          GestureDetector(
+            onTap: () async {
+              await locator<NavigationService>().navigateTo(
+                NotificationScreen.route,
+              );
+              updateUnreadNotificationCount();
+              // updates the unread notification count when a user
+              // navigates back from notification screen
+            },
+            child: ValueListenableBuilder(
+              valueListenable: _rebuildAppBar,
+              builder: (context, _, __) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 8.0, horizontal: 12.0),
+                  child: FutureBuilder<GetUnreadNotificationCountResponse>(
+                    future: getUnreadNotificationCount,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done &&
+                          snapshot.hasData &&
+                          snapshot.data!.success) {
+                        return Stack(
+                          alignment: Alignment.center,
+                          clipBehavior: Clip.none,
+                          children: [
+                            const Icon(
+                              CupertinoIcons.bell,
+                            ),
+                            snapshot.data!.count! > 0
+                                ? Positioned(
+                                    top: -5,
+                                    right: -5,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4.0),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child:
+                                          Text(snapshot.data!.count.toString()),
+                                    ),
+                                  )
+                                : const SizedBox()
+                          ],
+                        );
+                      }
+                      return const Stack(
+                        alignment: Alignment.center,
+                        clipBehavior: Clip.none,
+                        children: [
+                          Icon(
+                            CupertinoIcons.bell,
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+          )
+        ],
         title: ValueListenableBuilder(
             valueListenable: _rebuildAppBar,
             builder: (context, _, __) {
@@ -136,6 +224,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
       body: RefreshIndicator(
         onRefresh: () async {
           _feedBloc.add(GetFeedRoom(feedRoomId: widget.feedRoomId, offset: 1));
+          updateUnreadNotificationCount(); // funtion to update the unread notification count
           clearPagingController();
         },
         child: BlocConsumer(
@@ -188,7 +277,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
             return const Scaffold(
               backgroundColor: kBackgroundColor,
               body: Center(
-                child: const Loader(),
+                child: Loader(),
               ),
             );
           }),
@@ -289,16 +378,25 @@ class _FeedRoomViewState extends State<FeedRoomView> {
               }
               if (curr is NewPostUploaded) {
                 Post? item = curr.postData;
-                List<Post>? feedRoomItemList =
-                    widget.feedRoomPagingController.itemList;
-                for (int i = 0; i < feedRoomItemList!.length; i++) {
+                int length =
+                    widget.feedRoomPagingController.itemList?.length ?? 0;
+                List<Post> feedRoomItemList =
+                    widget.feedRoomPagingController.itemList ?? [];
+                for (int i = 0; i < feedRoomItemList.length; i++) {
                   if (!feedRoomItemList[i].isPinned) {
                     feedRoomItemList.insert(i, item);
                     break;
                   }
                 }
-                feedRoomItemList.removeLast();
+                if (length == feedRoomItemList.length) {
+                  feedRoomItemList.add(item);
+                }
+                if (feedRoomItemList.isNotEmpty &&
+                    feedRoomItemList.length > 10) {
+                  feedRoomItemList.removeLast();
+                }
                 widget.feedResponse.users.addAll(curr.userData);
+                widget.feedRoomPagingController.itemList = feedRoomItemList;
                 postUploading.value = false;
                 rebuildPostWidget.value = !rebuildPostWidget.value;
               }
@@ -330,14 +428,14 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                   color: kWhiteColor,
                   alignment: Alignment.center,
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Row(
+                  child: const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
-                        children: const <Widget>[
+                        children: <Widget>[
                           SizedBox(
                             width: 50,
                             height: 50,
@@ -346,7 +444,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                           Text('Saving')
                         ],
                       ),
-                      const CircularProgressIndicator(
+                      CircularProgressIndicator(
                         backgroundColor: kGrey3Color,
                         valueColor: AlwaysStoppedAnimation(kPrimaryColor),
                         strokeWidth: 3,
@@ -454,7 +552,6 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                       itemBuilder: (context, item, index) {
                         Post rebuildPostData = item;
                         return PostWidget(
-                          postType: 1,
                           postDetails: rebuildPostData,
                           feedRoomId: widget.feedRoom.id,
                           user: widget.feedResponse.users[item.userId]!,

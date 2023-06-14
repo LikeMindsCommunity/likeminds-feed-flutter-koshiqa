@@ -2,8 +2,6 @@ import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
-import 'package:likeminds_feed/likeminds_feed.dart';
-import 'package:overlay_support/overlay_support.dart';
 import 'package:share_plus/share_plus.dart';
 
 part 'deep_link_request.dart';
@@ -46,29 +44,15 @@ class SharePost {
     if (secondPathSegment.length > 1 && secondPathSegment[1] != null) {
       String postId = secondPathSegment[1];
 
-      final GetPostResponse postDetails =
-          await locator<LikeMindsService>().getPost(
-        (GetPostRequestBuilder()
-              ..postId(postId)
-              ..page(1)
-              ..pageSize(10))
-            .build(),
+      locator<NavigationService>().navigateTo(
+        AllCommentsScreen.route,
+        arguments: AllCommentsScreenArguments(
+          postId: postId,
+          fromComment: false,
+          feedRoomId: locator<LikeMindsService>().feedroomId ?? 0,
+        ),
       );
-      if (postDetails.success) {
-        locator<NavigationService>().navigateTo(
-          AllCommentsScreen.route,
-          arguments: AllCommentsScreenArguments(
-            post: postDetails.post!,
-            feedroomId: locator<LikeMindsService>().feedroomId ?? 0,
-          ),
-        );
-        return DeepLinkResponse(success: true);
-      } else {
-        toast(postDetails.errorMessage!);
-        return DeepLinkResponse(
-            success: false,
-            errorMessage: "URI parsing failed. Please try after some time.");
-      }
+      return DeepLinkResponse(success: true);
     } else {
       return DeepLinkResponse(
         success: false,
