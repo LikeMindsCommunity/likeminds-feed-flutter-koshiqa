@@ -39,7 +39,7 @@ class LMFeed extends StatefulWidget {
   final String domain;
   final int defaultFeedroom;
   final String apiKey;
-  final LMSdkCallback callback;
+  final LMSDKCallback callback;
   final Function() deepLinkCallBack;
 
   static LMFeed? _instance;
@@ -53,7 +53,7 @@ class LMFeed extends StatefulWidget {
     String? userName,
     required String domain,
     required int defaultFeedroom,
-    required LMSdkCallback callback,
+    required LMSDKCallback callback,
     required Function() deepLinkCallBack,
     required String apiKey,
   }) {

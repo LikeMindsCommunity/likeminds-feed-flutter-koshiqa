@@ -47,13 +47,6 @@ class _CredScreenState extends State<CredScreen> {
   @override
   void initState() {
     super.initState();
-    lmFeed = LMFeed.instance(
-      userId: _userIdController.text,
-      userName: _usernameController.text,
-      defaultFeedroom: 1262837,
-      callback: LikeMindsCallback(),
-      apiKey: "",
-    );
     NetworkConnectivity networkConnectivity = NetworkConnectivity.instance;
     networkConnectivity.initialise();
     //initUniLinks();
@@ -109,7 +102,6 @@ class _CredScreenState extends State<CredScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return lmFeed;
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 6, 92, 193),
       body: Padding(
@@ -175,6 +167,8 @@ class _CredScreenState extends State<CredScreen> {
                   userName: _usernameController.text,
                   defaultFeedroom: debug ? 83301 : 2238799,
                   callback: LikeMindsCallback(),
+                  deepLinkCallBack: () {},
+                  domain: '',
                   apiKey: "",
                 );
                 MaterialPageRoute route = MaterialPageRoute(
