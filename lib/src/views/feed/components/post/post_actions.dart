@@ -173,10 +173,6 @@ class _PostActionsState extends State<PostActions> {
         const Spacer(),
         Row(
           children: [
-            // IconButton(
-            //   onPressed: () {},
-            //   icon: SvgPicture.asset(kAssetBookmarkIcon),
-            // ),
             IconButton(
               onPressed: () {
                 SharePost().sharePost(postDetails!.id);

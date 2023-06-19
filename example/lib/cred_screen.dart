@@ -102,7 +102,7 @@ class _CredScreenState extends State<CredScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return lmFeed;
+    // return lmFeed;
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 6, 92, 193),
       body: Padding(
@@ -168,8 +168,10 @@ class _CredScreenState extends State<CredScreen> {
                   userName: _usernameController.text,
                   defaultFeedroom: debug ? 83301 : 2238799,
                   callback: LikeMindsCallback(),
-                  deepLinkCallBack: () {},
-                  domain: '',
+                  deepLinkCallBack: () {
+                    print("Deep Link Callback");
+                  },
+                  domain: 'www.feedsample.com',
                   apiKey: "",
                 );
                 MaterialPageRoute route = MaterialPageRoute(

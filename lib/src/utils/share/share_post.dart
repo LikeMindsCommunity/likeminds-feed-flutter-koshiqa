@@ -1,8 +1,9 @@
+import 'package:share_plus/share_plus.dart';
+
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
-import 'package:share_plus/share_plus.dart';
 
 part 'deep_link_request.dart';
 part 'deep_link_response.dart';

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
@@ -11,7 +13,6 @@ class AllCommentsScreenArguments {
     this.fromComment = false,
   });
 }
-
 
 class LikesScreenArguments {
   final String postId;
@@ -50,13 +51,18 @@ class EditPostScreenArguments {
 }
 
 class MediaPreviewArguments {
-  final String postId;
+  final String? postId;
   final List<Attachment>? attachments;
   final List<MediaModel>? mediaFiles;
+  final String? mediaUrl;
+  final File? mediaFile;
+
   MediaPreviewArguments({
     this.attachments,
     this.mediaFiles,
-    required this.postId,
+    this.postId,
+    this.mediaUrl,
+    this.mediaFile,
   });
 }
 
