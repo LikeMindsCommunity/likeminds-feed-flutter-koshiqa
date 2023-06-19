@@ -1,5 +1,6 @@
 import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_image_shimmer.dart';
+import 'package:feed_sx/src/views/feed/feedroom_screen.dart';
 import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
 import 'package:feed_sx/src/views/tagging/tagging_textfield_ta.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
@@ -251,7 +252,20 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     final right = checkCommentRights();
     return WillPopScope(
       onWillPop: () {
-        locator<NavigationService>().goBack(result: {'isBack': false});
+        if (Navigator.of(context).canPop()) {
+          locator<NavigationService>().goBack(result: {'isBack': false});
+        } else {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => FeedRoomScreen(
+                isCm: UserLocalPreference.instance.fetchMemberState(),
+                user: currentUser,
+                feedRoomId: locator<LikeMindsService>().feedroomId!,
+              ),
+            ),
+          );
+        }
+
         return Future(() => false);
       },
       child: MultiBlocProvider(
@@ -577,7 +591,20 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
             backgroundColor: kBackgroundColor,
             appBar: GeneralAppBar(
               backTap: () {
-                locator<NavigationService>().goBack(result: {'isBack': false});
+                if (Navigator.of(context).canPop()) {
+                  locator<NavigationService>()
+                      .goBack(result: {'isBack': false});
+                } else {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => FeedRoomScreen(
+                        isCm: UserLocalPreference.instance.fetchMemberState(),
+                        user: currentUser,
+                        feedRoomId: locator<LikeMindsService>().feedroomId!,
+                      ),
+                    ),
+                  );
+                }
               },
               autoImplyEnd: false,
               title: ValueListenableBuilder(

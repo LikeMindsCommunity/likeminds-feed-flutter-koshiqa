@@ -1,3 +1,4 @@
+import 'package:feed_example/user_local_preference.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_example/cred_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -5,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+
+bool initialURILinkHandled = false;
 
 /// First level notification handler
 /// Essential to declare it outside of any class or function as per Firebase docs
@@ -19,6 +22,7 @@ Future<void> _handleNotification(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   setupNotifications();
+  await UserLocalPreference.instance.initialize();
   runApp(const MyApp());
 }
 

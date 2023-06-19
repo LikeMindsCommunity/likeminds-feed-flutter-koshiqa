@@ -27,6 +27,14 @@ class UserLocalPreference {
     _sharedPreferences!.setString(_userKey, userString);
   }
 
+  Future<void> storeUserId(String userId) async {
+    _sharedPreferences!.setString(_userKey, userId);
+  }
+
+  String? fetchUserId() {
+    return _sharedPreferences!.getString(_userKey);
+  }
+
   User fetchUserData() {
     Map<String, dynamic> userData =
         jsonDecode(_sharedPreferences!.getString(_userKey)!);

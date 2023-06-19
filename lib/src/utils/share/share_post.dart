@@ -1,8 +1,5 @@
 import 'package:share_plus/share_plus.dart';
 
-import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/navigation/arguments.dart';
-import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 
 part 'deep_link_request.dart';
@@ -45,15 +42,10 @@ class SharePost {
     if (secondPathSegment.length > 1 && secondPathSegment[1] != null) {
       String postId = secondPathSegment[1];
 
-      locator<NavigationService>().navigateTo(
-        AllCommentsScreen.route,
-        arguments: AllCommentsScreenArguments(
-          postId: postId,
-          fromComment: false,
-          feedRoomId: locator<LikeMindsService>().feedroomId ?? 0,
-        ),
+      return DeepLinkResponse(
+        success: true,
+        postId: postId,
       );
-      return DeepLinkResponse(success: true);
     } else {
       return DeepLinkResponse(
         success: false,

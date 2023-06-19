@@ -1,5 +1,6 @@
 import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
+import 'package:feed_sx/src/views/feed/feedroom_list_screen.dart';
 import 'package:feed_sx/src/views/notification/notification_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -139,148 +140,177 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
   Widget build(BuildContext context) {
     isCm = widget.isCm;
     final user = widget.user;
-    return Scaffold(
-      appBar: AppBar(
-        leading: isCm!
-            ? BackButton(
-                color: Colors.white,
-                onPressed: () {
-                  // if the user is a community manager then
-                  // navigate back to the feedroom list screen
-                  locator<NavigationService>().goBack();
-                },
-              )
-            : null,
-        actions: [
-          GestureDetector(
-            onTap: () async {
-              await locator<NavigationService>().navigateTo(
-                NotificationScreen.route,
-              );
-              updateUnreadNotificationCount();
-              // updates the unread notification count when a user
-              // navigates back from notification screen
-            },
-            child: ValueListenableBuilder(
-              valueListenable: _rebuildAppBar,
-              builder: (context, _, __) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 8.0, horizontal: 12.0),
-                  child: FutureBuilder<GetUnreadNotificationCountResponse>(
-                    future: getUnreadNotificationCount,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done &&
-                          snapshot.hasData &&
-                          snapshot.data!.success) {
-                        return Stack(
+    return WillPopScope(
+      onWillPop: () async {
+        if (isCm!) {
+          if (Navigator.canPop(context)) {
+            locator<NavigationService>().goBack();
+          } else {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => FeedRoomListScreen(
+                  user: user,
+                ),
+              ),
+            );
+          }
+        }
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: isCm!
+              ? BackButton(
+                  color: Colors.white,
+                  onPressed: () {
+                    // if the user is a community manager then
+                    // navigate back to the feedroom list screen
+                    if (Navigator.canPop(context)) {
+                      locator<NavigationService>().goBack();
+                    } else {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => FeedRoomListScreen(
+                            user: user,
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                )
+              : null,
+          actions: [
+            GestureDetector(
+              onTap: () async {
+                await locator<NavigationService>().navigateTo(
+                  NotificationScreen.route,
+                );
+                updateUnreadNotificationCount();
+                // updates the unread notification count when a user
+                // navigates back from notification screen
+              },
+              child: ValueListenableBuilder(
+                valueListenable: _rebuildAppBar,
+                builder: (context, _, __) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 8.0, horizontal: 12.0),
+                    child: FutureBuilder<GetUnreadNotificationCountResponse>(
+                      future: getUnreadNotificationCount,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done &&
+                            snapshot.hasData &&
+                            snapshot.data!.success) {
+                          return Stack(
+                            alignment: Alignment.center,
+                            clipBehavior: Clip.none,
+                            children: [
+                              const Icon(
+                                CupertinoIcons.bell,
+                              ),
+                              snapshot.data!.count! > 0
+                                  ? Positioned(
+                                      top: -5,
+                                      right: -5,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(4.0),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Text(
+                                            snapshot.data!.count.toString()),
+                                      ),
+                                    )
+                                  : const SizedBox()
+                            ],
+                          );
+                        }
+                        return const Stack(
                           alignment: Alignment.center,
                           clipBehavior: Clip.none,
                           children: [
-                            const Icon(
+                            Icon(
                               CupertinoIcons.bell,
                             ),
-                            snapshot.data!.count! > 0
-                                ? Positioned(
-                                    top: -5,
-                                    right: -5,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(4.0),
-                                      decoration: const BoxDecoration(
-                                        color: Colors.red,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child:
-                                          Text(snapshot.data!.count.toString()),
-                                    ),
-                                  )
-                                : const SizedBox()
                           ],
                         );
-                      }
-                      return const Stack(
-                        alignment: Alignment.center,
-                        clipBehavior: Clip.none,
-                        children: [
-                          Icon(
-                            CupertinoIcons.bell,
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
-          )
-        ],
-        title: ValueListenableBuilder(
-            valueListenable: _rebuildAppBar,
-            builder: (context, _, __) {
-              return Text(title ?? '');
-            }),
-        backgroundColor: kPrimaryColor,
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          _feedBloc.add(GetFeedRoom(feedRoomId: widget.feedRoomId, offset: 1));
-          updateUnreadNotificationCount(); // funtion to update the unread notification count
-          clearPagingController();
-        },
-        child: BlocConsumer(
-          bloc: _feedBloc,
-          buildWhen: (prev, curr) {
-            // Prevents changin the state while paginating the feed
-            if (prev is FeedRoomLoaded && curr is PaginationLoading) {
-              return false;
-            }
-            return true;
-          },
-          listener: (context, state) => updatePagingControllers(state),
-          builder: ((context, state) {
-            if (state is FeedRoomLoaded) {
-              // Log the event in the analytics
-              LMAnalytics.get().logEvent(
-                AnalyticsKeys.feedOpened,
-                {
-                  "feed_type": {
-                    "feedroom": {
-                      "id": state.feedRoom.id,
-                    }
-                  }
+                      },
+                    ),
+                  );
                 },
-              );
-              return FeedRoomView(
-                isCm: isCm!,
-                feedResponse: state.feed,
-                feedRoomBloc: _feedBloc,
-                feedRoom: state.feedRoom,
-                feedRoomPagingController: _pagingController,
-                user: user,
-                onRefresh: refresh,
-                onPressedBack: clearPagingController,
-              );
-            } else if (state is FeedRoomError) {
-              return FeedRoomErrorView(message: state.message);
-            } else if (state is FeedRoomEmpty) {
-              return FeedRoomView(
-                isCm: isCm!,
-                feedResponse: state.feed,
-                feedRoomBloc: _feedBloc,
-                feedRoom: state.feedRoom,
-                feedRoomPagingController: _pagingController,
-                user: user,
-                onRefresh: refresh,
-                onPressedBack: clearPagingController,
-              );
-            }
-            return const Scaffold(
-              backgroundColor: kBackgroundColor,
-              body: Center(
-                child: Loader(),
               ),
-            );
-          }),
+            )
+          ],
+          title: ValueListenableBuilder(
+              valueListenable: _rebuildAppBar,
+              builder: (context, _, __) {
+                return Text(title ?? '');
+              }),
+          backgroundColor: kPrimaryColor,
+        ),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            _feedBloc
+                .add(GetFeedRoom(feedRoomId: widget.feedRoomId, offset: 1));
+            updateUnreadNotificationCount(); // funtion to update the unread notification count
+            clearPagingController();
+          },
+          child: BlocConsumer(
+            bloc: _feedBloc,
+            buildWhen: (prev, curr) {
+              // Prevents changin the state while paginating the feed
+              if (prev is FeedRoomLoaded && curr is PaginationLoading) {
+                return false;
+              }
+              return true;
+            },
+            listener: (context, state) => updatePagingControllers(state),
+            builder: ((context, state) {
+              if (state is FeedRoomLoaded) {
+                // Log the event in the analytics
+                LMAnalytics.get().logEvent(
+                  AnalyticsKeys.feedOpened,
+                  {
+                    "feed_type": {
+                      "feedroom": {
+                        "id": state.feedRoom.id,
+                      }
+                    }
+                  },
+                );
+                return FeedRoomView(
+                  isCm: isCm!,
+                  feedResponse: state.feed,
+                  feedRoomBloc: _feedBloc,
+                  feedRoom: state.feedRoom,
+                  feedRoomPagingController: _pagingController,
+                  user: user,
+                  onRefresh: refresh,
+                  onPressedBack: clearPagingController,
+                );
+              } else if (state is FeedRoomError) {
+                return FeedRoomErrorView(message: state.message);
+              } else if (state is FeedRoomEmpty) {
+                return FeedRoomView(
+                  isCm: isCm!,
+                  feedResponse: state.feed,
+                  feedRoomBloc: _feedBloc,
+                  feedRoom: state.feedRoom,
+                  feedRoomPagingController: _pagingController,
+                  user: user,
+                  onRefresh: refresh,
+                  onPressedBack: clearPagingController,
+                );
+              }
+              return const Scaffold(
+                backgroundColor: kBackgroundColor,
+                body: Center(
+                  child: Loader(),
+                ),
+              );
+            }),
+          ),
         ),
       ),
     );

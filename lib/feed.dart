@@ -30,6 +30,7 @@ export 'src/services/service_locator.dart';
 export 'src/utils/notification_handler.dart';
 export 'src/utils/analytics/analytics.dart';
 export 'src/utils/share/share_post.dart';
+export 'src/navigation/arguments.dart';
 
 /// Flutter environment manager v0.0.1
 const _prodFlag = !bool.fromEnvironment('DEBUG');
@@ -42,6 +43,7 @@ class LMFeed extends StatefulWidget {
   final String apiKey;
   final LMSDKCallback callback;
   final Function() deepLinkCallBack;
+  final String? postId;
 
   static LMFeed? _instance;
 
@@ -57,6 +59,7 @@ class LMFeed extends StatefulWidget {
     required LMSDKCallback callback,
     required Function() deepLinkCallBack,
     required String apiKey,
+    String? postId,
   }) {
     setupLMFeed(callback, apiKey);
     return _instance ??= LMFeed._(
@@ -67,6 +70,7 @@ class LMFeed extends StatefulWidget {
       callback: callback,
       deepLinkCallBack: deepLinkCallBack,
       apiKey: apiKey,
+      postId: postId,
     );
   }
 
@@ -79,6 +83,7 @@ class LMFeed extends StatefulWidget {
     required this.callback,
     required this.apiKey,
     required this.deepLinkCallBack,
+    this.postId,
   }) : super(key: key);
 
   @override
@@ -91,6 +96,8 @@ class _LMFeedState extends State<LMFeed> {
   late final String userName;
   late final bool isProd;
   late final String domain;
+  late final Function()? deepLinkCallBack;
+  late final String? postId;
 
   @override
   void initState() {
@@ -103,6 +110,7 @@ class _LMFeedState extends State<LMFeed> {
             : CredsDev.botId
         : widget.userId!;
     userName = widget.userName!.isEmpty ? "Test username" : widget.userName!;
+    postId = widget.postId;
     firebase();
   }
 
@@ -130,7 +138,7 @@ class _LMFeedState extends State<LMFeed> {
           InitiateUserResponse response = snapshot.data;
           if (response.success) {
             user = response.initiateUser?.user;
-            LMFeed._instance!.deepLinkCallBack();
+            // LMFeed._instance!.deepLinkCallBack();
             UserLocalPreference.instance.storeUserData(user!);
             UserLocalPreference.instance.storeAppDomain(domain);
             LMNotificationHandler.instance.registerDevice(user!.id);
@@ -239,6 +247,12 @@ class _LMFeedState extends State<LMFeed> {
                       final MemberStateResponse response = snapshot.data;
                       final isCm = response.state == 1;
                       UserLocalPreference.instance.storeMemberRights(response);
+                      if (postId != null) {
+                        locator<LikeMindsService>().setFeedroomId =
+                            widget.defaultFeedroom;
+                        return AllCommentsScreen(
+                            postId: postId!, feedRoomId: 0, fromComment: false);
+                      }
                       if (isCm) {
                         UserLocalPreference.instance.storeMemberState(isCm);
                         return FeedRoomListScreen(user: user!);

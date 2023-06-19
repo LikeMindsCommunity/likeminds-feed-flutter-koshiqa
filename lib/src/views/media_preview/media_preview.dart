@@ -55,6 +55,25 @@ class _MediaPreviewScreenState extends State<MediaPreviewScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+    ]);
+  }
+
+// Step 3
+  @override
+  dispose() {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     _initializeVideoPlayer();
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
