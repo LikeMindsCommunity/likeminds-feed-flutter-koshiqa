@@ -7,6 +7,8 @@
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>applinks:likeminds.app</string>
+		<string>https://www.feedsx.com</string>
+		<string>https://feedsx.com</string>
 	</array>
 </dict>
 </plist>

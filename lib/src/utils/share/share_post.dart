@@ -1,3 +1,6 @@
+import 'package:feed_sx/feed.dart';
+import 'package:feed_sx/src/services/likeminds_service.dart';
+import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
@@ -13,9 +16,9 @@ class SharePost {
     final String domain = UserLocalPreference.instance.getAppDomain();
     int length = domain.length;
     if (domain[length - 1] == '/') {
-      return "https://${domain}post?post_id=$postId";
+      return "$domain/post?post_id=$postId";
     } else {
-      return "https://$domain/post?post_id=$postId";
+      return "$domain/post?post_id=$postId";
     }
   }
 
@@ -41,7 +44,24 @@ class SharePost {
     List secondPathSegment = request.link.split('post_id=');
     if (secondPathSegment.length > 1 && secondPathSegment[1] != null) {
       String postId = secondPathSegment[1];
-
+      // setupLMFeed(request.callback, request.apiKey);
+      // InitiateUserResponse initiateUserResponse =
+      //     await locator<LikeMindsService>()
+      //         .initiateUser((InitiateUserRequestBuilder()
+      //               ..userId(request.userUniqueId)
+      //               ..userName(request.userName))
+      //             .build());
+      // if (!initiateUserResponse.success) {
+      //   return DeepLinkResponse(
+      //     success: false,
+      //     errorMessage: "URI parsing failed. Please try after some time.",
+      //   );
+      // }
+      // locator<NavigationService>().navigateTo(
+      //   AllCommentsScreen.route,
+      //   arguments: AllCommentsScreenArguments(
+      //       postId: postId, feedRoomId: request.feedRoomId),
+      // );
       return DeepLinkResponse(
         success: true,
         postId: postId,

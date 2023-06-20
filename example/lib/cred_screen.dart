@@ -64,6 +64,7 @@ class _CredScreenState extends State<CredScreen> {
   }
 
   Future<DeepLinkResponse> initUniLinks() async {
+    String? userId = UserLocalPreference.instance.fetchUserId();
     var deepLinkResponse;
     if (!initialURILinkHandled) {
       initialURILinkHandled = true;
@@ -78,11 +79,13 @@ class _CredScreenState extends State<CredScreen> {
 
         // TODO: add api key to the DeepLinkRequest
         deepLinkResponse = SharePost().parseDeepLink((DeepLinkRequestBuilder()
-              ..apiKey("547cad67-10d5-41c1-99e2-8c9be48a9218")
+              ..apiKey("")
+              ..callback(LikeMindsCallback())
+              ..feedRoomId(debug ? 83301 : 2238799)
               ..isGuest(false)
               ..link(initialLink)
               ..userName("Test User")
-              ..userUniqueId("5d428e4d-984d-4ab5-8d2b-0adcdbab2ad8"))
+              ..userUniqueId(userId ?? "5d428e4d-984d-4ab5-8d2b-0adcdbab2ad8"))
             .build());
       }
 
@@ -93,13 +96,17 @@ class _CredScreenState extends State<CredScreen> {
           // You can extract any parameters from the uri object here
           // and use them to navigate to a specific screen in your app
           debugPrint('Received deep link: $link');
-          deepLinkResponse = SharePost().parseDeepLink((DeepLinkRequestBuilder()
-                ..apiKey("547cad67-10d5-41c1-99e2-8c9be48a9218")
+          deepLink = SharePost().parseDeepLink((DeepLinkRequestBuilder()
+                ..apiKey("")
                 ..isGuest(false)
+                ..callback(LikeMindsCallback())
+                ..feedRoomId(debug ? 83301 : 2238799)
                 ..link(link)
                 ..userName("Test User")
-                ..userUniqueId("5d428e4d-984d-4ab5-8d2b-0adcdbab2ad8"))
+                ..userUniqueId(
+                    userId ?? "5d428e4d-984d-4ab5-8d2b-0adcdbab2ad8"))
               .build());
+          deepLinkResponse = deepLink;
         }
       }, onError: (err) {
         // Handle exception by warning the user their action did not succeed
@@ -138,7 +145,7 @@ class _CredScreenState extends State<CredScreen> {
                 deepLinkCallBack: () {
                   debugPrint("Deep Link Callback");
                 },
-                domain: 'www.feedsample.com',
+                domain: 'feedsx://www.feedsx.com',
                 postId: snapshot.data!.postId,
                 apiKey: "",
               );
@@ -152,7 +159,7 @@ class _CredScreenState extends State<CredScreen> {
                 deepLinkCallBack: () {
                   debugPrint("Deep Link Callback");
                 },
-                domain: 'www.feedsample.com',
+                domain: 'feedsx://www.feedsx.com',
                 apiKey: "",
               );
               return lmFeed!;
@@ -232,7 +239,7 @@ class _CredScreenState extends State<CredScreen> {
                     deepLinkCallBack: () {
                       debugPrint("Deep Link Callback");
                     },
-                    domain: 'www.feedsample.com',
+                    domain: 'feedsx://www.feedsx.com',
                     postId: postId,
                     apiKey: "",
                   );

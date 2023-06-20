@@ -24,19 +24,26 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-
+            
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
-                    android:host="www.feedsample.com"
-                    android:scheme="https"
-                    />
-
+                    android:host="www.feedsx.com"
+                    android:scheme="feedsx"
+                />
                 <data
-                    android:host="feedsample.com"
+                    android:host="feedsx.com"
                     android:scheme="https"
+                />
+                <data
+                    android:host="www.feedsx.com"
+                    android:scheme="https"
+                />
+                <data
+                    android:host="feedsx.com"
+                    android:scheme="feedsx"
                 />
             </intent-filter>
         </activity>
