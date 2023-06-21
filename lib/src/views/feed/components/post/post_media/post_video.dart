@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:feed_sx/src/navigation/arguments.dart';
+import 'package:feed_sx/src/services/service_locator.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
+import 'package:feed_sx/src/views/media_preview/media_preview.dart';
 import 'package:flutter/material.dart';
 
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_image_shimmer.dart';
@@ -32,7 +35,7 @@ class _PostVideoState extends State<PostVideo> {
   @override
   void dispose() {
     _timer?.cancel();
-    videoPlayerController?.dispose();
+    videoPlayerController.dispose();
     super.dispose();
   }
 
@@ -93,8 +96,15 @@ class _PostVideoState extends State<PostVideo> {
           return Stack(children: [
             GestureDetector(
               onTap: () {
-                _onTouch = !_onTouch;
-                rebuildOverlay.value = !rebuildOverlay.value;
+                // _onTouch = !_onTouch;
+                // rebuildOverlay.value = !rebuildOverlay.value;
+                locator<NavigationService>().navigateTo(
+                  MediaPreviewScreen.routeName,
+                  arguments: MediaPreviewArguments(
+                    mediaUrl: widget.url,
+                    mediaFile: widget.videoFile,
+                  ),
+                );
               },
               child: VisibilityDetector(
                 key: Key('post_video_${widget.url ?? widget.videoFile}'),

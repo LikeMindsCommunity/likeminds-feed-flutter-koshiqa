@@ -1,3 +1,4 @@
+import 'package:feed_sx/src/utils/share/share_post.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
@@ -156,7 +157,7 @@ class _PostActionsState extends State<PostActions> {
               label: Text(
                 comments > 0
                     ? "$comments ${comments > 1 ? " Comments" : " Comment"}"
-                    : "Comment",
+                    : "Add Comment",
                 style: const TextStyle(fontSize: 14),
               ),
               style: ButtonStyle(
@@ -172,6 +173,13 @@ class _PostActionsState extends State<PostActions> {
         const Spacer(),
         Row(
           children: [
+            IconButton(
+              onPressed: () {
+                SharePost().sharePost(postDetails!.id);
+              },
+              icon: SvgPicture.asset(kAssetShareIcon),
+            ),
+            kHorizontalPaddingSmall,
             IconButton(
               onPressed: () async {
                 postDetails!.isSaved = !postDetails!.isSaved;
