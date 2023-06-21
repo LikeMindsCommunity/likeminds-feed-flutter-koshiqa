@@ -6,3 +6,8 @@ Updating package versions
 
 Adding Notification Feed
 Adding Save Post
+
+## 1.4.0
+
+Adding Share Post
+Adding Play Video in FullScreen
