@@ -108,12 +108,12 @@ class _CredScreenState extends State<CredScreen> {
               .build());
           deepLink = await deepLinkResponse;
           if (deepLink != null && deepLink!.success) {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => AllCommentsScreen(
-                    postId: deepLink!.postId!,
-                    feedRoomId: debug ? 83301 : 2238799,
-                    fromComment: false),
+            locator<NavigationService>().navigateTo(
+              AllCommentsScreen.route,
+              arguments: AllCommentsScreenArguments(
+                postId: deepLink!.postId!,
+                feedRoomId: debug ? 83301 : 2238799,
+                fromComment: false,
               ),
             );
           }
