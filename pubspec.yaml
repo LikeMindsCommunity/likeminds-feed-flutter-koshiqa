@@ -1,6 +1,6 @@
 name: feed_sx
 description: Flutter sample UI package for LikeMinds Feed SDK
-version: 1.3.0
+version: 1.4.0
 publish_to: none
 
 environment:
