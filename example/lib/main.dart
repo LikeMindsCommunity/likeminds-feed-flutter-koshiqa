@@ -3,6 +3,7 @@ import 'package:feed_sx/feed.dart';
 import 'package:feed_example/cred_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -20,6 +21,10 @@ Future<void> _handleNotification(RemoteMessage message) async {
 }
 
 void main() async {
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   WidgetsFlutterBinding.ensureInitialized();
   setupNotifications();
   await UserLocalPreference.instance.initialize();
