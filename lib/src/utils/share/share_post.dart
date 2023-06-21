@@ -44,24 +44,6 @@ class SharePost {
     List secondPathSegment = request.link.split('post_id=');
     if (secondPathSegment.length > 1 && secondPathSegment[1] != null) {
       String postId = secondPathSegment[1];
-      // setupLMFeed(request.callback, request.apiKey);
-      // InitiateUserResponse initiateUserResponse =
-      //     await locator<LikeMindsService>()
-      //         .initiateUser((InitiateUserRequestBuilder()
-      //               ..userId(request.userUniqueId)
-      //               ..userName(request.userName))
-      //             .build());
-      // if (!initiateUserResponse.success) {
-      //   return DeepLinkResponse(
-      //     success: false,
-      //     errorMessage: "URI parsing failed. Please try after some time.",
-      //   );
-      // }
-      // locator<NavigationService>().navigateTo(
-      //   AllCommentsScreen.route,
-      //   arguments: AllCommentsScreenArguments(
-      //       postId: postId, feedRoomId: request.feedRoomId),
-      // );
       return DeepLinkResponse(
         success: true,
         postId: postId,

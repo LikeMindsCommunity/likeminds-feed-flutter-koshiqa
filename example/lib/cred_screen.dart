@@ -46,7 +46,7 @@ class _CredScreenState extends State<CredScreen> {
 
   StreamSubscription? _streamSubscription;
   LMFeed? lmFeed;
-  Future<DeepLinkResponse>? deepLink;
+  DeepLinkResponse? deepLink;
 
   @override
   void initState() {
@@ -96,7 +96,7 @@ class _CredScreenState extends State<CredScreen> {
           // You can extract any parameters from the uri object here
           // and use them to navigate to a specific screen in your app
           debugPrint('Received deep link: $link');
-          deepLink = SharePost().parseDeepLink((DeepLinkRequestBuilder()
+          deepLinkResponse = SharePost().parseDeepLink((DeepLinkRequestBuilder()
                 ..apiKey("")
                 ..isGuest(false)
                 ..callback(LikeMindsCallback())
@@ -106,7 +106,17 @@ class _CredScreenState extends State<CredScreen> {
                 ..userUniqueId(
                     userId ?? "5d428e4d-984d-4ab5-8d2b-0adcdbab2ad8"))
               .build());
-          deepLinkResponse = deepLink;
+          deepLink = await deepLinkResponse;
+          if (deepLink != null && deepLink!.success) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => AllCommentsScreen(
+                    postId: deepLink!.postId!,
+                    feedRoomId: debug ? 83301 : 2238799,
+                    fromComment: false),
+              ),
+            );
+          }
         }
       }, onError: (err) {
         // Handle exception by warning the user their action did not succeed
