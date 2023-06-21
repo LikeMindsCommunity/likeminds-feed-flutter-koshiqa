@@ -8,6 +8,7 @@ import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
 import 'package:feed_sx/src/views/edit_post/edit_post_screen.dart';
 import 'package:feed_sx/src/views/feed/feedroom_list_screen.dart';
+import 'package:feed_sx/src/views/media_preview/media_preview.dart';
 import 'package:feed_sx/src/views/new_post/feedroom_select.dart';
 import 'package:feed_sx/src/views/notification/notification_screen.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
@@ -28,6 +29,8 @@ export 'src/views/new_post/new_post_screen.dart';
 export 'src/services/service_locator.dart';
 export 'src/utils/notification_handler.dart';
 export 'src/utils/analytics/analytics.dart';
+export 'src/utils/share/share_post.dart';
+export 'src/navigation/arguments.dart';
 
 /// Flutter environment manager v0.0.1
 const _prodFlag = !bool.fromEnvironment('DEBUG');
@@ -35,9 +38,12 @@ const _prodFlag = !bool.fromEnvironment('DEBUG');
 class LMFeed extends StatefulWidget {
   final String? userId;
   final String? userName;
+  final String domain;
   final int defaultFeedroom;
   final String apiKey;
   final LMSDKCallback callback;
+  final Function() deepLinkCallBack;
+  final String? postId;
 
   static LMFeed? _instance;
 
@@ -48,17 +54,23 @@ class LMFeed extends StatefulWidget {
   static LMFeed instance({
     String? userId,
     String? userName,
+    required String domain,
     required int defaultFeedroom,
     required LMSDKCallback callback,
+    required Function() deepLinkCallBack,
     required String apiKey,
+    String? postId,
   }) {
     setupLMFeed(callback, apiKey);
     return _instance ??= LMFeed._(
       userId: userId,
       userName: userName,
       defaultFeedroom: defaultFeedroom,
+      domain: domain,
       callback: callback,
+      deepLinkCallBack: deepLinkCallBack,
       apiKey: apiKey,
+      postId: postId,
     );
   }
 
@@ -66,9 +78,12 @@ class LMFeed extends StatefulWidget {
     Key? key,
     this.userId,
     this.userName,
+    required this.domain,
     required this.defaultFeedroom,
     required this.callback,
     required this.apiKey,
+    required this.deepLinkCallBack,
+    this.postId,
   }) : super(key: key);
 
   @override
@@ -80,17 +95,22 @@ class _LMFeedState extends State<LMFeed> {
   late final String userId;
   late final String userName;
   late final bool isProd;
+  late final String domain;
+  late final Function()? deepLinkCallBack;
+  late final String? postId;
 
   @override
   void initState() {
     super.initState();
     isProd = _prodFlag;
+    domain = widget.domain;
     userId = widget.userId!.isEmpty
         ? isProd
             ? CredsProd.botId
             : CredsDev.botId
         : widget.userId!;
     userName = widget.userName!.isEmpty ? "Test username" : widget.userName!;
+    postId = widget.postId;
     firebase();
   }
 
@@ -118,7 +138,9 @@ class _LMFeedState extends State<LMFeed> {
           InitiateUserResponse response = snapshot.data;
           if (response.success) {
             user = response.initiateUser?.user;
+            // LMFeed._instance!.deepLinkCallBack();
             UserLocalPreference.instance.storeUserData(user!);
+            UserLocalPreference.instance.storeAppDomain(domain);
             LMNotificationHandler.instance.registerDevice(user!.id);
             return BlocProvider(
               create: (context) => NewPostBloc(),
@@ -153,6 +175,19 @@ class _LMFeedState extends State<LMFeed> {
                           postId: args.postId,
                           commentId: args.commentId,
                           isCommentLikes: args.isCommentLikes,
+                        );
+                      },
+                    );
+                  }
+                  if (settings.name == MediaPreviewScreen.routeName) {
+                    final args = settings.arguments as MediaPreviewArguments;
+                    return MaterialPageRoute(
+                      builder: (context) {
+                        return MediaPreviewScreen(
+                          attachments: args.attachments,
+                          postId: args.postId,
+                          mediaFile: args.mediaFile,
+                          mediaUrl: args.mediaUrl,
                         );
                       },
                     );
@@ -212,6 +247,12 @@ class _LMFeedState extends State<LMFeed> {
                       final MemberStateResponse response = snapshot.data;
                       final isCm = response.state == 1;
                       UserLocalPreference.instance.storeMemberRights(response);
+                      if (postId != null) {
+                        locator<LikeMindsService>().setFeedroomId =
+                            widget.defaultFeedroom;
+                        return AllCommentsScreen(
+                            postId: postId!, feedRoomId: 0, fromComment: false);
+                      }
                       if (isCm) {
                         UserLocalPreference.instance.storeMemberState(isCm);
                         return FeedRoomListScreen(user: user!);

@@ -62,7 +62,8 @@ class NotificationTile extends StatelessWidget {
                     child: RichText(
                       text: TextSpan(
                           children: TaggingHelper.extractNotificationTags(
-                              response.activityText)),
+                        response.activityText,
+                      )),
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                     ),

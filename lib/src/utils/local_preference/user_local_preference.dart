@@ -12,25 +12,29 @@ class UserLocalPreference {
 
   UserLocalPreference._();
 
-  Future initialize() async {
+  final String _domainKey = 'domain';
+  final String _userKey = 'user';
+  final String _memberStateKey = 'isCm';
+
+  Future<void> initialize() async {
     _sharedPreferences = await SharedPreferences.getInstance();
   }
 
-  void storeUserData(User user) {
+  Future<void> storeUserData(User user) async {
     UserEntity userEntity = user.toEntity();
     Map<String, dynamic> userData = userEntity.toJson();
     String userString = jsonEncode(userData);
-    _sharedPreferences!.setString('user', userString);
+    _sharedPreferences!.setString(_userKey, userString);
   }
 
   User fetchUserData() {
     Map<String, dynamic> userData =
-        jsonDecode(_sharedPreferences!.getString('user')!);
+        jsonDecode(_sharedPreferences!.getString(_userKey)!);
     return User.fromEntity(UserEntity.fromJson(userData));
   }
 
-  void storeMemberState(bool isCm) {
-    _sharedPreferences!.setBool('isCm', isCm);
+  Future<void> storeMemberState(bool isCm) async {
+    _sharedPreferences!.setBool(_memberStateKey, isCm);
   }
 
   void storeMemberRights(MemberStateResponse response) {
@@ -62,6 +66,14 @@ class UserLocalPreference {
   }
 
   bool fetchMemberState() {
-    return _sharedPreferences!.getBool('isCm')!;
+    return _sharedPreferences!.getBool(_memberStateKey)!;
+  }
+
+  Future<void> storeAppDomain(String domain) async {
+    _sharedPreferences!.setString(_domainKey, domain);
+  }
+
+  String getAppDomain() {
+    return _sharedPreferences!.getString(_domainKey)!;
   }
 }

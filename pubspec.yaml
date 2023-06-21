@@ -1,6 +1,6 @@
 name: feed_sx
 description: Flutter sample UI package for LikeMinds Feed SDK
-version: 1.3.0
+version: 1.4.0
 publish_to: none
 
 environment:
@@ -45,6 +45,8 @@ dependencies:
   device_info_plus: ^8.0.0
   simple_s3: ^0.3.2
   shared_preferences: ^2.1.0
+  uni_links: ^0.5.1
+  share_plus: ^6.3.2
   visibility_detector: ^0.4.0+2
   flutter_typeahead: 
     path: lib/packages/flutter_typeahead-4.3.7

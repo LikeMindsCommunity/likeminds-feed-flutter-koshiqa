@@ -37,7 +37,7 @@ class TaggingHelper {
     for (final match in matches) {
       final String tag = match.group(1)!;
       final String id = match.group(3)!;
-      string = string.replaceAll('<<$tag|route://member/$id>>', tag);
+      string = string.replaceAll('<<$tag|route://member/$id>>', '@$tag');
       result.addAll({tag: id});
     }
     return result;
@@ -51,7 +51,7 @@ class TaggingHelper {
       final String tag = match.group(1)!;
       final String mid = match.group(2)!;
       final String id = match.group(3)!;
-      string = string.replaceAll('<<$tag|route://$mid/$id>>', tag);
+      string = string.replaceAll('<<$tag|route://$mid/$id>>', '@$tag');
       result.addAll({tag: id});
     }
     return result;
@@ -88,7 +88,8 @@ class TaggingHelper {
       final String tag = match.group(1)!;
       final String mid = match.group(2)!;
       final String id = match.group(3)!;
-      text = text.replaceAll('<<$tag|route://$mid/$id>>', tag);
+      text = text.replaceAll(
+          '<<$tag|route://$mid/$id>>', withTilde ? '@$tag~' : '@$tag');
     }
     return text;
   }
@@ -116,7 +117,8 @@ class TaggingHelper {
       final String tag = match.group(1)!;
       final String mid = match.group(2)!;
       final String id = match.group(3)!;
-      text = text.replaceAll('<<$tag|route://$mid/$id>>', tag);
+      text = text.replaceAll(
+          '<<$tag|route://$mid/$id>>', withTilde ? '@$tag~' : '@$tag');
       userTags.add(UserTag(userUniqueId: id, name: tag));
     }
     return {'text': text, 'userTags': userTags};
