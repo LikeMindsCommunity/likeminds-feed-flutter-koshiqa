@@ -73,7 +73,7 @@ class TaggingHelper {
   }
 
   static void routeToProfile(String userId) {
-    print(userId);
+    debugPrint(userId);
     // if (!locator<LikeMindsService>().isProd) {
     //   toast('Profile call back fired');
     // }

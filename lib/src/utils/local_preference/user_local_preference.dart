@@ -12,7 +12,6 @@ class UserLocalPreference {
 
   UserLocalPreference._();
 
-  final String _domainKey = 'domain';
   final String _userKey = 'user';
   final String _memberStateKey = 'isCm';
 
@@ -67,13 +66,5 @@ class UserLocalPreference {
 
   bool fetchMemberState() {
     return _sharedPreferences!.getBool(_memberStateKey)!;
-  }
-
-  Future<void> storeAppDomain(String domain) async {
-    _sharedPreferences!.setString(_domainKey, domain);
-  }
-
-  String getAppDomain() {
-    return _sharedPreferences!.getString(_domainKey)!;
   }
 }
