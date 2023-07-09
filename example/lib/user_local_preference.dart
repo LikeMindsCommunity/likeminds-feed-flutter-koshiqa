@@ -12,9 +12,9 @@ class UserLocalPreference {
 
   UserLocalPreference._();
 
-  final String _domainKey = 'domain';
-  final String _userKey = 'user';
-  final String _memberStateKey = 'isCm';
+  final String _domainKey = 'domain_example';
+  final String _userKey = 'user_example';
+  final String _memberStateKey = 'isCm_example';
 
   Future<void> initialize() async {
     _sharedPreferences = await SharedPreferences.getInstance();

@@ -37,6 +37,9 @@ class DropdownOptionsComments extends StatelessWidget {
         BlocProvider.of<AddCommentReplyBloc>(context);
     removeReportIntegration();
     return Builder(builder: (context) {
+      if (menuItems.isEmpty) {
+        return Container();
+      }
       return PopupMenuButton<int>(
         onSelected: (value) async {
           print(value);
