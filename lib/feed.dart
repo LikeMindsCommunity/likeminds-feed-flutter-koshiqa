@@ -224,38 +224,41 @@ class _LMFeedState extends State<LMFeed> {
               LMNotificationHandler.instance.registerDevice(user!.id);
               return BlocProvider(
                 create: (context) => NewPostBloc(),
-                child: FutureBuilder(
-                  future: locator<LikeMindsService>().getMemberState(),
-                  initialData: null,
-                  builder: (BuildContext context, AsyncSnapshot snapshot) {
-                    if (snapshot.hasData) {
-                      final MemberStateResponse response = snapshot.data;
-                      final isCm = response.state == 1;
-                      UserLocalPreference.instance.storeMemberRights(response);
-                      if (isCm) {
-                        UserLocalPreference.instance.storeMemberState(isCm);
-                        return FeedRoomListScreen(user: user!);
-                      } else {
-                        UserLocalPreference.instance.storeMemberState(false);
-                        return FeedRoomScreen(
-                          isCm: isCm,
-                          user: user!,
-                          feedRoomId: widget.defaultFeedroom,
-                        );
+                child: MaterialApp(
+                  home: FutureBuilder(
+                    future: locator<LikeMindsService>().getMemberState(),
+                    initialData: null,
+                    builder: (BuildContext context, AsyncSnapshot snapshot) {
+                      if (snapshot.hasData) {
+                        final MemberStateResponse response = snapshot.data;
+                        final isCm = response.state == 1;
+                        UserLocalPreference.instance
+                            .storeMemberRights(response);
+                        if (isCm) {
+                          UserLocalPreference.instance.storeMemberState(isCm);
+                          return FeedRoomListScreen(user: user!);
+                        } else {
+                          UserLocalPreference.instance.storeMemberState(false);
+                          return FeedRoomScreen(
+                            isCm: isCm,
+                            user: user!,
+                            feedRoomId: widget.defaultFeedroom,
+                          );
+                        }
                       }
-                    }
 
-                    return Container(
-                      height: MediaQuery.of(context).size.height,
-                      width: MediaQuery.of(context).size.width,
-                      color: kBackgroundColor,
-                      child: const Center(
-                        child: Loader(
-                          isPrimary: true,
+                      return Container(
+                        height: MediaQuery.of(context).size.height,
+                        width: MediaQuery.of(context).size.width,
+                        color: kBackgroundColor,
+                        child: const Center(
+                          child: Loader(
+                            isPrimary: true,
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               );
             } else {}

@@ -43,7 +43,6 @@ class CredScreen extends StatefulWidget {
 class _CredScreenState extends State<CredScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _userIdController = TextEditingController();
-
   StreamSubscription? _streamSubscription;
   LMFeed? lmFeed;
   String? userId;
@@ -53,10 +52,10 @@ class _CredScreenState extends State<CredScreen> {
     super.initState();
     NetworkConnectivity networkConnectivity = NetworkConnectivity.instance;
     networkConnectivity.initialise();
+    userId = UserLocalPreference.instance.fetchUserId();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       initUniLinks(context);
     });
-    userId = UserLocalPreference.instance.fetchUserId();
   }
 
   @override
@@ -68,7 +67,7 @@ class _CredScreenState extends State<CredScreen> {
   }
 
   Future initUniLinks(BuildContext context) async {
-    if (!initialURILinkHandled && userId != null) {
+    if (!initialURILinkHandled) {
       initialURILinkHandled = true;
       // Get the initial deep link if the app was launched with one
       final initialLink = await getInitialLink();
@@ -211,6 +210,8 @@ class _CredScreenState extends State<CredScreen> {
                   if (_userIdController.text.isNotEmpty) {
                     UserLocalPreference.instance
                         .storeUserId(_userIdController.text);
+                  } else {
+                    UserLocalPreference.instance.storeUserId(SharePost.userId);
                   }
                   MaterialPageRoute route = MaterialPageRoute(
                     // INIT - Get the LMFeed instance and pass the credentials (if any)
