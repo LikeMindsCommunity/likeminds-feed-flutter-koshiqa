@@ -11,3 +11,8 @@ Adding Save Post
 
 Adding Share Post
 Adding Play Video in FullScreen
+
+## 1.4.1
+
+Refactor in Share Post
+Fixed comment reply issue

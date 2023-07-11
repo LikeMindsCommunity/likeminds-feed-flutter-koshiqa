@@ -6,9 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class UserLocalPreference {
   SharedPreferences? _sharedPreferences;
 
-  static UserLocalPreference? _instance;
-  static UserLocalPreference get instance =>
-      _instance ??= UserLocalPreference._();
+  static final UserLocalPreference _instance = UserLocalPreference._();
+  static UserLocalPreference get instance => _instance;
 
   UserLocalPreference._();
 
