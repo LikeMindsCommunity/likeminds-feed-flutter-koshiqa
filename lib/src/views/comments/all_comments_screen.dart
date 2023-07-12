@@ -1,6 +1,5 @@
 import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_image_shimmer.dart';
-import 'package:feed_sx/src/views/feed/feedroom_screen.dart';
 import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
 import 'package:feed_sx/src/views/tagging/tagging_textfield_ta.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
@@ -252,20 +251,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     final right = checkCommentRights();
     return WillPopScope(
       onWillPop: () {
-        if (Navigator.of(context).canPop()) {
-          locator<NavigationService>().goBack(result: {'isBack': false});
-        } else {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => FeedRoomScreen(
-                isCm: UserLocalPreference.instance.fetchMemberState(),
-                user: currentUser,
-                feedRoomId: locator<LikeMindsService>().feedroomId!,
-              ),
-            ),
-          );
-        }
-
+        locator<NavigationService>().goBack(result: {'isBack': false});
         return Future(() => false);
       },
       child: MultiBlocProvider(
@@ -408,174 +394,173 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                             maxHeight: 50,
                             maxWidth: 50,
                           ),
-                          suffixIcon: isReplying || isEditing
-                              ? BlocConsumer<AddCommentReplyBloc,
-                                  AddCommentReplyState>(
-                                  bloc: _addCommentReplyBloc,
-                                  listener: (context, state) {},
-                                  buildWhen: (previous, current) {
-                                    if (current is ReplyEditingStarted) {
-                                      return false;
-                                    }
-                                    if (current is EditReplyLoading) {
-                                      return false;
-                                    }
-                                    if (current is CommentEditingStarted) {
-                                      return false;
-                                    }
-                                    if (current is EditCommentLoading) {
-                                      return false;
-                                    }
-                                    return true;
-                                  },
-                                  builder: (context, state) {
-                                    if (state is AddCommentReplyLoading) {
-                                      return const Padding(
-                                        padding: EdgeInsets.all(16),
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                        ),
-                                      );
-                                    }
-                                    return ValueListenableBuilder(
-                                        valueListenable: rebuildButton,
-                                        builder: (
-                                          context,
-                                          s,
-                                          a,
-                                        ) {
-                                          return IconButton(
-                                            onPressed:
-                                                _commentController!.text.isEmpty
-                                                    ? null
-                                                    : () {
-                                                        final commentText =
-                                                            TaggingHelper
-                                                                .encodeString(
-                                                                    _commentController!
-                                                                        .text,
-                                                                    userTags);
+                          suffixIcon: ValueListenableBuilder(
+                            valueListenable: rebuildReplyWidget,
+                            builder: (context, _, __) => isReplying || isEditing
+                                ? BlocConsumer<AddCommentReplyBloc,
+                                    AddCommentReplyState>(
+                                    bloc: _addCommentReplyBloc,
+                                    listener: (context, state) {},
+                                    buildWhen: (previous, current) {
+                                      if (current is ReplyEditingStarted) {
+                                        return false;
+                                      }
+                                      if (current is EditReplyLoading) {
+                                        return false;
+                                      }
+                                      if (current is CommentEditingStarted) {
+                                        return false;
+                                      }
+                                      if (current is EditCommentLoading) {
+                                        return false;
+                                      }
+                                      return true;
+                                    },
+                                    builder: (context, state) {
+                                      if (state is AddCommentReplyLoading) {
+                                        return const Padding(
+                                          padding: EdgeInsets.all(16),
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        );
+                                      }
+                                      return ValueListenableBuilder(
+                                          valueListenable: rebuildButton,
+                                          builder: (
+                                            context,
+                                            s,
+                                            a,
+                                          ) {
+                                            return IconButton(
+                                              onPressed:
+                                                  _commentController!
+                                                          .text.isEmpty
+                                                      ? null
+                                                      : () {
+                                                          final commentText =
+                                                              TaggingHelper
+                                                                  .encodeString(
+                                                                      _commentController!
+                                                                          .text,
+                                                                      userTags);
 
-                                                        if (isEditing) {
-                                                          if (selectedReplyId !=
-                                                              null) {
-                                                            _addCommentReplyBloc
-                                                                .add(
-                                                              EditReply(
-                                                                editCommentReplyRequest:
-                                                                    (EditCommentReplyRequestBuilder()
-                                                                          ..postId(
-                                                                              widget.postId)
-                                                                          ..text(
-                                                                              commentText)
-                                                                          ..commentId(
-                                                                              selectedCommentId!)
-                                                                          ..replyId(
-                                                                              selectedReplyId!))
-                                                                        .build(),
-                                                              ),
-                                                            );
-                                                          } else {
-                                                            _addCommentReplyBloc
-                                                                .add(
-                                                              EditComment(
-                                                                editCommentRequest:
-                                                                    (EditCommentRequestBuilder()
-                                                                          ..postId(
-                                                                              widget.postId)
-                                                                          ..text(
-                                                                              commentText)
-                                                                          ..commentId(
-                                                                              selectedCommentId!))
-                                                                        .build(),
-                                                              ),
-                                                            );
-                                                          }
-                                                        } else {
-                                                          _addCommentReplyBloc.add(
-                                                              AddCommentReply(
-                                                                  addCommentRequest:
-                                                                      (AddCommentReplyRequestBuilder()
+                                                          if (isEditing) {
+                                                            if (selectedReplyId !=
+                                                                null) {
+                                                              _addCommentReplyBloc
+                                                                  .add(
+                                                                EditReply(
+                                                                  editCommentReplyRequest:
+                                                                      (EditCommentReplyRequestBuilder()
+                                                                            ..postId(widget.postId)
+                                                                            ..text(commentText)
+                                                                            ..commentId(selectedCommentId!)
+                                                                            ..replyId(selectedReplyId!))
+                                                                          .build(),
+                                                                ),
+                                                              );
+                                                            } else {
+                                                              _addCommentReplyBloc
+                                                                  .add(
+                                                                EditComment(
+                                                                  editCommentRequest:
+                                                                      (EditCommentRequestBuilder()
                                                                             ..postId(widget.postId)
                                                                             ..text(commentText)
                                                                             ..commentId(selectedCommentId!))
-                                                                          .build()));
+                                                                          .build(),
+                                                                ),
+                                                              );
+                                                            }
+                                                          } else {
+                                                            _addCommentReplyBloc.add(
+                                                                AddCommentReply(
+                                                                    addCommentRequest:
+                                                                        (AddCommentReplyRequestBuilder()
+                                                                              ..postId(widget.postId)
+                                                                              ..text(commentText)
+                                                                              ..commentId(selectedCommentId!))
+                                                                            .build()));
 
-                                                          _commentController
-                                                              ?.clear();
-                                                        }
-                                                      },
-                                            icon: Icon(
-                                              Icons.send,
-                                              color: _commentController!
-                                                      .text.isNotEmpty
-                                                  ? kPrimaryColor
-                                                  : kGreyColor,
-                                            ),
-                                          );
-                                        });
-                                  },
-                                )
-                              : BlocConsumer<AddCommentBloc, AddCommentState>(
-                                  bloc: _addCommentBloc,
-                                  listener: (context, state) {
-                                    if (state is AddCommentSuccess) {
-                                      addCommentToList(state);
-                                    }
-                                    if (state is AddCommentLoading) {
-                                      deselectCommentToEdit();
-                                    }
-                                  },
-                                  builder: (context, state) {
-                                    if (state is AddCommentLoading) {
-                                      return const Padding(
-                                        padding: EdgeInsets.all(16),
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                        ),
-                                      );
-                                    }
-                                    return ValueListenableBuilder(
-                                        valueListenable: rebuildButton,
-                                        builder: (context, s, a) {
-                                          return IconButton(
-                                            onPressed: result!.isEmpty
-                                                ? null
-                                                : () {
-                                                    final commentText =
-                                                        TaggingHelper
-                                                            .encodeString(
-                                                      _commentController!.text,
-                                                      userTags,
-                                                    );
+                                                            _commentController
+                                                                ?.clear();
+                                                          }
+                                                        },
+                                              icon: Icon(
+                                                Icons.send,
+                                                color: _commentController!
+                                                        .text.isNotEmpty
+                                                    ? kPrimaryColor
+                                                    : kGreyColor,
+                                              ),
+                                            );
+                                          });
+                                    },
+                                  )
+                                : BlocConsumer<AddCommentBloc, AddCommentState>(
+                                    bloc: _addCommentBloc,
+                                    listener: (context, state) {
+                                      if (state is AddCommentSuccess) {
+                                        addCommentToList(state);
+                                      }
+                                      if (state is AddCommentLoading) {
+                                        deselectCommentToEdit();
+                                      }
+                                    },
+                                    builder: (context, state) {
+                                      if (state is AddCommentLoading) {
+                                        return const Padding(
+                                          padding: EdgeInsets.all(16),
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        );
+                                      }
+                                      return ValueListenableBuilder(
+                                          valueListenable: rebuildButton,
+                                          builder: (context, s, a) {
+                                            return IconButton(
+                                              onPressed: result!.isEmpty
+                                                  ? null
+                                                  : () {
+                                                      final commentText =
+                                                          TaggingHelper
+                                                              .encodeString(
+                                                        _commentController!
+                                                            .text,
+                                                        userTags,
+                                                      );
 
-                                                    _addCommentBloc.add(
-                                                      AddComment(
-                                                        addCommentRequest:
-                                                            (AddCommentRequestBuilder()
-                                                                  ..postId(widget
-                                                                      .postId)
-                                                                  ..text(
-                                                                      commentText))
-                                                                .build(),
-                                                      ),
-                                                    );
+                                                      _addCommentBloc.add(
+                                                        AddComment(
+                                                          addCommentRequest:
+                                                              (AddCommentRequestBuilder()
+                                                                    ..postId(widget
+                                                                        .postId)
+                                                                    ..text(
+                                                                        commentText))
+                                                                  .build(),
+                                                        ),
+                                                      );
 
-                                                    closeOnScreenKeyboard();
-                                                    _commentController?.clear();
-                                                  },
-                                            icon: Icon(
-                                              Icons.send,
-                                              color: right
-                                                  ? result!.isNotEmpty
-                                                      ? kPrimaryColor
-                                                      : kGreyColor
-                                                  : Colors.transparent,
-                                            ),
-                                          );
-                                        });
-                                  },
-                                ),
+                                                      closeOnScreenKeyboard();
+                                                      _commentController
+                                                          ?.clear();
+                                                    },
+                                              icon: Icon(
+                                                Icons.send,
+                                                color: right
+                                                    ? result!.isNotEmpty
+                                                        ? kPrimaryColor
+                                                        : kGreyColor
+                                                    : Colors.transparent,
+                                              ),
+                                            );
+                                          });
+                                    },
+                                  ),
+                          ),
                           contentPadding: const EdgeInsets.symmetric(
                               vertical: 16, horizontal: 16),
                           hintText: right
@@ -591,20 +576,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
             backgroundColor: kBackgroundColor,
             appBar: GeneralAppBar(
               backTap: () {
-                if (Navigator.of(context).canPop()) {
-                  locator<NavigationService>()
-                      .goBack(result: {'isBack': false});
-                } else {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => FeedRoomScreen(
-                        isCm: UserLocalPreference.instance.fetchMemberState(),
-                        user: currentUser,
-                        feedRoomId: locator<LikeMindsService>().feedroomId!,
-                      ),
-                    ),
-                  );
-                }
+                locator<NavigationService>().goBack(result: {'isBack': false});
               },
               autoImplyEnd: false,
               title: ValueListenableBuilder(

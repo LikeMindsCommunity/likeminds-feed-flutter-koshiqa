@@ -1,4 +1,3 @@
-import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/views/comments/components/dropdown_options_reply.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
@@ -106,60 +105,64 @@ class _ReplyTileState extends State<ReplyTile> {
               Row(
                 children: [
                   ValueListenableBuilder(
-                      valueListenable: rebuildLikeButton,
-                      builder: (context, _, __) {
-                        return GestureDetector(
-                          onTap: () {
-                            print('like button tapped');
-                            if (isLiked) {
-                              likeCount = likeCount! - 1;
-                              widget.reply.likesCount -= 1;
-                            } else {
-                              likeCount = likeCount! + 1;
-                              widget.reply.likesCount += 1;
-                            }
-                            isLiked = !isLiked;
-                            widget.reply.isLiked = isLiked;
+                    valueListenable: rebuildLikeButton,
+                    builder: (context, _, __) {
+                      return GestureDetector(
+                        onTap: () {
+                          print('like button tapped');
+                          if (isLiked) {
+                            likeCount = likeCount! - 1;
+                            widget.reply.likesCount -= 1;
+                          } else {
+                            likeCount = likeCount! + 1;
+                            widget.reply.likesCount += 1;
+                          }
+                          isLiked = !isLiked;
+                          widget.reply.isLiked = isLiked;
 
-                            rebuildLikeButton.value = !rebuildLikeButton.value;
+                          rebuildLikeButton.value = !rebuildLikeButton.value;
 
-                            _toggleLikeCommentBloc.add(ToggleLikeComment(
+                          _toggleLikeCommentBloc.add(
+                            ToggleLikeComment(
                               toggleLikeCommentRequest:
                                   (ToggleLikeCommentRequestBuilder()
                                         ..commentId(reply!.id)
                                         ..postId(postId!))
                                       .build(),
-                            ));
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(3),
-                            child: isLiked
-                                ? SvgPicture.asset(
-                                    kAssetLikeFilledIcon,
-                                    // color: kPrimaryColor,
-                                    height: 17,
-                                  )
-                                : SvgPicture.asset(
-                                    kAssetLikeIcon,
-                                    color: kGrey3Color,
-                                    height: 13,
-                                  ),
-                          ),
-                        );
-                      }),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(3),
+                          child: isLiked
+                              ? SvgPicture.asset(
+                                  kAssetLikeFilledIcon,
+                                  // color: kPrimaryColor,
+                                  height: 17,
+                                )
+                              : SvgPicture.asset(
+                                  kAssetLikeIcon,
+                                  color: kGrey3Color,
+                                  height: 13,
+                                ),
+                        ),
+                      );
+                    },
+                  ),
                   kHorizontalPaddingSmall,
                   ValueListenableBuilder(
                     valueListenable: rebuildLikeButton,
                     builder: (context, _, __) {
                       return GestureDetector(
                         onTap: () {
-                          locator<NavigationService>()
-                              .navigateTo(LikesScreen.route,
-                                  arguments: LikesScreenArguments(
-                                    postId: postId!,
-                                    commentId: reply!.id,
-                                    isCommentLikes: true,
-                                  ));
+                          locator<NavigationService>().navigateTo(
+                            LikesScreen.route,
+                            arguments: LikesScreenArguments(
+                              postId: postId!,
+                              commentId: reply!.id,
+                              isCommentLikes: true,
+                            ),
+                          );
                         },
                         child: Text(
                           likeCount! > 0
