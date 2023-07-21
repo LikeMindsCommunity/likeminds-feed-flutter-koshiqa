@@ -8,6 +8,7 @@ import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 part 'new_post_event.dart';
 part 'new_post_state.dart';
@@ -180,6 +181,29 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
               message: 'An error occured while saving the post',
             ),
           );
+        }
+      }
+      if (event is DeletePost) {
+        final response = await locator<LikeMindsService>().deletePost(
+          (DeletePostRequestBuilder()
+                ..postId(event.postId)
+                ..deleteReason(event.reason))
+              .build(),
+        );
+
+        if (response.success) {
+          toast(
+            'Post Deleted',
+            duration: Toast.LENGTH_LONG,
+          );
+          emit(PostDeleted(postId: event.postId));
+        } else {
+          toast(
+            response.errorMessage ?? 'An error occurred',
+            duration: Toast.LENGTH_LONG,
+          );
+          emit(PostDeletionError(
+              message: response.errorMessage ?? 'An error occurred'));
         }
       }
     });

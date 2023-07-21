@@ -374,6 +374,13 @@ class _FeedRoomViewState extends State<FeedRoomView> {
           BlocConsumer<NewPostBloc, NewPostState>(
             bloc: newPostBloc,
             listener: (prev, curr) {
+              if (curr is PostDeleted) {
+                List<Post>? feedRoomItemList =
+                    widget.feedRoomPagingController.itemList;
+                feedRoomItemList!.removeWhere((item) => item.id == curr.postId);
+                widget.feedRoomPagingController.itemList = feedRoomItemList;
+                rebuildPostWidget.value = !rebuildPostWidget.value;
+              }
               if (curr is NewPostUploading || curr is EditPostUploading) {
                 // if current state is uploading
                 // change postUploading flag to true
