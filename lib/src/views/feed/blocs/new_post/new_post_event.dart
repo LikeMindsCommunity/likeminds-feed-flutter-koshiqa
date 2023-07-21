@@ -15,6 +15,8 @@ class CreateNewPost extends NewPostEvents {
     required this.postText,
     required this.feedRoomId,
   });
+  @override
+  List<Object> get props => [postText, feedRoomId];
 }
 
 class EditPost extends NewPostEvents {
@@ -29,4 +31,21 @@ class EditPost extends NewPostEvents {
     this.feedRoomId,
     required this.postId,
   });
+  @override
+  List<Object> get props => [postId, postText];
+}
+
+class DeletePost extends NewPostEvents {
+  final String postId;
+  final String reason;
+  final int? feedRoomId;
+
+  DeletePost({
+    required this.postId,
+    required this.reason,
+    this.feedRoomId,
+  });
+
+  @override
+  List<Object> get props => [postId, reason];
 }

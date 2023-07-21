@@ -1,3 +1,4 @@
+import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/simple_bloc_observer.dart';
 import 'package:feed_sx/src/views/feed/blocs/feedroomlist/feedroom_list_bloc.dart';
@@ -161,13 +162,16 @@ class FeedRoomListView extends StatelessWidget {
                   return FeedRoomTile(
                     item: item,
                     onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
                           builder: (context) => FeedRoomScreen(
-                                isCm: true,
-                                user: user,
-                                feedRoomId: item.id,
-                                feedRoomTitle: item.title,
-                              )));
+                            isCm: true,
+                            user: user,
+                            feedRoomId: item.id,
+                            feedRoomTitle: item.title,
+                          ),
+                        ),
+                      );
                     },
                   );
                 }),
