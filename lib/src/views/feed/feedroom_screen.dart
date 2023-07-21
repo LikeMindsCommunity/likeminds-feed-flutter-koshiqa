@@ -143,17 +143,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     return WillPopScope(
       onWillPop: () async {
         if (isCm!) {
-          if (Navigator.canPop(context)) {
-            locator<NavigationService>().goBack();
-          } else {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) => FeedRoomListScreen(
-                  user: user,
-                ),
-              ),
-            );
-          }
+          locator<NavigationService>().goBack();
         }
         return false;
       },
@@ -165,17 +155,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                   onPressed: () {
                     // if the user is a community manager then
                     // navigate back to the feedroom list screen
-                    if (Navigator.canPop(context)) {
-                      locator<NavigationService>().goBack();
-                    } else {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => FeedRoomListScreen(
-                            user: user,
-                          ),
-                        ),
-                      );
-                    }
+                    locator<NavigationService>().goBack();
                   },
                 )
               : null,
@@ -394,6 +374,13 @@ class _FeedRoomViewState extends State<FeedRoomView> {
           BlocConsumer<NewPostBloc, NewPostState>(
             bloc: newPostBloc,
             listener: (prev, curr) {
+              if (curr is PostDeleted) {
+                List<Post>? feedRoomItemList =
+                    widget.feedRoomPagingController.itemList;
+                feedRoomItemList!.removeWhere((item) => item.id == curr.postId);
+                widget.feedRoomPagingController.itemList = feedRoomItemList;
+                rebuildPostWidget.value = !rebuildPostWidget.value;
+              }
               if (curr is NewPostUploading || curr is EditPostUploading) {
                 // if current state is uploading
                 // change postUploading flag to true
@@ -536,88 +523,86 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                 return PagedListView<int, Post>(
                   pagingController: widget.feedRoomPagingController,
                   builderDelegate: PagedChildBuilderDelegate<Post>(
-                      noItemsFoundIndicatorBuilder: (context) => Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SvgPicture.asset(
-                                  kAssetPostsIcon,
-                                  color: kGrey3Color,
-                                ),
-                                const SizedBox(height: 12),
-                                const Text("No posts to show",
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                    )),
-                                const SizedBox(height: 12),
-                                const Text("Be the first one to post here",
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w300,
-                                        color: kGrey2Color)),
-                                const SizedBox(height: 28),
-                                NewPostButton(
-                                  onTap: () {
-                                    if (!postUploading.value) {
-                                      locator<NavigationService>().navigateTo(
-                                        NewPostScreen.route,
-                                        arguments: NewPostScreenArguments(
-                                          feedroomId: widget.feedRoom.id,
-                                          feedRoomTitle: widget.feedRoom.title,
-                                          isCm: widget.isCm,
-                                        ),
-                                      );
-                                    } else {
-                                      toast(
-                                        'A post is already uploading.',
-                                        duration: Toast.LENGTH_LONG,
-                                      );
-                                    }
-                                  },
-                                ),
-                              ],
-                            ),
+                    noItemsFoundIndicatorBuilder: (context) => Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SvgPicture.asset(
+                            kAssetPostsIcon,
+                            color: kGrey3Color,
                           ),
-                      itemBuilder: (context, item, index) {
-                        Post rebuildPostData = item;
-                        return PostWidget(
-                          postDetails: rebuildPostData,
-                          feedRoomId: widget.feedRoom.id,
-                          user: widget.feedResponse.users[item.userId]!,
-                          refresh: (bool isDeleted) async {
-                            if (!isDeleted) {
-                              final GetPostResponse updatedPostDetails =
-                                  await locator<LikeMindsService>().getPost(
-                                (GetPostRequestBuilder()
-                                      ..postId(item.id)
-                                      ..page(1)
-                                      ..pageSize(10))
-                                    .build(),
-                              );
-                              item = updatedPostDetails.post!;
-                              rebuildPostData = updatedPostDetails.post!;
-                              List<Post>? feedRoomItemList =
-                                  widget.feedRoomPagingController.itemList;
-                              feedRoomItemList?[index] =
-                                  updatedPostDetails.post!;
-                              widget.feedRoomPagingController.itemList =
-                                  feedRoomItemList;
-                              rebuildPostWidget.value =
-                                  !rebuildPostWidget.value;
-                            } else {
-                              List<Post>? feedRoomItemList =
-                                  widget.feedRoomPagingController.itemList;
-                              feedRoomItemList!.removeAt(index);
-                              widget.feedRoomPagingController.itemList =
-                                  feedRoomItemList;
-                              rebuildPostWidget.value =
-                                  !rebuildPostWidget.value;
-                            }
-                          },
-                          //onRefresh,
-                        );
-                      }),
+                          const SizedBox(height: 12),
+                          const Text("No posts to show",
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              )),
+                          const SizedBox(height: 12),
+                          const Text("Be the first one to post here",
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w300,
+                                  color: kGrey2Color)),
+                          const SizedBox(height: 28),
+                          NewPostButton(
+                            onTap: () {
+                              if (!postUploading.value) {
+                                locator<NavigationService>().navigateTo(
+                                  NewPostScreen.route,
+                                  arguments: NewPostScreenArguments(
+                                    feedroomId: widget.feedRoom.id,
+                                    feedRoomTitle: widget.feedRoom.title,
+                                    isCm: widget.isCm,
+                                  ),
+                                );
+                              } else {
+                                toast(
+                                  'A post is already uploading.',
+                                  duration: Toast.LENGTH_LONG,
+                                );
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    itemBuilder: (context, item, index) {
+                      Post rebuildPostData = item;
+                      return PostWidget(
+                        postDetails: rebuildPostData,
+                        feedRoomId: widget.feedRoom.id,
+                        user: widget.feedResponse.users[item.userId]!,
+                        refresh: (bool isDeleted) async {
+                          if (!isDeleted) {
+                            final GetPostResponse updatedPostDetails =
+                                await locator<LikeMindsService>().getPost(
+                              (GetPostRequestBuilder()
+                                    ..postId(item.id)
+                                    ..page(1)
+                                    ..pageSize(10))
+                                  .build(),
+                            );
+                            item = updatedPostDetails.post!;
+                            rebuildPostData = updatedPostDetails.post!;
+                            List<Post>? feedRoomItemList =
+                                widget.feedRoomPagingController.itemList;
+                            feedRoomItemList?[index] = updatedPostDetails.post!;
+                            widget.feedRoomPagingController.itemList =
+                                feedRoomItemList;
+                            rebuildPostWidget.value = !rebuildPostWidget.value;
+                          } else {
+                            List<Post>? feedRoomItemList =
+                                widget.feedRoomPagingController.itemList;
+                            feedRoomItemList!.removeAt(index);
+                            widget.feedRoomPagingController.itemList =
+                                feedRoomItemList;
+                            rebuildPostWidget.value = !rebuildPostWidget.value;
+                          }
+                        },
+                        //onRefresh,
+                      );
+                    },
+                  ),
                 );
               },
             ),

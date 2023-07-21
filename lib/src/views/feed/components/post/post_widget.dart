@@ -74,6 +74,7 @@ class _PostWidgetState extends State<PostWidget> {
                 postDetails: postDetails!,
                 refresh: refresh!,
                 feedRoomId: widget.feedRoomId,
+                isFeed: widget.isFeed,
               ),
               PostDescription(
                 text: postDetails!.text,
