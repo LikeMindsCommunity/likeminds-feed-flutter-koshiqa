@@ -112,177 +112,174 @@ class _LMFeedState extends State<LMFeed> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: !isProd,
-      title: 'LikeMinds Feed',
-      navigatorKey: locator<NavigationService>().navigatorKey,
-      onGenerateRoute: (settings) {
-        if (settings.name == NotificationScreen.route) {
-          return MaterialPageRoute(
-            builder: (context) => const NotificationScreen(),
-          );
-        }
-        if (settings.name == AllCommentsScreen.route) {
-          final args = settings.arguments as AllCommentsScreenArguments;
-          return MaterialPageRoute(
-            builder: (context) {
-              return AllCommentsScreen(
-                postId: args.postId,
-                feedRoomId: args.feedRoomId,
-                fromComment: args.fromComment,
-              );
-            },
-          );
-        }
-        if (settings.name == LikesScreen.route) {
-          final args = settings.arguments as LikesScreenArguments;
-          return MaterialPageRoute(
-            builder: (context) {
-              return LikesScreen(
-                postId: args.postId,
-                commentId: args.commentId,
-                isCommentLikes: args.isCommentLikes,
-              );
-            },
-          );
-        }
-        if (settings.name == MediaPreviewScreen.routeName) {
-          final args = settings.arguments as MediaPreviewArguments;
-          return MaterialPageRoute(
-            builder: (context) {
-              return MediaPreviewScreen(
-                attachments: args.attachments,
-                postId: args.postId,
-                mediaFile: args.mediaFile,
-                mediaUrl: args.mediaUrl,
-              );
-            },
-          );
-        }
-        if (settings.name == ReportPostScreen.route) {
-          return MaterialPageRoute(
-            builder: (context) {
-              return const ReportPostScreen();
-            },
-          );
-        }
-        if (settings.name == NewPostScreen.route) {
-          final args = settings.arguments as NewPostScreenArguments;
-          return MaterialPageRoute(
-            builder: (context) {
-              return NewPostScreen(
-                feedRoomId: args.feedroomId,
-                feedRoomTitle: args.feedRoomTitle,
-                isCm: args.isCm,
-                populatePostMedia: args.populatePostMedia,
-                populatePostText: args.populatePostText,
-              );
-            },
-          );
-        }
+    return BlocProvider(
+      create: (context) => NewPostBloc(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: !isProd,
+        title: 'LikeMinds Feed',
+        navigatorKey: locator<NavigationService>().navigatorKey,
+        onGenerateRoute: (settings) {
+          if (settings.name == NotificationScreen.route) {
+            return MaterialPageRoute(
+              builder: (context) => const NotificationScreen(),
+            );
+          }
+          if (settings.name == AllCommentsScreen.route) {
+            final args = settings.arguments as AllCommentsScreenArguments;
+            return MaterialPageRoute(
+              builder: (context) {
+                return AllCommentsScreen(
+                  postId: args.postId,
+                  feedRoomId: args.feedRoomId,
+                  fromComment: args.fromComment,
+                );
+              },
+            );
+          }
+          if (settings.name == LikesScreen.route) {
+            final args = settings.arguments as LikesScreenArguments;
+            return MaterialPageRoute(
+              builder: (context) {
+                return LikesScreen(
+                  postId: args.postId,
+                  commentId: args.commentId,
+                  isCommentLikes: args.isCommentLikes,
+                );
+              },
+            );
+          }
+          if (settings.name == MediaPreviewScreen.routeName) {
+            final args = settings.arguments as MediaPreviewArguments;
+            return MaterialPageRoute(
+              builder: (context) {
+                return MediaPreviewScreen(
+                  attachments: args.attachments,
+                  postId: args.postId,
+                  mediaFile: args.mediaFile,
+                  mediaUrl: args.mediaUrl,
+                );
+              },
+            );
+          }
+          if (settings.name == ReportPostScreen.route) {
+            return MaterialPageRoute(
+              builder: (context) {
+                return const ReportPostScreen();
+              },
+            );
+          }
+          if (settings.name == NewPostScreen.route) {
+            final args = settings.arguments as NewPostScreenArguments;
+            return MaterialPageRoute(
+              builder: (context) {
+                return NewPostScreen(
+                  feedRoomId: args.feedroomId,
+                  feedRoomTitle: args.feedRoomTitle,
+                  isCm: args.isCm,
+                  populatePostMedia: args.populatePostMedia,
+                  populatePostText: args.populatePostText,
+                );
+              },
+            );
+          }
 
-        if (settings.name == EditPostScreen.route) {
-          final args = settings.arguments as EditPostScreenArguments;
-          return MaterialPageRoute(
-            builder: (context) {
-              return EditPostScreen(
-                postId: args.postId,
-                feedRoomId: args.feedRoomId,
-              );
-            },
-          );
-        }
+          if (settings.name == EditPostScreen.route) {
+            final args = settings.arguments as EditPostScreenArguments;
+            return MaterialPageRoute(
+              builder: (context) {
+                return EditPostScreen(
+                  postId: args.postId,
+                  feedRoomId: args.feedRoomId,
+                );
+              },
+            );
+          }
 
-        if (settings.name == FeedRoomSelect.route) {
-          final args = settings.arguments as FeedRoomSelectArguments;
-          return MaterialPageRoute(
-            builder: (context) {
-              return FeedRoomSelect(
-                user: args.user,
-                feedRoomIds: args.feedRoomIds,
-              );
-            },
-          );
-        }
-        return null;
-      },
-      home: FutureBuilder<InitiateUserResponse>(
-        future: locator<LikeMindsService>().initiateUser(
-          (InitiateUserRequestBuilder()
-                ..userId(userId)
-                ..userName(userName))
-              .build(),
-        ),
-        initialData: null,
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.hasData) {
-            InitiateUserResponse response = snapshot.data;
-            if (response.success) {
-              user = response.initiateUser?.user;
-              // LMFeed._instance!.deepLinkCallBack();
-              UserLocalPreference.instance.storeUserData(user!);
-              LMNotificationHandler.instance.registerDevice(user!.id);
-              return BlocProvider(
-                create: (context) => NewPostBloc(),
-                child: MaterialApp(
-                  home: FutureBuilder(
-                    future: locator<LikeMindsService>().getMemberState(),
-                    initialData: null,
-                    builder: (BuildContext context, AsyncSnapshot snapshot) {
-                      if (snapshot.hasData) {
-                        final MemberStateResponse response = snapshot.data;
-                        final isCm = response.state == 1;
-                        UserLocalPreference.instance
-                            .storeMemberRights(response);
-                        if (isCm) {
-                          UserLocalPreference.instance.storeMemberState(isCm);
-                          return FeedRoomListScreen(user: user!);
-                        } else {
-                          UserLocalPreference.instance.storeMemberState(false);
-                          return FeedRoomScreen(
-                            isCm: isCm,
-                            user: user!,
-                            feedRoomId: widget.defaultFeedroom,
-                          );
-                        }
+          if (settings.name == FeedRoomSelect.route) {
+            final args = settings.arguments as FeedRoomSelectArguments;
+            return MaterialPageRoute(
+              builder: (context) {
+                return FeedRoomSelect(
+                  user: args.user,
+                  feedRoomIds: args.feedRoomIds,
+                );
+              },
+            );
+          }
+          return null;
+        },
+        home: FutureBuilder<InitiateUserResponse>(
+          future: locator<LikeMindsService>().initiateUser(
+            (InitiateUserRequestBuilder()
+                  ..userId(userId)
+                  ..userName(userName))
+                .build(),
+          ),
+          initialData: null,
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (snapshot.hasData) {
+              InitiateUserResponse response = snapshot.data;
+              if (response.success) {
+                user = response.initiateUser?.user;
+                // LMFeed._instance!.deepLinkCallBack();
+                UserLocalPreference.instance.storeUserData(user!);
+                LMNotificationHandler.instance.registerDevice(user!.id);
+                return FutureBuilder(
+                  future: locator<LikeMindsService>().getMemberState(),
+                  initialData: null,
+                  builder: (BuildContext context, AsyncSnapshot snapshot) {
+                    if (snapshot.hasData) {
+                      final MemberStateResponse response = snapshot.data;
+                      final isCm = response.state == 1;
+                      UserLocalPreference.instance.storeMemberRights(response);
+                      if (isCm) {
+                        UserLocalPreference.instance.storeMemberState(isCm);
+                        return FeedRoomListScreen(user: user!);
+                      } else {
+                        UserLocalPreference.instance.storeMemberState(false);
+                        return FeedRoomScreen(
+                          isCm: isCm,
+                          user: user!,
+                          feedRoomId: widget.defaultFeedroom,
+                        );
                       }
+                    }
 
-                      return Container(
-                        height: MediaQuery.of(context).size.height,
-                        width: MediaQuery.of(context).size.width,
-                        color: kBackgroundColor,
-                        child: const Center(
-                          child: Loader(
-                            isPrimary: true,
-                          ),
+                    return Container(
+                      height: MediaQuery.of(context).size.height,
+                      width: MediaQuery.of(context).size.width,
+                      color: kBackgroundColor,
+                      child: const Center(
+                        child: Loader(
+                          isPrimary: true,
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
+                );
+              } else {}
+            } else if (snapshot.hasError) {
+              debugPrint("Error - ${snapshot.error}");
+              return Container(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                color: kBackgroundColor,
+                child: const Center(
+                  child: Text("An error has occured",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                      )),
                 ),
               );
-            } else {}
-          } else if (snapshot.hasError) {
-            debugPrint("Error - ${snapshot.error}");
+            }
             return Container(
               height: MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width,
               color: kBackgroundColor,
-              child: const Center(
-                child: Text("An error has occured",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 16,
-                    )),
-              ),
             );
-          }
-          return Container(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            color: kBackgroundColor,
-          );
-        },
+          },
+        ),
       ),
     );
   }
