@@ -16,3 +16,8 @@ Adding Play Video in FullScreen
 
 Refactor in Share Post
 Fixed comment reply issue
+
+## 1.4.2
+
+Fixed new post bloc issue
+Fixed delete post issue
