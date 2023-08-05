@@ -11,6 +11,7 @@ import 'package:feed_sx/src/views/feed/feedroom_list_screen.dart';
 import 'package:feed_sx/src/views/media_preview/media_preview.dart';
 import 'package:feed_sx/src/views/new_post/feedroom_select.dart';
 import 'package:feed_sx/src/views/notification/notification_screen.dart';
+import 'package:feed_sx/src/views/topic/topic_select_screen.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -149,6 +150,16 @@ class _LMFeedState extends State<LMFeed> {
                 title: 'LikeMinds Feed',
                 navigatorKey: locator<NavigationService>().navigatorKey,
                 onGenerateRoute: (settings) {
+                  if (settings.name == TopicSelectScreen.route) {
+                    final args =
+                        settings.arguments as TopicSelectScreenArguments;
+                    return MaterialPageRoute(
+                      builder: (context) => TopicSelectScreen(
+                        onTopicSelected: args.onSelect,
+                        selectedTopic: args.selectedTopic,
+                      ),
+                    );
+                  }
                   if (settings.name == NotificationScreen.route) {
                     return MaterialPageRoute(
                       builder: (context) => const NotificationScreen(),

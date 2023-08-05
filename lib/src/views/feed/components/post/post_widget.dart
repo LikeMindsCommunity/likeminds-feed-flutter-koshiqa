@@ -15,6 +15,7 @@ class PostWidget extends StatefulWidget {
   final bool showActions;
   final Function(bool) refresh;
   final bool isFeed;
+  final bool showTopic;
 
   const PostWidget({
     super.key,
@@ -23,6 +24,7 @@ class PostWidget extends StatefulWidget {
     required this.feedRoomId,
     required this.user,
     required this.refresh,
+    this.showTopic = true,
     this.isFeed = true,
   });
 

@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
+import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
 
 part 'feedroom_event.dart';
 part 'feedroom_state.dart';
@@ -20,10 +21,15 @@ class FeedRoomBloc extends Bloc<FeedRoomEvent, FeedRoomState> {
               ? emit(PaginationLoading())
               : emit(FeedRoomLoading());
           try {
+            List<Topic> selectedTopics = [];
+            if (event.topics != null && event.topics!.isNotEmpty) {
+              selectedTopics = event.topics!.map((e) => e.toTopic()).toList();
+            }
             GetFeedOfFeedRoomResponse? response =
                 await locator<LikeMindsService>().getFeedOfFeedRoom(
               (GetFeedOfFeedRoomRequestBuilder()
                     ..feedroomId(event.feedRoomId)
+                    ..topics(selectedTopics)
                     ..page(event.offset)
                     ..pageSize(10))
                   .build(),

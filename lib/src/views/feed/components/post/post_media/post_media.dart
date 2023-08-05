@@ -1,4 +1,4 @@
-import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
+import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
 import 'package:feed_sx/src/widgets/close_icon.dart';
 import 'package:flutter/material.dart';
 

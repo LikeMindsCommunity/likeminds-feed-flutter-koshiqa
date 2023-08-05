@@ -1,7 +1,8 @@
 import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
+
 import 'package:feed_sx/src/views/feed/feedroom_list_screen.dart';
 import 'package:feed_sx/src/views/notification/notification_screen.dart';
+import 'package:feed_sx/src/views/topic/topic_select_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -21,6 +22,7 @@ import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
 import 'package:overlay_support/overlay_support.dart';
 
 class FeedRoomScreen extends StatefulWidget {
@@ -47,6 +49,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
   bool? isCm; // whether the logged in user is a community manager or not
   // future to get the unread notification count
   late Future<GetUnreadNotificationCountResponse> getUnreadNotificationCount;
+  List<TopicViewModel> selectedTopics = [];
 
   // used to rebuild the appbar
   final ValueNotifier _rebuildAppBar = ValueNotifier(false);
@@ -54,6 +57,18 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
   // to control paging on FeedRoom View
   final PagingController<int, Post> _pagingController =
       PagingController(firstPageKey: 1);
+
+  void updateSelectedTopics(List<TopicViewModel> topics) {
+    selectedTopics = topics;
+    clearPagingController();
+    _feedBloc.add(
+      GetFeedRoom(
+        feedRoomId: widget.feedRoomId,
+        offset: 1,
+        topics: selectedTopics,
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -63,7 +78,8 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     _feedBloc = FeedRoomBloc();
     title = widget.feedRoomTitle;
     _feedBloc.add(
-      GetFeedRoom(feedRoomId: widget.feedRoomId, offset: 1),
+      GetFeedRoom(
+          feedRoomId: widget.feedRoomId, offset: 1, topics: selectedTopics),
     );
     updateUnreadNotificationCount();
   }
@@ -91,6 +107,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
         _feedBloc.add(
           GetFeedRoom(
             feedRoomId: widget.feedRoomId,
+            topics: selectedTopics,
             offset: pageKey,
             isPaginationLoading: true,
           ),
@@ -251,8 +268,13 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
         ),
         body: RefreshIndicator(
           onRefresh: () async {
-            _feedBloc
-                .add(GetFeedRoom(feedRoomId: widget.feedRoomId, offset: 1));
+            _feedBloc.add(
+              GetFeedRoom(
+                feedRoomId: widget.feedRoomId,
+                offset: 1,
+                topics: selectedTopics,
+              ),
+            );
             updateUnreadNotificationCount(); // funtion to update the unread notification count
             clearPagingController();
           },
@@ -287,7 +309,9 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                   feedRoomPagingController: _pagingController,
                   user: user,
                   onRefresh: refresh,
+                  updateSelectedTopics: updateSelectedTopics,
                   onPressedBack: clearPagingController,
+                  selectedTopic: selectedTopics,
                 );
               } else if (state is FeedRoomError) {
                 return FeedRoomErrorView(message: state.message);
@@ -301,6 +325,8 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                   user: user,
                   onRefresh: refresh,
                   onPressedBack: clearPagingController,
+                  updateSelectedTopics: updateSelectedTopics,
+                  selectedTopic: selectedTopics,
                 );
               }
               return const Scaffold(
@@ -337,6 +363,8 @@ class FeedRoomView extends StatefulWidget {
   final GetFeedOfFeedRoomResponse feedResponse;
   final PagingController<int, Post> feedRoomPagingController;
   final VoidCallback onRefresh;
+  final Function(List<TopicViewModel>) updateSelectedTopics;
+  final List<TopicViewModel> selectedTopic;
 
   FeedRoomView({
     super.key,
@@ -348,6 +376,8 @@ class FeedRoomView extends StatefulWidget {
     required this.feedRoomPagingController,
     required this.user,
     required this.onRefresh,
+    required this.updateSelectedTopics,
+    required this.selectedTopic,
   }) {
     locator<LikeMindsService>().setFeedroomId = feedRoom.id;
   }
@@ -357,6 +387,7 @@ class FeedRoomView extends StatefulWidget {
 }
 
 class _FeedRoomViewState extends State<FeedRoomView> {
+  ValueNotifier<bool> rebuildTopicFeed = ValueNotifier(false);
   ValueNotifier<bool> rebuildPostWidget = ValueNotifier(false);
   final ValueNotifier postUploading = ValueNotifier(false);
 
@@ -457,6 +488,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                   height: 60,
                   color: kWhiteColor,
                   alignment: Alignment.center,
+                  margin: const EdgeInsets.only(bottom: kPaddingLarge),
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -488,6 +520,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                   height: 60,
                   color: kWhiteColor,
                   alignment: Alignment.center,
+                  margin: const EdgeInsets.only(bottom: kPaddingLarge),
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -528,7 +561,41 @@ class _FeedRoomViewState extends State<FeedRoomView> {
               }
             },
           ),
-          kVerticalPaddingLarge,
+          ValueListenableBuilder(
+              valueListenable: rebuildTopicFeed,
+              builder: (context, _, __) {
+                return TopicFeedBar(
+                  selectedTopics: widget.selectedTopic,
+                  showBorder: true,
+                  onClear: () {
+                    widget.selectedTopic.clear();
+                    widget.updateSelectedTopics(widget.selectedTopic);
+                  },
+                  onIconTap: (TopicViewModel topic) {
+                    widget.selectedTopic.remove(topic);
+                    widget.updateSelectedTopics(widget.selectedTopic);
+                  },
+                  onTap: () {
+                    locator<NavigationService>().navigateTo(
+                      TopicSelectScreen.route,
+                      arguments: TopicSelectScreenArguments(
+                        selectedTopic: widget.selectedTopic,
+                        onSelect: (updatedTopics) {
+                          widget.updateSelectedTopics(updatedTopics);
+                        },
+                      ),
+                    );
+                  },
+                  textColor: kPrimaryColor,
+                  borderColor: kPrimaryColor,
+                  borderWidth: 1,
+                  icon: const Icon(
+                    CupertinoIcons.xmark,
+                    size: 12,
+                    color: kPrimaryColor,
+                  ),
+                );
+              }),
           Expanded(
             child: ValueListenableBuilder(
               valueListenable: rebuildPostWidget,
