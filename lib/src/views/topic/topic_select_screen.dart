@@ -16,11 +16,13 @@ class TopicSelectScreen extends StatefulWidget {
 
   final List<TopicViewModel> selectedTopic;
   final Function(List<TopicViewModel>) onTopicSelected;
+  final bool? isEnabled;
 
   const TopicSelectScreen({
     Key? key,
     required this.selectedTopic,
     required this.onTopicSelected,
+    this.isEnabled,
   }) : super(key: key);
 
   @override
@@ -29,6 +31,7 @@ class TopicSelectScreen extends StatefulWidget {
 
 class _TopicSelectScreenState extends State<TopicSelectScreen> {
   List<TopicViewModel> selectedTopics = [];
+  Set<String> selectedTopicId = {};
   TextEditingController searchController = TextEditingController();
   String searchType = "";
   String search = "";
@@ -61,6 +64,7 @@ class _TopicSelectScreenState extends State<TopicSelectScreen> {
         GetTopic(
           getTopicFeedRequest: (GetTopicsRequestBuilder()
                 ..page(_page)
+                ..isEnabled(widget.isEnabled)
                 ..pageSize(pageSize)
                 ..search(search)
                 ..searchType(searchType))
@@ -71,22 +75,22 @@ class _TopicSelectScreenState extends State<TopicSelectScreen> {
   }
 
   bool checkSelectedTopicExistsInList(TopicViewModel topic) {
-    int index = selectedTopics.indexWhere((element) => element.id == topic.id);
-    if (index == -1) {
-      return false;
-    } else {
-      return true;
-    }
+    return selectedTopicId.contains(topic.id);
   }
 
   @override
   void initState() {
     super.initState();
     selectedTopics = widget.selectedTopic;
+    for (TopicViewModel topic in selectedTopics) {
+      selectedTopicId.add(topic.id);
+    }
+    topicsPagingController.itemList = selectedTopics;
     topicBloc.add(
       GetTopic(
         getTopicFeedRequest: (GetTopicsRequestBuilder()
               ..page(_page)
+              ..isEnabled(widget.isEnabled)
               ..pageSize(pageSize)
               ..search(search)
               ..searchType(searchType))
@@ -110,6 +114,7 @@ class _TopicSelectScreenState extends State<TopicSelectScreen> {
         topicBloc.add(GetTopic(
           getTopicFeedRequest: (GetTopicsRequestBuilder()
                 ..page(pageKey)
+                ..isEnabled(widget.isEnabled)
                 ..pageSize(pageSize)
                 ..search(search)
                 ..searchType(searchType))
@@ -190,6 +195,7 @@ class _TopicSelectScreenState extends State<TopicSelectScreen> {
                         GetTopic(
                           getTopicFeedRequest: (GetTopicsRequestBuilder()
                                 ..page(_page)
+                                ..isEnabled(widget.isEnabled)
                                 ..pageSize(pageSize)
                                 ..search(search)
                                 ..searchType(searchType))
@@ -234,6 +240,8 @@ class _TopicSelectScreenState extends State<TopicSelectScreen> {
             if (state.getTopicFeedResponse.topics!.isEmpty) {
               topicsPagingController.appendLastPage([]);
             } else {
+              state.getTopicFeedResponse.topics?.removeWhere(
+                  (element) => selectedTopicId.contains(element.id));
               topicsPagingController.appendPage(
                 state.getTopicFeedResponse.topics!
                     .map((e) => TopicViewModel.fromTopic(e))
@@ -316,9 +324,11 @@ class _TopicSelectScreenState extends State<TopicSelectScreen> {
                                 int index = selectedTopics.indexWhere(
                                     (element) => element.id == tappedTopic.id);
                                 if (index != -1) {
-                                  selectedTopics.remove(tappedTopic);
+                                  selectedTopics.removeAt(index);
+                                  selectedTopicId.remove(tappedTopic.id);
                                 } else {
                                   selectedTopics.add(tappedTopic);
+                                  selectedTopicId.add(tappedTopic.id);
                                 }
                                 rebuildTopicsScreen.value =
                                     !rebuildTopicsScreen.value;

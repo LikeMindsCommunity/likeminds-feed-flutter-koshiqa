@@ -156,6 +156,7 @@ class _LMFeedState extends State<LMFeed> {
                     return MaterialPageRoute(
                       builder: (context) => TopicSelectScreen(
                         onTopicSelected: args.onSelect,
+                        isEnabled: args.isEnabled,
                         selectedTopic: args.selectedTopic,
                       ),
                     );
@@ -232,6 +233,7 @@ class _LMFeedState extends State<LMFeed> {
                         return EditPostScreen(
                           postId: args.postId,
                           feedRoomId: args.feedRoomId,
+                          selectedTopics: args.selectedTopics,
                         );
                       },
                     );

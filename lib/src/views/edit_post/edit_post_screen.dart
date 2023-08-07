@@ -2,9 +2,12 @@ import 'dart:async';
 
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
+import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
+import 'package:feed_sx/src/views/topic/topic_select_screen.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_document.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_helper.dart';
@@ -24,10 +27,12 @@ class EditPostScreen extends StatefulWidget {
   static const String route = '/edit_post_screen';
   final String postId;
   final int feedRoomId;
+  final List<TopicViewModel> selectedTopics;
   const EditPostScreen({
     super.key,
     required this.postId,
     required this.feedRoomId,
+    required this.selectedTopics,
   });
 
   @override
@@ -35,6 +40,7 @@ class EditPostScreen extends StatefulWidget {
 }
 
 class _EditPostScreenState extends State<EditPostScreen> {
+  List<TopicViewModel> selectedTopics = [];
   late Future<GetPostResponse> postFuture;
   TextEditingController? textEditingController;
   ValueNotifier<bool> rebuildAttachments = ValueNotifier(false);
@@ -54,6 +60,8 @@ class _EditPostScreenState extends State<EditPostScreen> {
   Timer? _debounce;
   Size? screenSize;
 
+  ValueNotifier<bool> rebuildTopicFeed = ValueNotifier(false);
+
   @override
   void dispose() {
     _debounce?.cancel();
@@ -69,6 +77,11 @@ class _EditPostScreenState extends State<EditPostScreen> {
     _debounce = Timer(const Duration(milliseconds: 500), () {
       handleTextLinks(p0);
     });
+  }
+
+  void updateSelectedTopics(List<TopicViewModel> topics) {
+    selectedTopics = topics;
+    rebuildTopicFeed.value = !rebuildTopicFeed.value;
   }
 
   Widget getPostDocument(double width) {
@@ -126,6 +139,13 @@ class _EditPostScreenState extends State<EditPostScreen> {
           ..page(1)
           ..pageSize(10))
         .build());
+    selectedTopics = widget.selectedTopics;
+  }
+
+  @override
+  void didUpdateWidget(covariant EditPostScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    selectedTopics = widget.selectedTopics;
   }
 
   void checkTextLinks() {
@@ -311,10 +331,53 @@ class _EditPostScreenState extends State<EditPostScreen> {
                         textEditingController!.text, userTags);
                     String result = TaggingHelper.encodeString(
                         textEditingController!.text, userTags);
+
+                    List<String> disabledTopics = [];
+                    for (TopicViewModel topic in selectedTopics) {
+                      if (!topic.isEnabled) {
+                        disabledTopics.add(topic.name);
+                      }
+                    }
+
+                    if (disabledTopics.isNotEmpty) {
+                      await showDialog(
+                          context: context,
+                          builder: (dialogContext) => AlertDialog(
+                                title: const Text(
+                                  "Topic Disabled",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                content: Text(
+                                  "The following topics have been disabled. Please remove them to save the post.\n${disabledTopics.join(', ')}.",
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                                actions: [
+                                  GestureDetector(
+                                    onTap: () => Navigator.pop(dialogContext),
+                                    child: const Padding(
+                                      padding: EdgeInsets.only(
+                                          right: 10.0, bottom: 10.0),
+                                      child: Text(
+                                        'Okay',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            color: kLinkColor,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ));
+                      return;
+                    }
                     newPostBloc?.add(EditPost(
                       postText: result,
                       attachments: attachments,
                       postId: postId,
+                      selectedTopics: selectedTopics,
                     ));
                     locator<NavigationService>().goBack();
                   } else {
@@ -372,6 +435,67 @@ class _EditPostScreenState extends State<EditPostScreen> {
           ),
         ),
         kVerticalPaddingLarge,
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: ValueListenableBuilder(
+              valueListenable: rebuildTopicFeed,
+              builder: (context, _, __) {
+                return TopicFeedBar(
+                  selectedTopics: selectedTopics,
+                  // adds a trailing icon to the topic feed bar
+                  // when the selected topics list is not empty
+                  trailingIcon: SvgPicture.asset(
+                    kAssetPencilIcon,
+                    height: 20,
+                    width: 20,
+                    color: kPrimaryColor,
+                  ),
+                  emptyTopicChip: LMTopicChip(
+                    // places the icon before the text
+                    iconPlacement: LMIconPlacement.start,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    backgroundColor: kPrimaryColor.withOpacity(0.1),
+                    icon: const Icon(
+                      Icons.add,
+                      color: kPrimaryColor,
+                      size: 14,
+                    ),
+                    // dummy TopicViewModel data for placeholder topic chip
+                    topic: TopicViewModel(
+                        name: "Select Topics", id: "-1", isEnabled: true),
+                    textColor: kPrimaryColor,
+                    textStyle:
+                        const TextStyle(color: kPrimaryColor, fontSize: 14),
+                  ),
+                  // navigates to TopicSelectScreen on tapping the topic feed bar
+                  // or any of the topic chip
+                  onTap: () {
+                    locator<NavigationService>().navigateTo(
+                      TopicSelectScreen.route,
+                      arguments: TopicSelectScreenArguments(
+                        selectedTopic: selectedTopics,
+                        isEnabled: true,
+                        onSelect: (updatedTopics) {
+                          updateSelectedTopics(updatedTopics);
+                        },
+                      ),
+                    );
+                  },
+                  // adds a divider below the topic feed bar
+                  showDivider: true,
+                  // defines the height of the chip in topic feed bar
+                  height: 22,
+                  chipPadding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  backgroundColor: kPrimaryColor.withOpacity(0.1),
+                  textColor: kPrimaryColor,
+                  textStyle:
+                      const TextStyle(color: kPrimaryColor, fontSize: 14),
+                );
+              }),
+        ),
+        kVerticalPaddingLarge,
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -392,7 +516,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
                       isDown: true,
                       controller: textEditingController,
                       onTagSelected: (tag) {
-                        print(tag);
+                        debugPrint(tag.toString());
                         userTags.add(tag);
                       },
                       onChange: (p0) {

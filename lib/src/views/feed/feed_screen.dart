@@ -83,6 +83,7 @@ class _FeedScreenState extends State<FeedScreen> {
                   feedRoomId: dummyFeedRooms.first,
                   postDetails: item,
                   user: feedResponse.users[item.userId]!,
+                  topics: feedResponse.topics,
                   refresh: refresh(),
                 ),
               ),

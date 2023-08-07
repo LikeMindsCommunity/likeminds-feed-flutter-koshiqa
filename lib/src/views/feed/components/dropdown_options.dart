@@ -1,5 +1,4 @@
 import 'package:collection/collection.dart';
-import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
 import 'package:feed_sx/src/views/edit_post/edit_post_screen.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
@@ -7,10 +6,12 @@ import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
 import 'package:overlay_support/overlay_support.dart';
 
 class DropdownOptions extends StatelessWidget {
   final Post postDetails;
+  final Map<String, Topic> topics;
   final List<PopupMenuItemModel> menuItems;
   final int feedRoomId;
   final Function(bool) refresh;
@@ -21,6 +22,7 @@ class DropdownOptions extends StatelessWidget {
     required this.postDetails,
     required this.refresh,
     required this.feedRoomId,
+    required this.topics,
   });
 
   @override
@@ -58,7 +60,7 @@ class DropdownOptions extends StatelessWidget {
                           ))
                         .build(),
                   );
-                  print(response.toString());
+                  debugPrint(response.toString());
 
                   if (response.success) {
                     toast(
@@ -77,7 +79,7 @@ class DropdownOptions extends StatelessWidget {
               ),
             );
           } else if (value == 2) {
-            print("Pinning functionality");
+            debugPrint("Pinning functionality");
             final res = await locator<LikeMindsService>().getMemberState();
             LMAnalytics.get().track(
               AnalyticsKeys.postPinned,
@@ -90,7 +92,7 @@ class DropdownOptions extends StatelessWidget {
             final response = await locator<LikeMindsService>().pinPost(
               (PinPostRequestBuilder()..postId(postDetails.id)).build(),
             );
-            print(response.toString());
+            debugPrint(response.toString());
             if (response.success) {
               toast(
                 'Post Pinned',
@@ -104,7 +106,7 @@ class DropdownOptions extends StatelessWidget {
               );
             }
           } else if (value == 3) {
-            print("Unpinning functionality");
+            debugPrint("Unpinning functionality");
             final res = await locator<LikeMindsService>().getMemberState();
             LMAnalytics.get().track(
               AnalyticsKeys.postUnpinned,
@@ -117,7 +119,7 @@ class DropdownOptions extends StatelessWidget {
             final response = await locator<LikeMindsService>().pinPost(
               (PinPostRequestBuilder()..postId(postDetails.id)).build(),
             );
-            print(response.toString());
+            debugPrint(response.toString());
             if (response.success) {
               toast(
                 'Post Unpinned',
@@ -131,12 +133,21 @@ class DropdownOptions extends StatelessWidget {
               );
             }
           } else if (value == 5) {
-            print('Editing functionality');
+            List<TopicViewModel> postTopics = [];
+
+            for (String id in postDetails.topics ?? []) {
+              if (topics.containsKey(id)) {
+                postTopics.add(TopicViewModel.fromTopic(topics[id]!));
+              }
+            }
+
+            debugPrint('Editing functionality');
             await locator<NavigationService>().navigateTo(
               EditPostScreen.route,
               arguments: EditPostScreenArguments(
                 feedRoomId: feedRoomId,
                 postId: postDetails.id,
+                selectedTopics: postTopics,
               ),
             );
             await Future.delayed(

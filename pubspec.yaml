@@ -84,3 +84,4 @@ flutter:
     - packages/feed_sx/assets/icons/pin.svg
     - packages/feed_sx/assets/icons/gallery_plain.svg
     - packages/feed_sx/assets/icons/nothing.png
+    - packages/feed_sx/assets/icons/pencil.svg

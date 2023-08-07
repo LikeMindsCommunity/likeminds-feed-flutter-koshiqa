@@ -12,12 +12,13 @@ class PostDescription extends StatelessWidget {
         ? const SizedBox()
         : Padding(
             padding: const EdgeInsets.symmetric(
-              horizontal: 24,
+              horizontal: 16,
               vertical: kPaddingMedium,
             ),
             child: ExpandableText(
               text,
               expandText: 'show more',
-            ));
+            ),
+          );
   }
 }

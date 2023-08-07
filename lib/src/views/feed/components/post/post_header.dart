@@ -12,14 +12,17 @@ class PostHeader extends StatelessWidget {
   final Post postDetails;
   final List<PopupMenuItemModel> menuItems;
   final Function(bool) refresh;
+  final Map<String, Topic> topics;
 
-  const PostHeader(
-      {super.key,
-      required this.user,
-      required this.menuItems,
-      required this.postDetails,
-      required this.feedRoomId,
-      required this.refresh});
+  const PostHeader({
+    super.key,
+    required this.user,
+    required this.menuItems,
+    required this.postDetails,
+    required this.feedRoomId,
+    required this.refresh,
+    required this.topics,
+  });
 
   void removeReportIntegration() {
     menuItems.removeWhere((element) {
@@ -148,6 +151,7 @@ class PostHeader extends StatelessWidget {
                         postDetails: postDetails,
                         refresh: refresh,
                         feedRoomId: feedRoomId,
+                        topics: topics,
                       )
                     : const SizedBox()
               ],

@@ -44,6 +44,7 @@ class FeedRoomScreen extends StatefulWidget {
 }
 
 class _FeedRoomScreenState extends State<FeedRoomScreen> {
+  ValueNotifier<bool> rebuildTopicFeed = ValueNotifier(false);
   late final FeedRoomBloc _feedBloc; // bloc to fetch the feedroom data
   String? title; // feedroom title
   bool? isCm; // whether the logged in user is a community manager or not
@@ -60,6 +61,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
 
   void updateSelectedTopics(List<TopicViewModel> topics) {
     selectedTopics = topics;
+    rebuildTopicFeed.value = !rebuildTopicFeed.value;
     clearPagingController();
     _feedBloc.add(
       GetFeedRoom(
@@ -278,64 +280,107 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
             updateUnreadNotificationCount(); // funtion to update the unread notification count
             clearPagingController();
           },
-          child: BlocConsumer(
-            bloc: _feedBloc,
-            buildWhen: (prev, curr) {
-              // Prevents changin the state while paginating the feed
-              if (prev is FeedRoomLoaded && curr is PaginationLoading) {
-                return false;
-              }
-              return true;
-            },
-            listener: (context, state) => updatePagingControllers(state),
-            builder: ((context, state) {
-              if (state is FeedRoomLoaded) {
-                // Log the event in the analytics
-                LMAnalytics.get().logEvent(
-                  AnalyticsKeys.feedOpened,
-                  {
-                    "feed_type": {
-                      "feedroom": {
-                        "id": state.feedRoom.id,
-                      }
+          child: Column(
+            children: [
+              ValueListenableBuilder(
+                  valueListenable: rebuildTopicFeed,
+                  builder: (context, _, __) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10.0, vertical: 10.0),
+                      child: TopicFeedBar(
+                        selectedTopics: selectedTopics,
+                        showBorder: true,
+                        onClear: () {
+                          selectedTopics.clear();
+                          updateSelectedTopics(selectedTopics);
+                        },
+                        onIconTap: (TopicViewModel topic) {
+                          selectedTopics.removeWhere((e) => e.id == topic.id);
+                          updateSelectedTopics(selectedTopics);
+                        },
+                        onTap: () {
+                          locator<NavigationService>().navigateTo(
+                            TopicSelectScreen.route,
+                            arguments: TopicSelectScreenArguments(
+                              selectedTopic: selectedTopics,
+                              onSelect: (updatedTopics) {
+                                updateSelectedTopics(updatedTopics);
+                              },
+                            ),
+                          );
+                        },
+                        textColor: kPrimaryColor,
+                        showDivider: false,
+                        borderColor: kPrimaryColor,
+                        borderWidth: 1,
+                        icon: const Icon(
+                          CupertinoIcons.xmark,
+                          size: 12,
+                          color: kPrimaryColor,
+                        ),
+                      ),
+                    );
+                  }),
+              const Divider(color: kGrey1Color, height: 0.05),
+              Expanded(
+                child: BlocConsumer(
+                  bloc: _feedBloc,
+                  buildWhen: (prev, curr) {
+                    // Prevents changin the state while paginating the feed
+                    if (prev is FeedRoomLoaded && curr is PaginationLoading) {
+                      return false;
                     }
+                    return true;
                   },
-                );
-                return FeedRoomView(
-                  isCm: isCm!,
-                  feedResponse: state.feed,
-                  feedRoomBloc: _feedBloc,
-                  feedRoom: state.feedRoom,
-                  feedRoomPagingController: _pagingController,
-                  user: user,
-                  onRefresh: refresh,
-                  updateSelectedTopics: updateSelectedTopics,
-                  onPressedBack: clearPagingController,
-                  selectedTopic: selectedTopics,
-                );
-              } else if (state is FeedRoomError) {
-                return FeedRoomErrorView(message: state.message);
-              } else if (state is FeedRoomEmpty) {
-                return FeedRoomView(
-                  isCm: isCm!,
-                  feedResponse: state.feed,
-                  feedRoomBloc: _feedBloc,
-                  feedRoom: state.feedRoom,
-                  feedRoomPagingController: _pagingController,
-                  user: user,
-                  onRefresh: refresh,
-                  onPressedBack: clearPagingController,
-                  updateSelectedTopics: updateSelectedTopics,
-                  selectedTopic: selectedTopics,
-                );
-              }
-              return const Scaffold(
-                backgroundColor: kBackgroundColor,
-                body: Center(
-                  child: Loader(),
+                  listener: (context, state) => updatePagingControllers(state),
+                  builder: ((context, state) {
+                    if (state is FeedRoomLoaded) {
+                      // Log the event in the analytics
+                      LMAnalytics.get().logEvent(
+                        AnalyticsKeys.feedOpened,
+                        {
+                          "feed_type": {
+                            "feedroom": {
+                              "id": state.feedRoom.id,
+                            }
+                          }
+                        },
+                      );
+                      return FeedRoomView(
+                        isCm: isCm!,
+                        feedResponse: state.feed,
+                        feedRoomBloc: _feedBloc,
+                        feedRoom: state.feedRoom,
+                        feedRoomPagingController: _pagingController,
+                        user: user,
+                        onRefresh: refresh,
+                        onPressedBack: clearPagingController,
+                      );
+                    } else if (state is FeedRoomError) {
+                      return FeedRoomErrorView(message: state.message);
+                    } else if (state is FeedRoomEmpty) {
+                      return FeedRoomView(
+                        isCm: isCm!,
+                        feedResponse: state.feed,
+                        feedRoomBloc: _feedBloc,
+                        feedRoom: state.feedRoom,
+                        feedRoomPagingController: _pagingController,
+                        user: user,
+                        onRefresh: refresh,
+                        onPressedBack: clearPagingController,
+                      );
+                    }
+                    return const Scaffold(
+                      backgroundColor: kBackgroundColor,
+                      body: Center(
+                        child: Loader(),
+                      ),
+                    );
+                  }),
                 ),
-              );
-            }),
+              ),
+            ],
           ),
         ),
       ),
@@ -363,8 +408,6 @@ class FeedRoomView extends StatefulWidget {
   final GetFeedOfFeedRoomResponse feedResponse;
   final PagingController<int, Post> feedRoomPagingController;
   final VoidCallback onRefresh;
-  final Function(List<TopicViewModel>) updateSelectedTopics;
-  final List<TopicViewModel> selectedTopic;
 
   FeedRoomView({
     super.key,
@@ -376,8 +419,6 @@ class FeedRoomView extends StatefulWidget {
     required this.feedRoomPagingController,
     required this.user,
     required this.onRefresh,
-    required this.updateSelectedTopics,
-    required this.selectedTopic,
   }) {
     locator<LikeMindsService>().setFeedroomId = feedRoom.id;
   }
@@ -387,7 +428,6 @@ class FeedRoomView extends StatefulWidget {
 }
 
 class _FeedRoomViewState extends State<FeedRoomView> {
-  ValueNotifier<bool> rebuildTopicFeed = ValueNotifier(false);
   ValueNotifier<bool> rebuildPostWidget = ValueNotifier(false);
   final ValueNotifier postUploading = ValueNotifier(false);
 
@@ -561,41 +601,6 @@ class _FeedRoomViewState extends State<FeedRoomView> {
               }
             },
           ),
-          ValueListenableBuilder(
-              valueListenable: rebuildTopicFeed,
-              builder: (context, _, __) {
-                return TopicFeedBar(
-                  selectedTopics: widget.selectedTopic,
-                  showBorder: true,
-                  onClear: () {
-                    widget.selectedTopic.clear();
-                    widget.updateSelectedTopics(widget.selectedTopic);
-                  },
-                  onIconTap: (TopicViewModel topic) {
-                    widget.selectedTopic.remove(topic);
-                    widget.updateSelectedTopics(widget.selectedTopic);
-                  },
-                  onTap: () {
-                    locator<NavigationService>().navigateTo(
-                      TopicSelectScreen.route,
-                      arguments: TopicSelectScreenArguments(
-                        selectedTopic: widget.selectedTopic,
-                        onSelect: (updatedTopics) {
-                          widget.updateSelectedTopics(updatedTopics);
-                        },
-                      ),
-                    );
-                  },
-                  textColor: kPrimaryColor,
-                  borderColor: kPrimaryColor,
-                  borderWidth: 1,
-                  icon: const Icon(
-                    CupertinoIcons.xmark,
-                    size: 12,
-                    color: kPrimaryColor,
-                  ),
-                );
-              }),
           Expanded(
             child: ValueListenableBuilder(
               valueListenable: rebuildPostWidget,
@@ -652,6 +657,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                           postDetails: rebuildPostData,
                           feedRoomId: widget.feedRoom.id,
                           user: widget.feedResponse.users[item.userId]!,
+                          topics: widget.feedResponse.topics,
                           refresh: (bool isDeleted) async {
                             if (!isDeleted) {
                               final GetPostResponse updatedPostDetails =

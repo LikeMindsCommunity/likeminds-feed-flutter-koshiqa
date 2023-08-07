@@ -3,8 +3,11 @@ import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
+import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
+import 'package:feed_sx/src/views/topic/topic_select_screen.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_document.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_helper.dart';
@@ -72,6 +75,7 @@ class NewPostScreen extends StatefulWidget {
 
 class _NewPostScreenState extends State<NewPostScreen> {
   TextEditingController? _controller = TextEditingController();
+  List<TopicViewModel> selectedTopics = [];
   NewPostBloc? newPostBloc;
   final ImagePicker _picker = ImagePicker();
   final FilePicker _filePicker = FilePicker.platform;
@@ -92,6 +96,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
   bool showLinkPreview =
       true; // if set to false link preview should not be displayed
   Timer? _debounce;
+
+  ValueNotifier<bool> rebuildTopicFeed = ValueNotifier(false);
 
   @override
   void dispose() {
@@ -121,6 +127,11 @@ class _NewPostScreenState extends State<NewPostScreen> {
         widget.populatePostText!.isNotEmpty) {
       _controller?.value = TextEditingValue(text: widget.populatePostText!);
     }
+  }
+
+  void updateSelectedTopics(List<TopicViewModel> topics) {
+    selectedTopics = topics;
+    rebuildTopicFeed.value = !rebuildTopicFeed.value;
   }
 
   void removeAttachmenetAtIndex(int index) {
@@ -387,6 +398,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                                 postText: result ?? '',
                                 feedRoomId: feedRoomId,
                                 postMedia: postMedia,
+                                selectedTopics: selectedTopics,
                               ),
                             );
                             locator<NavigationService>().goBack(
@@ -519,6 +531,61 @@ class _NewPostScreenState extends State<NewPostScreen> {
                       ),
                     ],
                   ),
+                ),
+                kVerticalPaddingLarge,
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: ValueListenableBuilder(
+                      valueListenable: rebuildTopicFeed,
+                      builder: (context, _, __) {
+                        return TopicFeedBar(
+                          selectedTopics: selectedTopics,
+                          emptyTopicChip: LMTopicChip(
+                            iconPlacement: LMIconPlacement.start,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
+                            backgroundColor: kPrimaryColor.withOpacity(0.1),
+                            icon: const Icon(
+                              Icons.add,
+                              color: kPrimaryColor,
+                              size: 14,
+                            ),
+                            topic: TopicViewModel(
+                                name: "Select Topics",
+                                id: "-1",
+                                isEnabled: true),
+                            textColor: kPrimaryColor,
+                            textStyle: const TextStyle(
+                                color: kPrimaryColor, fontSize: 14),
+                          ),
+                          trailingIcon: SvgPicture.asset(
+                            kAssetPencilIcon,
+                            height: 20,
+                            width: 20,
+                            color: kPrimaryColor,
+                          ),
+                          onTap: () {
+                            locator<NavigationService>().navigateTo(
+                              TopicSelectScreen.route,
+                              arguments: TopicSelectScreenArguments(
+                                selectedTopic: selectedTopics,
+                                isEnabled: true,
+                                onSelect: (updatedTopics) {
+                                  updateSelectedTopics(updatedTopics);
+                                },
+                              ),
+                            );
+                          },
+                          showDivider: true,
+                          height: 22,
+                          chipPadding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
+                          backgroundColor: kPrimaryColor.withOpacity(0.1),
+                          textColor: kPrimaryColor,
+                          textStyle: const TextStyle(
+                              color: kPrimaryColor, fontSize: 14),
+                        );
+                      }),
                 ),
                 kVerticalPaddingLarge,
                 Expanded(

@@ -1,5 +1,5 @@
 import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/navigation/arguments.dart';
+import 'package:feed_sx/src/views/feed/components/post/post_topic.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_actions.dart';
@@ -7,11 +7,13 @@ import 'package:feed_sx/src/views/feed/components/post/post_description.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_header.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_media_factory.dart';
 import 'package:flutter/material.dart';
+import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart' as ui;
 
 class PostWidget extends StatefulWidget {
   final Post postDetails;
   final int feedRoomId;
   final User user;
+  final Map<String, Topic> topics;
   final bool showActions;
   final Function(bool) refresh;
   final bool isFeed;
@@ -24,6 +26,7 @@ class PostWidget extends StatefulWidget {
     required this.feedRoomId,
     required this.user,
     required this.refresh,
+    required this.topics,
     this.showTopic = true,
     this.isFeed = true,
   });
@@ -38,6 +41,7 @@ class _PostWidgetState extends State<PostWidget> {
   bool? showActions;
   Function(bool)? refresh;
   bool? isFeed;
+  List<ui.TopicViewModel>? postTopics;
 
   void setPostValues() {
     refresh = widget.refresh;
@@ -45,6 +49,12 @@ class _PostWidgetState extends State<PostWidget> {
     postDetails = widget.postDetails;
     showActions = widget.showActions;
     isFeed = widget.isFeed;
+    postTopics = [];
+    for (String id in postDetails!.topics ?? []) {
+      if (widget.topics.containsKey(id)) {
+        postTopics!.add(ui.TopicViewModel.fromTopic(widget.topics[id]!));
+      }
+    }
   }
 
   @override
@@ -77,7 +87,9 @@ class _PostWidgetState extends State<PostWidget> {
                 postDetails: postDetails!,
                 refresh: refresh!,
                 feedRoomId: widget.feedRoomId,
+                topics: widget.topics,
               ),
+              PostTopic(postTopics: postTopics ?? <ui.TopicViewModel>[]),
               PostDescription(
                 text: postDetails!.text,
               ),

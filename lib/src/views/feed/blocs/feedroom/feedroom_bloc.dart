@@ -13,8 +13,10 @@ class FeedRoomBloc extends Bloc<FeedRoomEvent, FeedRoomState> {
     on<FeedRoomEvent>(
       (event, emit) async {
         Map<String, User> users = {};
+        Map<String, Topic> topics = {};
         if (state is FeedRoomLoaded) {
           users = (state as FeedRoomLoaded).feed.users;
+          topics = (state as FeedRoomLoaded).feed.topics;
         }
         if (event is GetFeedRoom) {
           event.isPaginationLoading
@@ -56,6 +58,7 @@ class FeedRoomBloc extends Bloc<FeedRoomEvent, FeedRoomState> {
               );
             }
             response.users.addAll(users);
+            response.topics.addAll(topics);
             if ((response.posts == null || response.posts!.isEmpty) &&
                 event.offset <= 1) {
               emit(
