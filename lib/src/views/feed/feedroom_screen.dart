@@ -6,7 +6,6 @@ import 'package:feed_sx/src/views/topic/topic_select_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/views/feed/components/new_post_button.dart';
@@ -282,44 +281,70 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
           },
           child: Column(
             children: [
-              ValueListenableBuilder(
-                  valueListenable: rebuildTopicFeed,
-                  builder: (context, _, __) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10.0, vertical: 10.0),
-                      child: TopicFeedBar(
-                        selectedTopics: selectedTopics,
-                        showBorder: true,
-                        onClear: () {
-                          selectedTopics.clear();
-                          updateSelectedTopics(selectedTopics);
-                        },
-                        onIconTap: (TopicViewModel topic) {
-                          selectedTopics.removeWhere((e) => e.id == topic.id);
-                          updateSelectedTopics(selectedTopics);
-                        },
-                        onTap: () {
-                          locator<NavigationService>().navigateTo(
-                            TopicSelectScreen.route,
-                            arguments: TopicSelectScreenArguments(
-                              selectedTopic: selectedTopics,
-                              onSelect: (updatedTopics) {
-                                updateSelectedTopics(updatedTopics);
-                              },
-                            ),
-                          );
-                        },
-                        textColor: kPrimaryColor,
-                        showDivider: false,
-                        borderColor: kPrimaryColor,
-                        borderWidth: 1,
-                        icon: const Icon(
-                          CupertinoIcons.xmark,
-                          size: 12,
-                          color: kPrimaryColor,
-                        ),
-                      ),
+              FutureBuilder<GetTopicsResponse>(
+                  future: locator<LikeMindsService>().getTopics(
+                    (GetTopicsRequestBuilder()
+                          ..page(1)
+                          ..pageSize(20))
+                        .build(),
+                  ),
+                  builder: (context, snapshot) {
+                    double height = 0;
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      height = 0;
+                    } else if (snapshot.hasData &&
+                        snapshot.data!.success == true) {
+                      if (snapshot.data!.topics!.isNotEmpty) {
+                        height = 62;
+                      } else {
+                        height = 0;
+                      }
+                    }
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 400),
+                      height: height,
+                      child: ValueListenableBuilder(
+                          valueListenable: rebuildTopicFeed,
+                          builder: (context, _, __) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10.0, vertical: 10.0),
+                              child: TopicFeedBar(
+                                selectedTopics: selectedTopics,
+                                height: 30,
+                                showBorder: true,
+                                onClear: () {
+                                  selectedTopics.clear();
+                                  updateSelectedTopics(selectedTopics);
+                                },
+                                onIconTap: (TopicViewModel topic) {
+                                  selectedTopics
+                                      .removeWhere((e) => e.id == topic.id);
+                                  updateSelectedTopics(selectedTopics);
+                                },
+                                onTap: () {
+                                  locator<NavigationService>().navigateTo(
+                                    TopicSelectScreen.route,
+                                    arguments: TopicSelectScreenArguments(
+                                      selectedTopic: selectedTopics,
+                                      onSelect: (updatedTopics) {
+                                        updateSelectedTopics(updatedTopics);
+                                      },
+                                    ),
+                                  );
+                                },
+                                textColor: kPrimaryColor,
+                                showDivider: false,
+                                borderColor: kPrimaryColor,
+                                borderWidth: 1,
+                                icon: const Icon(
+                                  CupertinoIcons.xmark,
+                                  size: 12,
+                                  color: kPrimaryColor,
+                                ),
+                              ),
+                            );
+                          }),
                     );
                   }),
               const Divider(color: kGrey1Color, height: 0.05),

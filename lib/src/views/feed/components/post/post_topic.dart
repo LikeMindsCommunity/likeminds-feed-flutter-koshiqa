@@ -17,7 +17,7 @@ class PostTopic extends StatelessWidget {
     }
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: TopicFeedBar(
+      child: TopicFeedGrid(
         showDivider: false,
         height: 22,
         chipPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),

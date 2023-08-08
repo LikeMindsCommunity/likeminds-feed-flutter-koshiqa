@@ -42,6 +42,7 @@ class EditPostScreen extends StatefulWidget {
 class _EditPostScreenState extends State<EditPostScreen> {
   List<TopicViewModel> selectedTopics = [];
   late Future<GetPostResponse> postFuture;
+  Future<GetTopicsResponse>? getTopicsResponse;
   TextEditingController? textEditingController;
   ValueNotifier<bool> rebuildAttachments = ValueNotifier(false);
   late String postId;
@@ -132,6 +133,11 @@ class _EditPostScreenState extends State<EditPostScreen> {
   void initState() {
     super.initState();
     user = UserLocalPreference.instance.fetchUserData();
+    getTopicsResponse =
+        locator<LikeMindsService>().getTopics((GetTopicsRequestBuilder()
+              ..page(1)
+              ..pageSize(20))
+            .build());
     postId = widget.postId;
     textEditingController = TextEditingController();
     postFuture = locator<LikeMindsService>().getPost((GetPostRequestBuilder()
@@ -437,62 +443,68 @@ class _EditPostScreenState extends State<EditPostScreen> {
         kVerticalPaddingLarge,
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: ValueListenableBuilder(
-              valueListenable: rebuildTopicFeed,
-              builder: (context, _, __) {
-                return TopicFeedBar(
-                  selectedTopics: selectedTopics,
-                  // adds a trailing icon to the topic feed bar
-                  // when the selected topics list is not empty
-                  trailingIcon: SvgPicture.asset(
-                    kAssetPencilIcon,
-                    height: 20,
-                    width: 20,
-                    color: kPrimaryColor,
-                  ),
-                  emptyTopicChip: LMTopicChip(
-                    // places the icon before the text
-                    iconPlacement: LMIconPlacement.start,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    backgroundColor: kPrimaryColor.withOpacity(0.1),
-                    icon: const Icon(
-                      Icons.add,
-                      color: kPrimaryColor,
-                      size: 14,
-                    ),
-                    // dummy TopicViewModel data for placeholder topic chip
-                    topic: TopicViewModel(
-                        name: "Select Topics", id: "-1", isEnabled: true),
-                    textColor: kPrimaryColor,
-                    textStyle:
-                        const TextStyle(color: kPrimaryColor, fontSize: 14),
-                  ),
-                  // navigates to TopicSelectScreen on tapping the topic feed bar
-                  // or any of the topic chip
-                  onTap: () {
-                    locator<NavigationService>().navigateTo(
-                      TopicSelectScreen.route,
-                      arguments: TopicSelectScreenArguments(
-                        selectedTopic: selectedTopics,
-                        isEnabled: true,
-                        onSelect: (updatedTopics) {
-                          updateSelectedTopics(updatedTopics);
-                        },
-                      ),
-                    );
-                  },
-                  // adds a divider below the topic feed bar
-                  showDivider: true,
-                  // defines the height of the chip in topic feed bar
-                  height: 22,
-                  chipPadding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  backgroundColor: kPrimaryColor.withOpacity(0.1),
-                  textColor: kPrimaryColor,
-                  textStyle:
-                      const TextStyle(color: kPrimaryColor, fontSize: 14),
-                );
+          child: FutureBuilder<GetTopicsResponse>(
+              future: getTopicsResponse,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done &&
+                    snapshot.hasData &&
+                    snapshot.data!.success == true) {
+                  if (snapshot.data!.topics!.isNotEmpty) {
+                    return ValueListenableBuilder(
+                        valueListenable: rebuildTopicFeed,
+                        builder: (context, _, __) {
+                          return TopicFeedGrid(
+                            selectedTopics: selectedTopics,
+                            emptyTopicChip: LMTopicChip(
+                              iconPlacement: LMIconPlacement.start,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 2),
+                              backgroundColor: kPrimaryColor.withOpacity(0.1),
+                              icon: const Icon(
+                                Icons.add,
+                                color: kPrimaryColor,
+                                size: 14,
+                              ),
+                              topic: TopicViewModel(
+                                name: "Select Topics",
+                                id: "-1",
+                                isEnabled: true,
+                              ),
+                              textColor: kPrimaryColor,
+                              textStyle: const TextStyle(
+                                  color: kPrimaryColor, fontSize: 14),
+                            ),
+                            trailingIcon: SvgPicture.asset(
+                              kAssetPencilIcon,
+                              height: 12,
+                              width: 12,
+                              color: kPrimaryColor,
+                            ),
+                            onTap: () {
+                              locator<NavigationService>().navigateTo(
+                                TopicSelectScreen.route,
+                                arguments: TopicSelectScreenArguments(
+                                  selectedTopic: selectedTopics,
+                                  isEnabled: true,
+                                  onSelect: (updatedTopics) {
+                                    updateSelectedTopics(updatedTopics);
+                                  },
+                                ),
+                              );
+                            },
+                            showDivider: true,
+                            height: 22,
+                            chipPadding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
+                            backgroundColor: kPrimaryColor.withOpacity(0.1),
+                            textColor: kPrimaryColor,
+                            textStyle: const TextStyle(
+                                color: kPrimaryColor, fontSize: 14),
+                          );
+                        });
+                  }
+                }
+                return const SizedBox();
               }),
         ),
         kVerticalPaddingLarge,
