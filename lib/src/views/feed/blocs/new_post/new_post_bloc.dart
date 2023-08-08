@@ -140,7 +140,9 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
               },
             );
             emit(NewPostUploaded(
-                postData: response.post!, userData: response.user!));
+                postData: response.post!,
+                userData: response.user!,
+                topics: response.topics ?? <String, Topic>{}));
           } else {
             emit(NewPostError(message: response.errorMessage!));
           }
@@ -169,6 +171,7 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
               EditPostUploaded(
                 postData: response.post!,
                 userData: response.user!,
+                topics: response.topics ?? <String, Topic>{},
               ),
             );
           } else {

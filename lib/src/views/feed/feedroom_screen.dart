@@ -43,7 +43,9 @@ class FeedRoomScreen extends StatefulWidget {
 }
 
 class _FeedRoomScreenState extends State<FeedRoomScreen> {
+  double height = 0;
   ValueNotifier<bool> rebuildTopicFeed = ValueNotifier(false);
+  Future<GetTopicsResponse>? getTopicsResponse;
   late final FeedRoomBloc _feedBloc; // bloc to fetch the feedroom data
   String? title; // feedroom title
   bool? isCm; // whether the logged in user is a community manager or not
@@ -76,6 +78,12 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     super.initState();
     _addPaginationListener();
     Bloc.observer = SimpleBlocObserver();
+    getTopicsResponse = locator<LikeMindsService>().getTopics(
+      (GetTopicsRequestBuilder()
+            ..page(1)
+            ..pageSize(20))
+          .build(),
+    );
     _feedBloc = FeedRoomBloc();
     title = widget.feedRoomTitle;
     _feedBloc.add(
@@ -281,32 +289,27 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
           },
           child: Column(
             children: [
-              FutureBuilder<GetTopicsResponse>(
-                  future: locator<LikeMindsService>().getTopics(
-                    (GetTopicsRequestBuilder()
-                          ..page(1)
-                          ..pageSize(20))
-                        .build(),
-                  ),
-                  builder: (context, snapshot) {
-                    double height = 0;
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      height = 0;
-                    } else if (snapshot.hasData &&
-                        snapshot.data!.success == true) {
-                      if (snapshot.data!.topics!.isNotEmpty) {
-                        height = 62;
-                      } else {
-                        height = 0;
-                      }
-                    }
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 400),
-                      height: height,
-                      child: ValueListenableBuilder(
-                          valueListenable: rebuildTopicFeed,
-                          builder: (context, _, __) {
-                            return Padding(
+              ValueListenableBuilder(
+                  valueListenable: rebuildTopicFeed,
+                  builder: (context, _, __) {
+                    return FutureBuilder<GetTopicsResponse>(
+                        future: getTopicsResponse,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            height = 0;
+                          } else if (snapshot.hasData &&
+                              snapshot.data!.success == true) {
+                            if (snapshot.data!.topics!.isNotEmpty) {
+                              height = 62;
+                            } else {
+                              height = 0;
+                            }
+                          }
+                          return AnimatedContainer(
+                            duration: const Duration(milliseconds: 400),
+                            height: height,
+                            child: Padding(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10.0, vertical: 10.0),
                               child: TopicFeedBar(
@@ -333,7 +336,8 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                                     ),
                                   );
                                 },
-                                textColor: kPrimaryColor,
+                                textStyle:
+                                    const TextStyle(color: kPrimaryColor),
                                 showDivider: false,
                                 borderColor: kPrimaryColor,
                                 borderWidth: 1,
@@ -343,9 +347,9 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                                   color: kPrimaryColor,
                                 ),
                               ),
-                            );
-                          }),
-                    );
+                            ),
+                          );
+                        });
                   }),
               const Divider(color: kGrey1Color, height: 0.05),
               Expanded(
@@ -522,6 +526,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                   feedRoomItemList.removeLast();
                 }
                 widget.feedResponse.users.addAll(curr.userData);
+                widget.feedResponse.topics.addAll(curr.topics);
                 widget.feedRoomPagingController.itemList = feedRoomItemList;
                 postUploading.value = false;
                 rebuildPostWidget.value = !rebuildPostWidget.value;
@@ -536,6 +541,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                 if (index != -1) {
                   feedRoomItemList?[index] = item;
                 }
+                widget.feedResponse.topics.addAll(curr.topics);
                 postUploading.value = false;
                 rebuildPostWidget.value = !rebuildPostWidget.value;
               }
