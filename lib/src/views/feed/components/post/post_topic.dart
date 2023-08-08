@@ -19,12 +19,12 @@ class PostTopic extends StatelessWidget {
       child: TopicFeedGrid(
         showDivider: false,
         height: 22,
-        chipPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        chipPadding: EdgeInsets.zero,
         selectedTopics: postTopics,
         backgroundColor: kPrimaryColor.withOpacity(0.1),
         onTap: () {},
         textColor: kPrimaryColor,
-        textStyle: const TextStyle(color: kPrimaryColor, fontSize: 14),
+        textStyle: const TextStyle(color: kPrimaryColor, fontSize: 12),
       ),
     );
   }

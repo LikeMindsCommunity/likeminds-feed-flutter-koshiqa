@@ -554,30 +554,63 @@ class _NewPostScreenState extends State<NewPostScreen> {
                                 builder: (context, _, __) {
                                   return TopicFeedGrid(
                                     selectedTopics: selectedTopics,
-                                    emptyTopicChip: LMTopicChip(
-                                      iconPlacement: LMIconPlacement.start,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 2),
+                                    emptyTopicChip: Chip(
+                                      label: const Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.add,
+                                            color: kPrimaryColor,
+                                            size: 14,
+                                          ),
+                                          kHorizontalPaddingSmall,
+                                          Text(
+                                            "Select Topic",
+                                            style: TextStyle(
+                                                color: kPrimaryColor,
+                                                fontSize: 12),
+                                          ),
+                                        ],
+                                      ),
                                       backgroundColor:
                                           kPrimaryColor.withOpacity(0.1),
-                                      icon: const Icon(
-                                        Icons.add,
-                                        color: kPrimaryColor,
-                                        size: 14,
-                                      ),
-                                      topic: TopicViewModel(
-                                        name: "Select Topics",
-                                        id: "-1",
-                                        isEnabled: true,
-                                      ),
-                                      textStyle: const TextStyle(
-                                          color: kPrimaryColor, fontSize: 14),
+                                      clipBehavior: Clip.hardEdge,
+                                      padding: EdgeInsets.zero,
+                                      materialTapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5.0)),
                                     ),
-                                    trailingIcon: SvgPicture.asset(
-                                      kAssetPencilIcon,
-                                      height: 12,
-                                      width: 12,
-                                      color: kPrimaryColor,
+                                    trailingIcon: Chip(
+                                      label: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          SvgPicture.asset(
+                                            kAssetPencilIcon,
+                                            height: 12,
+                                            width: 12,
+                                            color: kPrimaryColor,
+                                          ),
+                                        ],
+                                      ),
+                                      backgroundColor:
+                                          kPrimaryColor.withOpacity(0.1),
+                                      clipBehavior: Clip.hardEdge,
+                                      padding: EdgeInsets.zero,
+                                      materialTapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5.0)),
                                     ),
                                     onTap: () {
                                       locator<NavigationService>().navigateTo(
@@ -593,13 +626,12 @@ class _NewPostScreenState extends State<NewPostScreen> {
                                     },
                                     showDivider: true,
                                     height: 22,
-                                    chipPadding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 2),
+                                    chipPadding: EdgeInsets.zero,
                                     backgroundColor:
                                         kPrimaryColor.withOpacity(0.1),
                                     textColor: kPrimaryColor,
                                     textStyle: const TextStyle(
-                                        color: kPrimaryColor, fontSize: 14),
+                                        color: kPrimaryColor, fontSize: 12),
                                   );
                                 });
                           }

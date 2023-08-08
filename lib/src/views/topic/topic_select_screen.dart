@@ -31,6 +31,7 @@ class TopicSelectScreen extends StatefulWidget {
 
 class _TopicSelectScreenState extends State<TopicSelectScreen> {
   List<TopicViewModel> selectedTopics = [];
+  FocusNode keyboardNode = FocusNode();
   Set<String> selectedTopicId = {};
   TextEditingController searchController = TextEditingController();
   String searchType = "";
@@ -60,6 +61,7 @@ class _TopicSelectScreenState extends State<TopicSelectScreen> {
       searchType = "name";
       search = p0;
       topicsPagingController.itemList?.clear();
+      topicsPagingController.itemList = selectedTopics;
       topicBloc.add(
         GetTopic(
           getTopicFeedRequest: (GetTopicsRequestBuilder()
@@ -104,6 +106,7 @@ class _TopicSelectScreenState extends State<TopicSelectScreen> {
   void dispose() {
     searchController.dispose();
     topicBloc.close();
+    keyboardNode.dispose();
     _debounce?.cancel();
     super.dispose();
   }
@@ -157,6 +160,9 @@ class _TopicSelectScreenState extends State<TopicSelectScreen> {
                     ? Expanded(
                         child: TextField(
                         controller: searchController,
+                        focusNode: keyboardNode,
+                        decoration:
+                            const InputDecoration(border: InputBorder.none),
                         onChanged: (p0) {
                           _onTextChanged(p0);
                         },
@@ -186,6 +192,9 @@ class _TopicSelectScreenState extends State<TopicSelectScreen> {
                 GestureDetector(
                   onTap: () {
                     if (isSearching) {
+                      if (keyboardNode.hasFocus) {
+                        keyboardNode.unfocus();
+                      }
                       searchController.clear();
                       search = "";
                       searchType = "";
@@ -202,14 +211,22 @@ class _TopicSelectScreenState extends State<TopicSelectScreen> {
                               .build(),
                         ),
                       );
+                    } else {
+                      if (keyboardNode.canRequestFocus) {
+                        keyboardNode.requestFocus();
+                      }
                     }
                     isSearching = !isSearching;
                     rebuildTopicsScreen.value = !rebuildTopicsScreen.value;
                   },
-                  child: Icon(
-                    isSearching ? CupertinoIcons.xmark : Icons.search,
-                    size: 18,
-                    color: kGrey1Color,
+                  child: Container(
+                    color: Colors.transparent,
+                    padding: const EdgeInsets.all(10.0),
+                    child: Icon(
+                      isSearching ? CupertinoIcons.xmark : Icons.search,
+                      size: 18,
+                      color: kGrey1Color,
+                    ),
                   ),
                 )
               ],
@@ -220,9 +237,12 @@ class _TopicSelectScreenState extends State<TopicSelectScreen> {
           onTap: () {
             locator<NavigationService>().goBack();
           },
-          child: const Icon(
-            Icons.arrow_back,
-            color: kGrey1Color,
+          child: Container(
+            color: Colors.transparent,
+            child: const Icon(
+              Icons.arrow_back,
+              color: kGrey1Color,
+            ),
           ),
         ),
       ),
@@ -286,6 +306,7 @@ class _TopicSelectScreenState extends State<TopicSelectScreen> {
                               ),
                               onTap: (TopicViewModel tappedTopic) {
                                 selectedTopics.clear();
+                                selectedTopicId.clear();
                                 rebuildTopicsScreen.value =
                                     !rebuildTopicsScreen.value;
                               },
@@ -300,7 +321,7 @@ class _TopicSelectScreenState extends State<TopicSelectScreen> {
                             noItemsFoundIndicatorBuilder: (context) =>
                                 const Center(
                                     child: Text(
-                              "Opps, no chatrooms found!",
+                              "Opps, no topics found!",
                             )),
                             itemBuilder: (context, item, index) => TopicTile(
                               isSelected: checkSelectedTopicExistsInList(item),
