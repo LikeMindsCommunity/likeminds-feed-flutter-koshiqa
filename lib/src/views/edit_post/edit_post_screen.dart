@@ -470,7 +470,6 @@ class _EditPostScreenState extends State<EditPostScreen> {
                                 id: "-1",
                                 isEnabled: true,
                               ),
-                              textColor: kPrimaryColor,
                               textStyle: const TextStyle(
                                   color: kPrimaryColor, fontSize: 14),
                             ),

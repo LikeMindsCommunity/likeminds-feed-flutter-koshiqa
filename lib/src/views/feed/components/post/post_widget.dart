@@ -89,6 +89,9 @@ class _PostWidgetState extends State<PostWidget> {
                 feedRoomId: widget.feedRoomId,
                 topics: widget.topics,
               ),
+              postTopics != null && postTopics!.isNotEmpty
+                  ? kVerticalPaddingMedium
+                  : const SizedBox(),
               PostTopic(postTopics: postTopics ?? <ui.TopicViewModel>[]),
               PostDescription(
                 text: postDetails!.text,

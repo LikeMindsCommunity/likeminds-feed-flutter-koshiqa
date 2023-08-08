@@ -1,6 +1,5 @@
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
 
 class PostTopic extends StatelessWidget {

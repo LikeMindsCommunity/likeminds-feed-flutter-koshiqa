@@ -570,7 +570,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
                                         id: "-1",
                                         isEnabled: true,
                                       ),
-                                      textColor: kPrimaryColor,
                                       textStyle: const TextStyle(
                                           color: kPrimaryColor, fontSize: 14),
                                     ),
