@@ -126,7 +126,7 @@ class _PostActionsState extends State<PostActions> {
             TextButton.icon(
               onPressed: isFeed
                   ? () {
-                      LMAnalytics.get().logEvent(
+                      LMAnalytics.get().track(
                         AnalyticsKeys.commentListOpen,
                         {
                           "post_id": postDetails!.id,

@@ -253,7 +253,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
             url: responseTags.url,
           ),
         );
-        LMAnalytics.get().logEvent(
+        LMAnalytics.get().track(
           AnalyticsKeys.linkAttachedInPost,
           {
             'link': previewLink,
@@ -1061,7 +1061,7 @@ class AddAssetsButton extends StatelessWidget {
     Size screenSize = MediaQuery.of(context).size;
     return GestureDetector(
       onTap: () async {
-        LMAnalytics.get().logEvent(
+        LMAnalytics.get().track(
           AnalyticsKeys.clickedOnAttachment,
           {
             'type': mediaType == 1

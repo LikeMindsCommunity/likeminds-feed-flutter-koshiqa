@@ -1,3 +1,4 @@
+import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/services/service_locator.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
@@ -133,6 +134,7 @@ class LMNotificationHandler {
   /// It is shown when the notification is received in foreground
   void showNotification(RemoteMessage message) {
     if (message.data.isNotEmpty) {
+      LMAnalytics.get().track(AnalyticsKeys.notificationReceived, {});
       showSimpleNotification(
         GestureDetector(
           onTap: () {

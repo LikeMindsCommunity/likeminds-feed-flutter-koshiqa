@@ -153,8 +153,6 @@ class _CredScreenState extends State<CredScreen> {
                 deepLinkCallBack: () {
                   debugPrint("Deep Link Callback");
                 },
-                domain: 'feedsx://www.feedsx.com',
-                postId: snapshot.data!.postId,
                 apiKey: "",
               );
               return lmFeed!;
@@ -167,7 +165,6 @@ class _CredScreenState extends State<CredScreen> {
                 deepLinkCallBack: () {
                   debugPrint("Deep Link Callback");
                 },
-                domain: 'feedsx://www.feedsx.com',
                 apiKey: "",
               );
               return lmFeed!;
@@ -247,8 +244,6 @@ class _CredScreenState extends State<CredScreen> {
                     deepLinkCallBack: () {
                       debugPrint("Deep Link Callback");
                     },
-                    domain: 'feedsx://www.feedsx.com',
-                    postId: postId,
                     apiKey: "",
                   );
 

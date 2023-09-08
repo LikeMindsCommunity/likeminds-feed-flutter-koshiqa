@@ -78,7 +78,6 @@ class LikeMindsService implements ILikeMindsService {
           ..apiKey(key)
           ..sdkCallback(sdkCallback))
         .build();
-    LMAnalytics.get().initialize();
   }
 
   @override

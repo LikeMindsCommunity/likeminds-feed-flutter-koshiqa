@@ -40,7 +40,6 @@ const _prodFlag = !bool.fromEnvironment('DEBUG');
 class LMFeed extends StatefulWidget {
   final String? userId;
   final String? userName;
-  final String domain;
   final int defaultFeedroom;
   final String apiKey;
   final LMSDKCallback callback;
@@ -56,7 +55,6 @@ class LMFeed extends StatefulWidget {
   static LMFeed instance({
     String? userId,
     String? userName,
-    required String domain,
     required int defaultFeedroom,
     required LMSDKCallback callback,
     required Function() deepLinkCallBack,
@@ -68,7 +66,6 @@ class LMFeed extends StatefulWidget {
       userId: userId,
       userName: userName,
       defaultFeedroom: defaultFeedroom,
-      domain: domain,
       callback: callback,
       deepLinkCallBack: deepLinkCallBack,
       apiKey: apiKey,
@@ -80,7 +77,6 @@ class LMFeed extends StatefulWidget {
     Key? key,
     this.userId,
     this.userName,
-    required this.domain,
     required this.defaultFeedroom,
     required this.callback,
     required this.apiKey,
@@ -105,7 +101,6 @@ class _LMFeedState extends State<LMFeed> {
   void initState() {
     super.initState();
     isProd = _prodFlag;
-    domain = widget.domain;
     userId = widget.userId!.isEmpty
         ? isProd
             ? CredsProd.botId

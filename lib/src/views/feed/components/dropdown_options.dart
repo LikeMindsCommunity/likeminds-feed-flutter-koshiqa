@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:feed_sx/src/utils/utils.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
 import 'package:feed_sx/src/views/edit_post/edit_post_screen.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
@@ -81,12 +82,15 @@ class DropdownOptions extends StatelessWidget {
           } else if (value == 2) {
             debugPrint("Pinning functionality");
             final res = await locator<LikeMindsService>().getMemberState();
+            String? postType =
+                getPostType(postDetails.attachments?.first.attachmentType ?? 0);
             LMAnalytics.get().track(
-              AnalyticsKeys.postPinned,
+              AnalyticsKeys.postUnpinned,
               {
                 "user_state": res.state == 1 ? "CM" : "member",
                 "post_id": postDetails.id,
                 "user_id": postDetails.userId,
+                "post_type": postType,
               },
             );
             final response = await locator<LikeMindsService>().pinPost(
@@ -108,12 +112,15 @@ class DropdownOptions extends StatelessWidget {
           } else if (value == 3) {
             debugPrint("Unpinning functionality");
             final res = await locator<LikeMindsService>().getMemberState();
+            String? postType =
+                getPostType(postDetails.attachments?.first.attachmentType ?? 0);
             LMAnalytics.get().track(
               AnalyticsKeys.postUnpinned,
               {
                 "user_state": res.state == 1 ? "CM" : "member",
                 "post_id": postDetails.id,
                 "user_id": postDetails.userId,
+                "post_type": postType,
               },
             );
             final response = await locator<LikeMindsService>().pinPost(
@@ -140,6 +147,12 @@ class DropdownOptions extends StatelessWidget {
                 postTopics.add(TopicViewModel.fromTopic(topics[id]!));
               }
             }
+            LMAnalytics.get().track(AnalyticsKeys.postEdited, {
+              "created_by_id": postDetails.userId,
+              "post_id": postDetails.id,
+              "post_type": getPostType(
+                  postDetails.attachments?.first.attachmentType ?? 0)
+            });
 
             debugPrint('Editing functionality');
             await locator<NavigationService>().navigateTo(

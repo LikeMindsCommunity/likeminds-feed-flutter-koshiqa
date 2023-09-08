@@ -366,7 +366,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                   builder: ((context, state) {
                     if (state is FeedRoomLoaded) {
                       // Log the event in the analytics
-                      LMAnalytics.get().logEvent(
+                      LMAnalytics.get().track(
                         AnalyticsKeys.feedOpened,
                         {
                           "feed_type": {
