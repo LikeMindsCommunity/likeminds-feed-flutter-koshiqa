@@ -1,7 +1,8 @@
 import 'package:collection/collection.dart';
-import 'package:feed_sx/src/navigation/arguments.dart';
+import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
 import 'package:feed_sx/src/views/edit_post/edit_post_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
@@ -14,6 +15,7 @@ class DropdownOptions extends StatelessWidget {
   final List<PopupMenuItemModel> menuItems;
   final int feedRoomId;
   final Function(bool) refresh;
+  final bool isFeed;
 
   const DropdownOptions({
     super.key,
@@ -21,10 +23,12 @@ class DropdownOptions extends StatelessWidget {
     required this.postDetails,
     required this.refresh,
     required this.feedRoomId,
+    required this.isFeed,
   });
 
   @override
   Widget build(BuildContext context) {
+    NewPostBloc newPostBloc = BlocProvider.of<NewPostBloc>(context);
     return Builder(builder: (context) {
       return PopupMenuButton<int>(
         onSelected: (value) async {
@@ -50,27 +54,15 @@ class DropdownOptions extends StatelessWidget {
                       "user_id": postDetails.userId,
                     },
                   );
-                  final response = await locator<LikeMindsService>().deletePost(
-                    (DeletePostRequestBuilder()
-                          ..postId(postDetails.id)
-                          ..deleteReason(
-                            reason.isEmpty ? "Reason for deletion" : reason,
-                          ))
-                        .build(),
+                  newPostBloc.add(
+                    DeletePost(
+                      postId: postDetails.id,
+                      reason: reason ?? 'Reason',
+                      feedRoomId: feedRoomId,
+                    ),
                   );
-                  print(response.toString());
-
-                  if (response.success) {
-                    toast(
-                      'Post Deleted',
-                      duration: Toast.LENGTH_LONG,
-                    );
-                    refresh(true);
-                  } else {
-                    toast(
-                      response.errorMessage ?? 'An error occurred',
-                      duration: Toast.LENGTH_LONG,
-                    );
+                  if (!isFeed) {
+                    locator<NavigationService>().goBack();
                   }
                 },
                 actionText: 'Delete',

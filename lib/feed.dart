@@ -16,7 +16,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/views/feed/feedroom_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -33,17 +32,15 @@ export 'src/utils/share/share_post.dart';
 export 'src/navigation/arguments.dart';
 
 /// Flutter environment manager v0.0.1
-const _prodFlag = !bool.fromEnvironment('DEBUG');
+const prodFlag = !bool.fromEnvironment('DEBUG');
 
 class LMFeed extends StatefulWidget {
   final String? userId;
   final String? userName;
-  final String domain;
   final int defaultFeedroom;
   final String apiKey;
   final LMSDKCallback callback;
   final Function() deepLinkCallBack;
-  final String? postId;
 
   static LMFeed? _instance;
 
@@ -54,23 +51,19 @@ class LMFeed extends StatefulWidget {
   static LMFeed instance({
     String? userId,
     String? userName,
-    required String domain,
     required int defaultFeedroom,
     required LMSDKCallback callback,
     required Function() deepLinkCallBack,
     required String apiKey,
-    String? postId,
   }) {
     setupLMFeed(callback, apiKey);
     return _instance ??= LMFeed._(
       userId: userId,
       userName: userName,
       defaultFeedroom: defaultFeedroom,
-      domain: domain,
       callback: callback,
       deepLinkCallBack: deepLinkCallBack,
       apiKey: apiKey,
-      postId: postId,
     );
   }
 
@@ -78,12 +71,10 @@ class LMFeed extends StatefulWidget {
     Key? key,
     this.userId,
     this.userName,
-    required this.domain,
     required this.defaultFeedroom,
     required this.callback,
     required this.apiKey,
     required this.deepLinkCallBack,
-    this.postId,
   }) : super(key: key);
 
   @override
@@ -95,22 +86,18 @@ class _LMFeedState extends State<LMFeed> {
   late final String userId;
   late final String userName;
   late final bool isProd;
-  late final String domain;
   late final Function()? deepLinkCallBack;
-  late final String? postId;
 
   @override
   void initState() {
     super.initState();
-    isProd = _prodFlag;
-    domain = widget.domain;
+    isProd = prodFlag;
     userId = widget.userId!.isEmpty
         ? isProd
             ? CredsProd.botId
             : CredsDev.botId
         : widget.userId!;
     userName = widget.userName!.isEmpty ? "Test username" : widget.userName!;
-    postId = widget.postId;
     firebase();
   }
 
@@ -125,121 +112,119 @@ class _LMFeedState extends State<LMFeed> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<InitiateUserResponse>(
-      future: locator<LikeMindsService>().initiateUser(
-        (InitiateUserRequestBuilder()
-              ..userId(userId)
-              ..userName(userName))
-            .build(),
-      ),
-      initialData: null,
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
-        if (snapshot.hasData) {
-          InitiateUserResponse response = snapshot.data;
-          if (response.success) {
-            user = response.initiateUser?.user;
-            // LMFeed._instance!.deepLinkCallBack();
-            UserLocalPreference.instance.storeUserData(user!);
-            UserLocalPreference.instance.storeAppDomain(domain);
-            LMNotificationHandler.instance.registerDevice(user!.id);
-            return BlocProvider(
-              create: (context) => NewPostBloc(),
-              child: MaterialApp(
-                debugShowCheckedModeBanner: !isProd,
-                title: 'LikeMinds Feed',
-                navigatorKey: locator<NavigationService>().navigatorKey,
-                onGenerateRoute: (settings) {
-                  if (settings.name == NotificationScreen.route) {
-                    return MaterialPageRoute(
-                      builder: (context) => const NotificationScreen(),
-                    );
-                  }
-                  if (settings.name == AllCommentsScreen.route) {
-                    final args =
-                        settings.arguments as AllCommentsScreenArguments;
-                    return MaterialPageRoute(
-                      builder: (context) {
-                        return AllCommentsScreen(
-                          postId: args.postId,
-                          feedRoomId: args.feedRoomId,
-                          fromComment: args.fromComment,
-                        );
-                      },
-                    );
-                  }
-                  if (settings.name == LikesScreen.route) {
-                    final args = settings.arguments as LikesScreenArguments;
-                    return MaterialPageRoute(
-                      builder: (context) {
-                        return LikesScreen(
-                          postId: args.postId,
-                          commentId: args.commentId,
-                          isCommentLikes: args.isCommentLikes,
-                        );
-                      },
-                    );
-                  }
-                  if (settings.name == MediaPreviewScreen.routeName) {
-                    final args = settings.arguments as MediaPreviewArguments;
-                    return MaterialPageRoute(
-                      builder: (context) {
-                        return MediaPreviewScreen(
-                          attachments: args.attachments,
-                          postId: args.postId,
-                          mediaFile: args.mediaFile,
-                          mediaUrl: args.mediaUrl,
-                        );
-                      },
-                    );
-                  }
-                  if (settings.name == ReportPostScreen.route) {
-                    return MaterialPageRoute(
-                      builder: (context) {
-                        return const ReportPostScreen();
-                      },
-                    );
-                  }
-                  if (settings.name == NewPostScreen.route) {
-                    final args = settings.arguments as NewPostScreenArguments;
-                    return MaterialPageRoute(
-                      builder: (context) {
-                        return NewPostScreen(
-                          feedRoomId: args.feedroomId,
-                          feedRoomTitle: args.feedRoomTitle,
-                          isCm: args.isCm,
-                          populatePostMedia: args.populatePostMedia,
-                          populatePostText: args.populatePostText,
-                        );
-                      },
-                    );
-                  }
+    return BlocProvider(
+      create: (context) => NewPostBloc(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: !isProd,
+        title: 'LikeMinds Feed',
+        navigatorKey: locator<NavigationService>().navigatorKey,
+        onGenerateRoute: (settings) {
+          if (settings.name == NotificationScreen.route) {
+            return MaterialPageRoute(
+              builder: (context) => const NotificationScreen(),
+            );
+          }
+          if (settings.name == AllCommentsScreen.route) {
+            final args = settings.arguments as AllCommentsScreenArguments;
+            return MaterialPageRoute(
+              builder: (context) {
+                return AllCommentsScreen(
+                  postId: args.postId,
+                  feedRoomId: args.feedRoomId,
+                  fromComment: args.fromComment,
+                );
+              },
+            );
+          }
+          if (settings.name == LikesScreen.route) {
+            final args = settings.arguments as LikesScreenArguments;
+            return MaterialPageRoute(
+              builder: (context) {
+                return LikesScreen(
+                  postId: args.postId,
+                  commentId: args.commentId,
+                  isCommentLikes: args.isCommentLikes,
+                );
+              },
+            );
+          }
+          if (settings.name == MediaPreviewScreen.routeName) {
+            final args = settings.arguments as MediaPreviewArguments;
+            return MaterialPageRoute(
+              builder: (context) {
+                return MediaPreviewScreen(
+                  attachments: args.attachments,
+                  postId: args.postId,
+                  mediaFile: args.mediaFile,
+                  mediaUrl: args.mediaUrl,
+                );
+              },
+            );
+          }
+          if (settings.name == ReportPostScreen.route) {
+            return MaterialPageRoute(
+              builder: (context) {
+                return const ReportPostScreen();
+              },
+            );
+          }
+          if (settings.name == NewPostScreen.route) {
+            final args = settings.arguments as NewPostScreenArguments;
+            return MaterialPageRoute(
+              builder: (context) {
+                return NewPostScreen(
+                  feedRoomId: args.feedroomId,
+                  feedRoomTitle: args.feedRoomTitle,
+                  isCm: args.isCm,
+                  populatePostMedia: args.populatePostMedia,
+                  populatePostText: args.populatePostText,
+                );
+              },
+            );
+          }
 
-                  if (settings.name == EditPostScreen.route) {
-                    final args = settings.arguments as EditPostScreenArguments;
-                    return MaterialPageRoute(
-                      builder: (context) {
-                        return EditPostScreen(
-                          postId: args.postId,
-                          feedRoomId: args.feedRoomId,
-                        );
-                      },
-                    );
-                  }
+          if (settings.name == EditPostScreen.route) {
+            final args = settings.arguments as EditPostScreenArguments;
+            return MaterialPageRoute(
+              builder: (context) {
+                return EditPostScreen(
+                  postId: args.postId,
+                  feedRoomId: args.feedRoomId,
+                );
+              },
+            );
+          }
 
-                  if (settings.name == FeedRoomSelect.route) {
-                    final args = settings.arguments as FeedRoomSelectArguments;
-                    return MaterialPageRoute(
-                      builder: (context) {
-                        return FeedRoomSelect(
-                          user: args.user,
-                          feedRoomIds: args.feedRoomIds,
-                        );
-                      },
-                    );
-                  }
-                  return null;
-                },
-                home: FutureBuilder(
+          if (settings.name == FeedRoomSelect.route) {
+            final args = settings.arguments as FeedRoomSelectArguments;
+            return MaterialPageRoute(
+              builder: (context) {
+                return FeedRoomSelect(
+                  user: args.user,
+                  feedRoomIds: args.feedRoomIds,
+                );
+              },
+            );
+          }
+          return null;
+        },
+        home: FutureBuilder<InitiateUserResponse>(
+          future: locator<LikeMindsService>().initiateUser(
+            (InitiateUserRequestBuilder()
+                  ..userId(userId)
+                  ..userName(userName))
+                .build(),
+          ),
+          initialData: null,
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (snapshot.hasData) {
+              InitiateUserResponse response = snapshot.data;
+              if (response.success) {
+                user = response.initiateUser?.user;
+                // LMFeed._instance!.deepLinkCallBack();
+                UserLocalPreference.instance.storeUserData(user!);
+                LMNotificationHandler.instance.registerDevice(user!.id);
+                return FutureBuilder(
                   future: locator<LikeMindsService>().getMemberState(),
                   initialData: null,
                   builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -247,12 +232,6 @@ class _LMFeedState extends State<LMFeed> {
                       final MemberStateResponse response = snapshot.data;
                       final isCm = response.state == 1;
                       UserLocalPreference.instance.storeMemberRights(response);
-                      if (postId != null) {
-                        locator<LikeMindsService>().setFeedroomId =
-                            widget.defaultFeedroom;
-                        return AllCommentsScreen(
-                            postId: postId!, feedRoomId: 0, fromComment: false);
-                      }
                       if (isCm) {
                         UserLocalPreference.instance.storeMemberState(isCm);
                         return FeedRoomListScreen(user: user!);
@@ -277,31 +256,31 @@ class _LMFeedState extends State<LMFeed> {
                       ),
                     );
                   },
+                );
+              } else {}
+            } else if (snapshot.hasError) {
+              debugPrint("Error - ${snapshot.error}");
+              return Container(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                color: kBackgroundColor,
+                child: const Center(
+                  child: Text("An error has occured",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                      )),
                 ),
-              ),
+              );
+            }
+            return Container(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              color: kBackgroundColor,
             );
-          } else {}
-        } else if (snapshot.hasError) {
-          debugPrint("Error - ${snapshot.error}");
-          return Container(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            color: kBackgroundColor,
-            child: const Center(
-              child: Text("An error has occured",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                  )),
-            ),
-          );
-        }
-        return Container(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          color: kBackgroundColor,
-        );
-      },
+          },
+        ),
+      ),
     );
   }
 }

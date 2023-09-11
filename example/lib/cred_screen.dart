@@ -43,16 +43,19 @@ class CredScreen extends StatefulWidget {
 class _CredScreenState extends State<CredScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _userIdController = TextEditingController();
-
   StreamSubscription? _streamSubscription;
   LMFeed? lmFeed;
-  DeepLinkResponse? deepLink;
+  String? userId;
 
   @override
   void initState() {
     super.initState();
     NetworkConnectivity networkConnectivity = NetworkConnectivity.instance;
     networkConnectivity.initialise();
+    userId = UserLocalPreference.instance.fetchUserId();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      initUniLinks(context);
+    });
   }
 
   @override
@@ -63,9 +66,7 @@ class _CredScreenState extends State<CredScreen> {
     super.dispose();
   }
 
-  Future<DeepLinkResponse> initUniLinks() async {
-    String? userId = UserLocalPreference.instance.fetchUserId();
-    var deepLinkResponse;
+  Future initUniLinks(BuildContext context) async {
     if (!initialURILinkHandled) {
       initialURILinkHandled = true;
       // Get the initial deep link if the app was launched with one
@@ -78,14 +79,15 @@ class _CredScreenState extends State<CredScreen> {
         debugPrint('Received initial deep link: $initialLink');
 
         // TODO: add api key to the DeepLinkRequest
-        deepLinkResponse = SharePost().parseDeepLink((DeepLinkRequestBuilder()
-              ..apiKey("")
+        // TODO: add user id and user name of logged in user
+        SharePost().parseDeepLink((DeepLinkRequestBuilder()
+              ..apiKey(SharePost.apiKey)
               ..callback(LikeMindsCallback())
               ..feedRoomId(debug ? 83301 : 2238799)
               ..isGuest(false)
               ..link(initialLink)
               ..userName("Test User")
-              ..userUniqueId(userId ?? "5d428e4d-984d-4ab5-8d2b-0adcdbab2ad8"))
+              ..userUniqueId(userId ?? SharePost.userId))
             .build());
       }
 
@@ -96,85 +98,43 @@ class _CredScreenState extends State<CredScreen> {
           // You can extract any parameters from the uri object here
           // and use them to navigate to a specific screen in your app
           debugPrint('Received deep link: $link');
-          deepLinkResponse = SharePost().parseDeepLink((DeepLinkRequestBuilder()
-                ..apiKey("")
+          // TODO: add api key to the DeepLinkRequest
+          // TODO: add user id and user name of logged in user
+          SharePost().parseDeepLink((DeepLinkRequestBuilder()
+                ..apiKey(SharePost.apiKey)
                 ..isGuest(false)
                 ..callback(LikeMindsCallback())
                 ..feedRoomId(debug ? 83301 : 2238799)
                 ..link(link)
                 ..userName("Test User")
-                ..userUniqueId(
-                    userId ?? "5d428e4d-984d-4ab5-8d2b-0adcdbab2ad8"))
+                ..userUniqueId(userId ?? SharePost.userId))
               .build());
-          deepLink = await deepLinkResponse;
-          if (deepLink != null && deepLink!.success) {
-            locator<NavigationService>().navigateTo(
-              AllCommentsScreen.route,
-              arguments: AllCommentsScreenArguments(
-                postId: deepLink!.postId!,
-                feedRoomId: debug ? 83301 : 2238799,
-                fromComment: false,
-              ),
-            );
-          }
         }
       }, onError: (err) {
         // Handle exception by warning the user their action did not succeed
         toast('An error occured');
       });
     }
-    return deepLinkResponse ??
-        DeepLinkResponse(
-          success: false,
-          errorMessage: 'An error occured, please try again later',
-        );
   }
 
   @override
   Widget build(BuildContext context) {
     // return lmFeed;
-    String? userId = UserLocalPreference.instance.fetchUserId();
+    userId = UserLocalPreference.instance.fetchUserId();
     // If the local prefs have user id stored
     // Login using that user Id
     // otherwise show the cred screen for login
-    if (userId != null && userId.isNotEmpty) {
-      return FutureBuilder(
-          future: initUniLinks(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Scaffold(
-                body: CircularProgressIndicator(),
-              );
-            } else if (snapshot.connectionState == ConnectionState.done &&
-                snapshot.data!.success) {
-              lmFeed = LMFeed.instance(
-                userId: _userIdController.text,
-                userName: _usernameController.text,
-                defaultFeedroom: debug ? 83301 : 2238799,
-                callback: LikeMindsCallback(),
-                deepLinkCallBack: () {
-                  debugPrint("Deep Link Callback");
-                },
-                domain: 'feedsx://www.feedsx.com',
-                postId: snapshot.data!.postId,
-                apiKey: "",
-              );
-              return lmFeed!;
-            } else {
-              lmFeed = LMFeed.instance(
-                userId: _userIdController.text,
-                userName: _usernameController.text,
-                defaultFeedroom: debug ? 83301 : 2238799,
-                callback: LikeMindsCallback(),
-                deepLinkCallBack: () {
-                  debugPrint("Deep Link Callback");
-                },
-                domain: 'feedsx://www.feedsx.com',
-                apiKey: "",
-              );
-              return lmFeed!;
-            }
-          });
+    if (userId != null && userId!.isNotEmpty) {
+      return lmFeed = LMFeed.instance(
+        userId: userId,
+        userName: 'Test User',
+        defaultFeedroom: debug ? 83301 : 2238799,
+        callback: LikeMindsCallback(),
+        deepLinkCallBack: () {
+          debugPrint("Deep Link Callback");
+        },
+        apiKey: "",
+      );
     } else {
       return Scaffold(
         backgroundColor: const Color.fromARGB(255, 6, 92, 193),
@@ -235,12 +195,7 @@ class _CredScreenState extends State<CredScreen> {
               ),
               const SizedBox(height: 36),
               GestureDetector(
-                onTap: () async {
-                  DeepLinkResponse? response = await deepLink;
-                  String? postId;
-                  if (response != null && response.success) {
-                    postId = response.postId!;
-                  }
+                onTap: () {
                   lmFeed = LMFeed.instance(
                     userId: _userIdController.text,
                     userName: _usernameController.text,
@@ -249,21 +204,20 @@ class _CredScreenState extends State<CredScreen> {
                     deepLinkCallBack: () {
                       debugPrint("Deep Link Callback");
                     },
-                    domain: 'feedsx://www.feedsx.com',
-                    postId: postId,
                     apiKey: "",
                   );
 
                   if (_userIdController.text.isNotEmpty) {
-                    await UserLocalPreference.instance.initialize();
                     UserLocalPreference.instance
                         .storeUserId(_userIdController.text);
+                  } else {
+                    UserLocalPreference.instance.storeUserId(SharePost.userId);
                   }
                   MaterialPageRoute route = MaterialPageRoute(
                     // INIT - Get the LMFeed instance and pass the credentials (if any)
                     builder: (context) => lmFeed!,
                   );
-                  Navigator.pushReplacement(context, route);
+                  Navigator.of(context).pushReplacement(route);
                 },
                 child: Container(
                   width: 200,

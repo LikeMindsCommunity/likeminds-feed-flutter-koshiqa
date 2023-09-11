@@ -1,5 +1,4 @@
 import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_actions.dart';
@@ -75,6 +74,7 @@ class _PostWidgetState extends State<PostWidget> {
                 postDetails: postDetails!,
                 refresh: refresh!,
                 feedRoomId: widget.feedRoomId,
+                isFeed: widget.isFeed,
               ),
               PostDescription(
                 text: postDetails!.text,

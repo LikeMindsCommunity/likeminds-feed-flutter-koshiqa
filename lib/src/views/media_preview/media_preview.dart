@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:chewie/chewie.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
@@ -122,7 +121,6 @@ class _MediaPreviewScreenState extends State<MediaPreviewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
     return FutureBuilder(
       future: _initializeVideoPlayer(),
       builder: (context, snapshot) {
