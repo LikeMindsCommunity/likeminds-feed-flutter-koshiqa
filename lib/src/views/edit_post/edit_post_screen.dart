@@ -27,7 +27,7 @@ class EditPostScreen extends StatefulWidget {
   static const String route = '/edit_post_screen';
   final String postId;
   final int feedRoomId;
-  final List<TopicViewModel> selectedTopics;
+  final List<TopicUI> selectedTopics;
   const EditPostScreen({
     super.key,
     required this.postId,
@@ -40,7 +40,7 @@ class EditPostScreen extends StatefulWidget {
 }
 
 class _EditPostScreenState extends State<EditPostScreen> {
-  List<TopicViewModel> selectedTopics = [];
+  List<TopicUI> selectedTopics = [];
   late Future<GetPostResponse> postFuture;
   Future<GetTopicsResponse>? getTopicsResponse;
   TextEditingController? textEditingController;
@@ -80,7 +80,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
     });
   }
 
-  void updateSelectedTopics(List<TopicViewModel> topics) {
+  void updateSelectedTopics(List<TopicUI> topics) {
     selectedTopics = topics;
     rebuildTopicFeed.value = !rebuildTopicFeed.value;
   }
@@ -339,7 +339,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
                         textEditingController!.text, userTags);
 
                     List<String> disabledTopics = [];
-                    for (TopicViewModel topic in selectedTopics) {
+                    for (TopicUI topic in selectedTopics) {
                       if (!topic.isEnabled) {
                         disabledTopics.add(topic.name);
                       }
@@ -453,7 +453,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
                     return ValueListenableBuilder(
                         valueListenable: rebuildTopicFeed,
                         builder: (context, _, __) {
-                          return TopicFeedGrid(
+                          return LMTopicFeedGrid(
                             selectedTopics: selectedTopics,
                             emptyTopicChip: Chip(
                               label: const Row(

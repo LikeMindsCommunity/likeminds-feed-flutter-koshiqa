@@ -43,7 +43,7 @@ class NewPostScreenArguments {
 class EditPostScreenArguments {
   final String postId;
   final int feedRoomId;
-  final List<TopicViewModel> selectedTopics;
+  final List<TopicUI> selectedTopics;
 
   const EditPostScreenArguments({
     required this.postId,
@@ -85,8 +85,8 @@ class FeedRoomSelectArguments {
 }
 
 class TopicSelectScreenArguments {
-  final List<TopicViewModel> selectedTopic;
-  final Function(List<TopicViewModel>) onSelect;
+  final List<TopicUI> selectedTopic;
+  final Function(List<TopicUI>) onSelect;
   final bool? isEnabled;
 
   TopicSelectScreenArguments({

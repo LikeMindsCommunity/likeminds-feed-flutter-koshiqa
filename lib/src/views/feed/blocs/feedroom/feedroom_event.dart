@@ -11,7 +11,7 @@ class GetFeedRoom extends FeedRoomEvent {
   final int feedRoomId;
   final int offset;
   final bool isPaginationLoading;
-  final List<TopicViewModel>? topics;
+  final List<TopicUI>? topics;
   final FeedRoom? feedRoomResponse;
   const GetFeedRoom({
     required this.feedRoomId,

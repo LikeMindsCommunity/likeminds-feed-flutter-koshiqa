@@ -12,7 +12,6 @@ class UserLocalPreference {
 
   UserLocalPreference._();
 
-  final String _domainKey = 'domain';
   final String _userKey = 'user';
   final String _memberStateKey = 'isCm';
 
@@ -37,7 +36,7 @@ class UserLocalPreference {
     _sharedPreferences!.setBool(_memberStateKey, isCm);
   }
 
-  void storeMemberRights(MemberStateResponse response) {
+  Future<void> storeMemberRights(MemberStateResponse response) async {
     final entity = response.toEntity();
     Map<String, dynamic> memberRights = entity.toJson();
     String memberRightsString = jsonEncode(memberRights);
@@ -67,13 +66,5 @@ class UserLocalPreference {
 
   bool fetchMemberState() {
     return _sharedPreferences!.getBool(_memberStateKey)!;
-  }
-
-  Future<void> storeAppDomain(String domain) async {
-    _sharedPreferences!.setString(_domainKey, domain);
-  }
-
-  String getAppDomain() {
-    return _sharedPreferences!.getString(_domainKey)!;
   }
 }

@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 part 'new_post_event.dart';
 part 'new_post_state.dart';
@@ -187,6 +188,29 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
               message: 'An error occured while saving the post',
             ),
           );
+        }
+      }
+      if (event is DeletePost) {
+        final response = await locator<LikeMindsService>().deletePost(
+          (DeletePostRequestBuilder()
+                ..postId(event.postId)
+                ..deleteReason(event.reason))
+              .build(),
+        );
+
+        if (response.success) {
+          toast(
+            'Post Deleted',
+            duration: Toast.LENGTH_LONG,
+          );
+          emit(PostDeleted(postId: event.postId));
+        } else {
+          toast(
+            response.errorMessage ?? 'An error occurred',
+            duration: Toast.LENGTH_LONG,
+          );
+          emit(PostDeletionError(
+              message: response.errorMessage ?? 'An error occurred'));
         }
       }
     });

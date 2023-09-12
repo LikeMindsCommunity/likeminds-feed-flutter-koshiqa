@@ -9,7 +9,7 @@ class CreateNewPost extends NewPostEvents {
   final List<MediaModel>? postMedia;
   final String postText;
   final int feedRoomId;
-  final List<TopicViewModel> selectedTopics;
+  final List<TopicUI> selectedTopics;
 
   CreateNewPost({
     this.postMedia,
@@ -17,6 +17,8 @@ class CreateNewPost extends NewPostEvents {
     required this.feedRoomId,
     required this.selectedTopics,
   });
+  @override
+  List<Object> get props => [postText, feedRoomId];
 }
 
 class EditPost extends NewPostEvents {
@@ -24,7 +26,7 @@ class EditPost extends NewPostEvents {
   final String postText;
   final int? feedRoomId;
   final String postId;
-  final List<TopicViewModel> selectedTopics;
+  final List<TopicUI> selectedTopics;
 
   EditPost({
     required this.postText,
@@ -33,4 +35,21 @@ class EditPost extends NewPostEvents {
     required this.postId,
     required this.selectedTopics,
   });
+  @override
+  List<Object> get props => [postId, postText];
+}
+
+class DeletePost extends NewPostEvents {
+  final String postId;
+  final String reason;
+  final int? feedRoomId;
+
+  DeletePost({
+    required this.postId,
+    required this.reason,
+    this.feedRoomId,
+  });
+
+  @override
+  List<Object> get props => [postId, reason];
 }

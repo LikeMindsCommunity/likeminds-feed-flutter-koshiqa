@@ -41,7 +41,7 @@ class _PostWidgetState extends State<PostWidget> {
   bool? showActions;
   Function(bool)? refresh;
   bool? isFeed;
-  List<ui.TopicViewModel>? postTopics;
+  List<ui.TopicUI>? postTopics;
 
   void setPostValues() {
     refresh = widget.refresh;
@@ -52,7 +52,7 @@ class _PostWidgetState extends State<PostWidget> {
     postTopics = [];
     for (String id in postDetails!.topics ?? []) {
       if (widget.topics.containsKey(id)) {
-        postTopics!.add(ui.TopicViewModel.fromTopic(widget.topics[id]!));
+        postTopics!.add(ui.TopicUI.fromTopic(widget.topics[id]!));
       }
     }
   }
@@ -88,11 +88,12 @@ class _PostWidgetState extends State<PostWidget> {
                 refresh: refresh!,
                 feedRoomId: widget.feedRoomId,
                 topics: widget.topics,
+                isFeed: widget.isFeed,
               ),
               postTopics != null && postTopics!.isNotEmpty
                   ? kVerticalPaddingMedium
                   : const SizedBox(),
-              PostTopic(postTopics: postTopics ?? <ui.TopicViewModel>[]),
+              PostTopic(postTopics: postTopics ?? <ui.TopicUI>[]),
               PostDescription(
                 text: postDetails!.text,
               ),
