@@ -6,15 +6,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 class UserLocalPreference {
   SharedPreferences? _sharedPreferences;
 
-  static UserLocalPreference? _instance;
-  static UserLocalPreference get instance =>
-      _instance ??= UserLocalPreference._();
+  static final UserLocalPreference _instance = UserLocalPreference._();
+  static UserLocalPreference get instance => _instance;
 
   UserLocalPreference._();
 
-  final String _domainKey = 'domain';
-  final String _userKey = 'user';
-  final String _memberStateKey = 'isCm';
+  final String _domainKey = 'domain_example';
+  final String _userKey = 'user_example';
+  final String _memberStateKey = 'isCm_example';
 
   Future<void> initialize() async {
     _sharedPreferences = await SharedPreferences.getInstance();

@@ -17,7 +17,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/views/feed/feedroom_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
@@ -35,7 +34,7 @@ export 'src/utils/share/share_post.dart';
 export 'src/navigation/arguments.dart';
 
 /// Flutter environment manager v0.0.1
-const _prodFlag = !bool.fromEnvironment('DEBUG');
+const prodFlag = !bool.fromEnvironment('DEBUG');
 
 class LMFeed extends StatefulWidget {
   final String? userId;
@@ -44,7 +43,6 @@ class LMFeed extends StatefulWidget {
   final String apiKey;
   final LMSDKCallback callback;
   final Function() deepLinkCallBack;
-  final String? postId;
 
   static LMFeed? _instance;
 
@@ -59,7 +57,6 @@ class LMFeed extends StatefulWidget {
     required LMSDKCallback callback,
     required Function() deepLinkCallBack,
     required String apiKey,
-    String? postId,
   }) {
     setupLMFeed(callback, apiKey);
     return _instance ??= LMFeed._(
@@ -69,7 +66,6 @@ class LMFeed extends StatefulWidget {
       callback: callback,
       deepLinkCallBack: deepLinkCallBack,
       apiKey: apiKey,
-      postId: postId,
     );
   }
 
@@ -81,7 +77,6 @@ class LMFeed extends StatefulWidget {
     required this.callback,
     required this.apiKey,
     required this.deepLinkCallBack,
-    this.postId,
   }) : super(key: key);
 
   @override
@@ -93,21 +88,18 @@ class _LMFeedState extends State<LMFeed> {
   late final String userId;
   late final String userName;
   late final bool isProd;
-  late final String domain;
   late final Function()? deepLinkCallBack;
-  late final String? postId;
 
   @override
   void initState() {
     super.initState();
-    isProd = _prodFlag;
+    isProd = prodFlag;
     userId = widget.userId!.isEmpty
         ? isProd
             ? CredsProd.botId
             : CredsDev.botId
         : widget.userId!;
     userName = widget.userName!.isEmpty ? "Test username" : widget.userName!;
-    postId = widget.postId;
     firebase();
   }
 
@@ -141,9 +133,6 @@ class _LMFeedState extends State<LMFeed> {
             InitiateUserResponse response = snapshot.data;
             if (response.success) {
               user = response.initiateUser?.user;
-              // LMFeed._instance!.deepLinkCallBack();
-              UserLocalPreference.instance.storeUserData(user!);
-              UserLocalPreference.instance.storeAppDomain(domain);
               LMNotificationHandler.instance.registerDevice(user!.id);
               return BlocProvider(
                 create: (context) => NewPostBloc(),
@@ -263,16 +252,6 @@ class _LMFeedState extends State<LMFeed> {
                       if (snapshot.hasData) {
                         final MemberStateResponse response = snapshot.data;
                         final isCm = response.state == 1;
-                        UserLocalPreference.instance
-                            .storeMemberRights(response);
-                        if (postId != null) {
-                          locator<LikeMindsService>().setFeedroomId =
-                              widget.defaultFeedroom;
-                          return AllCommentsScreen(
-                              postId: postId!,
-                              feedRoomId: 0,
-                              fromComment: false);
-                        }
                         if (isCm) {
                           UserLocalPreference.instance.storeMemberState(isCm);
                           return FeedRoomListScreen(user: user!);
@@ -303,6 +282,7 @@ class _LMFeedState extends State<LMFeed> {
             } else {}
           } else if (snapshot.hasError) {
             debugPrint("Error - ${snapshot.error}");
+
             return Container(
               height: MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width,

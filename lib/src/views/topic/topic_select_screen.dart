@@ -14,8 +14,8 @@ import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
 class TopicSelectScreen extends StatefulWidget {
   static const String route = "/topicSelectScreen";
 
-  final List<TopicViewModel> selectedTopic;
-  final Function(List<TopicViewModel>) onTopicSelected;
+  final List<TopicUI> selectedTopic;
+  final Function(List<TopicUI>) onTopicSelected;
   final bool? isEnabled;
 
   const TopicSelectScreen({
@@ -30,22 +30,22 @@ class TopicSelectScreen extends StatefulWidget {
 }
 
 class _TopicSelectScreenState extends State<TopicSelectScreen> {
-  List<TopicViewModel> selectedTopics = [];
+  List<TopicUI> selectedTopics = [];
   FocusNode keyboardNode = FocusNode();
   Set<String> selectedTopicId = {};
   TextEditingController searchController = TextEditingController();
   String searchType = "";
   String search = "";
-  TopicViewModel allTopics = TopicViewModel(
-    name: "All Topics",
-    id: "0",
-    isEnabled: true,
-  );
+  TopicUI allTopics = (TopicUIBuilder()
+        ..id("0")
+        ..isEnabled(true)
+        ..name("All Topics"))
+      .build();
   final int pageSize = 20;
   TopicBloc topicBloc = TopicBloc();
   bool isSearching = false;
   ValueNotifier<bool> rebuildTopicsScreen = ValueNotifier<bool>(false);
-  PagingController<int, TopicViewModel> topicsPagingController =
+  PagingController<int, TopicUI> topicsPagingController =
       PagingController(firstPageKey: 1);
 
   int _page = 1;
@@ -76,7 +76,7 @@ class _TopicSelectScreenState extends State<TopicSelectScreen> {
     });
   }
 
-  bool checkSelectedTopicExistsInList(TopicViewModel topic) {
+  bool checkSelectedTopicExistsInList(TopicUI topic) {
     return selectedTopicId.contains(topic.id);
   }
 
@@ -84,7 +84,7 @@ class _TopicSelectScreenState extends State<TopicSelectScreen> {
   void initState() {
     super.initState();
     selectedTopics = widget.selectedTopic;
-    for (TopicViewModel topic in selectedTopics) {
+    for (TopicUI topic in selectedTopics) {
       selectedTopicId.add(topic.id);
     }
     topicsPagingController.itemList = selectedTopics;
@@ -264,7 +264,7 @@ class _TopicSelectScreenState extends State<TopicSelectScreen> {
                   (element) => selectedTopicId.contains(element.id));
               topicsPagingController.appendPage(
                 state.getTopicFeedResponse.topics!
-                    .map((e) => TopicViewModel.fromTopic(e))
+                    .map((e) => TopicUI.fromTopic(e))
                     .toList(),
                 _page,
               );
@@ -286,7 +286,7 @@ class _TopicSelectScreenState extends State<TopicSelectScreen> {
                     children: [
                       isSearching
                           ? const SizedBox()
-                          : TopicTile(
+                          : LMTopicTile(
                               isSelected: selectedTopics.isEmpty,
                               height: 50,
                               topic: allTopics,
@@ -304,7 +304,7 @@ class _TopicSelectScreenState extends State<TopicSelectScreen> {
                                 Icons.check_circle,
                                 color: kPrimaryColor,
                               ),
-                              onTap: (TopicViewModel tappedTopic) {
+                              onTap: (TopicUI tappedTopic) {
                                 selectedTopics.clear();
                                 selectedTopicId.clear();
                                 rebuildTopicsScreen.value =
@@ -316,14 +316,13 @@ class _TopicSelectScreenState extends State<TopicSelectScreen> {
                           pagingController: topicsPagingController,
                           padding: EdgeInsets.zero,
                           physics: const ClampingScrollPhysics(),
-                          builderDelegate:
-                              PagedChildBuilderDelegate<TopicViewModel>(
+                          builderDelegate: PagedChildBuilderDelegate<TopicUI>(
                             noItemsFoundIndicatorBuilder: (context) =>
                                 const Center(
                                     child: Text(
                               "Opps, no topics found!",
                             )),
-                            itemBuilder: (context, item, index) => TopicTile(
+                            itemBuilder: (context, item, index) => LMTopicTile(
                               isSelected: checkSelectedTopicExistsInList(item),
                               topic: item,
                               height: 50,
@@ -341,7 +340,7 @@ class _TopicSelectScreenState extends State<TopicSelectScreen> {
                                 Icons.check_circle,
                                 color: kPrimaryColor,
                               ),
-                              onTap: (TopicViewModel tappedTopic) {
+                              onTap: (TopicUI tappedTopic) {
                                 int index = selectedTopics.indexWhere(
                                     (element) => element.id == tappedTopic.id);
                                 if (index != -1) {

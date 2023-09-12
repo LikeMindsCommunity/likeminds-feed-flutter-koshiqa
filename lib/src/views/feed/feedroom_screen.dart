@@ -51,7 +51,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
   bool? isCm; // whether the logged in user is a community manager or not
   // future to get the unread notification count
   late Future<GetUnreadNotificationCountResponse> getUnreadNotificationCount;
-  List<TopicViewModel> selectedTopics = [];
+  List<TopicUI> selectedTopics = [];
 
   // used to rebuild the appbar
   final ValueNotifier _rebuildAppBar = ValueNotifier(false);
@@ -60,7 +60,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
   final PagingController<int, Post> _pagingController =
       PagingController(firstPageKey: 1);
 
-  void updateSelectedTopics(List<TopicViewModel> topics) {
+  void updateSelectedTopics(List<TopicUI> topics) {
     selectedTopics = topics;
     rebuildTopicFeed.value = !rebuildTopicFeed.value;
     clearPagingController();
@@ -169,17 +169,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
     return WillPopScope(
       onWillPop: () async {
         if (isCm!) {
-          if (Navigator.canPop(context)) {
-            locator<NavigationService>().goBack();
-          } else {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) => FeedRoomListScreen(
-                  user: user,
-                ),
-              ),
-            );
-          }
+          locator<NavigationService>().goBack();
         }
         return false;
       },
@@ -191,17 +181,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                   onPressed: () {
                     // if the user is a community manager then
                     // navigate back to the feedroom list screen
-                    if (Navigator.canPop(context)) {
-                      locator<NavigationService>().goBack();
-                    } else {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => FeedRoomListScreen(
-                            user: user,
-                          ),
-                        ),
-                      );
-                    }
+                    locator<NavigationService>().goBack();
                   },
                 )
               : null,
@@ -312,7 +292,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10.0, vertical: 10.0),
-                              child: TopicFeedBar(
+                              child: LMTopicFeedBar(
                                 selectedTopics: selectedTopics,
                                 height: 30,
                                 showBorder: true,
@@ -320,7 +300,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
                                   selectedTopics.clear();
                                   updateSelectedTopics(selectedTopics);
                                 },
-                                onIconTap: (TopicViewModel topic) {
+                                onIconTap: (TopicUI topic) {
                                   selectedTopics
                                       .removeWhere((e) => e.id == topic.id);
                                   updateSelectedTopics(selectedTopics);
@@ -494,6 +474,13 @@ class _FeedRoomViewState extends State<FeedRoomView> {
           BlocConsumer<NewPostBloc, NewPostState>(
             bloc: newPostBloc,
             listener: (prev, curr) {
+              if (curr is PostDeleted) {
+                List<Post>? feedRoomItemList =
+                    widget.feedRoomPagingController.itemList;
+                feedRoomItemList!.removeWhere((item) => item.id == curr.postId);
+                widget.feedRoomPagingController.itemList = feedRoomItemList;
+                rebuildPostWidget.value = !rebuildPostWidget.value;
+              }
               if (curr is NewPostUploading || curr is EditPostUploading) {
                 // if current state is uploading
                 // change postUploading flag to true

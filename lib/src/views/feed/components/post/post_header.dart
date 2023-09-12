@@ -13,6 +13,7 @@ class PostHeader extends StatelessWidget {
   final List<PopupMenuItemModel> menuItems;
   final Function(bool) refresh;
   final Map<String, Topic> topics;
+  final bool isFeed;
 
   const PostHeader({
     super.key,
@@ -22,6 +23,7 @@ class PostHeader extends StatelessWidget {
     required this.feedRoomId,
     required this.refresh,
     required this.topics,
+    required this.isFeed,
   });
 
   void removeReportIntegration() {
@@ -152,6 +154,7 @@ class PostHeader extends StatelessWidget {
                         refresh: refresh,
                         feedRoomId: feedRoomId,
                         topics: topics,
+                        isFeed: isFeed,
                       )
                     : const SizedBox()
               ],

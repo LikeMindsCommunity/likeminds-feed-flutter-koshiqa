@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
 
 class PostTopic extends StatelessWidget {
-  final List<TopicViewModel> postTopics;
+  final List<TopicUI> postTopics;
   const PostTopic({
     Key? key,
     required this.postTopics,
@@ -16,7 +16,7 @@ class PostTopic extends StatelessWidget {
     }
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: TopicFeedGrid(
+      child: LMTopicFeedGrid(
         showDivider: false,
         height: 22,
         chipPadding: EdgeInsets.zero,

@@ -14,6 +14,9 @@ class NewPostUploading extends NewPostState {
   final MediaModel? thumbnailMedia;
 
   const NewPostUploading({required this.progress, this.thumbnailMedia});
+
+  @override
+  List<Object> get props => [progress];
 }
 
 class EditPostUploading extends NewPostState {}
@@ -28,6 +31,9 @@ class NewPostUploaded extends NewPostState {
     required this.userData,
     required this.topics,
   });
+
+  @override
+  List<Object> get props => [postData, userData, topics];
 }
 
 class EditPostUploaded extends NewPostState {
@@ -40,10 +46,34 @@ class EditPostUploaded extends NewPostState {
     required this.userData,
     required this.topics,
   });
+
+  @override
+  List<Object> get props => [postData, userData, topics];
 }
 
 class NewPostError extends NewPostState {
   final String message;
 
   const NewPostError({required this.message});
+
+  @override
+  List<Object> get props => [message];
+}
+
+class PostDeletionError extends NewPostState {
+  final String message;
+
+  const PostDeletionError({required this.message});
+
+  @override
+  List<Object> get props => [message];
+}
+
+class PostDeleted extends NewPostState {
+  final String postId;
+
+  const PostDeleted({required this.postId});
+
+  @override
+  List<Object> get props => [postId];
 }

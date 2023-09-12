@@ -75,7 +75,7 @@ class NewPostScreen extends StatefulWidget {
 
 class _NewPostScreenState extends State<NewPostScreen> {
   TextEditingController? _controller = TextEditingController();
-  List<TopicViewModel> selectedTopics = [];
+  List<TopicUI> selectedTopics = [];
   Future<GetTopicsResponse>? getTopicsResponse;
   NewPostBloc? newPostBloc;
   final ImagePicker _picker = ImagePicker();
@@ -135,7 +135,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
     }
   }
 
-  void updateSelectedTopics(List<TopicViewModel> topics) {
+  void updateSelectedTopics(List<TopicUI> topics) {
     selectedTopics = topics;
     rebuildTopicFeed.value = !rebuildTopicFeed.value;
   }
@@ -552,7 +552,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                             return ValueListenableBuilder(
                                 valueListenable: rebuildTopicFeed,
                                 builder: (context, _, __) {
-                                  return TopicFeedGrid(
+                                  return LMTopicFeedGrid(
                                     selectedTopics: selectedTopics,
                                     emptyTopicChip: Chip(
                                       label: const Row(

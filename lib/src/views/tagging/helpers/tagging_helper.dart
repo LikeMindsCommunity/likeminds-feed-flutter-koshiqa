@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 class TaggingHelper {
-  static final RegExp tagRegExp = RegExp(r'@([^<>]+)\~');
+  static final RegExp tagRegExp = RegExp(r'@([^<>~]+)~');
   static const String notificationTagRoute =
       r'<<([^<>]+)\|route://([^<>]+)/([a-zA-Z-0-9]+)>>';
   static const String tagRoute =
@@ -73,7 +73,7 @@ class TaggingHelper {
   }
 
   static void routeToProfile(String userId) {
-    print(userId);
+    debugPrint(userId);
     // if (!locator<LikeMindsService>().isProd) {
     //   toast('Profile call back fired');
     // }

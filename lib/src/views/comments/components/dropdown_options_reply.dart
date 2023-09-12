@@ -39,6 +39,9 @@ class DropdownOptionsReply extends StatelessWidget {
     AddCommentReplyBloc addCommentReplyBloc =
         BlocProvider.of<AddCommentReplyBloc>(context);
     return Builder(builder: (context) {
+      if (menuItems.isEmpty) {
+        return Container();
+      }
       return PopupMenuButton<int>(
         onSelected: (value) async {
           print(value);

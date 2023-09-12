@@ -84,7 +84,12 @@ class LikeMindsService implements ILikeMindsService {
   Future<InitiateUserResponse> initiateUser(InitiateUserRequest request) async {
     UserLocalPreference userLocalPreference = UserLocalPreference.instance;
     await userLocalPreference.initialize();
-    return await _sdkApplication.initiateUser(request);
+
+    InitiateUserResponse response = await _sdkApplication.initiateUser(request);
+    if (response.success && response.initiateUser != null) {
+      userLocalPreference.storeUserData(response.initiateUser!.user);
+    }
+    return response;
   }
 
   @override
@@ -221,7 +226,11 @@ class LikeMindsService implements ILikeMindsService {
 
   @override
   Future<MemberStateResponse> getMemberState() async {
-    return await _sdkApplication.getMemberState();
+    MemberStateResponse response = await _sdkApplication.getMemberState();
+    if (response.success) {
+      await UserLocalPreference.instance.storeMemberRights(response);
+    }
+    return response;
   }
 
   @override
