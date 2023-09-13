@@ -49,6 +49,7 @@ abstract class ILikeMindsService {
   Future<MarkReadNotificationResponse> markReadNotification(
       MarkReadNotificationRequest request);
   Future<GetDeleteReasonResponse> getReportTags(GetDeleteReasonRequest request);
+  Future<GetTopicsResponse> getTopics(GetTopicsRequest request);
   void routeToProfile(String userId);
 }
 
@@ -77,14 +78,18 @@ class LikeMindsService implements ILikeMindsService {
           ..apiKey(key)
           ..sdkCallback(sdkCallback))
         .build();
-    LMAnalytics.get().initialize();
   }
 
   @override
   Future<InitiateUserResponse> initiateUser(InitiateUserRequest request) async {
     UserLocalPreference userLocalPreference = UserLocalPreference.instance;
     await userLocalPreference.initialize();
-    return await _sdkApplication.initiateUser(request);
+
+    InitiateUserResponse response = await _sdkApplication.initiateUser(request);
+    if (response.success && response.initiateUser != null) {
+      userLocalPreference.storeUserData(response.initiateUser!.user);
+    }
+    return response;
   }
 
   @override
@@ -221,7 +226,11 @@ class LikeMindsService implements ILikeMindsService {
 
   @override
   Future<MemberStateResponse> getMemberState() async {
-    return await _sdkApplication.getMemberState();
+    MemberStateResponse response = await _sdkApplication.getMemberState();
+    if (response.success) {
+      await UserLocalPreference.instance.storeMemberRights(response);
+    }
+    return response;
   }
 
   @override
@@ -245,6 +254,11 @@ class LikeMindsService implements ILikeMindsService {
   Future<GetDeleteReasonResponse> getReportTags(
       GetDeleteReasonRequest request) async {
     return await _sdkApplication.getReportTags(request);
+  }
+
+  @override
+  Future<GetTopicsResponse> getTopics(GetTopicsRequest request) {
+    return _sdkApplication.getTopics(request);
   }
 
   @override

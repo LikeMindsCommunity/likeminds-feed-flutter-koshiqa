@@ -1,8 +1,6 @@
-import 'package:feed_sx/src/utils/share/share_post.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
-import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/utils/constants/string_constants.dart';
@@ -128,7 +126,7 @@ class _PostActionsState extends State<PostActions> {
             TextButton.icon(
               onPressed: isFeed
                   ? () {
-                      LMAnalytics.get().logEvent(
+                      LMAnalytics.get().track(
                         AnalyticsKeys.commentListOpen,
                         {
                           "post_id": postDetails!.id,

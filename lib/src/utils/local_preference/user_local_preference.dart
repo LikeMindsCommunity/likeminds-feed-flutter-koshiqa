@@ -36,7 +36,7 @@ class UserLocalPreference {
     _sharedPreferences!.setBool(_memberStateKey, isCm);
   }
 
-  void storeMemberRights(MemberStateResponse response) {
+  Future<void> storeMemberRights(MemberStateResponse response) async {
     final entity = response.toEntity();
     Map<String, dynamic> memberRights = entity.toJson();
     String memberRightsString = jsonEncode(memberRights);

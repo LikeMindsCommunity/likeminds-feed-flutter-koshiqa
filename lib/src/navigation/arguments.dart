@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
+import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 class AllCommentsScreenArguments {
@@ -41,12 +41,14 @@ class NewPostScreenArguments {
 }
 
 class EditPostScreenArguments {
-  String postId;
-  int feedRoomId;
+  final String postId;
+  final int feedRoomId;
+  final List<TopicUI> selectedTopics;
 
-  EditPostScreenArguments({
+  const EditPostScreenArguments({
     required this.postId,
     required this.feedRoomId,
+    required this.selectedTopics,
   });
 }
 
@@ -79,5 +81,17 @@ class FeedRoomSelectArguments {
   FeedRoomSelectArguments({
     required this.user,
     required this.feedRoomIds,
+  });
+}
+
+class TopicSelectScreenArguments {
+  final List<TopicUI> selectedTopic;
+  final Function(List<TopicUI>) onSelect;
+  final bool? isEnabled;
+
+  TopicSelectScreenArguments({
+    required this.selectedTopic,
+    required this.onSelect,
+    this.isEnabled,
   });
 }

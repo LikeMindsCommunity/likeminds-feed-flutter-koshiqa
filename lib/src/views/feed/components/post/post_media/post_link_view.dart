@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
+import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
 import 'package:flutter/material.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:url_launcher/url_launcher.dart';

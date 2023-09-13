@@ -142,7 +142,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
 
   selectCommentToReply(String commentId, String username) {
     selectedCommentId = commentId;
-    print(commentId);
+    debugPrint(commentId);
     selectedUsername = username;
     isReplying = true;
     isEditing = false;
@@ -624,12 +624,12 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                     state is PaginatedAllCommentsLoading) {
                   late PostDetailResponse postDetailResponse;
                   if (state is AllCommentsLoaded) {
-                    print("AllCommentsLoaded$state");
+                    debugPrint("AllCommentsLoaded$state");
                     postDetailResponse = state.postDetails;
                     postDetailResponse.users!.putIfAbsent(
                         currentUser.userUniqueId, () => currentUser);
                   } else {
-                    print("PaginatedAllCommentsLoading$state");
+                    debugPrint("PaginatedAllCommentsLoading$state");
                     postDetailResponse =
                         (state as PaginatedAllCommentsLoading).prevPostDetails;
                     postDetailResponse.users!.putIfAbsent(
@@ -657,6 +657,8 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                           user: postDetailResponse.users![
                                               postDetailResponse
                                                   .postReplies!.userId]!,
+                                          topics:
+                                              postDetailResponse.topics ?? {},
                                           isFeed: false,
                                           refresh: (bool isDeleted) async {
                                             if (isDeleted) {

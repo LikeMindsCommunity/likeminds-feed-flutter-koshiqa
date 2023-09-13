@@ -2,15 +2,18 @@ import 'dart:async';
 
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
+import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
+import 'package:feed_sx/src/utils/utils.dart';
 import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
+import 'package:feed_sx/src/views/topic/topic_select_screen.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_document.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_helper.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_link_view.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_media.dart';
-import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
 import 'package:feed_sx/src/views/tagging/tagging_textfield_ta.dart';
 import 'package:feed_sx/src/widgets/close_icon.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
@@ -25,10 +28,12 @@ class EditPostScreen extends StatefulWidget {
   static const String route = '/edit_post_screen';
   final String postId;
   final int feedRoomId;
+  final List<TopicUI> selectedTopics;
   const EditPostScreen({
     super.key,
     required this.postId,
     required this.feedRoomId,
+    required this.selectedTopics,
   });
 
   @override
@@ -36,7 +41,9 @@ class EditPostScreen extends StatefulWidget {
 }
 
 class _EditPostScreenState extends State<EditPostScreen> {
+  List<TopicUI> selectedTopics = [];
   late Future<GetPostResponse> postFuture;
+  Future<GetTopicsResponse>? getTopicsResponse;
   TextEditingController? textEditingController;
   ValueNotifier<bool> rebuildAttachments = ValueNotifier(false);
   late String postId;
@@ -55,6 +62,8 @@ class _EditPostScreenState extends State<EditPostScreen> {
   Timer? _debounce;
   Size? screenSize;
 
+  ValueNotifier<bool> rebuildTopicFeed = ValueNotifier(false);
+
   @override
   void dispose() {
     _debounce?.cancel();
@@ -70,6 +79,11 @@ class _EditPostScreenState extends State<EditPostScreen> {
     _debounce = Timer(const Duration(milliseconds: 500), () {
       handleTextLinks(p0);
     });
+  }
+
+  void updateSelectedTopics(List<TopicUI> topics) {
+    selectedTopics = topics;
+    rebuildTopicFeed.value = !rebuildTopicFeed.value;
   }
 
   Widget getPostDocument(double width) {
@@ -120,6 +134,11 @@ class _EditPostScreenState extends State<EditPostScreen> {
   void initState() {
     super.initState();
     user = UserLocalPreference.instance.fetchUserData();
+    getTopicsResponse =
+        locator<LikeMindsService>().getTopics((GetTopicsRequestBuilder()
+              ..page(1)
+              ..pageSize(20))
+            .build());
     postId = widget.postId;
     textEditingController = TextEditingController();
     postFuture = locator<LikeMindsService>().getPost((GetPostRequestBuilder()
@@ -127,6 +146,13 @@ class _EditPostScreenState extends State<EditPostScreen> {
           ..page(1)
           ..pageSize(10))
         .build());
+    selectedTopics = widget.selectedTopics;
+  }
+
+  @override
+  void didUpdateWidget(covariant EditPostScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    selectedTopics = widget.selectedTopics;
   }
 
   void checkTextLinks() {
@@ -312,10 +338,53 @@ class _EditPostScreenState extends State<EditPostScreen> {
                         textEditingController!.text, userTags);
                     String result = TaggingHelper.encodeString(
                         textEditingController!.text, userTags);
+
+                    List<String> disabledTopics = [];
+                    for (TopicUI topic in selectedTopics) {
+                      if (!topic.isEnabled) {
+                        disabledTopics.add(topic.name);
+                      }
+                    }
+
+                    if (disabledTopics.isNotEmpty) {
+                      await showDialog(
+                          context: context,
+                          builder: (dialogContext) => AlertDialog(
+                                title: const Text(
+                                  "Topic Disabled",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                content: Text(
+                                  "The following topics have been disabled. Please remove them to save the post.\n${disabledTopics.join(', ')}.",
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                                actions: [
+                                  GestureDetector(
+                                    onTap: () => Navigator.pop(dialogContext),
+                                    child: const Padding(
+                                      padding: EdgeInsets.only(
+                                          right: 10.0, bottom: 10.0),
+                                      child: Text(
+                                        'Okay',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            color: kLinkColor,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ));
+                      return;
+                    }
                     newPostBloc?.add(EditPost(
                       postText: result,
                       attachments: attachments,
                       postId: postId,
+                      selectedTopics: selectedTopics,
                     ));
                     locator<NavigationService>().goBack();
                   } else {
@@ -373,6 +442,96 @@ class _EditPostScreenState extends State<EditPostScreen> {
           ),
         ),
         kVerticalPaddingLarge,
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: FutureBuilder<GetTopicsResponse>(
+              future: getTopicsResponse,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done &&
+                    snapshot.hasData &&
+                    snapshot.data!.success == true) {
+                  if (snapshot.data!.topics!.isNotEmpty) {
+                    return ValueListenableBuilder(
+                        valueListenable: rebuildTopicFeed,
+                        builder: (context, _, __) {
+                          return LMTopicFeedGrid(
+                            selectedTopics: selectedTopics,
+                            emptyTopicChip: Chip(
+                              label: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.add,
+                                    color: kPrimaryColor,
+                                    size: 14,
+                                  ),
+                                  kHorizontalPaddingSmall,
+                                  Text(
+                                    "Select Topic",
+                                    style: TextStyle(
+                                        color: kPrimaryColor, fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                              backgroundColor: kPrimaryColor.withOpacity(0.1),
+                              clipBehavior: Clip.hardEdge,
+                              padding: EdgeInsets.zero,
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5.0)),
+                            ),
+                            trailingIcon: Chip(
+                              label: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  SvgPicture.asset(
+                                    kAssetPencilIcon,
+                                    height: 12,
+                                    width: 12,
+                                    color: kPrimaryColor,
+                                  ),
+                                ],
+                              ),
+                              backgroundColor: kPrimaryColor.withOpacity(0.1),
+                              clipBehavior: Clip.hardEdge,
+                              padding: EdgeInsets.zero,
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5.0)),
+                            ),
+                            onTap: () {
+                              locator<NavigationService>().navigateTo(
+                                TopicSelectScreen.route,
+                                arguments: TopicSelectScreenArguments(
+                                  selectedTopic: selectedTopics,
+                                  isEnabled: true,
+                                  onSelect: (updatedTopics) {
+                                    updateSelectedTopics(updatedTopics);
+                                  },
+                                ),
+                              );
+                            },
+                            showDivider: true,
+                            height: 22,
+                            chipPadding: EdgeInsets.zero,
+                            backgroundColor: kPrimaryColor.withOpacity(0.1),
+                            textColor: kPrimaryColor,
+                            textStyle: const TextStyle(
+                                color: kPrimaryColor, fontSize: 12),
+                          );
+                        });
+                  }
+                }
+                return const SizedBox();
+              }),
+        ),
+        kVerticalPaddingLarge,
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -393,7 +552,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
                       isDown: true,
                       controller: textEditingController,
                       onTagSelected: (tag) {
-                        print(tag);
+                        debugPrint(tag.toString());
                         userTags.add(tag);
                       },
                       onChange: (p0) {

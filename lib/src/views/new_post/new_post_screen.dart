@@ -3,9 +3,12 @@ import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
+import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
 import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
+import 'package:feed_sx/src/views/topic/topic_select_screen.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_document.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_helper.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_link_view.dart';
@@ -14,7 +17,6 @@ import 'package:feed_sx/src/widgets/close_icon.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
-import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
 import 'package:feed_sx/src/views/tagging/tagging_textfield_ta.dart';
 import 'package:feed_sx/src/widgets/loader.dart';
 import 'package:feed_sx/src/widgets/profile_picture.dart';
@@ -73,6 +75,8 @@ class NewPostScreen extends StatefulWidget {
 
 class _NewPostScreenState extends State<NewPostScreen> {
   TextEditingController? _controller = TextEditingController();
+  List<TopicUI> selectedTopics = [];
+  Future<GetTopicsResponse>? getTopicsResponse;
   NewPostBloc? newPostBloc;
   final ImagePicker _picker = ImagePicker();
   final FilePicker _filePicker = FilePicker.platform;
@@ -94,6 +98,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
       true; // if set to false link preview should not be displayed
   Timer? _debounce;
 
+  ValueNotifier<bool> rebuildTopicFeed = ValueNotifier(false);
+
   @override
   void dispose() {
     _controller?.dispose();
@@ -106,6 +112,11 @@ class _NewPostScreenState extends State<NewPostScreen> {
   void initState() {
     super.initState();
     user = UserLocalPreference.instance.fetchUserData();
+    getTopicsResponse =
+        locator<LikeMindsService>().getTopics((GetTopicsRequestBuilder()
+              ..page(1)
+              ..pageSize(20))
+            .build());
     feedRoomId = widget.feedRoomId;
     if (widget.populatePostMedia != null &&
         widget.populatePostMedia!.isNotEmpty) {
@@ -122,6 +133,11 @@ class _NewPostScreenState extends State<NewPostScreen> {
         widget.populatePostText!.isNotEmpty) {
       _controller?.value = TextEditingValue(text: widget.populatePostText!);
     }
+  }
+
+  void updateSelectedTopics(List<TopicUI> topics) {
+    selectedTopics = topics;
+    rebuildTopicFeed.value = !rebuildTopicFeed.value;
   }
 
   void removeAttachmenetAtIndex(int index) {
@@ -237,7 +253,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
             url: responseTags.url,
           ),
         );
-        LMAnalytics.get().logEvent(
+        LMAnalytics.get().track(
           AnalyticsKeys.linkAttachedInPost,
           {
             'link': previewLink,
@@ -388,6 +404,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                                 postText: result ?? '',
                                 feedRoomId: feedRoomId,
                                 postMedia: postMedia,
+                                selectedTopics: selectedTopics,
                               ),
                             );
                             locator<NavigationService>().goBack(
@@ -520,6 +537,107 @@ class _NewPostScreenState extends State<NewPostScreen> {
                       ),
                     ],
                   ),
+                ),
+                kVerticalPaddingLarge,
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16.0),
+                  width: screenSize!.width,
+                  child: FutureBuilder<GetTopicsResponse>(
+                      future: getTopicsResponse,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done &&
+                            snapshot.hasData &&
+                            snapshot.data!.success == true) {
+                          if (snapshot.data!.topics!.isNotEmpty) {
+                            return ValueListenableBuilder(
+                                valueListenable: rebuildTopicFeed,
+                                builder: (context, _, __) {
+                                  return LMTopicFeedGrid(
+                                    selectedTopics: selectedTopics,
+                                    emptyTopicChip: Chip(
+                                      label: const Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.add,
+                                            color: kPrimaryColor,
+                                            size: 14,
+                                          ),
+                                          kHorizontalPaddingSmall,
+                                          Text(
+                                            "Select Topic",
+                                            style: TextStyle(
+                                                color: kPrimaryColor,
+                                                fontSize: 12),
+                                          ),
+                                        ],
+                                      ),
+                                      backgroundColor:
+                                          kPrimaryColor.withOpacity(0.1),
+                                      clipBehavior: Clip.hardEdge,
+                                      padding: EdgeInsets.zero,
+                                      materialTapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5.0)),
+                                    ),
+                                    trailingIcon: Chip(
+                                      label: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          SvgPicture.asset(
+                                            kAssetPencilIcon,
+                                            height: 12,
+                                            width: 12,
+                                            color: kPrimaryColor,
+                                          ),
+                                        ],
+                                      ),
+                                      backgroundColor:
+                                          kPrimaryColor.withOpacity(0.1),
+                                      clipBehavior: Clip.hardEdge,
+                                      padding: EdgeInsets.zero,
+                                      materialTapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5.0)),
+                                    ),
+                                    onTap: () {
+                                      locator<NavigationService>().navigateTo(
+                                        TopicSelectScreen.route,
+                                        arguments: TopicSelectScreenArguments(
+                                          selectedTopic: selectedTopics,
+                                          isEnabled: true,
+                                          onSelect: (updatedTopics) {
+                                            updateSelectedTopics(updatedTopics);
+                                          },
+                                        ),
+                                      );
+                                    },
+                                    showDivider: true,
+                                    height: 22,
+                                    chipPadding: EdgeInsets.zero,
+                                    backgroundColor:
+                                        kPrimaryColor.withOpacity(0.1),
+                                    textColor: kPrimaryColor,
+                                    textStyle: const TextStyle(
+                                        color: kPrimaryColor, fontSize: 12),
+                                  );
+                                });
+                          }
+                        }
+                        return const SizedBox();
+                      }),
                 ),
                 kVerticalPaddingLarge,
                 Expanded(
@@ -943,7 +1061,7 @@ class AddAssetsButton extends StatelessWidget {
     Size screenSize = MediaQuery.of(context).size;
     return GestureDetector(
       onTap: () async {
-        LMAnalytics.get().logEvent(
+        LMAnalytics.get().track(
           AnalyticsKeys.clickedOnAttachment,
           {
             'type': mediaType == 1

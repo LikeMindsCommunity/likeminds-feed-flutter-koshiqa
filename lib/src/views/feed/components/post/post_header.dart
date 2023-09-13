@@ -12,6 +12,7 @@ class PostHeader extends StatelessWidget {
   final Post postDetails;
   final List<PopupMenuItemModel> menuItems;
   final Function(bool) refresh;
+  final Map<String, Topic> topics;
   final bool isFeed;
 
   const PostHeader({
@@ -21,6 +22,7 @@ class PostHeader extends StatelessWidget {
     required this.postDetails,
     required this.feedRoomId,
     required this.refresh,
+    required this.topics,
     required this.isFeed,
   });
 
@@ -151,6 +153,7 @@ class PostHeader extends StatelessWidget {
                         postDetails: postDetails,
                         refresh: refresh,
                         feedRoomId: feedRoomId,
+                        topics: topics,
                         isFeed: isFeed,
                       )
                     : const SizedBox()
