@@ -24,6 +24,8 @@ dependencies:
   shared_preferences: ^2.1.0
   fluttertoast: 
 
+dependency_override:
+  sliver_tools: 0.1.12
 
 
 

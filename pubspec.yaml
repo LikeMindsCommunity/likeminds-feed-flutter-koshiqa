@@ -1,6 +1,6 @@
 name: feed_sx
 description: Flutter sample UI package for LikeMinds Feed SDK
-version: 1.4.2
+version: 1.5.0
 publish_to: none
 
 environment:
@@ -22,7 +22,7 @@ dependencies:
   path: ^1.8.2
   path_provider: ^2.0.14
   url_launcher: ^6.1.7
-  video_player: 2.7.0
+  video_player: 2.7.1
   timeago:
   image_picker: ^0.8.7+4
   collection: ^1.16.0
@@ -35,7 +35,7 @@ dependencies:
   envied: ^0.3.0
   get_it: ^7.2.0
   photo_view: ^0.14.0
-  extended_text_field: 12.0.0
+  extended_text_field: 12.1.0
   cached_network_image: ^3.2.3
   carousel_slider: ^4.2.1
   shimmer: ^2.0.0
@@ -56,6 +56,8 @@ dependencies:
 
   likeminds_feed_ui_fl:
     path: ../LikeMinds-Flutter-Feed-UI
+
+  likeminds_feed:
 
 dev_dependencies:
   flutter_test:
