@@ -1,11 +1,11 @@
 import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
+
 import 'package:feed_sx/src/views/feed/feedroom_list_screen.dart';
 import 'package:feed_sx/src/views/notification/notification_screen.dart';
+import 'package:feed_sx/src/views/topic/topic_select_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'package:feed_sx/src/navigation/arguments.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/constants/assets_constants.dart';
 import 'package:feed_sx/src/views/feed/components/new_post_button.dart';
@@ -21,6 +21,7 @@ import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
 import 'package:overlay_support/overlay_support.dart';
 
 class FeedRoomScreen extends StatefulWidget {
@@ -42,11 +43,15 @@ class FeedRoomScreen extends StatefulWidget {
 }
 
 class _FeedRoomScreenState extends State<FeedRoomScreen> {
+  double height = 0;
+  ValueNotifier<bool> rebuildTopicFeed = ValueNotifier(false);
+  Future<GetTopicsResponse>? getTopicsResponse;
   late final FeedRoomBloc _feedBloc; // bloc to fetch the feedroom data
   String? title; // feedroom title
   bool? isCm; // whether the logged in user is a community manager or not
   // future to get the unread notification count
   late Future<GetUnreadNotificationCountResponse> getUnreadNotificationCount;
+  List<TopicUI> selectedTopics = [];
 
   // used to rebuild the appbar
   final ValueNotifier _rebuildAppBar = ValueNotifier(false);
@@ -55,15 +60,35 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
   final PagingController<int, Post> _pagingController =
       PagingController(firstPageKey: 1);
 
+  void updateSelectedTopics(List<TopicUI> topics) {
+    selectedTopics = topics;
+    rebuildTopicFeed.value = !rebuildTopicFeed.value;
+    clearPagingController();
+    _feedBloc.add(
+      GetFeedRoom(
+        feedRoomId: widget.feedRoomId,
+        offset: 1,
+        topics: selectedTopics,
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     _addPaginationListener();
     Bloc.observer = SimpleBlocObserver();
+    getTopicsResponse = locator<LikeMindsService>().getTopics(
+      (GetTopicsRequestBuilder()
+            ..page(1)
+            ..pageSize(20))
+          .build(),
+    );
     _feedBloc = FeedRoomBloc();
     title = widget.feedRoomTitle;
     _feedBloc.add(
-      GetFeedRoom(feedRoomId: widget.feedRoomId, offset: 1),
+      GetFeedRoom(
+          feedRoomId: widget.feedRoomId, offset: 1, topics: selectedTopics),
     );
     updateUnreadNotificationCount();
   }
@@ -91,6 +116,7 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
         _feedBloc.add(
           GetFeedRoom(
             feedRoomId: widget.feedRoomId,
+            topics: selectedTopics,
             offset: pageKey,
             isPaginationLoading: true,
           ),
@@ -231,65 +257,139 @@ class _FeedRoomScreenState extends State<FeedRoomScreen> {
         ),
         body: RefreshIndicator(
           onRefresh: () async {
-            _feedBloc
-                .add(GetFeedRoom(feedRoomId: widget.feedRoomId, offset: 1));
+            _feedBloc.add(
+              GetFeedRoom(
+                feedRoomId: widget.feedRoomId,
+                offset: 1,
+                topics: selectedTopics,
+              ),
+            );
             updateUnreadNotificationCount(); // funtion to update the unread notification count
             clearPagingController();
           },
-          child: BlocConsumer(
-            bloc: _feedBloc,
-            buildWhen: (prev, curr) {
-              // Prevents changin the state while paginating the feed
-              if (prev is FeedRoomLoaded && curr is PaginationLoading) {
-                return false;
-              }
-              return true;
-            },
-            listener: (context, state) => updatePagingControllers(state),
-            builder: ((context, state) {
-              if (state is FeedRoomLoaded) {
-                // Log the event in the analytics
-                LMAnalytics.get().logEvent(
-                  AnalyticsKeys.feedOpened,
-                  {
-                    "feed_type": {
-                      "feedroom": {
-                        "id": state.feedRoom.id,
-                      }
+          child: Column(
+            children: [
+              ValueListenableBuilder(
+                  valueListenable: rebuildTopicFeed,
+                  builder: (context, _, __) {
+                    return FutureBuilder<GetTopicsResponse>(
+                        future: getTopicsResponse,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            height = 0;
+                          } else if (snapshot.hasData &&
+                              snapshot.data!.success == true) {
+                            if (snapshot.data!.topics!.isNotEmpty) {
+                              height = 62;
+                            } else {
+                              height = 0;
+                            }
+                          }
+                          return AnimatedContainer(
+                            duration: const Duration(milliseconds: 400),
+                            height: height,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10.0, vertical: 10.0),
+                              child: LMTopicFeedBar(
+                                selectedTopics: selectedTopics,
+                                height: 30,
+                                showBorder: true,
+                                onClear: () {
+                                  selectedTopics.clear();
+                                  updateSelectedTopics(selectedTopics);
+                                },
+                                onIconTap: (TopicUI topic) {
+                                  selectedTopics
+                                      .removeWhere((e) => e.id == topic.id);
+                                  updateSelectedTopics(selectedTopics);
+                                },
+                                onTap: () {
+                                  locator<NavigationService>().navigateTo(
+                                    TopicSelectScreen.route,
+                                    arguments: TopicSelectScreenArguments(
+                                      selectedTopic: selectedTopics,
+                                      onSelect: (updatedTopics) {
+                                        updateSelectedTopics(updatedTopics);
+                                      },
+                                    ),
+                                  );
+                                },
+                                textStyle:
+                                    const TextStyle(color: kPrimaryColor),
+                                showDivider: false,
+                                borderColor: kPrimaryColor,
+                                borderWidth: 1,
+                                icon: const Icon(
+                                  CupertinoIcons.xmark,
+                                  size: 12,
+                                  color: kPrimaryColor,
+                                ),
+                              ),
+                            ),
+                          );
+                        });
+                  }),
+              const Divider(color: kGrey1Color, height: 0.05),
+              Expanded(
+                child: BlocConsumer(
+                  bloc: _feedBloc,
+                  buildWhen: (prev, curr) {
+                    // Prevents changin the state while paginating the feed
+                    if (prev is FeedRoomLoaded && curr is PaginationLoading) {
+                      return false;
                     }
+                    return true;
                   },
-                );
-                return FeedRoomView(
-                  isCm: isCm!,
-                  feedResponse: state.feed,
-                  feedRoomBloc: _feedBloc,
-                  feedRoom: state.feedRoom,
-                  feedRoomPagingController: _pagingController,
-                  user: user,
-                  onRefresh: refresh,
-                  onPressedBack: clearPagingController,
-                );
-              } else if (state is FeedRoomError) {
-                return FeedRoomErrorView(message: state.message);
-              } else if (state is FeedRoomEmpty) {
-                return FeedRoomView(
-                  isCm: isCm!,
-                  feedResponse: state.feed,
-                  feedRoomBloc: _feedBloc,
-                  feedRoom: state.feedRoom,
-                  feedRoomPagingController: _pagingController,
-                  user: user,
-                  onRefresh: refresh,
-                  onPressedBack: clearPagingController,
-                );
-              }
-              return const Scaffold(
-                backgroundColor: kBackgroundColor,
-                body: Center(
-                  child: Loader(),
+                  listener: (context, state) => updatePagingControllers(state),
+                  builder: ((context, state) {
+                    if (state is FeedRoomLoaded) {
+                      // Log the event in the analytics
+                      LMAnalytics.get().track(
+                        AnalyticsKeys.feedOpened,
+                        {
+                          "feed_type": {
+                            "feedroom": {
+                              "id": state.feedRoom.id,
+                            }
+                          }
+                        },
+                      );
+                      return FeedRoomView(
+                        isCm: isCm!,
+                        feedResponse: state.feed,
+                        feedRoomBloc: _feedBloc,
+                        feedRoom: state.feedRoom,
+                        feedRoomPagingController: _pagingController,
+                        user: user,
+                        onRefresh: refresh,
+                        onPressedBack: clearPagingController,
+                      );
+                    } else if (state is FeedRoomError) {
+                      return FeedRoomErrorView(message: state.message);
+                    } else if (state is FeedRoomEmpty) {
+                      return FeedRoomView(
+                        isCm: isCm!,
+                        feedResponse: state.feed,
+                        feedRoomBloc: _feedBloc,
+                        feedRoom: state.feedRoom,
+                        feedRoomPagingController: _pagingController,
+                        user: user,
+                        onRefresh: refresh,
+                        onPressedBack: clearPagingController,
+                      );
+                    }
+                    return const Scaffold(
+                      backgroundColor: kBackgroundColor,
+                      body: Center(
+                        child: Loader(),
+                      ),
+                    );
+                  }),
                 ),
-              );
-            }),
+              ),
+            ],
           ),
         ),
       ),
@@ -413,6 +513,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                   feedRoomItemList.removeLast();
                 }
                 widget.feedResponse.users.addAll(curr.userData);
+                widget.feedResponse.topics.addAll(curr.topics);
                 widget.feedRoomPagingController.itemList = feedRoomItemList;
                 postUploading.value = false;
                 rebuildPostWidget.value = !rebuildPostWidget.value;
@@ -427,6 +528,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                 if (index != -1) {
                   feedRoomItemList?[index] = item;
                 }
+                widget.feedResponse.topics.addAll(curr.topics);
                 postUploading.value = false;
                 rebuildPostWidget.value = !rebuildPostWidget.value;
               }
@@ -444,6 +546,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                   height: 60,
                   color: kWhiteColor,
                   alignment: Alignment.center,
+                  margin: const EdgeInsets.only(bottom: kPaddingLarge),
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -475,6 +578,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                   height: 60,
                   color: kWhiteColor,
                   alignment: Alignment.center,
+                  margin: const EdgeInsets.only(bottom: kPaddingLarge),
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -515,7 +619,6 @@ class _FeedRoomViewState extends State<FeedRoomView> {
               }
             },
           ),
-          kVerticalPaddingLarge,
           Expanded(
             child: ValueListenableBuilder(
               valueListenable: rebuildPostWidget,
@@ -523,86 +626,89 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                 return PagedListView<int, Post>(
                   pagingController: widget.feedRoomPagingController,
                   builderDelegate: PagedChildBuilderDelegate<Post>(
-                    noItemsFoundIndicatorBuilder: (context) => Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SvgPicture.asset(
-                            kAssetPostsIcon,
-                            color: kGrey3Color,
+                      noItemsFoundIndicatorBuilder: (context) => Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset(
+                                  kAssetPostsIcon,
+                                  color: kGrey3Color,
+                                ),
+                                const SizedBox(height: 12),
+                                const Text("No posts to show",
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                    )),
+                                const SizedBox(height: 12),
+                                const Text("Be the first one to post here",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w300,
+                                        color: kGrey2Color)),
+                                const SizedBox(height: 28),
+                                NewPostButton(
+                                  onTap: () {
+                                    if (!postUploading.value) {
+                                      locator<NavigationService>().navigateTo(
+                                        NewPostScreen.route,
+                                        arguments: NewPostScreenArguments(
+                                          feedroomId: widget.feedRoom.id,
+                                          feedRoomTitle: widget.feedRoom.title,
+                                          isCm: widget.isCm,
+                                        ),
+                                      );
+                                    } else {
+                                      toast(
+                                        'A post is already uploading.',
+                                        duration: Toast.LENGTH_LONG,
+                                      );
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
-                          const SizedBox(height: 12),
-                          const Text("No posts to show",
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              )),
-                          const SizedBox(height: 12),
-                          const Text("Be the first one to post here",
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w300,
-                                  color: kGrey2Color)),
-                          const SizedBox(height: 28),
-                          NewPostButton(
-                            onTap: () {
-                              if (!postUploading.value) {
-                                locator<NavigationService>().navigateTo(
-                                  NewPostScreen.route,
-                                  arguments: NewPostScreenArguments(
-                                    feedroomId: widget.feedRoom.id,
-                                    feedRoomTitle: widget.feedRoom.title,
-                                    isCm: widget.isCm,
-                                  ),
-                                );
-                              } else {
-                                toast(
-                                  'A post is already uploading.',
-                                  duration: Toast.LENGTH_LONG,
-                                );
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    itemBuilder: (context, item, index) {
-                      Post rebuildPostData = item;
-                      return PostWidget(
-                        postDetails: rebuildPostData,
-                        feedRoomId: widget.feedRoom.id,
-                        user: widget.feedResponse.users[item.userId]!,
-                        refresh: (bool isDeleted) async {
-                          if (!isDeleted) {
-                            final GetPostResponse updatedPostDetails =
-                                await locator<LikeMindsService>().getPost(
-                              (GetPostRequestBuilder()
-                                    ..postId(item.id)
-                                    ..page(1)
-                                    ..pageSize(10))
-                                  .build(),
-                            );
-                            item = updatedPostDetails.post!;
-                            rebuildPostData = updatedPostDetails.post!;
-                            List<Post>? feedRoomItemList =
-                                widget.feedRoomPagingController.itemList;
-                            feedRoomItemList?[index] = updatedPostDetails.post!;
-                            widget.feedRoomPagingController.itemList =
-                                feedRoomItemList;
-                            rebuildPostWidget.value = !rebuildPostWidget.value;
-                          } else {
-                            List<Post>? feedRoomItemList =
-                                widget.feedRoomPagingController.itemList;
-                            feedRoomItemList!.removeAt(index);
-                            widget.feedRoomPagingController.itemList =
-                                feedRoomItemList;
-                            rebuildPostWidget.value = !rebuildPostWidget.value;
-                          }
-                        },
-                        //onRefresh,
-                      );
-                    },
-                  ),
+                      itemBuilder: (context, item, index) {
+                        Post rebuildPostData = item;
+                        return PostWidget(
+                          postDetails: rebuildPostData,
+                          feedRoomId: widget.feedRoom.id,
+                          user: widget.feedResponse.users[item.userId]!,
+                          topics: widget.feedResponse.topics,
+                          refresh: (bool isDeleted) async {
+                            if (!isDeleted) {
+                              final GetPostResponse updatedPostDetails =
+                                  await locator<LikeMindsService>().getPost(
+                                (GetPostRequestBuilder()
+                                      ..postId(item.id)
+                                      ..page(1)
+                                      ..pageSize(10))
+                                    .build(),
+                              );
+                              item = updatedPostDetails.post!;
+                              rebuildPostData = updatedPostDetails.post!;
+                              List<Post>? feedRoomItemList =
+                                  widget.feedRoomPagingController.itemList;
+                              feedRoomItemList?[index] =
+                                  updatedPostDetails.post!;
+                              widget.feedRoomPagingController.itemList =
+                                  feedRoomItemList;
+                              rebuildPostWidget.value =
+                                  !rebuildPostWidget.value;
+                            } else {
+                              List<Post>? feedRoomItemList =
+                                  widget.feedRoomPagingController.itemList;
+                              feedRoomItemList!.removeAt(index);
+                              widget.feedRoomPagingController.itemList =
+                                  feedRoomItemList;
+                              rebuildPostWidget.value =
+                                  !rebuildPostWidget.value;
+                            }
+                          },
+                          //onRefresh,
+                        );
+                      }),
                 );
               },
             ),

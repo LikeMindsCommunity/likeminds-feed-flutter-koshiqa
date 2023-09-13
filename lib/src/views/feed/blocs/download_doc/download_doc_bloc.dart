@@ -25,7 +25,7 @@ class DownloadDocBloc extends Bloc<DownloadDocEvent, DownloadDocState> {
       try {
         var dir = await getTemporaryDirectory();
         final String savePath = '${dir.path}/$name';
-        print(dir);
+        debugPrint(dir.toString());
 
         await dioClient.download(url, savePath,
             onReceiveProgress: (rec, total) {

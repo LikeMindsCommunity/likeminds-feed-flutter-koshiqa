@@ -5,7 +5,8 @@ import 'package:equatable/equatable.dart';
 import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/services/likeminds_service.dart';
 import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_media/media_model.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:overlay_support/overlay_support.dart';
@@ -103,7 +104,8 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
           final AddPostRequest request = (AddPostRequestBuilder()
                 ..text(event.postText)
                 ..attachments(attachments)
-                ..feedroomId(event.feedRoomId))
+                ..feedroomId(event.feedRoomId)
+                ..topics(event.selectedTopics.map((e) => e.toTopic()).toList()))
               .build();
 
           final AddPostResponse response =
@@ -139,13 +141,15 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
               },
             );
             emit(NewPostUploaded(
-                postData: response.post!, userData: response.user!));
+                postData: response.post!,
+                userData: response.user!,
+                topics: response.topics ?? <String, Topic>{}));
           } else {
             emit(NewPostError(message: response.errorMessage!));
           }
         } catch (err) {
           emit(const NewPostError(message: 'An error occurred'));
-          print(err.toString());
+          debugPrint(err.toString());
         }
       }
       if (event is EditPost) {
@@ -154,11 +158,13 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
           List<Attachment>? attachments = event.attachments;
           String postText = event.postText;
 
-          var response = await locator<LikeMindsService>()
-              .editPost((EditPostRequestBuilder()
+          var response = await locator<LikeMindsService>().editPost(
+              (EditPostRequestBuilder()
                     ..attachments(attachments ?? [])
                     ..postId(event.postId)
-                    ..postText(postText))
+                    ..postText(postText)
+                    ..topics(
+                        event.selectedTopics.map((e) => e.toTopic()).toList()))
                   .build());
 
           if (response.success) {
@@ -166,6 +172,7 @@ class NewPostBloc extends Bloc<NewPostEvents, NewPostState> {
               EditPostUploaded(
                 postData: response.post!,
                 userData: response.user!,
+                topics: response.topics ?? <String, Topic>{},
               ),
             );
           } else {

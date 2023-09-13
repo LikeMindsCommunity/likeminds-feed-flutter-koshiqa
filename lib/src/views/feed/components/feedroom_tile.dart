@@ -22,49 +22,47 @@ class FeedRoomTile extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: onTap,
-            child: Container(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: item.chatroomImageUrl != null
-                            ? DecorationImage(
-                                fit: BoxFit.fill,
-                                image: NetworkImage(item.chatroomImageUrl!),
-                              )
-                            : null,
-                      ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: item.chatroomImageUrl != null
+                          ? DecorationImage(
+                              fit: BoxFit.fill,
+                              image: NetworkImage(item.chatroomImageUrl!),
+                            )
+                          : null,
                     ),
-                    const SizedBox(width: 24),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item.header,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                            ),
+                  ),
+                  const SizedBox(width: 24),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.header,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
                           ),
-                          Text(
-                            "${item.participantsCount} participants",
-                            style: const TextStyle(
-                              fontStyle: FontStyle.italic,
-                              fontSize: 14,
-                            ),
+                        ),
+                        Text(
+                          "${item.participantsCount} participants",
+                          style: const TextStyle(
+                            fontStyle: FontStyle.italic,
+                            fontSize: 14,
                           ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
               ),
             ),
           ),

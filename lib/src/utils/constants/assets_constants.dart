@@ -11,3 +11,4 @@ const String kAssetNewPostIcon = 'packages/feed_sx/assets/icons/new_post.svg';
 const String kAssetPostsIcon = 'packages/feed_sx/assets/icons/posts.svg';
 const String kAssetLikeFilledIcon =
     'packages/feed_sx/assets/icons/like_filled.svg';
+const String kAssetPencilIcon = 'packages/feed_sx/assets/icons/pencil.svg';

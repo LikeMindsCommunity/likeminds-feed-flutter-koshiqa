@@ -19,16 +19,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return OverlaySupport.global(
-      child: MaterialApp(
-        title: 'Integration App for UI + SDK package',
-        debugShowCheckedModeBanner: false,
-        scaffoldMessengerKey: rootScaffoldMessengerKey,
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        home: const CredScreen(),
+    return MaterialApp(
+      title: 'Integration App for UI + SDK package',
+      debugShowCheckedModeBanner: false,
+      scaffoldMessengerKey: rootScaffoldMessengerKey,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
       ),
+      home: const CredScreen(),
     );
   }
 }
