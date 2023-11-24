@@ -99,7 +99,7 @@ class _PostWidgetState extends State<PostWidget> {
               ),
               PostMediaFactory(
                 attachments: postDetails!.attachments,
-                postId: postDetails!.id,
+                post: postDetails!,
               ),
               showActions!
                   ? PostActions(

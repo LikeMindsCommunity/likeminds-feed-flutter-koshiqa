@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_image_shimmer.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_media/post_video.dart';
 
 import 'package:likeminds_feed/likeminds_feed.dart';
 
@@ -79,8 +78,12 @@ class _PostMediaState extends State<PostMedia> {
             } else if (e.mediaType == MediaType.video) {
               return Stack(
                 children: [
-                  PostVideo(
+                  LMVideo(
                     videoFile: e.mediaFile,
+                    // boxFit: BoxFit
+                    showControls: true,
+                    // borderRadius: 18,
+                    isMute: true,
                   ),
                   Positioned(
                     top: 5,
@@ -137,8 +140,12 @@ class _PostMediaState extends State<PostMedia> {
                     const PostShimmer(),
               );
             } else if ((e.attachmentType == 2)) {
-              return PostVideo(
-                url: e.attachmentMeta.url,
+              return LMVideo(
+                videoUrl: e.attachmentMeta.url,
+                // boxFit: BoxFit.contain,
+                showControls: true,
+                // borderRadius: 18,
+                isMute: true,
               );
             } else {
               return const SizedBox.shrink();
@@ -153,99 +160,7 @@ class _PostMediaState extends State<PostMedia> {
 
   @override
   Widget build(BuildContext context) {
-    mediaWidgets = widget.attachments == null
-        ? widget.mediaFiles!.map((e) {
-            if (e.mediaType == MediaType.image) {
-              return Stack(
-                children: [
-                  Image.file(
-                    e.mediaFile!,
-                    fit: BoxFit.contain,
-                  ),
-                  Positioned(
-                    top: 5,
-                    right: 5,
-                    child: GestureDetector(
-                        onTap: () {
-                          int fileIndex = widget.mediaFiles!.indexOf(e);
-                          if (fileIndex == widget.mediaFiles!.length - 1) {
-                            currPosition -= 1;
-                          }
-                          widget.removeAttachment!(fileIndex);
-                          setState(() {});
-                        },
-                        child: const CloseIcon()),
-                  )
-                ],
-              );
-            } else if (e.mediaType == MediaType.video) {
-              return Stack(
-                children: [
-                  PostVideo(
-                    videoFile: e.mediaFile,
-                  ),
-                  Positioned(
-                    top: 5,
-                    right: 5,
-                    child: GestureDetector(
-                      onTap: () {
-                        int fileIndex = widget.mediaFiles!.indexOf(e);
-                        if (fileIndex == widget.mediaFiles!.length - 1) {
-                          currPosition -= 1;
-                        }
-                        widget.removeAttachment!(fileIndex);
-                        setState(() {});
-                      },
-                      child: const CloseIcon(),
-                    ),
-                  )
-                ],
-              );
-            }
-            return const SizedBox.shrink();
-          }).toList()
-        : widget.attachments!.map((e) {
-            if (e.attachmentType == 1) {
-              return CachedNetworkImage(
-                imageUrl: e.attachmentMeta.url!,
-                fit: BoxFit.contain,
-                fadeInDuration: const Duration(
-                  milliseconds: 200,
-                ),
-                errorWidget: (context, url, error) {
-                  return Container(
-                    color: kBackgroundColor,
-                    child: const Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          size: 24,
-                          color: kGrey3Color,
-                        ),
-                        SizedBox(height: 24),
-                        Text(
-                          "An error occurred fetching media",
-                          style: TextStyle(
-                            fontSize: 14,
-                          ),
-                        )
-                      ],
-                    ),
-                  );
-                },
-                progressIndicatorBuilder: (context, url, progress) =>
-                    const PostShimmer(),
-              );
-            } else if ((e.attachmentType == 2)) {
-              return PostVideo(
-                url: e.attachmentMeta.url,
-              );
-            } else {
-              return const SizedBox.shrink();
-            }
-          }).toList();
+    mapMedia();
     screenSize = MediaQuery.of(context).size;
     return Container(
       padding: const EdgeInsets.only(top: kPaddingMedium),
