@@ -21,3 +21,7 @@ Fixed comment reply issue
 
 Fixed new post bloc issue
 Fixed delete post issue
+
+## 1.6.0
+
+Fixed Media handling bugs
