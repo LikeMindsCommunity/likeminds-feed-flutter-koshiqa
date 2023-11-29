@@ -1,6 +1,6 @@
 name: feed_sx
 description: Flutter sample UI package for LikeMinds Feed SDK
-version: 1.5.1
+version: 1.6.0
 publish_to: none
 
 environment:
@@ -8,7 +8,6 @@ environment:
   flutter: ">=3.7.0"
 
 dependencies:
-  chewie:
   dio: ^5.1.2
   equatable: ^2.0.5
   flutter:
@@ -58,6 +57,7 @@ dependencies:
     path: ../LikeMinds-Flutter-Feed-UI
 
   likeminds_feed: 1.6.3
+  media_kit_video: ^1.2.4
 
 dev_dependencies:
   flutter_test:

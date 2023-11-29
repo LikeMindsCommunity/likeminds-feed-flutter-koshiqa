@@ -97,8 +97,10 @@ class _NewPostScreenState extends State<NewPostScreen> {
   bool showLinkPreview =
       true; // if set to false link preview should not be displayed
   Timer? _debounce;
+  bool isVideoAttached = false;
 
   ValueNotifier<bool> rebuildTopicFeed = ValueNotifier(false);
+  ValueNotifier<bool> rebuildLinkPreview = ValueNotifier(false);
 
   @override
   void dispose() {
@@ -148,6 +150,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
         isMediaPost = false;
         showLinkPreview = true;
       }
+      isVideoAttached = false;
       setState(() {});
     }
   }
@@ -155,6 +158,11 @@ class _NewPostScreenState extends State<NewPostScreen> {
   // this function initiliases postMedia list
   // with photos/videos picked by the user
   void setPickedMediaFiles(List<MediaModel> pickedMediaFiles) {
+    if (pickedMediaFiles.isNotEmpty &&
+        pickedMediaFiles[0].mediaType == MediaType.video) {
+      isVideoAttached = true;
+    }
+    setState(() {});
     if (postMedia.isEmpty) {
       postMedia = <MediaModel>[...pickedMediaFiles];
     } else {
@@ -184,6 +192,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
       if (postMedia.isEmpty) {
         isMediaPost = false;
         showLinkPreview = true;
+        isVideoAttached = false;
       }
       setState(() {
         isUploading = false;
@@ -202,6 +211,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
       if (postMedia.isEmpty) {
         isDocumentPost = false;
         showLinkPreview = true;
+        isVideoAttached = false;
       }
       setState(() {
         isUploading = false;
@@ -260,12 +270,12 @@ class _NewPostScreenState extends State<NewPostScreen> {
           },
         );
         if (postMedia.isEmpty) {
-          setState(() {});
+          rebuildLinkPreview.value = !rebuildLinkPreview.value;
         }
       }
     } else if (link.isEmpty) {
       linkModel = null;
-      setState(() {});
+      rebuildLinkPreview.value = !rebuildLinkPreview.value;
     }
   }
 
@@ -281,7 +291,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
   @override
   Widget build(BuildContext context) {
     // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
-    screenSize = MediaQuery.of(context).size;
+    // screenSize = MediaQuery.of(context).size;
     newPostBloc = BlocProvider.of<NewPostBloc>(context);
     return WillPopScope(
       onWillPop: () {
@@ -541,7 +551,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                 kVerticalPaddingLarge,
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                  width: screenSize!.width,
+                  width: screenSize?.width,
                   child: FutureBuilder<GetTopicsResponse>(
                       future: getTopicsResponse,
                       builder: (context, snapshot) {
@@ -678,26 +688,35 @@ class _NewPostScreenState extends State<NewPostScreen> {
                             ),
                             child: Loader(),
                           ),
-                        if (postMedia.isEmpty &&
-                            linkModel != null &&
-                            showLinkPreview)
-                          Stack(
-                            children: [
-                              PostLinkView(
-                                  screenSize: screenSize, linkModel: linkModel),
-                              Positioned(
-                                top: 5,
-                                right: 5,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    showLinkPreview = false;
-                                    setState(() {});
-                                  },
-                                  child: const CloseIcon(),
-                                ),
-                              )
-                            ],
-                          ),
+                        ValueListenableBuilder(
+                            valueListenable: rebuildLinkPreview,
+                            builder: (context, value, child) {
+                              if (postMedia.isEmpty &&
+                                  linkModel != null &&
+                                  showLinkPreview) {
+                                return Stack(
+                                  children: [
+                                    PostLinkView(
+                                        screenSize: screenSize,
+                                        linkModel: linkModel),
+                                    Positioned(
+                                      top: 5,
+                                      right: 5,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          showLinkPreview = false;
+                                          rebuildLinkPreview.value =
+                                              !rebuildLinkPreview.value;
+                                        },
+                                        child: const CloseIcon(),
+                                      ),
+                                    )
+                                  ],
+                                );
+                              } else {
+                                return const SizedBox.shrink();
+                              }
+                            }),
                         if (postMedia.isNotEmpty)
                           postMedia.first.mediaType == MediaType.document
                               ? getPostDocument(screenSize!.width)
@@ -707,7 +726,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                                   ),
                                   alignment: Alignment.center,
                                   child: PostMedia(
-                                    height: screenSize!.width,
+                                    height: screenSize?.width,
                                     removeAttachment: removeAttachmenetAtIndex,
                                     //min(constraints.maxHeight, screenSize!.width),
                                     mediaFiles: postMedia,
@@ -733,7 +752,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                   ),
                   child: Column(
                     children: [
-                      isDocumentPost
+                      isDocumentPost || isVideoAttached
                           ? const SizedBox.shrink()
                           : AddAssetsButton(
                               mediaType: 1, // 1 for photos
@@ -750,7 +769,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                                 return true;
                               },
                             ),
-                      isDocumentPost
+                      isDocumentPost || isVideoAttached
                           ? const SizedBox.shrink()
                           : AddAssetsButton(
                               mediaType: 2, // 2 for videos
@@ -767,7 +786,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                                 return true;
                               },
                             ),
-                      isMediaPost
+                      isMediaPost || isVideoAttached
                           ? const SizedBox.shrink()
                           : AddAssetsButton(
                               mediaType: 3, // 2 for videos
@@ -1058,7 +1077,7 @@ class AddAssetsButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
+    // Size screenSize = MediaQuery.of(context).size;
     return GestureDetector(
       onTap: () async {
         LMAnalytics.get().track(
@@ -1091,7 +1110,7 @@ class AddAssetsButton extends StatelessWidget {
       },
       child: SizedBox(
         height: 48,
-        width: screenSize.width,
+        // width: screenSize.width,
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: 16.0,

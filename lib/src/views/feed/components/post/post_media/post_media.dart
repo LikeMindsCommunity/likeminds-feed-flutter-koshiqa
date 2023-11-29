@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 
 import 'package:feed_sx/src/utils/constants/ui_constants.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_image_shimmer.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_media/post_video.dart';
 
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 
 class PostMedia extends StatefulWidget {
   final String postId;
@@ -37,12 +37,20 @@ class _PostMediaState extends State<PostMedia> {
   CarouselController controller = CarouselController();
   ValueNotifier<bool> rebuildCurr = ValueNotifier<bool>(false);
   List<Widget> mediaWidgets = [];
+  VideoController? videoController;
   // Current index of carousel
 
   @override
   void dispose() {
     rebuildCurr.dispose();
+    videoController?.player.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    videoController?.player.pause();
   }
 
   bool checkIfMultipleAttachments() {
@@ -79,8 +87,14 @@ class _PostMediaState extends State<PostMedia> {
             } else if (e.mediaType == MediaType.video) {
               return Stack(
                 children: [
-                  PostVideo(
+                  LMVideo(
                     videoFile: e.mediaFile,
+                    isMute: true,
+                    showControls: false,
+                    autoPlay: false,
+                    initialiseVideoController: (controller) {
+                      videoController = controller;
+                    },
                   ),
                   Positioned(
                     top: 5,
@@ -137,8 +151,14 @@ class _PostMediaState extends State<PostMedia> {
                     const PostShimmer(),
               );
             } else if ((e.attachmentType == 2)) {
-              return PostVideo(
-                url: e.attachmentMeta.url,
+              return LMVideo(
+                videoUrl: e.attachmentMeta.url,
+                initialiseVideoController: (controller) {
+                  videoController = controller;
+                },
+                showControls: false,
+                autoPlay: false,
+                isMute: true,
               );
             } else {
               return const SizedBox.shrink();
@@ -148,112 +168,26 @@ class _PostMediaState extends State<PostMedia> {
 
   @override
   void initState() {
+    mapMedia();
     super.initState();
   }
 
   @override
+  void didUpdateWidget(covariant PostMedia oldWidget) {
+    mapMedia();
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    mediaWidgets = widget.attachments == null
-        ? widget.mediaFiles!.map((e) {
-            if (e.mediaType == MediaType.image) {
-              return Stack(
-                children: [
-                  Image.file(
-                    e.mediaFile!,
-                    fit: BoxFit.contain,
-                  ),
-                  Positioned(
-                    top: 5,
-                    right: 5,
-                    child: GestureDetector(
-                        onTap: () {
-                          int fileIndex = widget.mediaFiles!.indexOf(e);
-                          if (fileIndex == widget.mediaFiles!.length - 1) {
-                            currPosition -= 1;
-                          }
-                          widget.removeAttachment!(fileIndex);
-                          setState(() {});
-                        },
-                        child: const CloseIcon()),
-                  )
-                ],
-              );
-            } else if (e.mediaType == MediaType.video) {
-              return Stack(
-                children: [
-                  PostVideo(
-                    videoFile: e.mediaFile,
-                  ),
-                  Positioned(
-                    top: 5,
-                    right: 5,
-                    child: GestureDetector(
-                      onTap: () {
-                        int fileIndex = widget.mediaFiles!.indexOf(e);
-                        if (fileIndex == widget.mediaFiles!.length - 1) {
-                          currPosition -= 1;
-                        }
-                        widget.removeAttachment!(fileIndex);
-                        setState(() {});
-                      },
-                      child: const CloseIcon(),
-                    ),
-                  )
-                ],
-              );
-            }
-            return const SizedBox.shrink();
-          }).toList()
-        : widget.attachments!.map((e) {
-            if (e.attachmentType == 1) {
-              return CachedNetworkImage(
-                imageUrl: e.attachmentMeta.url!,
-                fit: BoxFit.contain,
-                fadeInDuration: const Duration(
-                  milliseconds: 200,
-                ),
-                errorWidget: (context, url, error) {
-                  return Container(
-                    color: kBackgroundColor,
-                    child: const Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          size: 24,
-                          color: kGrey3Color,
-                        ),
-                        SizedBox(height: 24),
-                        Text(
-                          "An error occurred fetching media",
-                          style: TextStyle(
-                            fontSize: 14,
-                          ),
-                        )
-                      ],
-                    ),
-                  );
-                },
-                progressIndicatorBuilder: (context, url, progress) =>
-                    const PostShimmer(),
-              );
-            } else if ((e.attachmentType == 2)) {
-              return PostVideo(
-                url: e.attachmentMeta.url,
-              );
-            } else {
-              return const SizedBox.shrink();
-            }
-          }).toList();
-    screenSize = MediaQuery.of(context).size;
+    // screenSize = MediaQuery.of(context).size;
     return Container(
       padding: const EdgeInsets.only(top: kPaddingMedium),
       child: Column(
         children: [
           SizedBox(
-            width: widget.height ?? screenSize!.width,
-            height: widget.height ?? screenSize!.width,
+            width: widget.height ?? screenSize?.width,
+            height: widget.height ?? screenSize?.width,
             child: CarouselSlider.builder(
               itemCount: mediaWidgets.length,
               itemBuilder: (context, index, index2) => mediaWidgets[index],
