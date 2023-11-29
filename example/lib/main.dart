@@ -21,11 +21,11 @@ Future<void> _handleNotification(RemoteMessage message) async {
 }
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  WidgetsFlutterBinding.ensureInitialized();
   setupNotifications();
   await UserLocalPreference.instance.initialize();
   runApp(const MyApp());

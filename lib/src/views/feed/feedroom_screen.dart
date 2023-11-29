@@ -478,6 +478,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                 List<Post>? feedRoomItemList =
                     widget.feedRoomPagingController.itemList;
                 feedRoomItemList!.removeWhere((item) => item.id == curr.postId);
+                 widget.feedRoomPagingController.refresh();
                 widget.feedRoomPagingController.itemList = feedRoomItemList;
                 rebuildPostWidget.value = !rebuildPostWidget.value;
               }

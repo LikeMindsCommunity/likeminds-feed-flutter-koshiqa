@@ -15,6 +15,7 @@ import 'package:feed_sx/src/widgets/general_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 import 'package:overlay_support/overlay_support.dart';
 
 class AllCommentsScreen extends StatefulWidget {
@@ -52,10 +53,12 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
   String? result = '';
   bool isEditing = false;
   bool isReplying = false;
-
+  bool keyBoardShown = false;
   String? selectedCommentId;
   String? selectedUsername;
   String? selectedReplyId;
+  bool right = true;
+  VideoController? controller;
 
   @override
   void dispose() {
@@ -75,6 +78,7 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
   void initState() {
     super.initState();
     updatePostDetails(context);
+    right = checkCommentRights();
     _commentController = TextEditingController();
     if (_commentController != null) {
       _commentController!.addListener(
@@ -95,8 +99,11 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
     _addCommentBloc = AddCommentBloc();
     _addCommentReplyBloc = AddCommentReplyBloc();
     _addPaginationListener();
-    if (widget.fromComment && focusNode.canRequestFocus) {
+    if (widget.fromComment &&
+        focusNode.canRequestFocus &&
+        keyBoardShown == false) {
       focusNode.requestFocus();
+      keyBoardShown = true;
     }
   }
 
@@ -248,7 +255,6 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final right = checkCommentRights();
     return WillPopScope(
       onWillPop: () {
         locator<NavigationService>().goBack(result: {'isBack': false});
@@ -652,6 +658,9 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                   child: postData == null
                                       ? const PostShimmer()
                                       : PostWidget(
+                                        initialiseVideoController: (controller) {
+                                          this.controller = controller;
+                                        },
                                           postDetails: postData!,
                                           feedRoomId: widget.feedRoomId,
                                           user: postDetailResponse.users![

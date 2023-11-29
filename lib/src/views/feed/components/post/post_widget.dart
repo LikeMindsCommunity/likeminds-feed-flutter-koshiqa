@@ -8,6 +8,7 @@ import 'package:feed_sx/src/views/feed/components/post/post_header.dart';
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_media_factory.dart';
 import 'package:flutter/material.dart';
 import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart' as ui;
+import 'package:media_kit_video/media_kit_video.dart';
 
 class PostWidget extends StatefulWidget {
   final Post postDetails;
@@ -18,6 +19,7 @@ class PostWidget extends StatefulWidget {
   final Function(bool) refresh;
   final bool isFeed;
   final bool showTopic;
+   final Function(VideoController)? initialiseVideoController;
 
   const PostWidget({
     super.key,
@@ -27,6 +29,7 @@ class PostWidget extends StatefulWidget {
     required this.user,
     required this.refresh,
     required this.topics,
+    this.initialiseVideoController,
     this.showTopic = true,
     this.isFeed = true,
   });
@@ -42,6 +45,18 @@ class _PostWidgetState extends State<PostWidget> {
   Function(bool)? refresh;
   bool? isFeed;
   List<ui.TopicUI>? postTopics;
+
+  @override
+  void initState() {
+    super.initState();
+    setPostValues();
+  }
+
+  @override
+  void didUpdateWidget(covariant PostWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    setPostValues();
+  }
 
   void setPostValues() {
     refresh = widget.refresh;
@@ -59,7 +74,7 @@ class _PostWidgetState extends State<PostWidget> {
 
   @override
   Widget build(BuildContext context) {
-    setPostValues();
+    // setPostValues();
     return GestureDetector(
       onTap: () {
         if (isFeed!) {
@@ -99,7 +114,8 @@ class _PostWidgetState extends State<PostWidget> {
               ),
               PostMediaFactory(
                 attachments: postDetails!.attachments,
-                postId: postDetails!.id,
+                post: postDetails!,
+                // initialiseVideoController: widget.initialiseVideoController,
               ),
               showActions!
                   ? PostActions(

@@ -20,7 +20,7 @@ import 'package:feed_sx/feed.dart';
 import 'package:feed_sx/src/views/feed/feedroom_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
-
+import 'package:media_kit/media_kit.dart';
 import 'src/services/likeminds_service.dart';
 export 'src/views/feed/feed_screen.dart';
 export 'src/views/likes/likes_screen.dart';
@@ -93,6 +93,7 @@ class _LMFeedState extends State<LMFeed> {
   @override
   void initState() {
     super.initState();
+    MediaKit.ensureInitialized();
     isProd = prodFlag;
     userId = widget.userId!.isEmpty
         ? isProd
@@ -187,10 +188,9 @@ class _LMFeedState extends State<LMFeed> {
                       return MaterialPageRoute(
                         builder: (context) {
                           return MediaPreviewScreen(
-                            attachments: args.attachments,
-                            postId: args.postId,
-                            mediaFile: args.mediaFile,
-                            mediaUrl: args.mediaUrl,
+                            postAttachments: args.postAttachments,
+                            post: args.post,
+                            user: args.user ?? user!,
                           );
                         },
                       );

@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
@@ -53,18 +52,14 @@ class EditPostScreenArguments {
 }
 
 class MediaPreviewArguments {
-  final String? postId;
-  final List<Attachment>? attachments;
-  final List<MediaModel>? mediaFiles;
-  final String? mediaUrl;
-  final File? mediaFile;
+  final Post post;
+  final List<Attachment> postAttachments;
+  final User? user;
 
   MediaPreviewArguments({
-    this.attachments,
-    this.mediaFiles,
-    this.postId,
-    this.mediaUrl,
-    this.mediaFile,
+    required this.post,
+    required this.postAttachments,
+    this.user,
   });
 }
 
