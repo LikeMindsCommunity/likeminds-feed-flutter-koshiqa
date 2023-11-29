@@ -9,6 +9,7 @@ import 'package:likeminds_feed/likeminds_feed.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 
 class PostMedia extends StatefulWidget {
   final String postId;
@@ -36,12 +37,20 @@ class _PostMediaState extends State<PostMedia> {
   CarouselController controller = CarouselController();
   ValueNotifier<bool> rebuildCurr = ValueNotifier<bool>(false);
   List<Widget> mediaWidgets = [];
+  VideoController? videoController;
   // Current index of carousel
 
   @override
   void dispose() {
     rebuildCurr.dispose();
+    videoController?.player.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    videoController?.player.pause();
   }
 
   bool checkIfMultipleAttachments() {
@@ -80,10 +89,12 @@ class _PostMediaState extends State<PostMedia> {
                 children: [
                   LMVideo(
                     videoFile: e.mediaFile,
-                    // boxFit: BoxFit
-                    showControls: true,
-                    // borderRadius: 18,
                     isMute: true,
+                    showControls: false,
+                    autoPlay: false,
+                    initialiseVideoController: (controller) {
+                      videoController = controller;
+                    },
                   ),
                   Positioned(
                     top: 5,
@@ -142,9 +153,11 @@ class _PostMediaState extends State<PostMedia> {
             } else if ((e.attachmentType == 2)) {
               return LMVideo(
                 videoUrl: e.attachmentMeta.url,
-                // boxFit: BoxFit.contain,
-                showControls: true,
-                // borderRadius: 18,
+                initialiseVideoController: (controller) {
+                  videoController = controller;
+                },
+                showControls: false,
+                autoPlay: false,
                 isMute: true,
               );
             } else {
@@ -155,20 +168,26 @@ class _PostMediaState extends State<PostMedia> {
 
   @override
   void initState() {
+    mapMedia();
     super.initState();
   }
 
   @override
-  Widget build(BuildContext context) {
+  void didUpdateWidget(covariant PostMedia oldWidget) {
     mapMedia();
-    screenSize = MediaQuery.of(context).size;
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // screenSize = MediaQuery.of(context).size;
     return Container(
       padding: const EdgeInsets.only(top: kPaddingMedium),
       child: Column(
         children: [
           SizedBox(
-            width: widget.height ?? screenSize!.width,
-            height: widget.height ?? screenSize!.width,
+            width: widget.height ?? screenSize?.width,
+            height: widget.height ?? screenSize?.width,
             child: CarouselSlider.builder(
               itemCount: mediaWidgets.length,
               itemBuilder: (context, index, index2) => mediaWidgets[index],

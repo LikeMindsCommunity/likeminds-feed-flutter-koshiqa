@@ -4,34 +4,48 @@ import 'package:feed_sx/src/views/feed/components/post/post_media/post_document_
 import 'package:feed_sx/src/views/feed/components/post/post_media/post_link_view.dart';
 import 'package:feed_sx/src/views/media_preview/media_preview.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 
-class PostMediaFactory extends StatelessWidget {
+class PostMediaFactory extends StatefulWidget {
   final Post post;
   final List<Attachment>? attachments;
-  VideoController? videoController;
+  final Function(VideoController)? initialiseVideoController;
 
-  PostMediaFactory({
+  const PostMediaFactory({
     super.key,
     this.attachments,
+    this.initialiseVideoController,
     required this.post,
   });
 
   @override
+  State<PostMediaFactory> createState() => _PostMediaFactoryState();
+}
+
+class _PostMediaFactoryState extends State<PostMediaFactory> {
+  VideoController? videoController;
+  @override
+  void dispose() {
+    videoController?.player.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
-    if (attachments!.isEmpty) {
+    // Size screenSize = MediaQuery.of(context).size;
+    if (widget.attachments!.isEmpty) {
       return const SizedBox.shrink();
-    } else if (attachments!.first.attachmentType == 3) {
+    } else if (widget.attachments!.first.attachmentType == 3) {
       return PostDocumentFactory(
-          attachments: attachments, width: screenSize.width);
-    } else if (attachments!.first.attachmentType == 4) {
+          attachments: widget.attachments, width: double.infinity);
+    } else if (widget.attachments!.first.attachmentType == 4) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child:
-            PostLinkView(screenSize: screenSize, attachment: attachments![0]),
+        child: PostLinkView(
+            screenSize: Size.infinite, attachment: widget.attachments![0]),
       );
     } else {
       return GestureDetector(
@@ -41,17 +55,20 @@ class PostMediaFactory extends StatelessWidget {
             context,
             MediaPreviewScreen.routeName,
             arguments: MediaPreviewArguments(
-              postAttachments: attachments!,
-              post: post,
+              postAttachments: widget.attachments!,
+              post: widget.post,
             ),
           );
           await videoController?.player.play();
         },
         child: LMPostMedia(
-          attachments: attachments!,
+          attachments: widget.attachments!,
           backgroundColor: kWhiteColor,
           initialiseVideoController: (controller) {
             videoController = controller;
+            // if (widget.initialiseVideoController != null) {
+            //   widget.initialiseVideoController!(controller);
+            // }
           },
         ),
       );
