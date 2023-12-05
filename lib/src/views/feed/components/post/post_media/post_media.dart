@@ -64,9 +64,16 @@ class _PostMediaState extends State<PostMedia> {
             if (e.mediaType == MediaType.image) {
               return Stack(
                 children: [
-                  Image.file(
-                    e.mediaFile!,
-                    fit: BoxFit.contain,
+                  Container(
+                     width: widget.height != null ? widget.height! - 32 : null,
+                      height: widget.height != null ? widget.height! - 32 : null,
+                      color:Colors.black,
+                    child: Image.file(
+                      e.mediaFile!,
+                      fit: BoxFit.contain,
+                      width: widget.height != null ? widget.height! - 32 : null,
+                      height: widget.height != null ? widget.height! - 32 : null,
+                    ),
                   ),
                   Positioned(
                     top: 5,
@@ -180,7 +187,7 @@ class _PostMediaState extends State<PostMedia> {
 
   @override
   Widget build(BuildContext context) {
-    // screenSize = MediaQuery.of(context).size;
+    screenSize = MediaQuery.of(context).size;
     return Container(
       padding: const EdgeInsets.only(top: kPaddingMedium),
       child: Column(

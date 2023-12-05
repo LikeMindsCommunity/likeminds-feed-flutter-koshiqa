@@ -35,7 +35,7 @@ class _PostMediaFactoryState extends State<PostMediaFactory> {
 
   @override
   Widget build(BuildContext context) {
-    // Size screenSize = MediaQuery.of(context).size;
+    Size screenSize = MediaQuery.of(context).size;
     if (widget.attachments!.isEmpty) {
       return const SizedBox.shrink();
     } else if (widget.attachments!.first.attachmentType == 3) {
@@ -62,13 +62,12 @@ class _PostMediaFactoryState extends State<PostMediaFactory> {
           await videoController?.player.play();
         },
         child: LMPostMedia(
+          height: screenSize.width,
+          width: screenSize.width,
+          boxFit: BoxFit.contain,
           attachments: widget.attachments!,
-          backgroundColor: kWhiteColor,
           initialiseVideoController: (controller) {
             videoController = controller;
-            // if (widget.initialiseVideoController != null) {
-            //   widget.initialiseVideoController!(controller);
-            // }
           },
         ),
       );

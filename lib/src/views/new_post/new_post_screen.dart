@@ -291,7 +291,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
   @override
   Widget build(BuildContext context) {
     // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
-    // screenSize = MediaQuery.of(context).size;
+    screenSize = MediaQuery.of(context).size;
     newPostBloc = BlocProvider.of<NewPostBloc>(context);
     return WillPopScope(
       onWillPop: () {
@@ -934,7 +934,6 @@ class AddAssetsButton extends StatelessWidget {
         MultiImageCrop.startCropping(
           context: context,
           activeColor: kWhiteColor,
-          aspectRatio: 1,
           files: list.map((e) => File(e.path)).toList(),
           callBack: (List<File> images) {
             List<MediaModel> mediaFiles = images
