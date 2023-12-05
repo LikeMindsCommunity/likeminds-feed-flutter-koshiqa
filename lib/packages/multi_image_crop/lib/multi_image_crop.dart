@@ -12,7 +12,7 @@ class MultiImageCrop {
   static startCropping(
       {required BuildContext context,
       required List<File> files,
-      required double aspectRatio,
+      double? aspectRatio,
       bool alwaysShowGrid = false,
       double? pixelRatio,
       Color? activeColor,
