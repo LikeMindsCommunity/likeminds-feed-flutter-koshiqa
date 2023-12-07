@@ -931,23 +931,31 @@ class AddAssetsButton extends StatelessWidget {
             return;
           }
         }
-        MultiImageCrop.startCropping(
-          context: context,
-          activeColor: kWhiteColor,
-          files: list.map((e) => File(e.path)).toList(),
-          callBack: (List<File> images) {
-            List<MediaModel> mediaFiles = images
+         List<MediaModel> mediaFiles = list
                 .map((e) => MediaModel(
                     mediaFile: File(e.path), mediaType: MediaType.image))
                 .toList();
             postMedia(mediaFiles);
             onUploaded(true);
-          },
-        );
+
+        // MultiImageCrop.startCropping(
+
+        //   context: context,
+        //   activeColor: kWhiteColor,
+        //   files: list.map((e) => File(e.path)).toList(),
+        //   callBack: (List<File> images) {
+        //     List<MediaModel> mediaFiles = images
+        //         .map((e) => MediaModel(
+        //             mediaFile: File(e.path), mediaType: MediaType.image))
+        //         .toList();
+        //     postMedia(mediaFiles);
+        //     onUploaded(true);
+        //   },
+        // );
       } else {
         onUploaded(false);
       }
-    } catch (e) {
+    } on Exception catch (e) {
       toast(
         'An error occurred',
         duration: Toast.LENGTH_LONG,
@@ -955,6 +963,21 @@ class AddAssetsButton extends StatelessWidget {
       onUploaded(false);
       print(e.toString());
     }
+  }
+
+  Future<Size> _calculateImageDimension(String imgPath) {
+    Completer<Size> completer = Completer();
+    Image image = Image.file(File(imgPath));
+    image.image.resolve(ImageConfiguration()).addListener(
+      ImageStreamListener(
+        (ImageInfo image, bool synchronousCall) {
+          var myImage = image.image;
+          Size size = Size(myImage.width.toDouble(), myImage.height.toDouble());
+          completer.complete(size);
+        },
+      ),
+    );
+    return completer.future;
   }
 
   void pickVideos() async {
