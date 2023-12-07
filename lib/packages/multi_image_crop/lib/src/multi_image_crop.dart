@@ -15,14 +15,14 @@ class MultiImageCropService extends StatefulWidget {
   const MultiImageCropService(
       {Key? key,
       required this.files,
-      required this.aspectRatio,
+      this.aspectRatio,
       this.activeColor,
       required this.alwaysShowGrid,
       this.pixelRatio})
       : super(key: key);
 
   final List<File> files;
-  final double aspectRatio;
+  final double? aspectRatio;
   final double? pixelRatio;
   final Color? activeColor;
   final bool alwaysShowGrid;
