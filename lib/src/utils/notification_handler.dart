@@ -1,9 +1,9 @@
-import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/navigation/arguments.dart';
-import 'package:feed_sx/src/services/service_locator.dart';
-import 'package:feed_sx/src/services/likeminds_service.dart';
-import 'package:feed_sx/src/utils/constants/ui_constants.dart';
-import 'package:feed_sx/src/views/comments/all_comments_screen.dart';
+import 'package:likeminds_feed_flutter_koshiqa/feed.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/navigation/arguments.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/services/service_locator.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/services/likeminds_service.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/constants/ui_constants.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/comments/all_comments_screen.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';

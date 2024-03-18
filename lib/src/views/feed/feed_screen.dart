@@ -1,13 +1,13 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:likeminds_feed/likeminds_feed.dart';
-import 'package:feed_sx/src/utils/simple_bloc_observer.dart';
-import 'package:feed_sx/src/views/feed/blocs/universal_feed/universal_feed_bloc.dart';
-import 'package:feed_sx/src/views/feed/components/custom_feed_app_bar.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_widget.dart';
-import 'package:feed_sx/src/widgets/loader.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/simple_bloc_observer.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/blocs/universal_feed/universal_feed_bloc.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/components/custom_feed_app_bar.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/components/post/post_widget.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/widgets/loader.dart';
 import 'package:flutter/material.dart';
-import 'package:feed_sx/src/utils/constants/ui_constants.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/constants/ui_constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 // import 'package:likeminds_feed/likeminds_feed.dart';

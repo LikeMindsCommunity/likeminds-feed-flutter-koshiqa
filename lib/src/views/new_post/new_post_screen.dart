@@ -2,26 +2,26 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:feed_sx/src/services/likeminds_service.dart';
-import 'package:feed_sx/src/utils/constants/assets_constants.dart';
-import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
-import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
-import 'package:feed_sx/src/views/topic/topic_select_screen.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/services/likeminds_service.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/constants/assets_constants.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/local_preference/user_local_preference.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/blocs/new_post/new_post_bloc.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/topic/topic_select_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_media/post_document.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_media/post_helper.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_media/post_link_view.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_media/post_media.dart';
-import 'package:feed_sx/src/widgets/close_icon.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/components/post/post_media/post_document.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/components/post/post_media/post_helper.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/components/post/post_media/post_link_view.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/components/post/post_media/post_media.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/widgets/close_icon.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
-import 'package:feed_sx/src/views/tagging/tagging_textfield_ta.dart';
-import 'package:feed_sx/src/widgets/loader.dart';
-import 'package:feed_sx/src/widgets/profile_picture.dart';
-import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/utils/constants/ui_constants.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/tagging/tagging_textfield_ta.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/widgets/loader.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/widgets/profile_picture.dart';
+import 'package:likeminds_feed_flutter_koshiqa/feed.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/constants/ui_constants.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -40,15 +40,18 @@ related to a particular media type */
 const Map<int, dynamic> assetButtonData = {
   1: {
     'title': 'Add Photo',
-    'svg_icon': 'packages/feed_sx/assets/icons/add_photo.svg',
+    'svg_icon':
+        'packages/likeminds_feed_flutter_koshiqa/assets/icons/add_photo.svg',
   },
   2: {
     'title': 'Add Video',
-    'svg_icon': 'packages/feed_sx/assets/icons/add_video.svg',
+    'svg_icon':
+        'packages/likeminds_feed_flutter_koshiqa/assets/icons/add_video.svg',
   },
   3: {
     'title': 'Attach Files',
-    'svg_icon': 'packages/feed_sx/assets/icons/add_attachment.svg',
+    'svg_icon':
+        'packages/likeminds_feed_flutter_koshiqa/assets/icons/add_attachment.svg',
   },
 };
 
@@ -931,12 +934,12 @@ class AddAssetsButton extends StatelessWidget {
             return;
           }
         }
-         List<MediaModel> mediaFiles = list
-                .map((e) => MediaModel(
-                    mediaFile: File(e.path), mediaType: MediaType.image))
-                .toList();
-            postMedia(mediaFiles);
-            onUploaded(true);
+        List<MediaModel> mediaFiles = list
+            .map((e) =>
+                MediaModel(mediaFile: File(e.path), mediaType: MediaType.image))
+            .toList();
+        postMedia(mediaFiles);
+        onUploaded(true);
 
         // MultiImageCrop.startCropping(
 

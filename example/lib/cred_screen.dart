@@ -4,7 +4,7 @@ import 'package:feed_example/likeminds_callback.dart';
 import 'package:feed_example/network_handling.dart';
 import 'package:feed_example/user_local_preference.dart';
 import 'package:flutter/material.dart';
-import 'package:feed_sx/feed.dart';
+import 'package:likeminds_feed_flutter_koshiqa/feed.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:uni_links/uni_links.dart';
 import 'main.dart';

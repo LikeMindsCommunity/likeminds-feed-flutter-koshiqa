@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:feed_sx/src/utils/credentials/credentials.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/credentials/credentials.dart';
 import 'package:path/path.dart';
 
 import 'package:simple_s3/simple_s3.dart';

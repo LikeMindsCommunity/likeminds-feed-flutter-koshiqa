@@ -1,6 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:extended_image/extended_image.dart';
-import 'package:feed_sx/src/utils/constants/ui_constants.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/constants/ui_constants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
@@ -79,10 +79,10 @@ class _MediaPreviewScreenState extends State<MediaPreviewScreen> {
             LMTextView(
               text: user.name,
               textStyle: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: kWhiteColor,
-                  ),
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: kWhiteColor,
+              ),
             ),
             ValueListenableBuilder(
               valueListenable: rebuildCurr,
@@ -91,9 +91,9 @@ class _MediaPreviewScreenState extends State<MediaPreviewScreen> {
                   text:
                       '${currPosition + 1} of ${postAttachments.length} media • $formatted',
                   textStyle: const TextStyle(
-                        fontSize: 12,
-                        color: kWhiteColor,
-                      ),
+                    fontSize: 12,
+                    color: kWhiteColor,
+                  ),
                 );
               },
             ),

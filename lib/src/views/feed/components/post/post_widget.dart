@@ -1,11 +1,11 @@
-import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_topic.dart';
+import 'package:likeminds_feed_flutter_koshiqa/feed.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/components/post/post_topic.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
-import 'package:feed_sx/src/utils/constants/ui_constants.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_actions.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_description.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_header.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_media/post_media_factory.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/constants/ui_constants.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/components/post/post_actions.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/components/post/post_description.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/components/post/post_header.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/components/post/post_media/post_media_factory.dart';
 import 'package:flutter/material.dart';
 import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart' as ui;
 import 'package:media_kit_video/media_kit_video.dart';
@@ -19,7 +19,7 @@ class PostWidget extends StatefulWidget {
   final Function(bool) refresh;
   final bool isFeed;
   final bool showTopic;
-   final Function(VideoController)? initialiseVideoController;
+  final Function(VideoController)? initialiseVideoController;
 
   const PostWidget({
     super.key,

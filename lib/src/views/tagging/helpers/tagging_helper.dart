@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
-import 'package:feed_sx/src/services/likeminds_service.dart';
-import 'package:feed_sx/src/services/service_locator.dart';
-import 'package:feed_sx/src/utils/constants/ui_constants.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/services/likeminds_service.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/services/service_locator.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/constants/ui_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 

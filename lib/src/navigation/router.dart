@@ -1,6 +1,6 @@
-import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/navigation/arguments.dart';
-import 'package:feed_sx/src/services/likeminds_service.dart';
+import 'package:likeminds_feed_flutter_koshiqa/feed.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/navigation/arguments.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/services/likeminds_service.dart';
 import 'package:flutter/material.dart';
 
 void routeNotification(String route) async {

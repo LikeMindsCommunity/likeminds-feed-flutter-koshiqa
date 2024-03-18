@@ -1,20 +1,20 @@
-import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/blocs/new_post/new_post_bloc.dart';
 
-import 'package:feed_sx/src/views/feed/feedroom_list_screen.dart';
-import 'package:feed_sx/src/views/notification/notification_screen.dart';
-import 'package:feed_sx/src/views/topic/topic_select_screen.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/feedroom_list_screen.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/notification/notification_screen.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/topic/topic_select_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'package:feed_sx/src/services/likeminds_service.dart';
-import 'package:feed_sx/src/utils/constants/assets_constants.dart';
-import 'package:feed_sx/src/views/feed/components/new_post_button.dart';
-import 'package:feed_sx/src/utils/constants/ui_constants.dart';
-import 'package:feed_sx/src/utils/simple_bloc_observer.dart';
-import 'package:feed_sx/src/views/feed/blocs/feedroom/feedroom_bloc.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_widget.dart';
-import 'package:feed_sx/src/widgets/loader.dart';
-import 'package:feed_sx/feed.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/services/likeminds_service.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/constants/assets_constants.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/components/new_post_button.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/constants/ui_constants.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/simple_bloc_observer.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/blocs/feedroom/feedroom_bloc.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/components/post/post_widget.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/widgets/loader.dart';
+import 'package:likeminds_feed_flutter_koshiqa/feed.dart';
 
 import 'package:likeminds_feed/likeminds_feed.dart';
 
@@ -478,7 +478,7 @@ class _FeedRoomViewState extends State<FeedRoomView> {
                 List<Post>? feedRoomItemList =
                     widget.feedRoomPagingController.itemList;
                 feedRoomItemList!.removeWhere((item) => item.id == curr.postId);
-                 widget.feedRoomPagingController.refresh();
+                widget.feedRoomPagingController.refresh();
                 widget.feedRoomPagingController.itemList = feedRoomItemList;
                 rebuildPostWidget.value = !rebuildPostWidget.value;
               }

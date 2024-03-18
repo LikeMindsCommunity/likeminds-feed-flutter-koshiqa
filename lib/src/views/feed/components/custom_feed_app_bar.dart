@@ -1,4 +1,4 @@
-import 'package:feed_sx/src/utils/constants/ui_constants.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/constants/ui_constants.dart';
 import 'package:flutter/material.dart';
 
 class CustomFeedAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -8,7 +8,8 @@ class CustomFeedAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       elevation: 0,
-      leading: Image.asset('packages/feed_sx/assets/images/hamburger.png'),
+      leading: Image.asset(
+          'packages/likeminds_feed_flutter_koshiqa/assets/images/hamburger.png'),
       backgroundColor: kWhiteColor,
       title: const Text(
         'SCALIX',

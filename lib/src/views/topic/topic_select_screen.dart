@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/utils/constants/ui_constants.dart';
-import 'package:feed_sx/src/views/topic/bloc/topic_bloc.dart';
-import 'package:feed_sx/src/widgets/loader.dart';
+import 'package:likeminds_feed_flutter_koshiqa/feed.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/constants/ui_constants.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/topic/bloc/topic_bloc.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/widgets/loader.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

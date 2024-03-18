@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:feed_sx/src/utils/constants/assets_constants.dart';
-import 'package:feed_sx/src/utils/constants/ui_constants.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_media/post_image_shimmer.dart';
-import 'package:feed_sx/src/widgets/close_icon.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/constants/assets_constants.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/constants/ui_constants.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/components/post/post_media/post_image_shimmer.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/widgets/close_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:path/path.dart';

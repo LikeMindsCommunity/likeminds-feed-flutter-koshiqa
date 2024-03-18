@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/services/likeminds_service.dart';
+import 'package:likeminds_feed_flutter_koshiqa/feed.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/services/likeminds_service.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 
 part 'all_comments_event.dart';

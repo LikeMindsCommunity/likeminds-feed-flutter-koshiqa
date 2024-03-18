@@ -2,22 +2,22 @@
 
 library feed;
 
-import 'package:feed_sx/src/utils/constants/ui_constants.dart';
-import 'package:feed_sx/src/utils/credentials/credentials.dart';
-import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
-import 'package:feed_sx/src/views/feed/blocs/new_post/new_post_bloc.dart';
-import 'package:feed_sx/src/views/edit_post/edit_post_screen.dart';
-import 'package:feed_sx/src/views/feed/feedroom_list_screen.dart';
-import 'package:feed_sx/src/views/media_preview/media_preview.dart';
-import 'package:feed_sx/src/views/new_post/feedroom_select.dart';
-import 'package:feed_sx/src/views/notification/notification_screen.dart';
-import 'package:feed_sx/src/views/topic/topic_select_screen.dart';
-import 'package:feed_sx/src/widgets/loader.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/constants/ui_constants.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/credentials/credentials.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/local_preference/user_local_preference.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/blocs/new_post/new_post_bloc.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/edit_post/edit_post_screen.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/feedroom_list_screen.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/media_preview/media_preview.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/new_post/feedroom_select.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/notification/notification_screen.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/topic/topic_select_screen.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/widgets/loader.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
-import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/views/feed/feedroom_screen.dart';
+import 'package:likeminds_feed_flutter_koshiqa/feed.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/feedroom_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:media_kit/media_kit.dart';

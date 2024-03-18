@@ -1,17 +1,17 @@
-import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_media/post_image_shimmer.dart';
-import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
-import 'package:feed_sx/src/views/tagging/tagging_textfield_ta.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/local_preference/user_local_preference.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/components/post/post_media/post_image_shimmer.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/tagging/helpers/tagging_helper.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/tagging/tagging_textfield_ta.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
-import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/services/likeminds_service.dart';
-import 'package:feed_sx/src/utils/constants/ui_constants.dart';
-import 'package:feed_sx/src/views/comments/blocs/add_comment/add_comment_bloc.dart';
-import 'package:feed_sx/src/views/comments/blocs/add_comment_reply/add_comment_reply_bloc.dart';
-import 'package:feed_sx/src/views/comments/blocs/all_comments/all_comments_bloc.dart';
-import 'package:feed_sx/src/views/comments/components/comment_tile.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_widget.dart';
-import 'package:feed_sx/src/widgets/general_app_bar.dart';
+import 'package:likeminds_feed_flutter_koshiqa/feed.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/services/likeminds_service.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/constants/ui_constants.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/comments/blocs/add_comment/add_comment_bloc.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/comments/blocs/add_comment_reply/add_comment_reply_bloc.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/comments/blocs/all_comments/all_comments_bloc.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/comments/components/comment_tile.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/components/post/post_widget.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/widgets/general_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -658,9 +658,10 @@ class _AllCommentsScreenState extends State<AllCommentsScreen> {
                                   child: postData == null
                                       ? const PostShimmer()
                                       : PostWidget(
-                                        initialiseVideoController: (controller) {
-                                          this.controller = controller;
-                                        },
+                                          initialiseVideoController:
+                                              (controller) {
+                                            this.controller = controller;
+                                          },
                                           postDetails: postData!,
                                           feedRoomId: widget.feedRoomId,
                                           user: postDetailResponse.users![

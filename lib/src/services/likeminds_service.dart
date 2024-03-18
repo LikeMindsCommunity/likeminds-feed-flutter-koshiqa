@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/services/media_service.dart';
-import 'package:feed_sx/src/utils/credentials/credentials.dart';
-import 'package:feed_sx/src/utils/local_preference/user_local_preference.dart';
+import 'package:likeminds_feed_flutter_koshiqa/feed.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/services/media_service.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/credentials/credentials.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/local_preference/user_local_preference.dart';
 import 'package:flutter/foundation.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
 

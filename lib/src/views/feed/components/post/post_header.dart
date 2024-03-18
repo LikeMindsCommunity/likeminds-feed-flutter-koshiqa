@@ -1,9 +1,9 @@
-import 'package:feed_sx/src/widgets/profile_picture.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/widgets/profile_picture.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
-import 'package:feed_sx/src/utils/constants/ui_constants.dart';
-import 'package:feed_sx/src/utils/utils.dart';
-import 'package:feed_sx/src/views/feed/components/dropdown_options.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/constants/ui_constants.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/utils.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/components/dropdown_options.dart';
 import 'package:flutter/material.dart';
 
 class PostHeader extends StatelessWidget {
@@ -139,7 +139,7 @@ class PostHeader extends StatelessWidget {
               children: [
                 postDetails.isPinned
                     ? SvgPicture.asset(
-                        "packages/feed_sx/assets/icons/pin.svg",
+                        "packages/likeminds_feed_flutter_koshiqa/assets/icons/pin.svg",
                         color: kGrey3Color,
                         height: 20,
                         width: 20,

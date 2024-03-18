@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:feed_sx/src/utils/constants/ui_constants.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/constants/ui_constants.dart';
 import 'package:timeago/timeago.dart';
 
 extension StringColor on String {

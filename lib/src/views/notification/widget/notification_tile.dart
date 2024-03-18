@@ -1,10 +1,10 @@
-import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/navigation/router.dart';
-import 'package:feed_sx/src/services/likeminds_service.dart';
-import 'package:feed_sx/src/utils/constants/ui_constants.dart';
-import 'package:feed_sx/src/utils/utils.dart';
-import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
-import 'package:feed_sx/src/widgets/profile_picture.dart';
+import 'package:likeminds_feed_flutter_koshiqa/feed.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/navigation/router.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/services/likeminds_service.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/constants/ui_constants.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/utils.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/tagging/helpers/tagging_helper.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/widgets/profile_picture.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
@@ -119,7 +119,8 @@ class NotificationTile extends StatelessWidget {
         getSvgURL = assetButtonData[1]['svg_icon'];
         break;
       case 3:
-        getSvgURL = 'packages/feed_sx/assets/icons/doc_pdf.svg';
+        getSvgURL =
+            'packages/likeminds_feed_flutter_koshiqa/assets/icons/doc_pdf.svg';
         break;
       default:
     }

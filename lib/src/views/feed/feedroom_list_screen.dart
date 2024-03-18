@@ -1,10 +1,10 @@
-import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/utils/constants/ui_constants.dart';
-import 'package:feed_sx/src/utils/simple_bloc_observer.dart';
-import 'package:feed_sx/src/views/feed/blocs/feedroomlist/feedroom_list_bloc.dart';
-import 'package:feed_sx/src/views/feed/components/feedroom_tile.dart';
-import 'package:feed_sx/src/views/feed/feedroom_screen.dart';
-import 'package:feed_sx/src/widgets/loader.dart';
+import 'package:likeminds_feed_flutter_koshiqa/feed.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/constants/ui_constants.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/simple_bloc_observer.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/blocs/feedroomlist/feedroom_list_bloc.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/components/feedroom_tile.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/feedroom_screen.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/widgets/loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';

@@ -2,8 +2,8 @@ library expandable_text;
 
 import 'dart:math';
 
-import 'package:feed_sx/src/utils/constants/string_constants.dart';
-import 'package:feed_sx/src/views/tagging/helpers/tagging_helper.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/constants/string_constants.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/tagging/helpers/tagging_helper.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';

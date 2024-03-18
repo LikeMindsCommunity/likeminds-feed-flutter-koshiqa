@@ -1,10 +1,10 @@
 import 'package:collection/collection.dart';
-import 'package:feed_sx/src/views/comments/blocs/add_comment_reply/add_comment_reply_bloc.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_dialog.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/comments/blocs/add_comment_reply/add_comment_reply_bloc.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/components/post/post_dialog.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:likeminds_feed/likeminds_feed.dart';
-import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/utils/constants/ui_constants.dart';
+import 'package:likeminds_feed_flutter_koshiqa/feed.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/constants/ui_constants.dart';
 import 'package:flutter/material.dart';
 
 class DropdownOptionsComments extends StatelessWidget {

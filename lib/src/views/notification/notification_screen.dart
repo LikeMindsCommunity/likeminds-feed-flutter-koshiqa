@@ -1,9 +1,9 @@
-import 'package:feed_sx/feed.dart';
-import 'package:feed_sx/src/utils/constants/ui_constants.dart';
-import 'package:feed_sx/src/utils/simple_bloc_observer.dart';
-import 'package:feed_sx/src/views/notification/bloc/notifications_bloc.dart';
-import 'package:feed_sx/src/views/notification/widget/notification_tile.dart';
-import 'package:feed_sx/src/widgets/loader.dart';
+import 'package:likeminds_feed_flutter_koshiqa/feed.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/constants/ui_constants.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/simple_bloc_observer.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/notification/bloc/notifications_bloc.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/notification/widget/notification_tile.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/widgets/loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -140,7 +140,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       Image.asset(
-                        "packages/feed_sx/assets/icons/nothing.png",
+                        "packages/likeminds_feed_flutter_koshiqa/assets/icons/nothing.png",
                         height: 100,
                         width: 100,
                       ),

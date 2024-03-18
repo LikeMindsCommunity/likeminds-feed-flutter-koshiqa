@@ -1,5 +1,5 @@
 import 'package:feed_example/user_local_preference.dart';
-import 'package:feed_sx/feed.dart';
+import 'package:likeminds_feed_flutter_koshiqa/feed.dart';
 import 'package:feed_example/cred_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';

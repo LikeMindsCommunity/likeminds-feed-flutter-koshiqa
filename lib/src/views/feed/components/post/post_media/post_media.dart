@@ -1,9 +1,9 @@
 import 'package:likeminds_feed_ui_fl/likeminds_feed_ui_fl.dart';
-import 'package:feed_sx/src/widgets/close_icon.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/widgets/close_icon.dart';
 import 'package:flutter/material.dart';
 
-import 'package:feed_sx/src/utils/constants/ui_constants.dart';
-import 'package:feed_sx/src/views/feed/components/post/post_media/post_image_shimmer.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/utils/constants/ui_constants.dart';
+import 'package:likeminds_feed_flutter_koshiqa/src/views/feed/components/post/post_media/post_image_shimmer.dart';
 
 import 'package:likeminds_feed/likeminds_feed.dart';
 
@@ -65,14 +65,15 @@ class _PostMediaState extends State<PostMedia> {
               return Stack(
                 children: [
                   Container(
-                     width: widget.height != null ? widget.height! - 32 : null,
-                      height: widget.height != null ? widget.height! - 32 : null,
-                      color:Colors.black,
+                    width: widget.height != null ? widget.height! - 32 : null,
+                    height: widget.height != null ? widget.height! - 32 : null,
+                    color: Colors.black,
                     child: Image.file(
                       e.mediaFile!,
                       fit: BoxFit.contain,
                       width: widget.height != null ? widget.height! - 32 : null,
-                      height: widget.height != null ? widget.height! - 32 : null,
+                      height:
+                          widget.height != null ? widget.height! - 32 : null,
                     ),
                   ),
                   Positioned(
