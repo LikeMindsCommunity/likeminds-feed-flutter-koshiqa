@@ -22,8 +22,6 @@ ${BUILT_PRODUCTS_DIR}/file_picker/file_picker.framework
 ${BUILT_PRODUCTS_DIR}/flutter_keyboard_visibility/flutter_keyboard_visibility.framework
 ${BUILT_PRODUCTS_DIR}/flutter_notification_channel/flutter_notification_channel.framework
 ${BUILT_PRODUCTS_DIR}/fluttertoast/fluttertoast.framework
-${BUILT_PRODUCTS_DIR}/image_crop/image_crop.framework
-${BUILT_PRODUCTS_DIR}/image_picker_ios/image_picker_ios.framework
 ${BUILT_PRODUCTS_DIR}/media_kit_libs_ios_video/media_kit_libs_ios_video.framework
 ${BUILT_PRODUCTS_DIR}/media_kit_native_event_loop/media_kit_native_event_loop.framework
 ${BUILT_PRODUCTS_DIR}/media_kit_video/media_kit_video.framework
