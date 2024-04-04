@@ -12,9 +12,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  likeminds_feed_flutter_core: 1.1.0
+  likeminds_feed_flutter_core: 1.1.5
   likeminds_feed_flutter_ui:
-  likeminds_feed:
+  likeminds_feed: 1.8.1
   likeminds_feed_flutter_koshiqa:
     path: ../
   cupertino_icons: ^1.0.2

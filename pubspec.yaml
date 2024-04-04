@@ -16,9 +16,9 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_svg:
   dotenv: ^4.2.0
-  likeminds_feed_flutter_core: 1.1.0
+  likeminds_feed_flutter_core: 1.1.5
   likeminds_feed_flutter_ui:
-  likeminds_feed: 
+  likeminds_feed: 1.8.1
   flutter_notification_channel: ^2.0.0
   firebase_core: ^2.24.0
   firebase_messaging: ^14.7.6
