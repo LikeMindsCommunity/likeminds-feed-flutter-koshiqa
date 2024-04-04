@@ -1,5 +1,5 @@
-import 'package:feed_example/user_local_preference.dart';
-import 'package:feed_sx/feed.dart';
+// import '../ios/user_local_preference.dart';
+import 'package:likeminds_feed_flutter_koshiqa/likeminds_feed_flutter_koshiqa.dart';
 import 'package:feed_example/cred_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +9,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
 bool initialURILinkHandled = false;
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
 /// First level notification handler
 /// Essential to declare it outside of any class or function as per Firebase docs
@@ -17,7 +18,8 @@ bool initialURILinkHandled = false;
 /// Make sure to call [setupNotifications] before this function
 Future<void> _handleNotification(RemoteMessage message) async {
   debugPrint("--- Notification received in LEVEL 1 ---");
-  await LMNotificationHandler.instance.handleNotification(message, true);
+  await LMNotificationHandler.instance
+      .handleNotification(message, true, rootNavigatorKey);
 }
 
 void main() async {
@@ -25,9 +27,15 @@ void main() async {
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
   ]);
   setupNotifications();
-  await UserLocalPreference.instance.initialize();
+  // await UserLocalPreference.instance.initialize();
+  await LMFeedKoshiqa.setupFeed(
+    apiKey: "YOUR-API-KEY",
+    domain: "www.koshiqa.com",
+  );
   runApp(const MyApp());
 }
 
@@ -54,13 +62,15 @@ void setupNotifications() async {
   });
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
     debugPrint("---The app is opened from a notification---");
-    await LMNotificationHandler.instance.handleNotification(message, false);
+    await LMNotificationHandler.instance
+        .handleNotification(message, false, rootNavigatorKey);
   });
   FirebaseMessaging.instance.getInitialMessage().then(
     (RemoteMessage? message) async {
       if (message != null) {
         debugPrint("---The terminated app is opened from a notification---");
-        await LMNotificationHandler.instance.handleNotification(message, false);
+        await LMNotificationHandler.instance
+            .handleNotification(message, false, rootNavigatorKey);
       }
     },
   );
