@@ -3,7 +3,7 @@ dependency_overrides:
   likeminds_feed:
     path: ../../LikeMinds-Flutter-Feed-SDK
   likeminds_feed_flutter_core:
-    version: 1.1.0
+    version: 1.1.5
     path: ../../likeminds_feed_flutter/packages/integration
   likeminds_feed_flutter_ui:
     path: ../../likeminds_feed_flutter/packages/ui

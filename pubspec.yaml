@@ -1,8 +1,8 @@
 name: likeminds_feed_flutter_koshiqa
-description: Master sample app for LikeMinds Feed SDK
+description: Library for integrating Master SDK
 publish_to: "none"
 
-version: 1.0.0+1
+version: 2.0.0
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -18,7 +18,7 @@ dependencies:
   dotenv: ^4.2.0
   likeminds_feed_flutter_core: 1.1.0
   likeminds_feed_flutter_ui:
-  likeminds_feed:
+  likeminds_feed: 
   flutter_notification_channel: ^2.0.0
   firebase_core: ^2.24.0
   firebase_messaging: ^14.7.6
