@@ -27,10 +27,15 @@ void main() async {
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
   ]);
   setupNotifications();
   // await UserLocalPreference.instance.initialize();
-  await LMFeedKoshiqa.setupFeed(apiKey: "026e98b0-881a-40b0-b6da-9eb7571da644");
+  await LMFeedKoshiqa.setupFeed(
+    apiKey: "YOUR-API-KEY",
+    domain: "www.koshiqa.com",
+  );
   runApp(const MyApp());
 }
 

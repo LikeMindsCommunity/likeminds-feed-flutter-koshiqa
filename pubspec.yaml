@@ -41,7 +41,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-  # To add assets to your package, add an assets section, like this:
-  assets:
-    - assets/
-    - assets/icons/
+  # # To add assets to your package, add an assets section, like this:
+  # assets:
+  #   - assets/
+  #   - assets/icons/

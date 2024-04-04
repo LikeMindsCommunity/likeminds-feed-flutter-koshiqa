@@ -1,13 +1,10 @@
 import 'dart:async';
 
-// import 'package:feed_example/likeminds_callback.dart';
 import 'package:feed_example/network_handling.dart';
 // import '../ios/user_local_preference.dart';
 import 'package:flutter/material.dart';
-// import 'package:likeminds_feed_flutter_koshiqa/feed.dart';
 import 'package:likeminds_feed_flutter_koshiqa/likeminds_feed_flutter_koshiqa.dart';
 import 'package:overlay_support/overlay_support.dart';
-import 'package:media_kit_video/media_kit_video.dart';
 import 'package:uni_links/uni_links.dart';
 import 'main.dart';
 
@@ -170,136 +167,140 @@ class _CredScreenState extends State<CredScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // return lmFeed;
-    // userId = UserLocalPreference.instance.fetchUserId();
-    userId = "";
-    // If the local prefs have user id stored
-    // Login using that user Id
-    // otherwise show the cred screen for login
-    if (userId != null && userId!.isNotEmpty) {
-      return lmFeed = LMFeedKoshiqa(
-        userId: userId,
-        userName: 'Test',
-        // defaultFeedroom: debug ? 83301 : 2238799,
-        // callback: LikeMindsCallback(),
-        // deepLinkCallBack: () {
-        //   debugPrint("Deep Link Callback");
-        // },
-        // apiKey: "",
-      );
-    } else {
-      return Scaffold(
-        backgroundColor: const Color.fromARGB(255, 6, 92, 193),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18.0),
-          child: Column(
-            children: [
-              const SizedBox(height: 72),
-              const Text(
-                "Koshiqa Beta\nSample App",
-                textAlign: TextAlign.center,
-                style: TextStyle(
+    return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 6, 92, 193),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 18.0),
+        child: Column(
+          children: [
+            const SizedBox(height: 72),
+            const Text(
+              "Koshiqa Beta\nSample App",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 64),
+            const Text(
+              "Enter your credentials",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+              ),
+            ),
+            const SizedBox(height: 18),
+            TextField(
+              cursorColor: Colors.white,
+              style: const TextStyle(color: Colors.white),
+              controller: _usernameController,
+              decoration: InputDecoration(
+                fillColor: Colors.white,
+                focusColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                labelText: 'Username',
+                labelStyle: const TextStyle(
                   color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 64),
-              const Text(
-                "Enter your credentials",
-                style: TextStyle(
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              cursorColor: Colors.white,
+              controller: _userIdController,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                fillColor: Colors.white,
+                focusColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                labelText: 'User ID',
+                labelStyle: const TextStyle(
                   color: Colors.white,
-                  fontSize: 12,
                 ),
               ),
-              const SizedBox(height: 18),
-              TextField(
-                cursorColor: Colors.white,
-                style: const TextStyle(color: Colors.white),
-                controller: _usernameController,
-                decoration: InputDecoration(
-                  fillColor: Colors.white,
-                  focusColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  labelText: 'Username',
-                  labelStyle: const TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                cursorColor: Colors.white,
-                controller: _userIdController,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  fillColor: Colors.white,
-                  focusColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  labelText: 'User ID',
-                  labelStyle: const TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-                onSubmitted: (value) {
-                  if (_userIdController.text.isNotEmpty) {
-                    lmFeed = LMFeedKoshiqa(
-                      userId: _userIdController.text,
-                      userName: _usernameController.text,
-                    );
-
-                    if (_userIdController.text.isNotEmpty) {}
-
-                    MaterialPageRoute route = MaterialPageRoute(
-                      builder: (context) => lmFeed!,
-                    );
-                    Navigator.of(context).pushReplacement(route);
-                  }
-                },
-              ),
-              const SizedBox(height: 36),
-              GestureDetector(
-                onTap: () {
+              onSubmitted: (value) {
+                if (_userIdController.text.isNotEmpty) {
                   lmFeed = LMFeedKoshiqa(
                     userId: _userIdController.text,
                     userName: _usernameController.text,
                   );
 
-                  if (_userIdController.text.isNotEmpty) {}
-
                   MaterialPageRoute route = MaterialPageRoute(
                     builder: (context) => lmFeed!,
                   );
                   Navigator.of(context).pushReplacement(route);
-                },
-                child: Container(
-                  width: 200,
-                  height: 42,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Center(child: Text("Submit")),
-                ),
-              ),
-              const SizedBox(height: 72),
-              const Text(
-                "If no credentials are provided, the app will run with the default credentials of Bot user in your community",
-                textAlign: TextAlign.center,
-                style: TextStyle(
+                }
+              },
+            ),
+            const SizedBox(height: 36),
+            GestureDetector(
+              onTap: () {
+                bool debug = const bool.fromEnvironment('DEBUG');
+                String uuid = _userIdController.text;
+                String userName = _usernameController.text;
+
+                if (userName.isEmpty && uuid.isEmpty) {
+                  LMFeedCore.showSnackBar(
+                    LMFeedSnackBar(
+                      content: Container(
+                        child: const LMFeedText(
+                          text: "Username cannot be empty",
+                          style: LMFeedTextStyle(
+                              textStyle: TextStyle(color: Colors.black)),
+                        ),
+                      ),
+                    ),
+                  );
+                  // //toast("Username cannot be empty");
+                  return;
+                  // uuid = "divyanshgandhi";
+                  // userName = "Divyansh";
+                  // lmFeed = const LMFeedKoshiqa(
+                  //   uuid: "divyanshgandhi",
+                  //   userName: "Divyansh",
+                  // );
+                } else {
+                  lmFeed = LMFeedKoshiqa(
+                    userId: _userIdController.text,
+                    userName: _usernameController.text,
+                    feedroomId: debug ? 83301 : 2238799,
+                  );
+                }
+
+                MaterialPageRoute route = MaterialPageRoute(
+                  builder: (context) => lmFeed!,
+                );
+                Navigator.of(context).pushReplacement(route);
+              },
+              child: Container(
+                width: 200,
+                height: 42,
+                decoration: BoxDecoration(
                   color: Colors.white,
-                  fontSize: 12,
+                  borderRadius: BorderRadius.circular(12),
                 ),
+                child: const Center(child: Text("Submit")),
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 72),
+            const Text(
+              "If no credentials are provided, the app will run with the default credentials of Bot user in your community",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+              ),
+            ),
+          ],
         ),
-      );
-    }
+      ),
+    );
   }
 }
 
@@ -313,13 +314,14 @@ void navigateToLMPostDetailsScreen(
 Either context or navigator key must be
          provided to navigate to PostDetailScreen''');
   }
-  String visiblePostId =
-      LMFeedVideoProvider.instance.currentVisiblePostId ?? postId;
+  // String visiblePostId =
+  //     LMFeedVideoProvider.instance.currentVisiblePostId ?? postId;
 
-  VideoController? videoController =
-      LMFeedVideoProvider.instance.getVideoController(visiblePostId);
+  // VideoController? videoController =
+  //     LMFeedVideoProvider.instance.getVideoController(visiblePostId);
 
-  await videoController?.player.pause();
+  // await videoController?.player.pause();
+  LMFeedVideoProvider.instance.pauseCurrentVideo();
 
   MaterialPageRoute route = MaterialPageRoute(
     builder: (context) => LMFeedPostDetailScreen(
@@ -337,5 +339,5 @@ Either context or navigator key must be
     await Navigator.of(context!, rootNavigator: true).push(route);
   }
 
-  await videoController?.player.play();
+  // await videoController?.player.play();
 }
